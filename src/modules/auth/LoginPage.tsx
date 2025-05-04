@@ -150,8 +150,7 @@ const LoginPage: React.FC = () => {
 
   return (
     <AuthContainer
-      title='KBN Admin'
-      subtitle={t('app.title')}
+      title={t('app.title', 'KBN')}
       animationKey='login'
       showAnimatedBackground={true}
       backgroundIntensity='low'
@@ -160,10 +159,10 @@ const LoginPage: React.FC = () => {
         initial="hidden" 
         animate="visible" 
         variants={containerVariants}
-        className={`max-w-md w-full mx-auto ${isMobile ? 'px-4' : ''}`}
+        className={`max-w-md w-full mx-auto `}
       >
         <motion.div variants={itemVariants}>
-          <Card className='rounded-xl shadow-card'>
+          {/* <Card className='rounded-xl shadow-card'> */}
             {error && errorVisible && errorDetails && (
               <Alert
                 message={errorDetails.message || getFirebaseErrorMessage(error, t)}
@@ -263,7 +262,7 @@ const LoginPage: React.FC = () => {
                 </p>
               </div>
             </Form>
-          </Card>
+          {/* </Card> */}
         </motion.div>
       </motion.div>
     </AuthContainer>

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Drawer, List, Typography, Tag, Button, Empty, Spin } from 'antd';
-import { BellOutlined, CheckOutlined } from '@ant-design/icons';
+import { BellOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { Notification, NotificationType } from '../../services/notificationService';
 import { formatRelativeTime } from '../../utils/dateUtils';
@@ -28,6 +28,17 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
   hasMore = false
 }) => {
   const { t } = useTranslation();
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  // Add responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Get appropriate color for notification type
   const getTagColor = (type: NotificationType): string => {
@@ -57,12 +68,22 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               {t('notifications.markAllAsRead')}
             </Button>
           )}
+          {!isMobile && <Button
+            type="text"
+            size="small"
+            icon={<CloseOutlined />}
+            aria-label={t('common.close')}
+            onClick={onClose}
+            className="ml-2"
+          />}
         </div>
       }
-      placement='right'
+      placement={isMobile ? 'left' : 'right'}
       onClose={onClose}
       open={open}
-      width={350}
+      width={isMobile ? '85%' : 350}
+      className="notification-drawer-right-close"
+      closeIcon={isMobile}
     >
       {loading && notifications.length === 0 ? (
         <div className='flex justify-center py-8'>

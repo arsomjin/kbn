@@ -80,7 +80,6 @@ const ForgotPasswordPage: React.FC = () => {
         className={`max-w-md w-full mx-auto ${isMobile ? 'px-4' : ''}`}
       >
         <motion.div variants={itemVariants}>
-          <Card className='rounded-xl shadow-card'>
             {error && (
               <Alert
                 message={t('auth.passwordResetError')}
@@ -137,7 +136,6 @@ const ForgotPasswordPage: React.FC = () => {
                 </Link>
               </div>
             </Form>
-          </Card>
         </motion.div>
       </motion.div>
     </AuthContainer>

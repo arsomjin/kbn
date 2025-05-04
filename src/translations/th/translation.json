@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "แดชบอร์ด",
+    "title": "คูโบต้า เบญจพล",
     "loading": "กำลังโหลด..."
   },
   "auth": {
@@ -127,6 +127,7 @@
     "monthsAgo_plural": "{{count}} เดือนที่แล้ว"
   },
   "dashboard": {
+    "title": "แดชบอร์ด",
     "welcome": "ยินดีต้อนรับ",
     "totalUsers": "จำนวนผู้ใช้ทั้งหมด",
     "notifications": "การแจ้งเตือน",

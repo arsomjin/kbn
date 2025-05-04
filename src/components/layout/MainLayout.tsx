@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Layout, Menu, Button, Badge, Avatar, Dropdown, Drawer, Space } from 'antd';
 import type { MenuProps } from 'antd';
@@ -11,7 +11,9 @@ import {
   SettingOutlined,
   LogoutOutlined,
   TranslationOutlined,
-  TeamOutlined
+  TeamOutlined,
+  MenuOutlined,
+  CloseOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -22,7 +24,7 @@ import { useTheme } from '../../hooks/useTheme';
 import { useNotifications } from '../../hooks/useNotifications';
 import { usePermissions } from '../../hooks/usePermissions';
 
-// Components (to be created)
+// Components
 import NotificationDrawer from '../common/NotificationDrawer';
 import ThemeSwitch from '../common/ThemeSwitch';
 import LanguageSwitcher from '../common/LanguageSwitcher';
@@ -39,6 +41,8 @@ const { Header, Sider, Content } = Layout;
 
 const MainLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user, userProfile, logout } = useAuth();
@@ -46,10 +50,42 @@ const MainLayout: React.FC = () => {
   const { notifications, unreadCount, isNotificationDrawerOpen, toggleNotificationDrawer } =
     useNotifications(userProfile);
   const { hasRole, hasPermission } = usePermissions();
-  const [avatarError, setAvatarError] = useState(false);
   const photoURL =
     user?.photoURL || (userProfile && 'photoURL' in userProfile ? (userProfile as any).photoURL : undefined);
   const location = useLocation();
+
+  // Handle responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile && drawerVisible) {
+        setDrawerVisible(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [drawerVisible]);
+
+  // Fade effect for mobile top bar
+  const [mobileHeaderFade, setMobileHeaderFade] = useState(1);
+  useEffect(() => {
+    if (!isMobile) {
+      setMobileHeaderFade(1);
+      return;
+    }
+    const handleScroll = () => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      let opacity = 1;
+      if (scrollY > 32) {
+        opacity = Math.max(0, 1 - (scrollY - 32) / 64);
+      }
+      setMobileHeaderFade(opacity);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isMobile]);
 
   // Handle language change
   const changeLanguage = (language: string) => {
@@ -116,7 +152,7 @@ const MainLayout: React.FC = () => {
 
   if (userProfile?.role === ROLES.PROVINCE_MANAGER || userProfile?.role === ROLES.GENERAL_MANAGER) {
     homeKey = 'dashboard';
-    homeLabel = t('app.title') || 'Dashboard';
+    homeLabel = t('dashboard.title') || 'Dashboard';
     homePath = '/dashboard';
   } else if (userProfile?.role === ROLES.BRANCH_MANAGER) {
     homeKey = 'branch-dashboard';
@@ -209,72 +245,184 @@ const MainLayout: React.FC = () => {
     return '';
   };
 
-  console.log('MainLayout:', {
-    user,
-    userProfile,
-    theme,
-    unreadCount,
-    isNotificationDrawerOpen,
-    notifications
-  });
-
   return (
-    <Layout className='min-h-screen'>
-      {/* Sidebar */}
-      <Sider trigger={null} collapsible collapsed={collapsed} className='bg-white dark:bg-gray-800 shadow'>
-        <div className='h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700'>
-          <h1 className='text-primary font-bold text-lg'>{collapsed ? 'KBN' : 'KBN Admin'}</h1>
-        </div>
+    <Layout className="min-h-screen">
+      {/* Desktop Sidebar - hidden on mobile */}
+      {!isMobile && (
+        <Sider 
+          trigger={null} 
+          collapsible 
+          collapsed={collapsed} 
+          className="bg-white dark:bg-gray-800 shadow hidden md:block"
+        >
+          <div className="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700">
+            <img 
+              src={require('../../assets/logo/kbn_pwa_assets/android-chrome-192x192.png')} 
+              alt="KBN Logo" 
+              style={{ height: 32, marginRight: collapsed ? 0 : 8 }} 
+            />
+            <h1 className="text-primary font-bold text-lg">{collapsed ? 'KBN' : 'KBN Platform'}</h1>
+          </div>
+          <Menu
+            theme={theme === 'dark' ? 'dark' : 'light'}
+            mode="inline"
+            selectedKeys={[getSelectedKey()]}
+            items={navItems}
+            className="mt-2"
+          />
+        </Sider>
+      )}
+
+      {/* Mobile sidebar drawer - Change placement to "right" */}
+      <Drawer
+        title={
+          <div className='flex items-center justify-between'>
+            <div className="flex items-center">
+              <img 
+                src={require('../../assets/logo/kbn_pwa_assets/android-chrome-192x192.png')} 
+                alt="KBN Logo" 
+                style={{ height: 32, marginRight: 8 }} 
+              />
+              <h1 className="text-gray-500 font-bold text-lg">{t('app.title')}</h1>
+            </div>
+           <Button
+              type="text"
+              size="small"
+              icon={<CloseOutlined />}
+              aria-label={t('common.close')}
+              onClick={() => setDrawerVisible(false)}
+              className="ml-2"
+            />
+          </div>
+        }
+        placement="right"
+        closable={!isMobile}
+        onClose={() => setDrawerVisible(false)}
+        open={drawerVisible}
+        width={320}
+        bodyStyle={{ padding: 0 }}
+        className={theme === 'dark' ? 'kbn-dark-drawer' : ''}
+        style={{
+          background: theme === 'dark' ? '#111827' : '',  // Darker background in dark mode (equivalent to gray-900)
+        }}
+      >
         <Menu
           theme={theme === 'dark' ? 'dark' : 'light'}
-          mode='inline'
+          mode="inline"
           selectedKeys={[getSelectedKey()]}
           items={navItems}
-          className='mt-2'
+          onClick={() => setDrawerVisible(false)} // Close drawer when menu item is clicked
+          style={{
+            background: theme === 'dark' ? '#111827' : '',  // Darker background in dark mode
+            borderRight: 'none'
+          }}
         />
-      </Sider>
+        <div className={`p-4 border-t ${theme === 'dark' ? 'border-gray-800 bg-gray-900' : 'border-gray-200'}`}>
+          <div className="flex items-center justify-center gap-6">
+            <ThemeSwitch />
+            <LanguageSwitcher />
+          </div>
+        </div>
+      </Drawer>
 
       {/* Main content */}
       <Layout>
-        {/* Header */}
-        <Header className='bg-white dark:bg-gray-800 p-0 flex items-center justify-between shadow'>
-          <Button
-            type='text'
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            className='h-16 w-16 text-lg'
-          />
-
-          {/* Right side controls */}
-            <Space className='mr-6' size={24}>
-                <ThemeSwitch />
-
-                {/* Notification bell */}
-                <Badge count={unreadCount} overflowCount={99}>
+        {/* Header - Redesigned for mobile UI */}
+        <Header
+          className="bg-white dark:bg-gray-800 p-0 flex items-center justify-between shadow"
+          style={isMobile ? {
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            width: '100vw',
+            zIndex: 50,
+            opacity: mobileHeaderFade,
+            transition: 'opacity 0.2s',
+            pointerEvents: mobileHeaderFade < 0.1 ? 'none' : 'auto',
+          } : {}}
+        >
+          {isMobile ? (
+            <>
+              {/* Clean mobile header with bell on left, profile in middle, burger menu on right */}
+              <div className="flex items-center ml-4">
+                {/* Notification bell on the left */}
+                <Badge count={unreadCount} overflowCount={99} size="small">
                   <Button
-                  type='text'
-                  icon={<BellOutlined />}
-                  onClick={() => toggleNotificationDrawer()}
-                  className='h-10 w-10 flex items-center justify-center text-lg'
+                    type="text"
+                    icon={<BellOutlined style={{ fontSize: 22 }} />}
+                    onClick={() => toggleNotificationDrawer()}
+                    className="flex items-center justify-center"
+                    style={{ height: 40, width: 40 }}
                   />
                 </Badge>
-
-                {/* User menu */}
+              {/* Profile avatar in center */}
                 <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
-                  <Space className='cursor-pointer' size={12}>
+                  <div className="cursor-pointer">
                     <UserAvatar
                       photoURL={photoURL}
                       displayName={userProfile?.displayName ?? user?.displayName ?? undefined}
-                      className='bg-primary'
+                      className="bg-primary ml-4"
+                      size={36}
                     />
-                    {/* {!collapsed && <span className='text-primary'>{userProfile?.displayName || t('common.user')}</span>} */}
-                  </Space>
+                  </div>
                 </Dropdown>
-            </Space>
+              </div>
+              
+              {/* Burger menu on right */}
+              <Button
+                type="text"
+                icon={<MenuOutlined style={{ fontSize: 20 }} />}
+                onClick={() => setDrawerVisible(true)}
+                className="flex items-center justify-center mr-4"
+                style={{ height: 40, width: 40 }}
+              />
+            </>
+          ) : (
+            <>
+              <div className="flex items-center">
+                <Button
+                  type="text"
+                  icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+                  onClick={() => setCollapsed(!collapsed)}
+                  className="h-16 w-16 text-lg"
+                />
+              </div>
+              
+              <div className="flex items-center mr-4">
+                <Space size={16}>
+                  <ThemeSwitch />
+                  
+                  {/* Notification bell */}
+                  <Badge count={unreadCount} overflowCount={99}>
+                    <Button
+                      type="text"
+                      icon={<BellOutlined style={{ fontSize: 18 }} />}
+                      onClick={() => toggleNotificationDrawer()}
+                      className="flex items-center justify-center"
+                      style={{ height: 40, width: 40 }}
+                    />
+                  </Badge>
+
+                  {/* User menu */}
+                  <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
+                    <div className="cursor-pointer">
+                      <UserAvatar
+                        photoURL={photoURL}
+                        displayName={userProfile?.displayName ?? user?.displayName ?? undefined}
+                        className="bg-primary"
+                        size={32}
+                      />
+                    </div>
+                  </Dropdown>
+                </Space>
+              </div>
+            </>
+          )}
         </Header>
 
         {/* Main content */}
-        <Content className='p-6 bg-background dark:bg-gray-900 min-h-[calc(100vh-64px)]'>
+        <Content className="p-3 sm:p-6 bg-background dark:bg-gray-900 min-h-[calc(100vh-64px)]" style={isMobile ? { paddingTop: 64 } : {}}>
           <Outlet />
         </Content>
       </Layout>

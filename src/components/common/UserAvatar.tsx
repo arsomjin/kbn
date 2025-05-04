@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Avatar } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 
-interface UserAvatarProps {
+export interface UserAvatarProps {
   photoURL?: string;
   displayName?: string;
   className?: string;
+  size?: number | 'large' | 'small' | 'default';
 }
 
-const UserAvatar: React.FC<UserAvatarProps> = ({ photoURL, displayName, className }) => {
+const UserAvatar: React.FC<UserAvatarProps> = ({ photoURL, displayName, className, size }) => {
   const [avatarError, setAvatarError] = useState(false);
 
   return (
@@ -26,6 +27,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({ photoURL, displayName, classNam
       icon={!photoURL || avatarError ? <UserOutlined /> : undefined}
       className={className}
       alt={displayName || 'User'}
+      size={size}
     />
   );
 };

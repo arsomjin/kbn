@@ -1,6 +1,6 @@
 {
   "app": {
-    "title": "Dashboard",
+    "title": "KBN",
     "loading": "Loading..."
   },
   "auth": {
@@ -149,6 +149,7 @@
     "monthsAgo_plural": "{{count}} months ago"
   },
   "dashboard": {
+    "title": "Dashboard",
     "welcome": "Welcome",
     "totalUsers": "Total Users",
     "notifications": "Notifications",

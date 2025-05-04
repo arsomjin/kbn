@@ -1,6 +1,6 @@
-# KBN Admin Dashboard
+# KBN Platform
 
-A modern React TypeScript admin dashboard with Firebase integration, real-time notifications, multi-language support, and advanced theming.
+A modern React TypeScript platform with Firebase integration, real-time notifications, multi-language support, and advanced theming.
 
 ## Features
 
@@ -53,8 +53,8 @@ src/
 1. Clone the repository
 
    ```bash
-   git clone https://github.com/arsomjin/react-enterprise-template.git
-   cd react-enterprise-template
+   git clone https://github.com/arsomjin/kbn.git
+   cd kbn
    ```
 
 2. Install dependencies

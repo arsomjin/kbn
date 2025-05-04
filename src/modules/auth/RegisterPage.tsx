@@ -200,7 +200,7 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <AuthContainer title={t('auth.createAccount')} subtitle={t('auth.register')} animationKey='register'>
+    <AuthContainer title={t('auth.createAccount')} animationKey='register' >
       {error && (
         <Alert
           message={t('auth.registerError')}
@@ -212,16 +212,12 @@ const RegisterPage: React.FC = () => {
           className='mb-6'
         />
       )}
-
-      <Layout className='bg-transparent'>
-        <Content>
           <motion.div initial='hidden' animate='visible' variants={containerVariants}>
             <motion.div variants={itemVariants}>
-              <Card>
-                <Title level={5} className='mb-4'>
+                <Title level={5} className='mb-4 text-center'>
                   {t('profile.selectUserType', 'Please select your user type:')}
                 </Title>
-                <div style={{ marginBottom: 8 }}>
+                <div className='mt-4' >
                   <Radio.Group
                     optionType='button'
                     style={{ width: '100%' }}
@@ -255,7 +251,6 @@ const RegisterPage: React.FC = () => {
                     </Radio>
                   </Radio.Group>
                 </div>
-              </Card>
             </motion.div>
 
             <motion.div variants={itemVariants}>
@@ -263,7 +258,6 @@ const RegisterPage: React.FC = () => {
             </motion.div>
 
             <motion.div variants={itemVariants}>
-              <Card>
                 <Form
                   form={form}
                   name='register'
@@ -487,11 +481,8 @@ const RegisterPage: React.FC = () => {
                     </p>
                   </div>
                 </Form>
-              </Card>
             </motion.div>
           </motion.div>
-        </Content>
-      </Layout>
     </AuthContainer>
   );
 };
