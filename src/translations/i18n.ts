@@ -24,7 +24,6 @@ i18n
   .init({
     resources,
     fallbackLng: 'th', // Changed default language from 'en' to 'th'
-    lng: 'th', // Explicitly set Thai as the initial language
     interpolation: {
       escapeValue: false // not needed for react as it escapes by default
     },
