@@ -1,0 +1,63 @@
+/* NotificationSettings.css */
+
+.notification-settings {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+.settings-card {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
+  border-radius: 4px;
+}
+
+.settings-card .ant-card-head {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 16px 24px;
+}
+
+.settings-card .ant-card-body {
+  padding: 24px;
+}
+
+.settings-form {
+  margin-top: 24px;
+}
+
+.settings-form .ant-form-item-label > label {
+  font-weight: 500;
+}
+
+.settings-form-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.settings-form .ant-divider-inner-text {
+  font-size: 14px;
+  color: #8c8c8c;
+}
+
+.settings-form .ant-alert {
+  margin-bottom: 24px;
+}
+
+/* Dark mode support */
+.notification-settings.dark .settings-card {
+  background-color: #1f1f1f;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.notification-settings.dark .settings-card .ant-card-head {
+  background-color: #141414;
+  border-bottom: 1px solid #303030;
+}
+
+.notification-settings.dark .ant-divider-inner-text {
+  color: #a6a6a6;
+}
+
+.notification-settings.dark .ant-form-item-label > label {
+  color: rgba(255, 255, 255, 0.85);
+}

@@ -1,0 +1,56 @@
+/* ToastNotification.css */
+
+.kbn-toast-notification {
+  border-radius: 4px;
+  padding: 8px 12px;
+  box-shadow:
+    0 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0 6px 16px 0 rgba(0, 0, 0, 0.08),
+    0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+.kbn-toast-notification .ant-notification-notice-message {
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.kbn-toast-notification .ant-notification-notice-description {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.kbn-toast-notification .ant-notification-notice-icon {
+  font-size: 24px;
+  margin-top: 4px;
+}
+
+/* Dark mode styles */
+.dark .kbn-toast-notification {
+  background-color: #1f1f1f;
+  color: rgba(255, 255, 255, 0.85);
+  border-left: 4px solid;
+}
+
+.dark .kbn-toast-notification.ant-notification-notice-success {
+  border-left-color: #52c41a;
+}
+
+.dark .kbn-toast-notification.ant-notification-notice-info {
+  border-left-color: #1890ff;
+}
+
+.dark .kbn-toast-notification.ant-notification-notice-warning {
+  border-left-color: #faad14;
+}
+
+.dark .kbn-toast-notification.ant-notification-notice-error {
+  border-left-color: #f5222d;
+}
+
+.dark .kbn-toast-notification .ant-notification-notice-message {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.dark .kbn-toast-notification .ant-notification-notice-description {
+  color: rgba(255, 255, 255, 0.65);
+}

@@ -1,0 +1,225 @@
+{
+  "collections": {
+    "changeLogs": {
+      "documentCount": 5,
+      "fields": {
+        "changes": {
+          "type": "Array"
+        },
+        "time": {
+          "type": "number"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "collectionPath": "changeLogs",
+      "sampleDocs": [
+        {
+          "changes": "Array",
+          "time": "number",
+          "version": "string"
+        },
+        {
+          "changes": "Array",
+          "time": "number",
+          "version": "string"
+        },
+        {
+          "changes": "Array",
+          "time": "number",
+          "version": "string"
+        },
+        {
+          "changes": "Array",
+          "time": "number",
+          "version": "string"
+        },
+        {
+          "changes": "Array",
+          "time": "number",
+          "version": "string"
+        }
+      ]
+    },
+    "data": {
+      "documentCount": 0,
+      "fields": {},
+      "note": "No documents found in this collection"
+    },
+    "messageTokens": {
+      "documentCount": 5,
+      "fields": {
+        "uid": {
+          "type": "string"
+        },
+        "department": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "device": {
+          "type": "Object",
+          "fields": {
+            "osVersion": {
+              "type": "string"
+            },
+            "browserVersion": {
+              "type": "string"
+            },
+            "browserName": {
+              "type": "string"
+            },
+            "isMobile": {
+              "type": "boolean"
+            },
+            "osName": {
+              "type": "string"
+            }
+          }
+        },
+        "email": {
+          "type": "string"
+        },
+        "group": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "number"
+        }
+      },
+      "collectionPath": "messageTokens",
+      "sampleDocs": [
+        {
+          "uid": "string",
+          "department": "string",
+          "branch": "string",
+          "device": "Object",
+          "email": "string",
+          "group": "string",
+          "token": "string",
+          "updatedAt": "number"
+        },
+        {
+          "department": "string",
+          "branch": "string",
+          "group": "string",
+          "token": "string"
+        },
+        {
+          "uid": "string",
+          "department": "string",
+          "branch": "string",
+          "device": "Object",
+          "email": "string",
+          "group": "string",
+          "token": "string",
+          "updatedAt": "number"
+        },
+        {
+          "uid": "string",
+          "department": "string",
+          "branch": "string",
+          "device": "Object",
+          "email": "string",
+          "group": "string",
+          "token": "string",
+          "updatedAt": "number"
+        },
+        {
+          "department": "null",
+          "branch": "null",
+          "group": "null",
+          "token": "string"
+        }
+      ]
+    },
+    "messages": {
+      "documentCount": 5,
+      "fields": {
+        "duration": {
+          "type": "string"
+        },
+        "by": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "time": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "collectionPath": "messages",
+      "sampleDocs": [
+        {
+          "duration": "string",
+          "by": "string",
+          "description": "string",
+          "time": "string",
+          "message": "string",
+          "type": "string"
+        },
+        {
+          "duration": "string",
+          "by": "string",
+          "description": "string",
+          "time": "string",
+          "message": "string",
+          "type": "string"
+        },
+        {
+          "duration": "string",
+          "by": "string",
+          "description": "string",
+          "time": "string",
+          "message": "string",
+          "type": "string"
+        },
+        {
+          "duration": "string",
+          "by": "string",
+          "description": "string",
+          "time": "string",
+          "message": "string",
+          "type": "string"
+        },
+        {
+          "duration": "string",
+          "by": "string",
+          "description": "string",
+          "time": "string",
+          "message": "string",
+          "type": "string"
+        }
+      ]
+    },
+    "reports": {
+      "documentCount": 0,
+      "fields": {},
+      "note": "No documents found in this collection"
+    },
+    "sections": {
+      "documentCount": 0,
+      "fields": {},
+      "note": "No documents found in this collection"
+    }
+  },
+  "metadata": {
+    "extractedAt": "2025-04-30T12:30:46.875Z",
+    "version": "2.0",
+    "privacyLevel": "maximum",
+    "projectId": "kubota-benjapol-test",
+    "note": "This schema contains ONLY structure information, all values are redacted"
+  }
+}

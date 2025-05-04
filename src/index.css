@@ -1,0 +1,142 @@
+@import 'antd/dist/reset.css';
+@import '../src/theme/antDesignOverrides.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply text-text font-sans;
+  }
+
+  html.dark {
+    @apply text-gray-100;
+    color-scheme: dark;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
+  }
+
+  body {
+    @apply bg-background m-0 text-text transition-colors duration-200;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .dark body {
+    @apply bg-gray-900 text-gray-100;
+  }
+
+  code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded font-medium focus:outline-none focus:ring-2 transition duration-300;
+  }
+
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark focus:ring-primary-light;
+    @apply dark:bg-primary-dark dark:hover:bg-primary dark:focus:ring-primary;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-secondary-dark focus:ring-secondary-light;
+    @apply dark:bg-secondary-dark dark:hover:bg-secondary dark:focus:ring-secondary;
+  }
+
+  .card {
+    @apply bg-white rounded-lg shadow-md p-6 transition-colors duration-200;
+    @apply dark:bg-gray-800 dark:border dark:border-gray-700;
+  }
+
+  .input {
+    @apply border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent;
+    @apply dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-primary-light;
+  }
+}
+
+/* Ant Design Integration */
+@layer utilities {
+  .font-heading {
+    font-family: 'Inter', 'ui-sans-serif', 'system-ui', sans-serif;
+    font-weight: 700;
+  }
+
+  /* Ant Design Dark Mode Overrides */
+  .dark .ant-btn {
+    @apply bg-gray-700 text-gray-100 border-gray-600;
+  }
+
+  .dark .ant-btn-primary {
+    @apply bg-primary-dark border-primary-dark text-white;
+  }
+
+  .dark .ant-input,
+  .dark .ant-select-selector,
+  .dark .ant-picker {
+    @apply bg-gray-700 border-gray-600 text-gray-100;
+  }
+
+  .dark .ant-card {
+    @apply bg-gray-800 border-gray-700 text-gray-100;
+  }
+
+  .dark .ant-layout {
+    @apply bg-gray-900;
+  }
+
+  .dark .ant-layout-sider {
+    @apply bg-gray-800;
+  }
+
+  .dark .ant-layout-header {
+    @apply bg-gray-800 border-gray-700;
+  }
+
+  .dark .ant-table {
+    @apply bg-gray-800 text-gray-100;
+  }
+
+  .dark .ant-table-thead > tr > th {
+    @apply bg-gray-700 text-gray-100 border-gray-600;
+  }
+
+  .dark .ant-table-tbody > tr > td {
+    @apply border-gray-600;
+  }
+
+  .dark .ant-table-tbody > tr:hover > td {
+    @apply bg-gray-700;
+  }
+
+  .dark .ant-select-dropdown {
+    @apply bg-gray-700 border-gray-600 text-gray-100;
+  }
+
+  .dark .ant-menu-dark,
+  .dark .ant-menu-dark .ant-menu-sub {
+    @apply bg-gray-800;
+  }
+
+  .dark .ant-menu-light {
+    @apply bg-gray-800 text-gray-100;
+  }
+
+  .dark .ant-menu-light .ant-menu-item:hover {
+    @apply bg-gray-700;
+  }
+
+  .dark .ant-menu-light .ant-menu-item-selected {
+    @apply bg-primary-dark text-white;
+  }
+}

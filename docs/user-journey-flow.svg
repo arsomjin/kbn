@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This SVG visualizes the user journey through authentication, role assignment, and privilege-based redirection in the KBN platform. -->
+<svg width="800" height="480" viewBox="0 0 800 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="480" fill="#F9FAFB"/>
+  <!-- Auth Success -->
+  <rect x="320" y="30" width="160" height="40" rx="8" fill="#2563EB"/>
+  <text x="400" y="55" text-anchor="middle" fill="#fff" font-size="18" font-family="sans-serif">Auth Success</text>
+  <!-- Role Check -->
+  <rect x="320" y="90" width="160" height="40" rx="8" fill="#1D4ED8"/>
+  <text x="400" y="115" text-anchor="middle" fill="#fff" font-size="18" font-family="sans-serif">Role Check</text>
+  <!-- Has Assigned Role? -->
+  <rect x="320" y="150" width="160" height="40" rx="8" fill="#3B82F6"/>
+  <text x="400" y="175" text-anchor="middle" fill="#fff" font-size="18" font-family="sans-serif">Has Assigned Role?</text>
+  <!-- Pending Page -->
+  <rect x="80" y="210" width="200" height="60" rx="8" fill="#F59E42"/>
+  <text x="180" y="240" text-anchor="middle" fill="#fff" font-size="16" font-family="sans-serif">Pending Page</text>
+  <text x="180" y="258" text-anchor="middle" fill="#fff" font-size="12" font-family="sans-serif">(Real-time Listener)</text>
+  <!-- Check Privilege Level -->
+  <rect x="520" y="210" width="200" height="40" rx="8" fill="#10B981"/>
+  <text x="620" y="235" text-anchor="middle" fill="#fff" font-size="16" font-family="sans-serif">Check Privilege Level</text>
+  <!-- Standard User Dashboard -->
+  <rect x="520" y="280" width="200" height="40" rx="8" fill="#6366F1"/>
+  <text x="620" y="305" text-anchor="middle" fill="#fff" font-size="16" font-family="sans-serif">Standard User Dashboard</text>
+  <!-- Privileged User Overview -->
+  <rect x="520" y="350" width="200" height="40" rx="8" fill="#A21CAF"/>
+  <text x="620" y="375" text-anchor="middle" fill="#fff" font-size="16" font-family="sans-serif">Privileged User Overview</text>
+  <!-- Arrows -->
+  <line x1="400" y1="70" x2="400" y2="90" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="400" y1="130" x2="400" y2="150" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- Has Assigned Role? Yes -->
+  <line x1="480" y1="170" x2="520" y2="230" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- Has Assigned Role? No -->
+  <line x1="320" y1="170" x2="280" y2="230" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- Pending Page to Check Privilege Level -->
+  <line x1="280" y1="240" x2="520" y2="230" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- Check Privilege Level to Standard User Dashboard -->
+  <line x1="620" y1="250" x2="620" y2="280" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow)"/>
+  <!-- Check Privilege Level to Privileged User Overview -->
+  <line x1="620" y1="250" x2="620" y2="350" stroke="#1E293B" stroke-width="2" marker-end="url(#arrow)"/>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="5" refY="5" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,5 L0,10 L3,5 Z" fill="#1E293B" />
+    </marker>
+  </defs>
+</svg>
