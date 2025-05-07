@@ -23,6 +23,11 @@ The navigation is managed using **React Router v6** and is defined in `src/navig
 │       ├── "/pending"                 # For users with PENDING role
 │       ├── "/complete-profile"        # For users with incomplete profiles
 │       ├── "/overview"                # For privileged users
+│       ├── "/province/:provinceId"    # Province-specific routes
+│       │   ├── dashboard              # Province dashboard
+│       │   ├── settings               # Province settings
+│       │   ├── reports                # Province reports
+│       │   └── [other province pages] # Other province-specific routes
 │       └── "/"                        # Main protected layout
 │           ├── index                  # Landing page (redirects by role)
 │           ├── landing                # General landing page
@@ -49,6 +54,7 @@ The application implements several protection mechanisms for routes:
 - **ProtectedRoute**: Checks authentication, profile completion, allowed roles, and minimum privilege level.
 - **Private**: Restricts access to users in a specific role category (e.g., ADMIN, PRIVILEGED, DEVELOPER).
 - **PublicOnlyRoute**: Prevents authenticated users from accessing public auth routes.
+- **ProvinceGuard**: Verifies if a user has access to the requested province, redirecting to permitted provinces if not.
 
 - **Role Hierarchy Enforcement**: Access controls respect the defined role hierarchy:
   ```
@@ -59,6 +65,7 @@ The application implements several protection mechanisms for routes:
 - **Permission Context**: Components access permission checking via the PermissionContext with utility functions:
   - `hasPermission(permissionString)` - Checks if user has a specific permission
   - `hasRole(roleString)` - Checks if user has a specific role or higher in hierarchy
+  - `hasProvinceAccess(provinceId)` - Checks if user has access to the specified province
 
 ---
 
@@ -77,6 +84,8 @@ The application implements several protection mechanisms for routes:
 | `/overview`               | Overview                 | PRIVILEGED, SUPER_ADMIN, DEVELOPER roles                      |
 | `/dashboard`              | Dashboard                | GENERAL_MANAGER, PROVINCE_MANAGER                             |
 | `/branch-dashboard`       | BranchDashboard          | BRANCH_MANAGER only                                           |
+| `/province/:provinceId`   | ProvinceLayout           | Users with access to the specified province                   |
+| `/province/:provinceId/*` | Province sub-routes      | Province-specific routes with province access check           |
 | `/profile`                | Profile                  | All authenticated users                                       |
 | `/about`                  | About                    | All authenticated users                                       |
 | `/developer`              | Developer                | DEVELOPER role only                                           |
@@ -95,10 +104,92 @@ The application implements several protection mechanisms for routes:
 - **PermissionProtectedRoute**: Protects routes based on specific permissions.
 - **ProtectedRoute**: Implements comprehensive route guarding based on authentication, profile completion, roles, and privilege levels.
 - **Private**: Component for role category-based access control.
+- **ProvinceGuard**: Component that verifies province access permissions.
 - **PublicOnlyRoute**: Prevents authenticated users from accessing public routes.
 - **MainLayout**: Main application layout for authenticated users.
+- **ProvinceLayout**: Layout for province-specific routes with province context.
 - **RoleCheck**: Determines redirection based on user's role after authentication.
 - **NotFound**: Catch-all for undefined or unauthorized routes.
+
+---
+
+## 🌐 Multi-Province Navigation
+
+The KBN platform now supports multiple provinces, with province-specific routes and access controls:
+
+### Province Route Protection
+
+All province-specific routes are protected using the ProvinceGuard component:
+
+```tsx
+<Route
+  path="/province/:provinceId/*"
+  element={
+    <RequireAuth>
+      <ProvinceGuard>
+        <ProvinceLayout>
+          <Outlet />
+        </ProvinceLayout>
+      </ProvinceGuard>
+    </RequireAuth>
+  }
+>
+  {/* Province-specific routes */}
+  <Route path="dashboard" element={<ProvinceDashboard />} />
+  <Route path="settings" element={<ProvinceSettings />} />
+  <Route path="reports" element={<ProvinceReports />} />
+  {/* Additional province routes */}
+</Route>
+```
+
+### Province Access Control
+
+Routes can be protected with province-specific permissions using:
+
+```tsx
+// Route protection with province check
+<Route
+  path="/province/:provinceId/protected-route"
+  element={
+    <PermissionProtectedRoute 
+      requiredPermission={PERMISSIONS.SOME_PERMISSION}
+      provinceCheck={(params) => hasProvinceAccess(params.provinceId)}
+    >
+      <ProtectedComponent />
+    </PermissionProtectedRoute>
+  }
+/>
+```
+
+### Province Context Provider
+
+The application provides province context throughout the app:
+
+```tsx
+<ProvinceContext.Provider
+  value={{
+    currentProvinceId,
+    setCurrentProvinceId,
+    accessibleProvinces,
+    hasProvinceAccess,
+    currentProvince
+  }}
+>
+  {children}
+</ProvinceContext.Provider>
+```
+
+### Province Selector Component
+
+The UI includes a province selector to switch between accessible provinces:
+
+```tsx
+<ProvinceSelector
+  onChange={(provinceId) => {
+    navigate(`/province/${provinceId}/dashboard`);
+  }}
+/>
+```
 
 ---
 
@@ -109,5 +200,8 @@ The application implements several protection mechanisms for routes:
 - **Permission-Based UI**: Navigation menu items and UI components conditionally render based on user permissions.
 - **Numeric Privilege Comparison**: The `getPrivilegeLevel()` utility is used to compare roles numerically for access control decisions.
 - **Legacy Auth Routes**: `/login`, `/register`, `/forgot-password` redirect to `/auth/*` equivalents.
+- **Province Access Checks**: All data requests include province filtering to ensure users only access data from provinces they have permissions for.
+- **Default Province Selection**: If a user has access to multiple provinces, the system selects their primary province by default.
+- **Province Route Parameters**: All province-specific routes include the provinceId parameter used for access control and data filtering.
 
 ---

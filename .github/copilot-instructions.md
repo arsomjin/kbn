@@ -3,11 +3,16 @@
 ## Project Overview
 KBN is a comprehensive business management platform built with React, TypeScript, and Firebase, providing features for inventory management, sales tracking, customer management, and reporting for branch-based businesses. We're migrating from a JavaScript codebase to TypeScript, and extending the platform to support multiple provinces (previously single-province only).
 
+This migration includes implementing a comprehensive Role-Based Access Control (RBAC) system that wasn't fully integrated in the original JavaScript codebase. The RBAC system will enforce hierarchical permissions across provinces, branches, and user roles, ensuring proper data access control throughout the application.
+
 ## Migration & Extension Goals
 - Convert from JavaScript to TypeScript with proper typing
 - Refactor single-province architecture to multi-province support
 - Maintain backward compatibility with existing data
-- Implement hierarchical access control across provinces
+- Fully implement the RBAC system that was only partially integrated in the JavaScript version
+- Ensure province-based access control is enforced at all application levels (routes, components, services)
+- Implement consistent permission checks for all operations using the documented RBAC patterns
+- Convert existing date/time handling libraries such as moment, dayjs, etc. to luxon
 
 ## Tech Stack
 - **Frontend**: React 18+, TypeScript, Redux for state management
@@ -16,6 +21,7 @@ KBN is a comprehensive business management platform built with React, TypeScript
 - **Styling**: CSS modules with Tailwind CSS
 - **State Management**: Redux with Redux Toolkit
 - **Build Tools**: Create React App with custom configurations
+- **Date Management**: Luxon
 
 ## Directory Structure
 - `/src`: Main application source code
