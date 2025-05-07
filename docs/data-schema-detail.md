@@ -1,3 +1,40 @@
+# Project Data Schema
+
+This document defines the data schema for all collections in the Firebase Firestore database.
+
+## Common Patterns
+
+### Standard Fields
+Most documents include these common fields:
+- `created`: Timestamp (number) when the record was created
+- `inputBy`: User ID who created the record
+- `branchCode`: Branch identifier where the record was created
+- `keywords`: Array of search keywords (lowercase)
+- `deleted`: Boolean flag for soft deletes
+- `remark`: Optional additional notes/comments
+
+### ID Conventions
+- Entity IDs follow the pattern `{entity}Id` (e.g., `customerId`, `expenseId`)
+- References to other entities use the same name (e.g., `customerId` to reference a customer)
+
+## Collections
+
+### changeLogs
+Tracks application version changes.
+
+```typescript
+interface ChangeLog {
+  version: string;
+  releaseDate: number; // Timestamp
+  changes: {
+    type: "feature" | "fix" | "improvement";
+    description: string;
+  }[];
+  created: number;
+  inputBy: string;
+}
+```
+
 # 🗄️ Firestore Data Schema – KBN
 
 This document outlines the database schema used in the KBN platform, detailing all Firestore collections, document structures, and field descriptions. This schema was automatically generated from your Firebase project 'kubota-benjapol-test' on 5/1/2025.
@@ -2254,6 +2291,7 @@ _Sample size: Up to 100 latest documents_
   depositPaymentsvalue,     // Array<Object>
   depositor      value,     // null
   downPayment    value,     // number
+  engineNo       value,     // Array<String>
   firstName      value,     // string
   firstName_lowervalue,     // string
   firstName_partialvalue,     // string
@@ -2271,6 +2309,7 @@ _Sample size: Up to 100 latest documents_
   ivAdjusted     value,     // Object
   keywords       value,     // Array<String>
   lastName       value,     // string
+  model          value,     // Array<String>
   oweKBNLeasing  value,     // number
   oweKBNLeasings value,     // Object
   payments       value,     // Array<Object>
@@ -2304,6 +2343,9 @@ _Sample size: Up to 100 latest documents_
   turnOverFixKBN value,     // null
   turnOverFixMAX value,     // null
   turnOverItems  value,     // Array (empty)
+  vehicleNo      value,     // Array<String>
+  vehicles       value,     // Array<Object>
+  village        value,     // string
 }
 ```
 

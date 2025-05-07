@@ -370,19 +370,22 @@ export const clearProfileCache = (uid?: string): void => {
  */
 export const signInWithGoogle = async (): Promise<UserCredential> => {
   try {
+    console.log('[Auth Service] Starting Google sign-in process');
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({
       // Request user to select an account
       prompt: 'select_account'
     });
     const result = await signInWithPopup(auth, provider);
+    console.log('[Auth Service] Google sign-in successful, user:', result.user.uid);
 
     // Check if this is a new user and create a profile if needed
-    await createUserProfileIfNeeded(result.user);
+    const profileCheckResult = await createUserProfileIfNeeded(result.user);
+    console.log('[Auth Service] Profile check result:', profileCheckResult ? 'Profile exists' : 'No profile found');
 
     return result;
   } catch (error: any) {
-    console.error('Error signing in with Google:', error);
+    console.error('[Auth Service] Google sign-in error:', error);
     throw new AuthError(error.message || 'Failed to sign in with Google', error.code || 'auth/google-sign-in-error');
   }
 };
@@ -396,19 +399,26 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
  */
 export const createUserProfileIfNeeded = async (user: User): Promise<UserProfile | null> => {
   if (!user.uid) {
-    console.error('Cannot check profile: User ID is missing');
+    console.error('[Auth Service] Cannot check profile: User ID is missing');
     return null;
   }
 
   try {
+    console.log('[Auth Service] Checking for existing profile for user:', user.uid);
     // Check if a profile already exists
     const existingProfile = await getUserProfile(user.uid, true); // Skip cache
+    
+    if (existingProfile) {
+      console.log('[Auth Service] Existing profile found for user:', user.uid);
+      return existingProfile;
+    }
 
-    // Just return the existing profile (or null if not found)
-    // Don't automatically create profiles anymore
-    return existingProfile;
+    console.log('[Auth Service] No profile found for user:', user.uid);
+    // No profile exists, clear any cached data
+    userProfileCache.delete(user.uid);
+    return null;
   } catch (error: any) {
-    console.error('Error checking user profile:', error);
+    console.error('[Auth Service] Error checking user profile:', error);
     return null;
   }
 };

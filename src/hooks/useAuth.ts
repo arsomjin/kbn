@@ -15,7 +15,8 @@ import {
   setHydrated,
   loginWithGoogleThunk,
   setProfileListenerActive,
-  userProfileLoaded
+  userProfileLoaded,
+  addMissingProfileUser
 } from '../store/slices/authSlice';
 import { subscribeToAuthChanges } from '../services/authService';
 import { authPersistenceReady } from '../services/firebase';
@@ -116,6 +117,10 @@ export const useAuth = () => {
                   purpose: profile.purpose,
                   displayName: profile.displayName || null
                 };
+              } else if (authUser) {
+                // No profile exists for this user, add to missing profiles
+                dispatch(addMissingProfileUser(authUser.uid));
+                dispatch(setProfileFetchStatus('succeeded'));
               }
               dispatch(userProfileLoaded(userProfile));
               dispatch(setProfileListenerActive(true));

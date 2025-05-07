@@ -13,22 +13,47 @@ import { ColumnsType } from 'antd/es/table';
 
 const { Option } = Select;
 
-// Fallback roles in case Firestore access fails
+// Fallback roles in case Firestore access fails - ordered by privilege level
 const DEFAULT_ROLES = [
   {
     value: ROLES.USER,
-    label: 'User',
-    description: 'Standard user with basic access'
+    label: 'userReview.roles.user',
+    description: 'userReview.roles.userDescription'
+  },
+  {
+    value: ROLES.BRANCH,
+    label: 'userReview.roles.branch',
+    description: 'userReview.roles.branchDescription'
+  },
+  {
+    value: ROLES.LEAD,
+    label: 'userReview.roles.lead',
+    description: 'userReview.roles.leadDescription'
+  },
+  {
+    value: ROLES.BRANCH_MANAGER,
+    label: 'userReview.roles.branchManager',
+    description: 'userReview.roles.branchManagerDescription'
+  },
+  {
+    value: ROLES.PROVINCE_MANAGER,
+    label: 'userReview.roles.provinceManager',
+    description: 'userReview.roles.provinceManagerDescription'
   },
   {
     value: ROLES.GENERAL_MANAGER,
-    label: 'Manager',
-    description: 'Manager with privileged access'
+    label: 'userReview.roles.generalManager',
+    description: 'userReview.roles.generalManagerDescription'
   },
   {
     value: ROLES.ADMIN,
-    label: 'Admin',
-    description: 'Admin with full access'
+    label: 'userReview.roles.admin',
+    description: 'userReview.roles.adminDescription'
+  },
+  {
+    value: ROLES.PRIVILEGED,
+    label: 'userReview.roles.privileged',
+    description: 'userReview.roles.privilegedDescription'
   }
 ];
 

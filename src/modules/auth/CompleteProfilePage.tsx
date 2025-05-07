@@ -39,6 +39,7 @@ import { motion } from 'framer-motion';
 import ProvinceSelector from '../../components/common/ProvinceSelector';
 import { useSelector } from 'react-redux';
 import { useAntdModal } from '../../hooks/useAntModal';
+import { createNotification, NotificationType } from '../../services/notificationService';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -100,9 +101,12 @@ const CompleteProfilePage: React.FC = () => {
     phoneNumber?: string;
   }) => {
     if (!user) {
+      console.error('[CompleteProfile] No authenticated user found');
       setError('Not authenticated');
       return;
     }
+    console.log('[CompleteProfile] Starting profile completion for user:', user.uid);
+    console.log('[CompleteProfile] User type:', userType);
     setLoading(true);
     try {
       const profileData: Partial<UserProfile> = {
@@ -113,36 +117,48 @@ const CompleteProfilePage: React.FC = () => {
         requestedType: userType // Save the type of user (employee or visitor)
       };
       if (userType === 'employee') {
+        console.log('[CompleteProfile] Adding employee-specific fields');
         profileData.branch = values.branch;
         profileData.department = values.department;
         profileData.employeeId = values.employeeId;
         profileData.province = values.province;
       } else {
+        console.log('[CompleteProfile] Adding visitor-specific fields');
         profileData.purpose = values.purpose;
         profileData.phoneNumber = values.phoneNumber;
       }
+      console.log('[CompleteProfile] Saving profile data:', profileData);
       await updateUserProfile(user.uid, profileData);
+      console.log('[CompleteProfile] Profile saved successfully');
+
+      // Send notification to admins about new pending user
+      await createNotification({
+        title: t('notifications.adminTitle', 'New user registration'),
+        description: t('notifications.adminDescription', {
+          name: `${values.firstName} ${values.lastName}`,
+          email: user.email || '',
+          type: userType
+        }),
+        type: NotificationType.INFO,
+        targetRoles: ['admin', 'super_admin', 'manager'],
+        link: '/review-users'
+      });
+
+      console.log('[CompleteProfile] Refreshing profile in Redux store');
       await dispatch(fetchUserProfile());
       refreshUserProfile();
+      console.log('[CompleteProfile] Navigating to pending page');
       navigate('/pending', { replace: true });
     } catch (err: any) {
+      console.error('[CompleteProfile] Error saving profile:', err);
       setError(getFirebaseErrorMessage(err, t));
     } finally {
       setLoading(false);
     }
   };
 
-  // Show confirmation dialog using modal.confirm
-  const onFinish = (values: {
-    firstName: string;
-    lastName: string;
-    branch?: string;
-    department?: string;
-    employeeId?: string;
-    province?: string;
-    purpose?: string;
-    phoneNumber?: string;
-  }) => {
+  const onFinish = (values: any) => {
+    console.log('[CompleteProfile] Form submitted with values:', values);
     modal.confirm({
       title: t('profile.confirmSubmitTitle', 'Confirm Profile Submission'),
       content: t('profile.confirmSubmitContent', 'Are you sure you want to submit your profile information?'),
@@ -245,11 +261,9 @@ const CompleteProfilePage: React.FC = () => {
           />
         )}
 
-        <Layout className='bg-transparent'>
           <Content>
             <motion.div initial='hidden' animate='visible' variants={containerVariants}>
               <motion.div variants={itemVariants}>
-                <Card>
                   <Title level={5} className='mb-4'>
                     {t('profile.selectUserType', 'Please select your user type:')}
                   </Title>
@@ -277,7 +291,6 @@ const CompleteProfilePage: React.FC = () => {
                       ))}
                     </Radio.Group>
                   </div>
-                </Card>
               </motion.div>
 
               <motion.div variants={itemVariants}>
@@ -285,7 +298,6 @@ const CompleteProfilePage: React.FC = () => {
               </motion.div>
 
               <motion.div variants={itemVariants}>
-                <Card>
                   <Form form={form} name='completeProfile' onFinish={onFinish} layout='vertical' requiredMark={false}>
                     <Row gutter={[16, 0]}>
                       <Col xs={24} sm={12}>
@@ -426,11 +438,9 @@ const CompleteProfilePage: React.FC = () => {
                       </Button>
                     </Form.Item>
                   </Form>
-                </Card>
               </motion.div>
             </motion.div>
           </Content>
-        </Layout>
       </AuthContainer>
     </>
   );

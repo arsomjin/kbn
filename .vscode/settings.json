@@ -17,6 +17,15 @@
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "prettier.requireConfig": true,
+  "chat.promptFiles": true,
+  "github.copilot.chat.codeGeneration.instructions": [
+    {
+      "file": "data-schema.md",
+    },
+    {
+      "file": "collection-samples.json",
+    }
+  ],
   "eslint.validate": [
     "javascript",
     "javascriptreact",

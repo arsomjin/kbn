@@ -81,10 +81,18 @@
     "confirmSubmitContent": "Are you sure you want to submit your profile information?"
   },
   "roles": {
+    "guest": "Guest",
+    "pending": "Pending Approval",
+    "user": "Standard User",
+    "branch": "Branch User",
+    "lead": "Team Lead",
+    "branch_manager": "Branch Manager",
+    "province_manager": "Province Manager",
+    "general_manager": "General Manager",
     "admin": "Administrator",
-    "manager": "Manager",
-    "staff": "Staff",
-    "user": "User"
+    "privileged": "Privileged User",
+    "super_admin": "System Administrator",
+    "developer": "Developer"
   },
   "theme": {
     "light": "Light",
@@ -198,7 +206,49 @@
       "adminRejectedTitle": "User Rejected",
       "adminRejectedDescription": "A user was rejected: {{user}}."
     },
-    "admin": "Admin"
+    "admin": "Admin",
+    "roles": {
+      "guest": {
+        "label": "Guest",
+        "description": "Unauthenticated or limited access users with minimal permissions"
+      },
+      "pending": {
+        "label": "Pending",
+        "description": "Users awaiting approval with very limited access"
+      },
+      "user": {
+        "label": "Standard User",
+        "description": "Standard authenticated users with basic permissions"
+      },
+      "branch": {
+        "label": "Branch User",
+        "description": "Branch-level users with basic permissions"
+      },
+      "lead": {
+        "label": "Team Lead",
+        "description": "Document reviewers and team leads with enhanced basic permissions"
+      },
+      "branchManager": {
+        "label": "Branch Manager",
+        "description": "Branch-level managers with intermediate permissions"
+      },
+      "provinceManager": {
+        "label": "Province Manager",
+        "description": "Province-level managers with higher intermediate permissions"
+      },
+      "generalManager": {
+        "label": "General Manager",
+        "description": "General managers with advanced permissions"
+      },
+      "admin": {
+        "label": "Administrator",
+        "description": "Administrative users with high-level privileges"
+      },
+      "privileged": {
+        "label": "Privileged",
+        "description": "Users with very high level special privileges"
+      }
+    }
   },
   "provinces": {
     "selectProvince": "Select province",

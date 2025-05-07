@@ -117,11 +117,21 @@ export const fetchUserProfile = createAsyncThunk('auth/fetchUserProfile', async 
 });
 
 // Google Sign-in thunk
-export const loginWithGoogleThunk = createAsyncThunk('auth/loginWithGoogle', async (_, { rejectWithValue }) => {
+export const loginWithGoogleThunk = createAsyncThunk('auth/loginWithGoogle', async (_, { dispatch, rejectWithValue }) => {
   try {
+    console.log('[Auth Slice] Starting Google sign-in thunk');
     const userCredential = await signInWithGoogle();
+    // After Google sign in, check for profile
+    const profile = await getCurrentUserProfile(true); // Skip cache
+    console.log('[Auth Slice] Profile check after Google sign-in:', profile ? 'Found' : 'Not found');
+    
+    if (!profile && userCredential.user) {
+      console.log('[Auth Slice] Adding user to missingProfileUsers:', userCredential.user.uid);
+      dispatch(addMissingProfileUser(userCredential.user.uid));
+    }
     return convertUserToSerializable(userCredential.user);
   } catch (error: any) {
+    console.error('[Auth Slice] Google sign-in thunk error:', error);
     return rejectWithValue(error.message || 'Failed to login with Google');
   }
 });
@@ -132,6 +142,7 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     setUser(state, action: PayloadAction<User | null>) {
+      console.log('[Auth Slice] Setting user:', action.payload?.uid || 'null');
       state.user = convertUserToSerializable(action.payload);
       state.status = 'idle';
       state.profileFetchAttempted = false;
@@ -142,6 +153,7 @@ const authSlice = createSlice({
       }
     },
     userProfileLoaded(state, action: PayloadAction<UserProfile | null>) {
+      console.log('[Auth Slice] Loading user profile:', action.payload?.uid || 'null');
       state.userProfile = action.payload;
     },
     clearError(state) {
@@ -152,6 +164,7 @@ const authSlice = createSlice({
     },
     addMissingProfileUser(state, action: PayloadAction<string>) {
       if (!state.missingProfileUsers.includes(action.payload)) {
+        console.log('[Auth Slice] Adding to missing profiles:', action.payload);
         state.missingProfileUsers.push(action.payload);
       }
     },
@@ -180,6 +193,7 @@ const authSlice = createSlice({
       state.hydrated = action.payload;
     },
     setProfileListenerActive(state, action: PayloadAction<boolean>) {
+      console.log('[Auth Slice] Profile listener active:', action.payload);
       state.profileListenerActive = action.payload;
     },
   },
@@ -250,17 +264,22 @@ const authSlice = createSlice({
 
       // Google Sign-in
       .addCase(loginWithGoogleThunk.pending, state => {
+        console.log('[Auth Slice] Google sign-in pending');
         state.status = 'loading';
         state.error = null;
         state.profileFetchAttempted = false;
+        state.profileFetchStatus = 'pending';
       })
       .addCase(loginWithGoogleThunk.fulfilled, (state, action) => {
+        console.log('[Auth Slice] Google sign-in fulfilled');
         state.status = 'succeeded';
         state.user = action.payload;
       })
       .addCase(loginWithGoogleThunk.rejected, (state, action) => {
+        console.log('[Auth Slice] Google sign-in rejected:', action.payload);
         state.status = 'failed';
         state.error = action.payload as string;
+        state.profileFetchStatus = 'failed';
       });
   }
 });

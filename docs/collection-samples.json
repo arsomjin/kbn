@@ -2555,8 +2555,8 @@
                     "item": "น้ำมันเครื่อง CF4 ขนาด 6 ลิตร * (Lot 4)",
                     "serviceCode": "1W071-99291",
                     "serviceItemType": "อะไหล่",
-                    "discount": 42,
                     "description": "",
+                    "discount": 42,
                     "discountCouponPercent": 42,
                     "_key": "",
                     "total": 42,
@@ -3772,5 +3772,164 @@
   "metadata": {
     "collectedAt": "2025-04-30T19:31:43.296Z",
     "projectId": "kubota-benjapol-test"
+  },
+  "changeLogs": [
+    {
+      "version": "1.2.0",
+      "releaseDate": 1651363200000,
+      "changes": [
+        {
+          "type": "feature",
+          "description": "Added expense tracking module"
+        },
+        {
+          "type": "fix",
+          "description": "Fixed customer form validation issues"
+        }
+      ],
+      "created": 1651363200000,
+      "inputBy": "admin123"
+    }
+  ],
+  "data": {
+    "account": {
+      "expenseCategories": [
+        {
+          "expenseCategoryId": "exp-cat-001",
+          "name": "Office Supplies",
+          "description": "General office supplies and stationery",
+          "created": 1650672000000,
+          "inputBy": "user123",
+          "branchCode": "BKK001",
+          "keywords": ["office", "supplies", "stationery"],
+          "deleted": false
+        }
+      ],
+      "expenseNames": [
+        {
+          "expenseNameId": "exp-name-001",
+          "name": "Printer Paper",
+          "expenseCategoryId": "exp-cat-001",
+          "description": "A4 printing paper",
+          "created": 1650672000000,
+          "inputBy": "user123",
+          "branchCode": "BKK001",
+          "keywords": ["printer", "paper", "a4"],
+          "deleted": false
+        }
+      ]
+    },
+    "company": {
+      "branches": [
+        {
+          "branchCode": "BKK001",
+          "name": "Bangkok Headquarters",
+          "address": {
+            "address": "123 Sukhumvit Road",
+            "province": "Bangkok",
+            "amphoe": "Watthana",
+            "tambol": "Khlong Toei Nuea",
+            "postcode": "10110"
+          },
+          "phoneNumber": "021234567",
+          "created": 1649462400000,
+          "inputBy": "admin123",
+          "keywords": ["bangkok", "headquarters", "main"],
+          "deleted": false,
+          "isHeadOffice": true
+        }
+      ],
+      "employees": [
+        {
+          "employeeId": "emp-001",
+          "prefix": "Mr.",
+          "firstName": "Somchai",
+          "lastName": "Jaidee",
+          "nickname": "Chai",
+          "phoneNumber": "0891234567",
+          "position": "Service Manager",
+          "departmentId": "dept-001",
+          "branchCode": "BKK001",
+          "created": 1649462400000,
+          "inputBy": "admin123",
+          "keywords": ["somchai", "jaidee", "chai", "service", "manager"],
+          "deleted": false,
+          "status": "active"
+        }
+      ]
+    },
+    "sales": {
+      "customers": [
+        {
+          "customerId": "cust-001",
+          "prefix": "Mr.",
+          "firstName": "Preecha",
+          "lastName": "Suksawat",
+          "phoneNumber": "0812345678",
+          "address": {
+            "address": "88/42 Happy Condo",
+            "moo": "5",
+            "village": "Greenview Village",
+            "province": "Bangkok",
+            "amphoe": "Bangna",
+            "tambol": "Bangna Nuea",
+            "postcode": "10260"
+          },
+          "branchCode": "BKK001",
+          "inputBy": "emp-001",
+          "created": 1650672000000,
+          "keywords": ["preecha", "suksawat", "bangna"],
+          "deleted": false,
+          "referrerId": "ref-001",
+          "sourceId": "source-001"
+        }
+      ]
+    }
+  },
+  "sections": {
+    "services": [
+      {
+        "serviceId": "serv-001",
+        "customerId": "cust-001", 
+        "vehicleId": "veh-001",
+        "branchCode": "BKK001",
+        "date": 1650758400000,
+        "status": "completed",
+        "services": [
+          {
+            "serviceId": "srv-type-001",
+            "name": "Oil Change",
+            "price": 1500,
+            "quantity": 1
+          },
+          {
+            "serviceId": "srv-type-002",
+            "name": "Air Filter Replacement",
+            "price": 500,
+            "quantity": 1
+          }
+        ],
+        "parts": [
+          {
+            "partId": "part-001",
+            "name": "Engine Oil 5W-30",
+            "price": 800,
+            "quantity": 4
+          },
+          {
+            "partId": "part-002",
+            "name": "Oil Filter",
+            "price": 350,
+            "quantity": 1
+          }
+        ],
+        "totalAmount": 5000,
+        "paymentMethod": "cash",
+        "inputBy": "emp-001",
+        "created": 1650758400000,
+        "keywords": ["oil change", "filter", "cust-001", "toyota"],
+        "deleted": false
+      }
+    ]
   }
 }
