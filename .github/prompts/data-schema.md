@@ -234,7 +234,7 @@ service cloud.firestore {
     
     function hasProvinceAccess(provinceId) {
       let user = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
-      return user.accessibleProvinces[provinceId] == true || user.role == "ADMIN" || user.role == "SUPER_ADMIN";
+      return user.accessibleProvinces[provinceId] == true || user.role == "GENERAL_MANAGER" || user.role == "SUPER_ADMIN";
     }
     
     // Rules that enforce province-level access

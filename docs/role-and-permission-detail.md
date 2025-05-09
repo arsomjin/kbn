@@ -25,7 +25,7 @@ The application defines a hierarchical user role system, each with increasing le
 | `PROVINCE_MANAGER` | Province-level managers | Higher Intermediate |
 | `GENERAL_MANAGER` | General managers | Advanced |
 | `ADMIN` | Administrative users with extended privileges | High |
-| `PRIVILEGED` | Users with special privileges | Very High |
+| `PRIVILEGE` | Users with special privileges | Very High |
 | `SUPER_ADMIN` | System administrators with complete access | Full |
 | `DEVELOPER` | Developers with complete system access | Full |
 
@@ -68,7 +68,7 @@ Each role is assigned a set of permissions, creating a hierarchical access model
          │
          ▼
 ┌────────────────┐
-│   PRIVILEGED   │ ─ Privileged permissions + Admin permissions
+│   PRIVILEGE   │ ─ Privileged permissions + Admin permissions
 └────────┬───────┘
          │
          ▼
@@ -181,7 +181,7 @@ The application provides custom hooks for permission management:
 const MyComponent = () => {
   const { hasRole, hasPermission } = usePermissions();
 
-  if (hasRole(ROLES.ADMIN)) {
+  if (hasRole(ROLES.PROVINCE_ADMIN)) {
     // Admin-only UI
   }
 

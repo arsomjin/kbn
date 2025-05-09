@@ -7,7 +7,16 @@ import { Spin } from 'antd';
 const PendingGuard = ({ children }: { children: React.ReactNode }) => {
   const { userProfile, isLoading, hydrated } = useAuth();
   const isProfileTransitioning = useSelector((state: any) => state.auth.isProfileTransitioning);
-  console.log('[PendingGuard] userProfile:', userProfile, 'isLoading:', isLoading, 'hydrated:', hydrated, 'isProfileTransitioning:', isProfileTransitioning);
+  console.log(
+    '[PendingGuard] userProfile:',
+    userProfile,
+    'isLoading:',
+    isLoading,
+    'hydrated:',
+    hydrated,
+    'isProfileTransitioning:',
+    isProfileTransitioning
+  );
 
   if (isLoading || isProfileTransitioning || !hydrated) {
     console.log('[PendingGuard] Loading spinner');

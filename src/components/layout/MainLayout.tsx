@@ -25,7 +25,7 @@ import { useNotifications } from '../../hooks/useNotifications';
 import { usePermissions } from '../../hooks/usePermissions';
 
 // Components
-import NotificationDrawer from '../common/NotificationDrawer';
+import NotificationCenter from '../notifications/NotificationCenter';
 import ThemeSwitch from '../common/ThemeSwitch';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import UserAvatar from '../common/UserAvatar';
@@ -47,8 +47,6 @@ const MainLayout: React.FC = () => {
   const navigate = useNavigate();
   const { user, userProfile, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
-  const { notifications, unreadCount, isNotificationDrawerOpen, toggleNotificationDrawer } =
-    useNotifications(userProfile);
   const { hasRole, hasPermission } = usePermissions();
   const photoURL =
     user?.photoURL || (userProfile && 'photoURL' in userProfile ? (userProfile as any).photoURL : undefined);
@@ -173,35 +171,38 @@ const MainLayout: React.FC = () => {
       onClick: () => navigate(homePath)
     },
     // Only add dashboard/branch-dashboard/overview if not the same as home
-    (homeKey !== 'overview' && hasRole(ROLES.PRIVILEGED)) && {
-      key: 'overview',
-      icon: <DashboardOutlined />,
-      label: t('overview.title') || 'Overview',
-      onClick: () => navigate('/overview')
-    },
-    (homeKey !== 'dashboard' && hasRole(ROLES.PROVINCE_MANAGER)) && {
-      key: 'dashboard',
-      icon: <DashboardOutlined />,
-      label: t('app.title'),
-      onClick: () => navigate('/dashboard')
-    },
-    (homeKey !== 'branch-dashboard' && hasRole(ROLES.BRANCH_MANAGER)) && {
-      key: 'branch-dashboard',
-      icon: <DashboardOutlined />,
-      label: t('branchDashboard.title') || 'Branch Dashboard',
-      onClick: () => navigate('/branch-dashboard')
-    },
-    hasRole(ROLES.ADMIN) && {
+    homeKey !== 'overview' &&
+      hasRole(ROLES.PRIVILEGE) && {
+        key: 'overview',
+        icon: <DashboardOutlined />,
+        label: t('overview.title') || 'Overview',
+        onClick: () => navigate('/overview')
+      },
+    homeKey !== 'dashboard' &&
+      hasRole(ROLES.PROVINCE_MANAGER) && {
+        key: 'dashboard',
+        icon: <DashboardOutlined />,
+        label: t('app.title'),
+        onClick: () => navigate('/dashboard')
+      },
+    homeKey !== 'branch-dashboard' &&
+      hasRole(ROLES.BRANCH_MANAGER) && {
+        key: 'branch-dashboard',
+        icon: <DashboardOutlined />,
+        label: t('branchDashboard.title') || 'Branch Dashboard',
+        onClick: () => navigate('/branch-dashboard')
+      },
+    hasRole(ROLES.PROVINCE_ADMIN) && {
       key: 'user-review',
       icon: <TeamOutlined />,
       label: t('userReview.title'),
-      onClick: () => navigate('/review-users')
+      onClick: () => navigate('/admin/review-users')
     },
-    hasRole(ROLES.ADMIN) && {
+    hasRole(ROLES.PROVINCE_ADMIN) && {
       key: 'send-notification',
       icon: <TeamOutlined />,
       label: t('sendNotification.title') || 'Send Notification',
-      onClick: () => navigate('/send-notification')
+      onClick: () => navigate('/admin/send-notification')
     },
     hasRole(ROLES.DEVELOPER) && {
       key: 'developer',
@@ -236,8 +237,8 @@ const MainLayout: React.FC = () => {
     if (location.pathname.startsWith('/overview')) return 'overview';
     if (location.pathname.startsWith('/dashboard')) return 'dashboard';
     if (location.pathname.startsWith('/branch-dashboard')) return 'branch-dashboard';
-    if (location.pathname.startsWith('/review-users')) return 'user-review';
-    if (location.pathname.startsWith('/send-notification')) return 'send-notification';
+    if (location.pathname.startsWith('/admin/review-users')) return 'user-review';
+    if (location.pathname.startsWith('/admin/send-notification')) return 'send-notification';
     if (location.pathname.startsWith('/developer')) return 'developer';
     if (location.pathname.startsWith('/admin/content')) return 'content';
     if (location.pathname.startsWith('/admin/users')) return 'user-management';
@@ -246,29 +247,29 @@ const MainLayout: React.FC = () => {
   };
 
   return (
-    <Layout className="min-h-screen">
+    <Layout className='min-h-screen'>
       {/* Desktop Sidebar - hidden on mobile */}
       {!isMobile && (
-        <Sider 
-          trigger={null} 
-          collapsible 
-          collapsed={collapsed} 
-          className="bg-white dark:bg-gray-800 shadow hidden md:block"
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
+          className='bg-white dark:bg-gray-800 shadow hidden md:block'
         >
-          <div className="h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700">
-            <img 
-              src={require('../../assets/logo/kbn_pwa_assets/android-chrome-192x192.png')} 
-              alt="KBN Logo" 
-              style={{ height: 32, marginRight: collapsed ? 0 : 8 }} 
+          <div className='h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700'>
+            <img
+              src={require('../../assets/logo/kbn_pwa_assets/android-chrome-192x192.png')}
+              alt='KBN Logo'
+              style={{ height: 32, marginRight: collapsed ? 0 : 8 }}
             />
-            <h1 className="text-primary font-bold text-lg">{collapsed ? 'KBN' : 'KBN Platform'}</h1>
+            <h1 className='text-primary font-bold text-lg'>{collapsed ? 'KBN' : 'KBN Platform'}</h1>
           </div>
           <Menu
             theme={theme === 'dark' ? 'dark' : 'light'}
-            mode="inline"
+            mode='inline'
             selectedKeys={[getSelectedKey()]}
             items={navItems}
-            className="mt-2"
+            className='mt-2'
           />
         </Sider>
       )}
@@ -277,25 +278,25 @@ const MainLayout: React.FC = () => {
       <Drawer
         title={
           <div className='flex items-center justify-between'>
-            <div className="flex items-center">
-              <img 
-                src={require('../../assets/logo/kbn_pwa_assets/android-chrome-192x192.png')} 
-                alt="KBN Logo" 
-                style={{ height: 32, marginRight: 8 }} 
+            <div className='flex items-center'>
+              <img
+                src={require('../../assets/logo/kbn_pwa_assets/android-chrome-192x192.png')}
+                alt='KBN Logo'
+                style={{ height: 32, marginRight: 8 }}
               />
-              <h1 className="text-gray-500 font-bold text-lg">{t('app.title')}</h1>
+              <h1 className='text-gray-500 font-bold text-lg'>{t('app.title')}</h1>
             </div>
-           <Button
-              type="text"
-              size="small"
+            <Button
+              type='text'
+              size='small'
               icon={<CloseOutlined />}
               aria-label={t('common.close')}
               onClick={() => setDrawerVisible(false)}
-              className="ml-2"
+              className='ml-2'
             />
           </div>
         }
-        placement="right"
+        placement='right'
         closable={!isMobile}
         onClose={() => setDrawerVisible(false)}
         open={drawerVisible}
@@ -303,22 +304,22 @@ const MainLayout: React.FC = () => {
         bodyStyle={{ padding: 0 }}
         className={theme === 'dark' ? 'kbn-dark-drawer' : ''}
         style={{
-          background: theme === 'dark' ? '#111827' : '',  // Darker background in dark mode (equivalent to gray-900)
+          background: theme === 'dark' ? '#111827' : '' // Darker background in dark mode (equivalent to gray-900)
         }}
       >
         <Menu
           theme={theme === 'dark' ? 'dark' : 'light'}
-          mode="inline"
+          mode='inline'
           selectedKeys={[getSelectedKey()]}
           items={navItems}
           onClick={() => setDrawerVisible(false)} // Close drawer when menu item is clicked
           style={{
-            background: theme === 'dark' ? '#111827' : '',  // Darker background in dark mode
+            background: theme === 'dark' ? '#111827' : '', // Darker background in dark mode
             borderRight: 'none'
           }}
         />
         <div className={`p-4 border-t ${theme === 'dark' ? 'border-gray-800 bg-gray-900' : 'border-gray-200'}`}>
-          <div className="flex items-center justify-center gap-6">
+          <div className='flex items-center justify-center gap-6'>
             <ThemeSwitch />
             <LanguageSwitcher />
           </div>
@@ -329,88 +330,72 @@ const MainLayout: React.FC = () => {
       <Layout>
         {/* Header - Redesigned for mobile UI */}
         <Header
-          className="bg-white dark:bg-gray-800 p-0 flex items-center justify-between shadow"
-          style={isMobile ? {
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            width: '100vw',
-            zIndex: 50,
-            opacity: mobileHeaderFade,
-            transition: 'opacity 0.2s',
-            pointerEvents: mobileHeaderFade < 0.1 ? 'none' : 'auto',
-          } : {}}
+          className='bg-white dark:bg-gray-800 p-0 flex items-center justify-between shadow'
+          style={
+            isMobile
+              ? {
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  width: '100vw',
+                  zIndex: 50,
+                  opacity: mobileHeaderFade,
+                  transition: 'opacity 0.2s',
+                  pointerEvents: mobileHeaderFade < 0.1 ? 'none' : 'auto'
+                }
+              : {}
+          }
         >
           {isMobile ? (
             <>
-              {/* Clean mobile header with bell on left, profile in middle, burger menu on right */}
-              <div className="flex items-center ml-4">
-                {/* Notification bell on the left */}
-                <Badge count={unreadCount} overflowCount={99} size="small">
-                  <Button
-                    type="text"
-                    icon={<BellOutlined style={{ fontSize: 22 }} />}
-                    onClick={() => toggleNotificationDrawer()}
-                    className="flex items-center justify-center"
-                    style={{ height: 40, width: 40 }}
-                  />
-                </Badge>
-              {/* Profile avatar in center */}
+              {/* Clean mobile header with NotificationCenter, profile in middle, burger menu on right */}
+              <div className='flex items-center ml-4'>
+                {/* NotificationCenter on the left */}
+                <NotificationCenter />
+                {/* Profile avatar in center */}
                 <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
-                  <div className="cursor-pointer">
+                  <div className='cursor-pointer'>
                     <UserAvatar
                       photoURL={photoURL}
                       displayName={userProfile?.displayName ?? user?.displayName ?? undefined}
-                      className="bg-primary ml-4"
+                      className='bg-primary ml-4'
                       size={36}
                     />
                   </div>
                 </Dropdown>
               </div>
-              
               {/* Burger menu on right */}
               <Button
-                type="text"
+                type='text'
                 icon={<MenuOutlined style={{ fontSize: 20 }} />}
                 onClick={() => setDrawerVisible(true)}
-                className="flex items-center justify-center mr-4"
+                className='flex items-center justify-center mr-4'
                 style={{ height: 40, width: 40 }}
               />
             </>
           ) : (
             <>
-              <div className="flex items-center">
+              <div className='flex items-center'>
                 <Button
-                  type="text"
+                  type='text'
                   icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
                   onClick={() => setCollapsed(!collapsed)}
-                  className="h-16 w-16 text-lg"
+                  className='h-16 w-16 text-lg'
                 />
               </div>
-              
-              <div className="flex items-center mr-4">
+              <div className='flex items-center mr-4'>
                 <Space size={16}>
                   <ThemeSwitch />
-                  
-                  {/* Notification bell */}
-                  <Badge count={unreadCount} overflowCount={99}>
-                    <Button
-                      type="text"
-                      icon={<BellOutlined style={{ fontSize: 18 }} />}
-                      onClick={() => toggleNotificationDrawer()}
-                      className="flex items-center justify-center"
-                      style={{ height: 40, width: 40 }}
-                    />
-                  </Badge>
-
+                  {/* NotificationCenter for desktop */}
+                  <NotificationCenter />
                   {/* User menu */}
                   <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
-                    <div className="cursor-pointer">
+                    <div className='cursor-pointer'>
                       <UserAvatar
                         photoURL={photoURL}
                         displayName={userProfile?.displayName ?? user?.displayName ?? undefined}
-                        className="bg-primary"
+                        className='bg-primary'
                         size={32}
                       />
                     </div>
@@ -422,17 +407,13 @@ const MainLayout: React.FC = () => {
         </Header>
 
         {/* Main content */}
-        <Content className="p-3 sm:p-6 bg-background dark:bg-gray-900 min-h-[calc(100vh-64px)]" style={isMobile ? { paddingTop: 64 } : {}}>
+        <Content
+          className='p-3 sm:p-6 bg-background dark:bg-gray-900 min-h-[calc(100vh-64px)]'
+          style={isMobile ? { paddingTop: 64 } : {}}
+        >
           <Outlet />
         </Content>
       </Layout>
-
-      {/* Notification drawer */}
-      <NotificationDrawer
-        open={isNotificationDrawerOpen}
-        onClose={() => toggleNotificationDrawer(false)}
-        notifications={notifications}
-      />
     </Layout>
   );
 };

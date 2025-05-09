@@ -33,7 +33,7 @@ const Dashboard: React.FC = () => {
   };
 
   // Check if user has admin privileges
-  const isAdmin = userProfile?.role === UserRole.ADMIN;
+  const isAdmin = userProfile?.role === UserRole.PROVINCE_ADMIN;
   const isManager = userProfile?.role === UserRole.GENERAL_MANAGER;
 
   return (

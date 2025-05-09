@@ -1,3472 +1,1096 @@
-# Project Data Schema
+# 📊 Firestore Data Schema
 
-This document defines the data schema for all collections in the Firebase Firestore database.
+This document outlines the comprehensive Firestore data structure for the KBN platform, including collections, document schemas, and query patterns.
 
-## Common Patterns
+## Overview
 
-### Standard Fields
-Most documents include these common fields:
-- `created`: Timestamp (number) when the record was created
-- `inputBy`: User ID who created the record
-- `branchCode`: Branch identifier where the record was created
-- `keywords`: Array of search keywords (lowercase)
-- `deleted`: Boolean flag for soft deletes
-- `remark`: Optional additional notes/comments
+The KBN platform uses a hierarchical data structure in Firestore, organized by business functions and reference data. All operational data must now include a `provinceId` field to support the multi-province architecture.
 
-### ID Conventions
-- Entity IDs follow the pattern `{entity}Id` (e.g., `customerId`, `expenseId`)
-- References to other entities use the same name (e.g., `customerId` to reference a customer)
+## Main Collections
 
-## Collections
+### 1. `users`
 
-### changeLogs
-Tracks application version changes.
+Stores user accounts and profiles.
+
+```typescript
+interface User {
+  uid: string;               // Firebase Authentication UID
+  email: string;             // User email
+  displayName: string;       // User display name
+  phoneNumber?: string;      // Optional phone number
+  role: string;              // User role (ADMIN, USER, etc.)
+  provinces: string[];       // Provinces the user has access to
+  branchCode?: string;       // Branch code for branch-specific users
+  created: number;           // Timestamp of creation
+  lastLogin?: number;        // Last login timestamp
+  status: "active" | "inactive" | "pending";  // User status
+  preferences?: {            // User preferences
+    theme?: "light" | "dark";
+    language?: "en" | "th";
+    notifications?: boolean;
+  };
+  permissions?: string[];    // Optional custom permissions
+  metadata?: Record<string, any>; // Additional metadata
+  deleted: boolean;          // Soft delete flag
+}
+```
+
+### 2. `provinces`
+
+Stores province configuration and metadata (new in TypeScript migration).
+
+```typescript
+interface Province {
+  provinceId: string;        // Unique province identifier
+  name: string;              // Province name
+  nameEn: string;            // Province name in English
+  code: string;              // Province code
+  region: string;            // Geographical region
+  location: {                // Geographic coordinates
+    latitude: number;
+    longitude: number;
+  };
+  branchCodes: string[];     // List of branches in this province
+  settings: {                // Province-specific settings
+    taxRate?: number;
+    currency?: string;
+    timeZone?: string;
+    workingDays?: string[];
+    workingHours?: {
+      start: string;
+      end: string;
+    };
+  };
+  contact: {                 // Contact information
+    address: string;
+    phone: string;
+    email: string;
+  };
+  created: number;           // Creation timestamp
+  updated?: number;          // Last update timestamp
+  status: "active" | "inactive";
+  deletable: boolean;        // Whether province can be deleted
+  deleted: boolean;          // Soft delete flag
+}
+```
+
+### 3. `data/{category}`
+
+Reference data organized in subcollections by category.
+
+#### 3.1 `data/account/expense-categories`
+
+```typescript
+interface ExpenseCategory {
+  categoryId: string;       // Unique identifier
+  provinceId: string;       // Province identifier
+  name: string;             // Category name
+  nameEn: string;           // Category name in English
+  code?: string;            // Optional category code
+  description?: string;     // Optional description
+  parentCategoryId?: string;// Optional parent category
+  order?: number;           // Display order
+  created: number;          // Creation timestamp
+  updated?: number;         // Last update timestamp
+  inputBy: string;          // User who created the record
+  branchCode?: string;      // Optional branch restriction
+  keywords: string[];       // Search keywords
+  deleted: boolean;         // Soft delete flag
+}
+```
+
+#### 3.2 `data/company/branches`
+
+```typescript
+interface Branch {
+  branchCode: string;       // Unique branch code
+  provinceId: string;       // Province identifier
+  name: string;             // Branch name
+  nameEn: string;           // Branch name in English
+  address: {                // Branch address
+    address: string;
+    moo?: string;
+    village?: string;
+    province: string;
+    amphoe: string;
+    tambol: string;
+    postcode: string;
+    latitude?: number;
+    longitude?: number;
+  };
+  contact: {                // Contact information
+    tel?: string;
+    fax?: string;
+    email?: string;
+    website?: string;
+  };
+  manager?: string;         // Branch manager user ID
+  created: number;          // Creation timestamp
+  updated?: number;         // Last update timestamp
+  inputBy: string;          // User who created the record
+  keywords: string[];       // Search keywords
+  deleted: boolean;         // Soft delete flag
+}
+```
+
+#### 3.3 `data/company/employees`
+
+```typescript
+interface Employee {
+  employeeId: string;        // Unique identifier
+  provinceId: string;        // Province identifier
+  branchCode: string;        // Branch code
+  userId?: string;           // Optional linked user ID
+  prefix?: string;           // Name prefix
+  firstName: string;         // First name
+  lastName: string;          // Last name
+  nickname?: string;         // Nickname
+  position: string;          // Job position
+  department: string;        // Department
+  employmentType: "full-time" | "part-time" | "contractor";
+  status: "active" | "inactive" | "on-leave";
+  hireDate: number;          // Hire date timestamp
+  endDate?: number;          // End date timestamp, if applicable
+  contact: {                 // Contact information
+    phoneNumber: string;
+    email?: string;
+    emergencyContact?: string;
+  };
+  address?: {                // Optional address
+    address: string;
+    province: string;
+    amphoe: string;
+    tambol: string;
+    postcode: string;
+  };
+  identificationNumber?: string; // Government ID
+  bankAccount?: {            // Bank account information
+    bankName: string;
+    accountNumber: string;
+    accountName: string;
+  };
+  created: number;           // Creation timestamp
+  updated?: number;          // Last update timestamp
+  inputBy: string;           // User who created the record
+  keywords: string[];        // Search keywords
+  deleted: boolean;          // Soft delete flag
+}
+```
+
+#### 3.4 `data/sales/customers`
+
+```typescript
+interface Customer {
+  customerId: string;        // Unique identifier
+  provinceId: string;        // Province identifier
+  branchCode: string;        // Branch code
+  prefix?: string;           // Name prefix
+  firstName: string;         // First name
+  firstName_lower?: string;  // Lowercase for search
+  firstName_partial?: string;// Partial match for search
+  lastName: string;          // Last name
+  lastName_lower?: string;   // Lowercase for search
+  lastName_partial?: string; // Partial match for search
+  phoneNumber: string;       // Phone number
+  phoneNumber_lower?: string;// Lowercase for search
+  email?: string;            // Optional email
+  address?: {                // Optional address
+    address: string;
+    moo?: string;
+    village?: string;
+    province?: string;
+    amphoe?: string;
+    tambol?: string;
+    postcode?: string;
+  };
+  source?: string;           // Customer acquisition source
+  notes?: string;            // Additional notes
+  customerType?: string;     // Customer segment/type
+  referredBy?: string;       // Referrer ID
+  tags?: string[];           // Custom tags
+  created: number;           // Creation timestamp
+  updated?: number;          // Last update timestamp
+  inputBy: string;           // User who created the record
+  keywords: string[];        // Search keywords
+  deleted: boolean;          // Soft delete flag
+  remark?: string;           // Additional remarks
+}
+```
+
+### 4. `sections/{businessFunction}`
+
+Operational data organized by business function.
+
+#### 4.1 `sections/sales/bookings`
+
+```typescript
+interface Booking {
+  bookingId: string;         // Unique identifier
+  provinceId: string;        // Province identifier
+  branchCode: string;        // Branch code
+  customerId: string;        // Customer ID
+  customerName: string;      // Customer name (denormalized)
+  customerPhone: string;     // Customer phone (denormalized)
+  bookingDate: number;       // Booking timestamp
+  serviceDate: number;       // Scheduled service date
+  serviceItems: Array<{      // Service items
+    serviceId: string;
+    serviceName: string;
+    quantity: number;
+    price: number;
+    discount?: number;
+    notes?: string;
+  }>;
+  status: "pending" | "confirmed" | "in-progress" | "completed" | "cancelled";
+  totalAmount: number;       // Total booking amount
+  deposit?: number;          // Optional deposit amount
+  paidAmount?: number;       // Amount paid
+  paymentStatus: "unpaid" | "partially-paid" | "paid";
+  paymentMethod?: string;    // Payment method
+  assignedTo?: string;       // Assigned employee ID
+  notes?: string;            // Additional notes
+  created: number;           // Creation timestamp
+  updated?: number;          // Last update timestamp
+  inputBy: string;           // User who created the record
+  keywords: string[];        // Search keywords
+  deleted: boolean;          // Soft delete flag
+}
+```
+
+#### 4.2 `sections/account/expenses`
+
+```typescript
+interface Expense {
+  expenseId: string;         // Unique identifier
+  provinceId: string;        // Province identifier
+  branchCode: string;        // Branch code
+  categoryId: string;        // Expense category ID
+  categoryName: string;      // Category name (denormalized)
+  date: number;              // Expense date timestamp
+  amount: number;            // Expense amount
+  description: string;       // Expense description
+  paymentMethod: string;     // Payment method
+  reference?: string;        // Reference number or ID
+  attachments?: string[];    // Attachment file URLs
+  approvalStatus: "pending" | "approved" | "rejected";
+  approvedBy?: string;       // User ID who approved
+  created: number;           // Creation timestamp
+  updated?: number;          // Last update timestamp
+  inputBy: string;           // User who created the record
+  keywords: string[];        // Search keywords
+  deleted: boolean;          // Soft delete flag
+}
+```
+
+#### 4.3 `sections/services/serviceOrders`
+
+```typescript
+interface ServiceOrder {
+  serviceOrderId: string;    // Unique identifier
+  provinceId: string;        // Province identifier
+  branchCode: string;        // Branch code
+  bookingId?: string;        // Optional booking reference
+  customerId: string;        // Customer ID
+  customerName: string;      // Customer name (denormalized)
+  vehicleInfo: {             // Vehicle information
+    make: string;
+    model: string;
+    year?: number;
+    licensePlate: string;
+    color?: string;
+    vin?: string;
+  };
+  serviceDate: number;       // Service date timestamp
+  completionDate?: number;   // Completion timestamp
+  serviceItems: Array<{      // Service items
+    serviceId: string;
+    serviceName: string;
+    quantity: number;
+    price: number;
+    discount?: number;
+    technician?: string;
+    status: "pending" | "in-progress" | "completed";
+    notes?: string;
+  }>;
+  partsUsed: Array<{         // Parts used
+    partId: string;
+    partName: string;
+    quantity: number;
+    price: number;
+    discount?: number;
+  }>;
+  laborCharges: Array<{      // Labor charges
+    description: string;
+    hours?: number;
+    rate?: number;
+    amount: number;
+  }>;
+  status: "pending" | "in-progress" | "completed" | "delivered" | "cancelled";
+  totalAmount: number;       // Total order amount
+  paymentStatus: "unpaid" | "partially-paid" | "paid";
+  payments: Array<{          // Payment records
+    date: number;
+    amount: number;
+    method: string;
+    reference?: string;
+  }>;
+  assignedTechnicians: string[]; // Assigned technician IDs
+  notes?: string;            // Additional notes
+  customerSignature?: string;// URL to signature image
+  created: number;           // Creation timestamp
+  updated?: number;          // Last update timestamp
+  inputBy: string;           // User who created the record
+  keywords: string[];        // Search keywords
+  deleted: boolean;          // Soft delete flag
+}
+```
+
+#### 4.4 `sections/stocks/inventory`
+
+```typescript
+interface InventoryItem {
+  itemId: string;            // Unique identifier
+  provinceId: string;        // Province identifier
+  branchCode: string;        // Branch code
+  sku: string;               // Stock keeping unit
+  name: string;              // Item name
+  description?: string;      // Item description
+  category: string;          // Item category
+  supplier?: string;         // Supplier ID
+  cost: number;              // Cost price
+  price: number;             // Selling price
+  quantity: number;          // Current quantity
+  minimumStock: number;      // Reorder threshold
+  location?: string;         // Storage location
+  unit: string;              // Unit of measure
+  barcode?: string;          // Barcode
+  images?: string[];         // Image URLs
+  attributes?: Record<string, any>; // Custom attributes
+  lastRestockDate?: number;  // Last restock timestamp
+  created: number;           // Creation timestamp
+  updated?: number;          // Last update timestamp
+  inputBy: string;           // User who created the record
+  keywords: string[];        // Search keywords
+  deleted: boolean;          // Soft delete flag
+}
+```
+
+### 5. `messages`
+
+Stores notification and system messages.
+
+```typescript
+interface Message {
+  messageId: string;         // Unique identifier
+  userId: string;            // Target user ID
+  provinceId?: string;       // Optional province context
+  branchCode?: string;       // Optional branch context
+  type: "notification" | "alert" | "system" | "chat";
+  title: string;             // Message title
+  content: string;           // Message content
+  priority: "low" | "medium" | "high" | "urgent";
+  read: boolean;             // Read status
+  readAt?: number;           // Read timestamp
+  actions?: Array<{          // Optional actions
+    label: string;
+    url?: string;
+    action?: string;
+  }>;
+  expiresAt?: number;        // Expiration timestamp
+  created: number;           // Creation timestamp
+  sender?: string;           // Sender ID
+  parentMessageId?: string;  // For threaded messages
+  metadata?: Record<string, any>; // Additional metadata
+  deleted: boolean;          // Soft delete flag
+}
+```
+
+### 6. `reports`
+
+Stores analytics and reporting data.
+
+```typescript
+interface Report {
+  reportId: string;          // Unique identifier
+  provinceId: string;        // Province identifier
+  branchCode?: string;       // Optional branch filter
+  type: string;              // Report type
+  title: string;             // Report title
+  dateRange: {               // Date range
+    start: number;
+    end: number;
+  };
+  parameters: Record<string, any>; // Report parameters
+  generatedBy: string;       // User ID who generated
+  results: Record<string, any>; // Report results
+  format: "json" | "csv" | "pdf";
+  url?: string;              // Optional download URL
+  scheduleId?: string;       // Optional schedule reference
+  created: number;           // Creation timestamp
+  status: "generating" | "completed" | "failed";
+  error?: string;            // Error message if failed
+  deleted: boolean;          // Soft delete flag
+}
+```
+
+### 7. `changeLogs`
+
+Stores application version changes history.
 
 ```typescript
 interface ChangeLog {
-  version: string;
-  releaseDate: number; // Timestamp
-  changes: {
-    type: "feature" | "fix" | "improvement";
+  version: string;           // Version number
+  releaseDate: number;       // Release timestamp
+  changes: Array<{           // Changes list
+    type: "feature" | "bugfix" | "improvement" | "security";
     description: string;
-  }[];
-  created: number;
-  inputBy: string;
-}
-```
-
-# 🗄️ Firestore Data Schema – KBN
-
-This document outlines the database schema used in the KBN platform, detailing all Firestore collections, document structures, and field descriptions. This schema was automatically generated from your Firebase project 'kubota-benjapol-test' on 5/1/2025.
-
----
-
-## 📋 Overview
-
-KBN uses Firebase Firestore as its primary database, implementing a NoSQL document-based data model. This schema documentation reflects the actual structure of your data as found in your Firestore instance.
-
----
-
-## 🏗️ Database Structure
-
-The database contains the following collections:
-
-```
-├── changeLogs/
-├── data/
-│   └── {documentId}/
-│       ├── bankNames/
-│       ├── banks/
-│       ├── banks_new/
-│       ├── branches/
-│       ├── customers/
-│       ├── dataSources/
-│       ├── dealers/
-│       ├── departments/
-│       ├── employees/
-│       ├── executives/
-│       ├── expenseAccountNames/
-│       ├── expenseCategories/
-│       ├── expenseCategory/
-│       ├── expenseName/
-│       ├── expenseNames/
-│       ├── expenseSubCategory/
-│       ├── giveaways/
-│       ├── locations/
-│       ├── partList/
-│       ├── permissionCategories/
-│       ├── permissions/
-│       ├── plants/
-│       ├── referrers/
-│       ├── serviceList/
-│       ├── userGroups/
-│       ├── vehicleList/
-│       └── warehouses/
-├── messageTokens/
-├── messages/
-├── reports/
-│   └── {documentId}/
-│       ├── all/
-│       ├── assessment/
-│       ├── customerSources/
-│       ├── mktChannels/
-│       ├── parts/
-│       └── vehicles/
-└── sections/
-    └── {documentId}/
-        ├── bankDeposit/
-        ├── bookItems/
-        ├── bookings/
-        ├── credits/
-        ├── executiveCashDeposit/
-        ├── expenseItems/
-        ├── expenseTransfer/
-        ├── expenses/
-        ├── fingerPrint/
-        ├── gasCost/
-        ├── importFingerPrint/
-        ├── importFingerPrintBatch/
-        ├── importLog/
-        ├── importPartItems/
-        ├── importParts/
-        ├── importServiceItems/
-        ├── importServices/
-        ├── importVehicleItems/
-        ├── importVehicles/
-        ├── importVehicles_new/
-        ├── incomeItems/
-        ├── incomes/
-        ├── leave/
-        ├── otherVehicleIn/
-        ├── otherVehicleOut/
-        ├── partGroups/
-        ├── partItems/
-        ├── parts/
-        ├── peripherals/
-        ├── purchasePlan/
-        ├── saleItems/
-        ├── saleOut/
-        ├── saleOutItems/
-        ├── salePartItems/
-        ├── sellParts/
-        ├── serviceClose/
-        ├── serviceCloseItems/
-        ├── serviceItems/
-        ├── serviceOrders/
-        ├── services/
-        ├── transfer/
-        ├── transferIn/
-        ├── transferItems/
-        ├── transferOut/
-        ├── vehicleList/
-        └── vehicles/
-
-```
-
----
-
-## 📄 Collections and Documents
-
-### 📁 changeLogs Collection
-
-Stores changelogs-related data.
-
-_Sample size: 5 documents_
-
-```javascript
-// changeLogs/{documentId}
-{
-  changes:  value,     // Array
-  time:     value,     // number
-  version:  value,     // string
-}
-```
-
-#### Sample Data
-
-Below are sanitized examples of documents from this collection:
-
-**Sample 1:**
-
-```json
-{
-  "changes": ["Item 1", "Item 2", "Item 3"],
-  "time": 42,
-  "version": "Sample text"
-}
-```
-
-**Sample 2:**
-
-```json
-{
-  "changes": ["Item 1", "Item 2", "Item 3"],
-  "time": 42,
-  "version": "Sample text"
-}
-```
-
-**Sample 3:**
-
-```json
-{
-  "changes": ["Item 1", "Item 2", "Item 3"],
-  "time": 42,
-  "version": "Sample text"
-}
-```
-
-**Sample 4:**
-
-```json
-{
-  "changes": ["Item 1", "Item 2", "Item 3"],
-  "time": 42,
-  "version": "Sample text"
-}
-```
-
-**Sample 5:**
-
-```json
-{
-  "changes": ["Item 1", "Item 2", "Item 3"],
-  "time": 42,
-  "version": "Sample text"
-}
-```
-
-#### Field Descriptions
-
-| Field     | Type   | Description         |
-| --------- | ------ | ------------------- |
-| `changes` | Array  | Collection of items |
-| `time`    | number | Time                |
-| `version` | string | Version             |
-
-### 📁 data Collection
-
-The data collection contains subcollections grouped by category.
-
-#### 📁 data/account Subcollection
-
-##### 📁 data/account/expenseAccountNames Collection
-
-Stores expense account names data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/account/expenseAccountNames/{documentId}
-{
-  created:  value,     // timestamp
-
-  created        value,     // number
-  expenseAccountNamevalue,     // string
-  expenseAccountNameIdvalue,     // string
-  inputBy        value,     // string
-}
-```
-
-##### 📁 data/account/expenseCategories Collection
-
-Stores expense categories data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/account/expenseCategories/{documentId}
-{
-  created:  value,     // timestamp
-
-  created        value,     // number
-  expenseCategoryIdvalue,     // string
-  expenseCategoryNamevalue,     // string
-  inputBy        value,     // string
-}
-```
-
-##### 📁 data/account/expenseCategory Collection
-
-Stores expense category data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/account/expenseCategory/{documentId}
-{
-  created:  value,     // timestamp
-
-  created        value,     // number
-  deleted        value,     // boolean
-  expenseCategoryIdvalue,     // string
-  expenseCategoryNamevalue,     // string
-  inputBy        value,     // string
-  keywords       value,     // Array<String>
-}
-```
-
-##### 📁 data/account/expenseName Collection
-
-Stores expense name data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/account/expenseName/{documentId}
-{
-  created:  value,     // timestamp
-
-  created        value,     // number
-  deleted        value,     // boolean
-  expenseCategoryIdvalue,     // string
-  expenseCategoryNamevalue,     // string
-  expenseName    value,     // string
-  expenseNameId  value,     // string
-  expenseSubCategoryNamevalue,     // null
-  inputBy        value,     // string
-  keywords       value,     // Array<String>
-}
-```
-
-##### 📁 data/account/expenseNames Collection
-
-Stores expense names related to expense categories.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/account/expenseNames/{documentId}
-{
-  expenseCategoryId:  value,     // reference
-
-  expenseCategoryIdvalue,     // string
-  expenseCategoryNamevalue,     // string
-  expenseName    value,     // string
-  expenseSubCategoryvalue,     // string
-}
-```
-
-##### 📁 data/account/expenseSubCategory Collection
-
-Stores expense subcategory data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/account/expenseSubCategory/{documentId}
-{
-  importTime:  value,     // timestamp
-
-  batchNo        value,     // number
-  deleted        value,     // boolean
-  expenseCategoryIdvalue,     // string
-  expenseSubCategoryIdvalue,     // string
-  expenseSubCategoryNamevalue,     // string
-  importBy       value,     // string
-  importTime     value,     // number
-  keywords       value,     // Array<String>
-}
-```
-
-#### 📁 data/company Subcollection
-
-##### 📁 data/company/bankNames Collection
-
-Stores bank name reference data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/bankNames/{documentId}
-{
-  created:  value,     // timestamp
-
-  bankNameId     value,     // string
-  created        value,     // number
-  inputBy        value,     // string
-  name           value,     // string
-  remark         value,     // null
-}
-```
-
-##### 📁 data/company/banks Collection
-
-Stores bank account data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/banks/{documentId}
-{
-  created:  value,     // timestamp
-
-  accNo          value,     // string
-  bankId         value,     // string
-  bankName       value,     // string
-  branch         value,     // null
-  created        value,     // number
-  inputBy        value,     // string
-  name           value,     // string
-  order          value,     // number
-  sameAcc        value,     // Array<String>
-}
-```
-
-##### 📁 data/company/banks_new Collection
-
-Stores updated bank account data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/banks_new/{documentId}
-{
-  created:  value,     // timestamp
-
-  accNo          value,     // string
-  bankId         value,     // string
-  bankName       value,     // string
-  branch         value,     // null
-  created        value,     // number
-  inputBy        value,     // string
-  name           value,     // string
-  order          value,     // number
-  sameAcc        value,     // Array<String>
-}
-```
-
-##### 📁 data/company/branches Collection
-
-Stores company branch information.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/branches/{documentId}
-{
-  branchCode:  value,     // string
-
-  branchCode     value,     // string
-  branchId       value,     // string
-  branchName     value,     // string
-  locationId     value,     // string
-  queue          value,     // number
-  remark         value,     // string
-  warehouseId    value,     // string
-}
-```
-
-##### 📁 data/company/departments Collection
-
-Stores departmental structure information.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/departments/{documentId}
-{
-  departmentId:  value,     // string
-
-  deleted        value,     // boolean
-  department     value,     // string
-  departmentId   value,     // string
-}
-```
-
-##### 📁 data/company/employees Collection
-
-Stores employee information.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/employees/{documentId}
-{
-  created:  value,     // timestamp
-
-  affiliate      value,     // string
-  created        value,     // number
-  employeeCode   value,     // string
-  endDate        value,     // null
-  firstName      value,     // string
-  inputBy        value,     // string
-  lastName       value,     // string
-  nickName       value,     // string
-  position       value,     // string
-  prefix         value,     // string
-  startDate      value,     // string
-  status         value,     // string
-  workBegin      value,     // string
-  workEnd        value,     // string
-}
-```
-
-##### 📁 data/company/executives Collection
-
-Stores company executive information.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/executives/{documentId}
-{
-  created:  value,     // timestamp
-
-  branch         value,     // string
-  created        value,     // number
-  email          value,     // null
-  executiveCode  value,     // string
-  firstName      value,     // string
-  group          value,     // string
-  inputBy        value,     // string
-  lastName       value,     // string
-  phoneNumber    value,     // null
-  prefix         value,     // string
-}
-```
-
-##### 📁 data/company/locations Collection
-
-Stores location information.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/locations/{documentId}
-{
-  locationId:  value,     // string
-
-  address        value,     // string
-  amphoe         value,     // string
-  country        value,     // string
-  locationId     value,     // string
-  postcode       value,     // string
-  province       value,     // string
-  remark         value,     // string
-  tambol         value,     // string
-}
-```
-
-##### 📁 data/company/permissionCategories Collection
-
-Stores permission category definitions.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/permissionCategories/{documentId}
-{
-  permissionCategoryId:  value,     // string
-
-  permissionCategoryIdvalue,     // string
-  permissionCategoryNamevalue,     // string
-  remark         value,     // string
-}
-```
-
-##### 📁 data/company/permissions Collection
-
-Stores permission definitions.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/permissions/{documentId}
-{
-  permissionId:  value,     // string
-
-  description    value,     // string
-  permissionCategoryIdvalue,     // string
-  permissionId   value,     // string
-  permissionName value,     // string
-}
-```
-
-##### 📁 data/company/userGroups Collection
-
-Stores user groups for permission assignments.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/userGroups/{documentId}
-{
-  _key:  value,     // string
-
-  _key           value,     // string
-  permCats       value,     // Object
-  permissions    value,     // Object
-  remark         value,     // string
-  userGroupId    value,     // string
-  userGroupName  value,     // string
-}
-```
-
-##### 📁 data/company/warehouses Collection
-
-Stores warehouse information.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/company/warehouses/{documentId}
-{
-  warehouseId:  value,     // string
-
-  locationId     value,     // string
-  remark         value,     // string
-  warehouseId    value,     // string
-  warehouseName  value,     // string
-}
-```
-
-#### 📁 data/products Subcollection
-
-##### 📁 data/products/partList Collection
-
-Stores product parts inventory data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/products/partList/{documentId}
-{
-  pCode:  value,     // string
-
-  creditTerm     value,     // string
-  description    value,     // string
-  model          value,     // string
-  model_lower    value,     // string
-  model_partial  value,     // string
-  name           value,     // string
-  name_lower     value,     // string
-  name_partial   value,     // string
-  pCode          value,     // string
-  pCode_lower    value,     // string
-  pCode_partial  value,     // string
-  partType       value,     // string
-  remark         value,     // string
-  slp            value,     // number
-  slp_no_vat     value,     // number
-  standardCost   value,     // number
-  wsPrice        value,     // string
-}
-```
-
-##### 📁 data/products/vehicleList Collection
-
-Stores vehicle inventory data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/products/vehicleList/{documentId}
-{
-  importTime:  value,     // timestamp
-
-  batchNo        value,     // number
-  creditTerm     value,     // number
-  deleted        value,     // boolean
-  header         value,     // null
-  importBy       value,     // string
-  importTime     value,     // number
-  isUsed         value,     // boolean
-  keywords       value,     // Array<String>
-  listPrice      value,     // number
-  model          value,     // string
-  name           value,     // string
-  name_lower     value,     // string
-  name_partial   value,     // string
-  productCode    value,     // string
-  productCode_lowervalue,     // string
-  productCode_partialvalue,     // string
-  productPCode   value,     // string
-  productType    value,     // string
-  productType_lowervalue,     // string
-  productType_partialvalue,     // string
-  wsPrice        value,     // string
-}
-```
-
-#### 📁 data/sales Subcollection
-
-##### 📁 data/sales/customers Collection
-
-Stores customer data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/sales/customers/{documentId}
-{
-  created:  value,     // timestamp
-
-  address        value,     // Address
-  agent          value,     // string
-  agentId        value,     // string
-  areaSize       value,     // string
-  branch         value,     // string
-  career         value,     // string
-  created        value,     // number
-  customerId     value,     // string
-  customerId_lowervalue,     // string
-  customerId_partialvalue,     // string
-  customerLevel  value,     // string
-  customerNo     value,     // string
-  customerNo_lowervalue,     // string
-  customerNo_partialvalue,     // string
-  firstName      value,     // string
-  firstName_lowervalue,     // string
-  firstName_partialvalue,     // string
-  idNumber       value,     // string
-  inputBy        value,     // string
-  interestedModelvalue,     // string
-  lastName       value,     // string
-  lastName_lower value,     // string
-  lastName_partialvalue,     // string
-  ownedModel     value,     // string
-  phoneNumber    value,     // string
-  phoneNumber_lowervalue,     // string
-  phoneNumber_partialvalue,     // string
-  plants         value,     // Array (empty)
-  prefix         value,     // string
-  remark         value,     // string
-  sourceOfData   value,     // Array (empty)
-  url            value,     // null
-  whenToBuy      value,     // string
-  whenToBuyRange value,     // Object
-}
-```
-
-##### 📁 data/sales/dataSources Collection
-
-Stores sales data sources.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/sales/dataSources/{documentId}
-{
-  created:  value,     // timestamp
-
-  created        value,     // number
-  dataSourceId   value,     // string
-  inputBy        value,     // string
-  name           value,     // string
-  remark         value,     // null
-}
-```
-
-##### 📁 data/sales/dealers Collection
-
-Stores dealer information.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/sales/dealers/{documentId}
-{
-  created:  value,     // timestamp
-
-  created        value,     // number
-  dealerAddress  value,     // null
-  dealerAmphoe   value,     // null
-  dealerBank     value,     // null
-  dealerBankAccNovalue,     // null
-  dealerBankName value,     // null
-  dealerBankType value,     // string
-  dealerCode     value,     // string
-  dealerHeadOfficevalue,     // number
-  dealerId       value,     // string
-  dealerName     value,     // string
-  dealerPostcode value,     // null
-  dealerPrefix   value,     // string
-  dealerProvince value,     // null
-  dealerTambol   value,     // null
-  dealerTaxNumbervalue,     // string
-  dealerType     value,     // string
-  inputBy        value,     // string
-}
-```
-
-##### 📁 data/sales/giveaways Collection
-
-Stores promotional giveaways data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/sales/giveaways/{documentId}
-{
-  // Fields would be here
-}
-```
-
-##### 📁 data/sales/plants Collection
-
-Stores manufacturing plant information.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/sales/plants/{documentId}
-{
-  plantId:  value,     // string
-
-  name           value,     // string
-  plantId        value,     // string
-}
-```
-
-##### 📁 data/sales/referrers Collection
-
-Stores referrer information.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/sales/referrers/{documentId}
-{
-  created:  value,     // timestamp
-
-  address        value,     // Address
-  created        value,     // number
-  firstName      value,     // string
-  firstName_lowervalue,     // string
-  firstName_partialvalue,     // string
-  lastName       value,     // string
-  lastName_lower value,     // string
-  lastName_partialvalue,     // string
-  phoneNumber    value,     // string
-  phoneNumber_lowervalue,     // string
-  phoneNumber_partialvalue,     // string
-  prefix         value,     // string
-  referrerId     value,     // string
-}
-```
-
-##### 📁 data/sales/serviceList Collection
-
-Stores service offerings data.
-
-_Sample size: Variable documents_
-
-```javascript
-// data/sales/serviceList/{documentId}
-{
-  created:  value,     // timestamp
-  // Additional fields would be here
-}
-```
-
-### 📁 messageTokens Collection
-
-Stores messagetokens-related data.
-
-_Sample size: 5 documents_
-
-```javascript
-// messageTokens/{documentId}
-{
-  branch:      value,     // string
-  department:  value,     // string
-  device:      value,     // Object
-  email:       value,     // string
-  group:       value,     // string
-  token:       value,     // string
-  uid:         value,     // string
-  updatedAt:   value,     // number
-}
-```
-
-#### Sample Data
-
-Below are sanitized examples of documents from this collection:
-
-**Sample 1:**
-
-```json
-{
-  "uid": "u-123456",
-  "department": "Sample text",
-  "branch": "Sample text",
-  "device": {
-    "key1": "Value 1",
-    "key2": "Value 2"
-  },
-  "email": "user@example.com",
-  "group": "Sample text",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "updatedAt": 42
-}
-```
-
-**Sample 2:**
-
-```json
-{
-  "department": "Sample text",
-  "branch": "Sample text",
-  "group": "Sample text",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**Sample 3:**
-
-```json
-{
-  "uid": "u-123456",
-  "department": "Sample text",
-  "branch": "Sample text",
-  "device": {
-    "key1": "Value 1",
-    "key2": "Value 2"
-  },
-  "email": "user@example.com",
-  "group": "Sample text",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "updatedAt": 42
-}
-```
-
-**Sample 4:**
-
-```json
-{
-  "uid": "u-123456",
-  "department": "Sample text",
-  "branch": "Sample text",
-  "device": {
-    "key1": "Value 1",
-    "key2": "Value 2"
-  },
-  "email": "user@example.com",
-  "group": "Sample text",
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "updatedAt": 42
-}
-```
-
-**Sample 5:**
-
-```json
-{
-  "department": null,
-  "branch": null,
-  "group": null,
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-#### Field Descriptions
-
-| Field        | Type   | Description                           |
-| ------------ | ------ | ------------------------------------- |
-| `branch`     | string | Branch                                |
-| `department` | string | Department                            |
-| `device`     | Object | Nested object containing related data |
-| `email`      | string | Email                                 |
-| `group`      | string | Group                                 |
-| `token`      | string | Token                                 |
-| `uid`        | string | Reference to uid                      |
-| `updatedAt`  | number | Timestamp                             |
-
-### 📁 messages Collection
-
-Stores messages-related data.
-
-_Sample size: 5 documents_
-
-```javascript
-// messages/{documentId}
-{
-  by:           value,     // string
-  description:  value,     // string
-  duration:     value,     // string
-  message:      value,     // string
-  time:         value,     // string
-  type:         value,     // string
-}
-```
-
-#### Sample Data
-
-Below are sanitized examples of documents from this collection:
-
-**Sample 1:**
-
-```json
-{
-  "duration": "Sample text",
-  "by": "Sample text",
-  "description": "This is a sample description for the item.",
-  "time": "Sample text",
-  "message": "Sample text",
-  "type": "Sample text"
-}
-```
-
-**Sample 2:**
-
-```json
-{
-  "duration": "Sample text",
-  "by": "Sample text",
-  "description": "This is a sample description for the item.",
-  "time": "Sample text",
-  "message": "Sample text",
-  "type": "Sample text"
-}
-```
-
-**Sample 3:**
-
-```json
-{
-  "duration": "Sample text",
-  "by": "Sample text",
-  "description": "This is a sample description for the item.",
-  "time": "Sample text",
-  "message": "Sample text",
-  "type": "Sample text"
-}
-```
-
-**Sample 4:**
-
-```json
-{
-  "duration": "Sample text",
-  "by": "Sample text",
-  "description": "This is a sample description for the item.",
-  "time": "Sample text",
-  "message": "Sample text",
-  "type": "Sample text"
-}
-```
-
-**Sample 5:**
-
-```json
-{
-  "duration": "Sample text",
-  "by": "Sample text",
-  "description": "This is a sample description for the item.",
-  "time": "Sample text",
-  "message": "Sample text",
-  "type": "Sample text"
-}
-```
-
-#### Field Descriptions
-
-| Field         | Type   | Description      |
-| ------------- | ------ | ---------------- |
-| `by`          | string | By               |
-| `description` | string | Descriptive text |
-| `duration`    | string | Timestamp        |
-| `message`     | string | Message          |
-| `time`        | string | Time             |
-| `type`        | string | Type             |
-
-### 📁 reports Collection
-
-The reports collection contains various reporting data.
-
-#### 📁 reports/sales Subcollection
-
-##### 📁 reports/sales/assessment Collection
-
-Stores sales assessment reports.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// reports/sales/assessment/{documentId}
-{
-  bookId:  value,     // string
-
-  assessment     value,     // Object
-  assessmentDate value,     // null
-  assessmentDetailsvalue,     // null
-  assessmentMonthvalue,     // null
-  assessmentResultvalue,     // null
-  assessmentYear value,     // null
-  bookId         value,     // string
-  bookNo         value,     // string
-  bookNo_lower   value,     // string
-  bookNo_partial value,     // string
-  bookingPerson  value,     // string
-  branchCode     value,     // string
-  customerId     value,     // string
-  firstName      value,     // string
-  firstName_lowervalue,     // string
-  firstName_partialvalue,     // string
-  items          value,     // Array<Object>
-  lastName       value,     // string
-  phoneNumber    value,     // string
-  prefix         value,     // string
-  saleType       value,     // string
-  salesPerson    value,     // Array<String>
-  sourceOfData   value,     // Array<String>
-}
-```
-
-##### 📁 reports/sales/customerSources Collection
-
-Stores customer source analytics.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// reports/sales/customerSources/{documentId}
-{
-  date:  value,     // date string
-
-  branchCode     value,     // string
-  customerId     value,     // string
-  date           value,     // string
-  firstName      value,     // string
-  firstName_lowervalue,     // string
-  firstName_partialvalue,     // string
-  items          value,     // Array<Object>
-  lastName       value,     // string
-  phoneNumber    value,     // string
-  prefix         value,     // string
-  saleId         value,     // string
-  saleNo         value,     // string
-  saleNo_lower   value,     // string
-  saleNo_partial value,     // string
-  saleType       value,     // string
-  salesPerson    value,     // Array<String>
-  sourceOfData   value,     // Array (empty)
-}
-```
-
-##### 📁 reports/sales/mktChannels Collection
-
-Stores marketing channel analytics.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// reports/sales/mktChannels/{documentId}
-{
-  date:  value,     // date string
-
-  amphoe         value,     // string
-  branchCode     value,     // string
-  customer       value,     // string
-  customerId     value,     // string
-  date           value,     // string
-  engineNo       value,     // Array<String>
-  firstName      value,     // string
-  firstName_lowervalue,     // string
-  firstName_partialvalue,     // string
-  items          value,     // Array<Object>
-  lastName       value,     // string
-  model          value,     // Array<String>
-  peripheralNo   value,     // Array<String>
-  peripherals    value,     // Array<Object>
-  phoneNumber    value,     // string
-  postcode       value,     // string
-  prefix         value,     // string
-  province       value,     // string
-  saleId         value,     // string
-  saleNo         value,     // string
-  saleNo_lower   value,     // string
-  saleNo_partial value,     // string
-  saleType       value,     // string
-  salesPerson    value,     // Array<String>
-  sourceOfData   value,     // Array<String>
-  tambol         value,     // string
-  vehicleNo      value,     // Array<String>
-  vehicles       value,     // Array<Object>
-  village        value,     // string
-}
-```
-
-##### 📁 reports/sales/parts Collection
-
-Stores parts sales reports.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// reports/sales/parts/{documentId}
-{
-  saleDate:  value,     // date string
-
-  AD_Discount    value,     // number
-  AD_DiscountQty value,     // number
-  SKCDiscount    value,     // number
-  SKCDiscountQty value,     // number
-  SKCLoyaltyDiscountvalue,     // number
-  SKCLoyaltyDiscountAmtvalue,     // number
-  SKCManualDiscountvalue,     // number
-  SKCManualDiscountQtyvalue,     // number
-  amtOilType     value,     // number
-  amtPartType    value,     // number
-  batchNo        value,     // number
-  billDiscount   value,     // number
-  billDiscountQtyvalue,     // number
-  branchCode     value,     // string
-  deposit        value,     // number
-  discountCoupon value,     // number
-  discountPointRedeemvalue,     // number
-  importBy       value,     // string
-  importTime     value,     // number
-  item           value,     // string
-  netDepositDeductvalue,     // number
-  netTotal       value,     // number
-  pointsReceived value,     // number
-  redeemPoint    value,     // number
-  saleDate       value,     // string
-  saleNo         value,     // string
-  sourceOfData   value,     // string
-}
-```
-
-##### 📁 reports/sales/vehicles Collection
-
-Stores vehicle sales reports.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// reports/sales/vehicles/{documentId}
-{
-  created:  value,     // timestamp
-
-  accountRecordedvalue,     // null
-  additionalPurchasevalue,     // Array (empty)
-  address        value,     // Address
-  advInstallment value,     // number
-  amphoe         value,     // string
-  amtBaacDebtor  value,     // null
-  amtBaacFee     value,     // null
-  amtDeposit     value,     // number
-  amtFull        value,     // number
-  amtKBN         value,     // number
-  amtMAX         value,     // number
-  amtOldCustomer value,     // number
-  amtOther       value,     // number
-  amtOthers      value,     // Array (empty)
-  amtPlateAndInsurancevalue,     // number
-  amtPro         value,     // number
-  amtReceived    value,     // number
-  amtReferrer    value,     // number
-  amtReservation value,     // number
-  amtSKC         value,     // number
-  amtTurnOver    value,     // number
-  amtTurnOverDifRefundvalue,     // number
-  amtTurnOverVehiclevalue,     // null
-  assessment     value,     // Object
-  baacNo         value,     // null
-  bookDate       value,     // string
-  bookId         value,     // string
-  bookNo         value,     // string
-  bookNo_lower   value,     // string
-  bookNo_partial value,     // string
-  bookPNo        value,     // string
-  bookingPerson  value,     // Array<String>
-  branchCode     value,     // string
-  canceled       value,     // null
-  contractDate   value,     // string
-  created        value,     // number
-  createdBy      value,     // string
-  creditRecorded value,     // null
-  customer       value,     // string
-  customerId     value,     // string
-  customerNo     value,     // string
-  date           value,     // string
-  deductOther    value,     // number
-  deductOthers   value,     // Array (empty)
-  deliverDate    value,     // string
-  depositPaymentsvalue,     // Array (empty)
-  depositor      value,     // null
-  downPayment    value,     // number
-  engineNo       value,     // Array<String>
-  firstName      value,     // string
-  firstName_lowervalue,     // string
-  firstName_partialvalue,     // string
-  giveaways      value,     // Array<Object>
-  guarantorDocs  value,     // Object
-  guarantors     value,     // Array (empty)
-  hasGuarantor   value,     // boolean
-  hasReferrer    value,     // boolean
-  hasTurnOver    value,     // boolean
-  isEquipment    value,     // boolean
-  isNewCustomer  value,     // boolean
-  isNewReferrer  value,     // boolean
-  isUsed         value,     // boolean
-  items          value,     // Array<Object>
-  ivAdjusted     value,     // boolean
-  keywords       value,     // Array<String>
-  lastName       value,     // string
-  model          value,     // Array<String>
-  oweKBNLeasing  value,     // number
-  oweKBNLeasings value,     // Object
-  payments       value,     // Array (empty)
-  peripheralNo   value,     // Array<String>
-  peripherals    value,     // Array (empty)
-  phoneNumber    value,     // string
-  postcode       value,     // string
-  prefix         value,     // string
-  proMonth       value,     // string
-  promotions     value,     // Array<Object>
-  province       value,     // string
-  receiverEmployeevalue,     // string
-  refNo          value,     // string
-  referrer       value,     // Address
-  referringDetailsvalue,     // Object
-  registered     value,     // null
-  remark         value,     // null
-  reservationDepositorvalue,     // null
-  saleCategory   value,     // string
-  saleId         value,     // string
-  saleNo         value,     // string
-  saleNo_lower   value,     // string
-  saleNo_partial value,     // string
-  salePNo        value,     // string
-  saleSubCategoryvalue,     // string
-  saleType       value,     // string
-  salesPerson    value,     // Array<String>
-  sourceOfData   value,     // Array (empty)
-  status         value,     // string
-  tambol         value,     // string
-  total          value,     // number
-  turnOverCloseInstallmentvalue,     // null
-  turnOverDocs   value,     // Array (empty)
-  turnOverFix    value,     // boolean
-  turnOverFixKBN value,     // null
-  turnOverFixMAX value,     // null
-  turnOverItems  value,     // Array (empty)
-  vehicleNo      value,     // Array<String>
-  vehicles       value,     // Array<Object>
-  village        value,     // string
-}
-```
-
-##### 📁 reports/services/all Collection
-
-Stores comprehensive service reports.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// reports/services/all/{documentId}
-{
-  docDate:  value,     // date string
-
-  SKCDiscountPricevalue,     // number
-  advisor        value,     // string
-  advisorName    value,     // string
-  batchNo        value,     // number
-  branchCode     value,     // string
-  branchName     value,     // string
-  causeCode      value,     // null
-  causeCodeDesc  value,     // null
-  customerCode   value,     // string
-  customerName   value,     // string
-  dealerDiscountPricevalue,     // number
-  discountType   value,     // null
-  docDate        value,     // string
-  engineNo       value,     // string
-  freights       value,     // number
-  importBy       value,     // string
-  importTime     value,     // number
-  jobCloseDate   value,     // string
-  model          value,     // string
-  netPrice       value,     // number
-  oilBeforeDiscountvalue,     // number
-  oilDealerDiscountvalue,     // number
-  oilSKCDiscount value,     // number
-  oilSum         value,     // Array (empty)
-  oils           value,     // number
-  orderNo        value,     // string
-  orderReason    value,     // string
-  orderStatus    value,     // string
-  orderType      value,     // string
-  orderTypeDesc  value,     // string
-  others         value,     // number
-  partBeforeDiscountvalue,     // number
-  partDealerDiscountvalue,     // number
-  partSKCDiscountvalue,     // number
-  parts          value,     // number
-  percentDiscountvalue,     // number
-  priceBeforeDiscountvalue,     // number
-  productName    value,     // string
-  saleDate       value,     // string
-  serviceStatus  value,     // string
-  serviceTechnicianvalue,     // Array<String>
-  travels        value,     // number
-  vehicleModel   value,     // string
-  vehicleNo      value,     // string
-  wages          value,     // number
-  workHour       value,     // number
-}
-```
-
-### 📁 sections Collection
-
-The sections collection contains operational data grouped by business function.
-
-#### 📁 sections/account Subcollection
-
-##### 📁 sections/account/bankDeposit Collection
-
-Stores bank deposit records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/account/bankDeposit/{documentId}
-{
-  created:  value,     // timestamp
-
-  branchCode     value,     // string
-  created        value,     // number
-  createdBy      value,     // string
-  date           value,     // string
-  deleted        value,     // boolean
-  depositDate    value,     // string
-  depositId      value,     // string
-  depositor      value,     // string
-  remark         value,     // string
-  selfBankId     value,     // string
-  status         value,     // string
-  total          value,     // string
-}
-```
-
-##### 📁 sections/account/executiveCashDeposit Collection
-
-Stores executive cash deposit records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/account/executiveCashDeposit/{documentId}
-{
-  created:  value,     // timestamp
-
-  branchCode     value,     // string
-  created        value,     // number
-  createdBy      value,     // string
-  date           value,     // string
-  deleted        value,     // boolean
-  depositDate    value,     // string
-  depositId      value,     // string
-  depositor      value,     // string
-  executiveId    value,     // string
-  remark         value,     // string
-  status         value,     // string
-  total          value,     // string
-}
-```
-
-##### 📁 sections/account/expenseItems Collection
-
-Stores expense item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/account/expenseItems/{documentId}
-{
-  created:  value,     // timestamp
-
-  VAT            value,     // string
-  _key           value,     // string
-  branchCode     value,     // string
-  created        value,     // number
-  date           value,     // string
-  dealer         value,     // string
-  department     value,     // string
-  discount       value,     // null
-  expenseAccountNameIdvalue,     // string
-  expenseCategoryIdvalue,     // string
-  expenseId      value,     // string
-  expenseItemId  value,     // string
-  expenseName    value,     // string
-  expenseType    value,     // string
-  inputBy        value,     // string
-  isChevrolet    value,     // boolean
-  payer          value,     // string
-  priceType      value,     // string
-  remark         value,     // null
-  taxInvoiceNo   value,     // string
-  total          value,     // number
-}
-```
-
-##### 📁 sections/account/expenseTransfer Collection
-
-Stores expense transfer records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/account/expenseTransfer/{documentId}
-{
-  created:  value,     // timestamp
-
-  VAT            value,     // string
-  _key           value,     // string
-  accNo          value,     // null
-  bank           value,     // null
-  bankName       value,     // null
-  beforeVAT      value,     // string
-  billNo         value,     // null
-  branchCode     value,     // string
-  created        value,     // number
-  date           value,     // string
-  department     value,     // null
-  docNo          value,     // string
-  expenseAccountNameIdvalue,     // null
-  expenseCategoryIdvalue,     // null
-  expenseId      value,     // string
-  expenseItemId  value,     // string
-  expenseName    value,     // string
-  expenseType    value,     // string
-  hasWHTax       value,     // number
-  inputBy        value,     // string
-  ledgerCompletedvalue,     // boolean
-  ledgerRecords  value,     // Array (empty)
-  netTotal       value,     // string
-  priceType      value,     // string
-  receiver       value,     // string
-  refNo          value,     // null
-  remark         value,     // null
-  taxInvoiceCompletedvalue,     // boolean
-  taxInvoiceInfo value,     // null
-  total          value,     // number
-  transferCompletedvalue,     // boolean
-  whTax          value,     // string
-  whTaxDoc       value,     // null
-}
-```
-
-##### 📁 sections/account/expenses Collection
-
-Stores expense records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/account/expenses/{documentId}
-{
-  date:  value,     // date string
-
-  billTotal      value,     // number
-  branchCode     value,     // string
-  changeDeposit  value,     // Array<Object>
-  created        value,     // number
-  date           value,     // string
-  expenseCategoryvalue,     // string
-  expenseId      value,     // string
-  expenseType    value,     // string
-  inputBy        value,     // string
-  inputDate      value,     // string
-  items          value,     // Array<Object>
-  receiverEmployeevalue,     // string
-  status         value,     // string
-  total          value,     // number
-}
-```
-
-##### 📁 sections/account/incomeItems Collection
-
-Stores income item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/account/incomeItems/{documentId}
-{
-  // Fields would be here
-}
-```
-
-##### 📁 sections/account/incomes Collection
-
-Stores income records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/account/incomes/{documentId}
-{
-  created:  value,     // timestamp
-
-  amtBattery     value,     // number
-  amtDuringDay   value,     // number
-  amtFieldMeter  value,     // number
-  amtGPS         value,     // number
-  amtIntake      value,     // number
-  amtOther       value,     // number
-  amtReceived    value,     // number
-  amtTyre        value,     // number
-  branchCode     value,     // string
-  created        value,     // number
-  createdBy      value,     // string
-  customerId     value,     // null
-  date           value,     // string
-  deductOther    value,     // number
-  docNo          value,     // string
-  hasBankTransfervalue,     // boolean
-  hasPLoan       value,     // boolean
-  incomeCategory value,     // string
-  incomeId       value,     // string
-  incomeSubCategoryvalue,     // string
-  incomeType     value,     // string
-  partsDeposit   value,     // number
-  payments       value,     // Array (empty)
-  receiverDuringDayvalue,     // string
-  receiverEmployeevalue,     // string
-  remark         value,     // string
-  salesPerson    value,     // Array<String>
-  status         value,     // string
-  total          value,     // number
-}
-```
-
-#### 📁 sections/credits Subcollection
-
-##### 📁 sections/credits/credits Collection
-
-Stores credit records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/credits/credits/{documentId}
-{
-  created:  value,     // timestamp
-
-  actualTransferDatevalue,     // null
-  amtActOfLegal  value,     // number
-  amtBaacFee     value,     // null
-  amtFull        value,     // number
-  amtInsurance   value,     // number
-  amtKBN         value,     // number
-  amtReceive     value,     // null
-  amtReferrer    value,     // number
-  branchCode     value,     // string
-  contractAmtReceivedAccNovalue,     // null
-  contractAmtReceivedBankvalue,     // null
-  contractAmtReceivedDatevalue,     // null
-  contractDeliverDatevalue,     // null
-  created        value,     // number
-  createdBy      value,     // string
-  creditId       value,     // string
-  creditNo       value,     // null
-  customerId     value,     // string
-  date           value,     // null
-  downPayment    value,     // number
-  firstInstallmentvalue,     // number
-  firstName      value,     // string
-  hasReferrer    value,     // boolean
-  inputBy        value,     // string
-  inputCreditInfoByvalue,     // null
-  itemType       value,     // Array<String>
-  keywords       value,     // Array (empty)
-  lastName       value,     // string
-  loanInfoIncome value,     // number
-  netTotal       value,     // string
-  prefix         value,     // string
-  referrer       value,     // Object
-  referringDetailsvalue,     // Object
-  remark         value,     // null
-  saleCutoffDate value,     // null
-  saleId         value,     // string
-  saleItems      value,     // Array (empty)
-  saleNo         value,     // string
-  saleType       value,     // string
-  sendTransferDatevalue,     // null
-  status         value,     // string
-  taxInvoice     value,     // null
-  taxInvoiceDate value,     // null
-  totalBeforeDeductInsurancevalue,     // number
-  totalDownDiscountvalue,     // number
-  vat            value,     // number
-  wht            value,     // number
-}
-```
-
-#### 📁 sections/hr Subcollection
-
-##### 📁 sections/hr/importFingerPrint Collection
-
-Stores imported fingerprint data.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/hr/importFingerPrint/{documentId}
-{
-  importTime:  value,     // timestamp
-
-  1              value,     // string
-  2              value,     // string
-  3              value,     // string
-  4              value,     // string
-  5              value,     // string
-  6              value,     // string
-  batchNo        value,     // number
-  branch         value,     // string
-  date           value,     // string
-  employeeCode   value,     // string
-  fullName       value,     // string
-  importBy       value,     // string
-  importTime     value,     // number
-}
-```
-
-##### 📁 sections/hr/importFingerPrintBatch Collection
-
-Stores batch fingerprint import data.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/hr/importFingerPrintBatch/{documentId}
-{
-  importTime:  value,     // timestamp
-
-  1              value,     // string
-  2              value,     // string
-  3              value,     // string
-  4              value,     // string
-  5              value,     // string
-  6              value,     // string
-  batchNo        value,     // number
-  branch         value,     // string
-  date           value,     // string
-  employeeCode   value,     // string
-  fullName       value,     // string
-  importBy       value,     // string
-  importTime     value,     // number
-}
-```
-
-##### 📁 sections/hr/leave Collection
-
-Stores employee leave records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/hr/leave/{documentId}
-{
-  created:  value,     // timestamp
-
-  approvedBy     value,     // string
-  branchCode     value,     // string
-  created        value,     // number
-  date           value,     // string
-  dates          value,     // Array<String>
-  deleted        value,     // boolean
-  department     value,     // string
-  docId          value,     // string
-  employeeId     value,     // string
-  fromDate       value,     // string
-  hasMedCer      value,     // boolean
-  inputBy        value,     // string
-  leaveDays      value,     // number
-  leaveType      value,     // string
-  position       value,     // string
-  reason         value,     // string
-  recordedBy     value,     // string
-  toDate         value,     // string
-}
-```
-
-#### 📁 sections/imports Subcollection
-
-##### 📁 sections/imports/fingerPrint Collection
-
-Stores fingerprint import records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/imports/fingerPrint/{documentId}
-{
-  time:  value,     // timestamp
-
-  batchNo        value,     // number
-  by             value,     // string
-  dataType       value,     // string
-  time           value,     // number
-}
-```
-
-##### 📁 sections/imports/parts Collection
-
-Stores parts import records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/imports/parts/{documentId}
-{
-  time:  value,     // timestamp
-
-  batchNo        value,     // number
-  by             value,     // string
-  dataType       value,     // string
-  time           value,     // number
-}
-```
-
-##### 📁 sections/imports/sellParts Collection
-
-Stores sell parts import records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/imports/sellParts/{documentId}
-{
-  time:  value,     // timestamp
-
-  batchNo        value,     // number
-  by             value,     // string
-  dataType       value,     // string
-  time           value,     // number
-}
-```
-
-##### 📁 sections/imports/services Collection
-
-Stores services import records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/imports/services/{documentId}
-{
-  time:  value,     // timestamp
-
-  batchNo        value,     // number
-  by             value,     // string
-  dataType       value,     // string
-  time           value,     // number
-}
-```
-
-##### 📁 sections/imports/vehicleList Collection
-
-Stores vehicle list import records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/imports/vehicleList/{documentId}
-{
-  time:  value,     // timestamp
-
-  batchNo        value,     // number
-  by             value,     // string
-  dataType       value,     // string
-  time           value,     // number
-}
-```
-
-##### 📁 sections/imports/vehicles Collection
-
-Stores vehicles import records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/imports/vehicles/{documentId}
-{
-  time:  value,     // timestamp
-
-  batchNo        value,     // number
-  by             value,     // string
-  dataType       value,     // string
-  time           value,     // number
-}
-```
-
-#### 📁 sections/sales Subcollection
-
-##### 📁 sections/sales/bookItems Collection
-
-Stores booking item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/sales/bookItems/{documentId}
-{
-  bookItemId:  value,     // string
-
-  _key           value,     // string
-  bookId         value,     // string
-  bookItemId     value,     // string
-  detail         value,     // string
-  engineNo       value,     // Array (empty)
-  peripheralNo   value,     // Array (empty)
-  productCode    value,     // string
-  productName    value,     // string
-  productType    value,     // null
-  qty            value,     // number
-  status         value,     // string
-  total          value,     // number
-  unitPrice      value,     // number
-  vehicleNo      value,     // Array (empty)
-  vehicleType    value,     // string
-}
-```
-
-##### 📁 sections/sales/bookings Collection
-
-Stores booking records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/sales/bookings/{documentId}
-{
-  created:  value,     // timestamp
-
-  accountRecordedvalue,     // null
-  additionalPurchasevalue,     // Array (empty)
-  address        value,     // Address
-  advInstallment value,     // number
-  amtFull        value,     // number
-  amtKBN         value,     // number
-  amtMAX         value,     // number
-  amtOldCustomer value,     // number
-  amtPro         value,     // number
-  amtReceived    value,     // number
-  amtReferrer    value,     // number
-  amtSKC         value,     // number
-  amtTurnOver    value,     // number
-  amtTurnOverDifRefundvalue,     // number
-  amtTurnOverVehiclevalue,     // null
-  assessment     value,     // Object
-  bookId         value,     // string
-  bookNo         value,     // string
-  bookNo_lower   value,     // string
-  bookNo_partial value,     // string
-  bookPNo        value,     // string
-  bookingPerson  value,     // string
-  branchCode     value,     // string
-  canceled       value,     // null
-  created        value,     // number
-  createdBy      value,     // string
-  creditRecorded value,     // null
-  customer       value,     // string
-  customerId     value,     // string
-  customerNo     value,     // string
-  date           value,     // string
-  deductOther    value,     // number
-  deductOthers   value,     // Array (empty)
-  depositor      value,     // null
-  downPayment    value,     // number
-  firstName      value,     // string
-  firstName_lowervalue,     // string
-  firstName_partialvalue,     // string
-  giveaways      value,     // Array<Object>
-  hasTurnOver    value,     // boolean
-  isEquipment    value,     // boolean
-  isNewCustomer  value,     // boolean
-  isNewReferrer  value,     // boolean
-  isUsed         value,     // boolean
-  items          value,     // Array<Object>
-  ivAdjusted     value,     // boolean
-  keywords       value,     // Array<String>
-  lastName       value,     // string
-  oweKBNLeasing  value,     // number
-  payments       value,     // Array (empty)
-  phoneNumber    value,     // string
-  prefix         value,     // string
-  proMonth       value,     // string
-  promotions     value,     // Array (empty)
-  receiverEmployeevalue,     // string
-  refNo          value,     // null
-  referrer       value,     // Object
-  referringDetailsvalue,     // Object
-  remark         value,     // null
-  saleCategory   value,     // string
-  saleSubCategoryvalue,     // string
-  saleType       value,     // string
-  salesPerson    value,     // Array<String>
-  sourceOfData   value,     // Array<String>
-  status         value,     // string
-  total          value,     // number
-  turnOverCloseInstallmentvalue,     // null
-  turnOverDocs   value,     // Array (empty)
-  turnOverFix    value,     // boolean
-  turnOverFixKBN value,     // null
-  turnOverFixMAX value,     // null
-  turnOverItems  value,     // Array (empty)
-}
-```
-
-##### 📁 sections/sales/partGroups Collection
-
-Stores part group categorization.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/sales/partGroups/{documentId}
-{
-  importTime:  value,     // timestamp
-
-  AD_Discount    value,     // number
-  AD_DiscountQty value,     // number
-  SKCDiscount    value,     // number
-  SKCDiscountQty value,     // number
-  SKCLoyaltyDiscountvalue,     // number
-  SKCLoyaltyDiscountAmtvalue,     // number
-  SKCManualDiscountvalue,     // number
-  SKCManualDiscountQtyvalue,     // number
-  amtOilType     value,     // string
-  amtPartType    value,     // string
-  batchNo        value,     // number
-  billDiscount   value,     // number
-  billDiscountQtyvalue,     // number
-  branchCode     value,     // string
-  deposit        value,     // number
-  discountCoupon value,     // number
-  discountPointRedeemvalue,     // string
-  importBy       value,     // string
-  importTime     value,     // number
-  item           value,     // number
-  netDepositDeductvalue,     // number
-  netTotal       value,     // string
-  pointsReceived value,     // number
-  redeemPoint    value,     // number
-  saleDate       value,     // string
-  saleNo         value,     // string
-  sourceOfData   value,     // string
-}
-```
-
-##### 📁 sections/sales/partItems Collection
-
-Stores part item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/sales/partItems/{documentId}
-{
-  saleDate:  value,     // date string
-
-  AD_Discount    value,     // string
-  AD_DiscountPercentvalue,     // string
-  AD_DiscountQty value,     // string
-  Control Tower Disc Manual (Amt)value,     // string
-  Kubota ID      value,     // string
-  POS_No         value,     // string
-  SKCDiscount    value,     // string
-  SKCDiscountPercentvalue,     // string
-  SKCDiscountQty value,     // string
-  SKCLoyaltyDiscountvalue,     // string
-  SKCLoyaltyDiscountAmtvalue,     // string
-  SKCLoyaltyDiscountPercentvalue,     // string
-  SKCManualDiscountvalue,     // string
-  SKCManualDiscountPercentvalue,     // string
-  SKCManualDiscountQtyvalue,     // string
-  address        value,     // string
-  amphoe         value,     // string
-  amtOilType     value,     // number
-  amtPartType    value,     // string
-  batchNo        value,     // number
-  billDiscount   value,     // string
-  billDiscountPercentvalue,     // string
-  billDiscountQtyvalue,     // string
-  branch         value,     // string
-  branchCode     value,     // string
-  building       value,     // string
-  cancelStatus   value,     // string
-  customerId     value,     // string
-  deposit        value,     // string
-  discountGroup  value,     // string
-  discountPointRedeemvalue,     // string
-  employeeName   value,     // string
-  engineNo       value,     // string
-  firstName      value,     // string
-  floor          value,     // string
-  importBy       value,     // string
-  importTime     value,     // number
-  invoiceNumber  value,     // string
-  item           value,     // number
-  lastName       value,     // string
-  marketingConsentvalue,     // string
-  moo            value,     // string
-  netDepositDeductvalue,     // number
-  netTotal       value,     // string
-  no_            value,     // number
-  paymentTerms   value,     // string
-  phoneNumber    value,     // string
-  pointsReceived value,     // number
-  postcode       value,     // string
-  prefix         value,     // string
-  productCode    value,     // string
-  productName    value,     // string
-  productType    value,     // string
-  productTypeDescvalue,     // string
-  province       value,     // string
-  qty            value,     // number
-  redeemPoint    value,     // string
-  remark         value,     // string
-  road           value,     // string
-  room           value,     // string
-  saleDate       value,     // string
-  saleNo         value,     // string
-  saleType       value,     // string
-  shop           value,     // string
-  shopCode       value,     // string
-  skcEcouponAmt  value,     // string
-  skcpartsdiscount20value,     // string
-  skcpartsdiscountamount20value,     // string
-  soi            value,     // string
-  sourceOfData   value,     // string
-  storeLocation  value,     // string
-  storeLocationNamevalue,     // string
-  tambol         value,     // string
-  taxInvoice     value,     // string
-  telephone      value,     // string
-  unit           value,     // string
-  unitPrice      value,     // number
-  vehicleNo      value,     // string
-  village        value,     // string
-}
-```
-
-##### 📁 sections/sales/parts Collection
-
-Stores parts sales records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/sales/parts/{documentId}
-{
-  saleDate:  value,     // date string
-
-  address        value,     // Address
-  batchNo        value,     // number
-  branch         value,     // string
-  branchCode     value,     // string
-  employeeName   value,     // string
-  engineNo       value,     // string
-  firstName      value,     // string
-  importBy       value,     // string
-  importTime     value,     // number
-  invoiceNumber  value,     // string
-  lastName       value,     // string
-  paymentTerms   value,     // string
-  phoneNumber    value,     // string
-  prefix         value,     // string
-  saleDate       value,     // string
-  saleNo         value,     // string
-  saleType       value,     // string
-  shop           value,     // string
-  shopCode       value,     // string
-  sourceOfData   value,     // string
-  taxInvoice     value,     // string
-  telephone      value,     // string
-  vehicleNo      value,     // string
-}
-```
-
-##### 📁 sections/sales/saleItems Collection
-
-Stores sale item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/sales/saleItems/{documentId}
-{
-  saleDate:  value,     // date string
-
-  _key           value,     // string
-  bookId         value,     // string
-  bookItemId     value,     // string
-  branchCode     value,     // string
-  detail         value,     // string
-  engineNo       value,     // Array<String>
-  isEquipment    value,     // boolean
-  isUsed         value,     // boolean
-  ivAdjusted     value,     // boolean
-  peripheralNo   value,     // Array<String>
-  productCode    value,     // string
-  productName    value,     // string
-  qty            value,     // number
-  registered     value,     // null
-  saleDate       value,     // string
-  saleId         value,     // string
-  saleItemId     value,     // string
-  saleNo         value,     // string
-  sourceOfData   value,     // Array (empty)
-  status         value,     // string
-  total          value,     // number
-  unitPrice      value,     // number
-  vehicleItemTypevalue,     // string
-  vehicleNo      value,     // Array<String>
-  vehicleType    value,     // string
-}
-```
-
-##### 📁 sections/sales/salePartItems Collection
-
-Stores sale part item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/sales/salePartItems/{documentId}
-{
-  saleDate:  value,     // date string
-
-  _key           value,     // string
-  branchCode     value,     // string
-  detail         value,     // string
-  discount       value,     // null
-  ivAdjusted     value,     // boolean
-  pCode          value,     // string
-  partType       value,     // string
-  productName    value,     // string
-  qty            value,     // number
-  registered     value,     // null
-  saleDate       value,     // string
-  saleId         value,     // string
-  saleItemId     value,     // string
-  saleNo         value,     // string
-  status         value,     // string
-  total          value,     // number
-  unitPrice      value,     // number
-}
-```
-
-##### 📁 sections/sales/vehicles Collection
-
-Stores vehicle sales records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/sales/vehicles/{documentId}
-{
-  date:  value,     // date string
-
-  accountRecordedvalue,     // null
-  additionalPurchasevalue,     // Array (empty)
-  address        value,     // Address
-  advInstallment value,     // number
-  amtBaacDebtor  value,     // null
-  amtBaacFee     value,     // null
-  amtDeposit     value,     // number
-  amtFull        value,     // number
-  amtKBN         value,     // number
-  amtMAX         value,     // number
-  amtOldCustomer value,     // number
-  amtOther       value,     // number
-  amtOthers      value,     // Array (empty)
-  amtPlateAndInsurancevalue,     // number
-  amtPro         value,     // number
-  amtReceived    value,     // number
-  amtReferrer    value,     // number
-  amtReservation value,     // number
-  amtSKC         value,     // number
-  amtTurnOver    value,     // number
-  amtTurnOverDifRefundvalue,     // number
-  amtTurnOverVehiclevalue,     // null
-  assessment     value,     // Object
-  baacNo         value,     // null
-  bookDate       value,     // string
-  bookId         value,     // string
-  bookNo         value,     // string
-  bookNo_lower   value,     // string
-  bookNo_partial value,     // string
-  bookPNo        value,     // string
-  bookingPerson  value,     // Array<String>
-  branchCode     value,     // string
-  canceled       value,     // null
-  contractDate   value,     // string
-  created        value,     // number
-  createdBy      value,     // string
-  creditRecorded value,     // null
-  customer       value,     // string
-  customerId     value,     // string
-  customerNo     value,     // string
-  date           value,     // string
-  deductOther    value,     // number
-  deductOthers   value,     // Array (empty)
-  deliverDate    value,     // string
-  depositPaymentsvalue,     // Array<Object>
-  depositor      value,     // null
-  downPayment    value,     // number
-  engineNo       value,     // Array<String>
-  firstName      value,     // string
-  firstName_lowervalue,     // string
-  firstName_partialvalue,     // string
-  giveaways      value,     // Array<Object>
-  guarantorDocs  value,     // Object
-  guarantors     value,     // Array (empty)
-  hasGuarantor   value,     // boolean
-  hasReferrer    value,     // boolean
-  hasTurnOver    value,     // boolean
-  isEquipment    value,     // boolean
-  isNewCustomer  value,     // boolean
-  isNewReferrer  value,     // boolean
-  isUsed         value,     // boolean
-  items          value,     // Array<Object>
-  ivAdjusted     value,     // Object
-  keywords       value,     // Array<String>
-  lastName       value,     // string
-  model          value,     // Array<String>
-  oweKBNLeasing  value,     // number
-  oweKBNLeasings value,     // Object
-  payments       value,     // Array<Object>
-  phoneNumber    value,     // string
-  prefix         value,     // string
-  proMonth       value,     // string
-  promotions     value,     // Array<Object>
-  receiverEmployeevalue,     // string
-  refNo          value,     // string
-  referrer       value,     // Object
-  referrerName   value,     // string
-  referringDetailsvalue,     // Object
-  registered     value,     // null
-  remark         value,     // null
-  reservationDepositorvalue,     // null
-  saleCategory   value,     // string
-  saleId         value,     // string
-  saleNo         value,     // string
-  saleNo_lower   value,     // string
-  saleNo_partial value,     // string
-  salePNo        value,     // string
-  saleSubCategoryvalue,     // string
-  saleType       value,     // string
-  salesPerson    value,     // Array<String>
-  sourceOfData   value,     // Array<String>
-  status         value,     // string
-  total          value,     // number
-  turnOverCloseInstallmentvalue,     // null
-  turnOverDocs   value,     // Array (empty)
-  turnOverFix    value,     // boolean
-  turnOverFixKBN value,     // null
-  turnOverFixMAX value,     // null
-  turnOverItems  value,     // Array (empty)
-  vehicleNo      value,     // Array<String>
-  vehicles       value,     // Array<Object>
-  village        value,     // string
-}
-```
-
-#### 📁 sections/services Subcollection
-
-##### 📁 sections/services/gasCost Collection
-
-Stores gas cost records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/services/gasCost/{documentId}
-{
-  date:  value,     // date string
-
-  _key           value,     // string
-  branchCode     value,     // string
-  created        value,     // number
-  date           value,     // string
-  deleted        value,     // boolean
-  destination    value,     // string
-  distance       value,     // number
-  gasCost        value,     // string
-  inputBy        value,     // string
-  meterEnd       value,     // string
-  meterStart     value,     // string
-  origin         value,     // string
-  vehicleRegNumbervalue,     // string
-}
-```
-
-##### 📁 sections/services/importServiceItems Collection
-
-Stores imported service item records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/services/importServiceItems/{documentId}
-{
-  importTime:  value,     // timestamp
-
-  SKCDiscountPricevalue,     // string
-  batchNo        value,     // number
-  categoryCode   value,     // string
-  categoryDesc   value,     // string
-  chargesCode    value,     // string
-  dealerDiscountPricevalue,     // string
-  description    value,     // string
-  discountType   value,     // null
-  importBy       value,     // string
-  importTime     value,     // number
-  item           value,     // string
-  netPrice       value,     // string
-  orderNo        value,     // string
-  partType       value,     // string
-  priceBeforeDiscountvalue,     // string
-  qty            value,     // number
-  reasonCode     value,     // string
-  unit           value,     // string
-  unitPrice      value,     // number
-  warrantyCategoryvalue,     // string
-}
-```
-
-##### 📁 sections/services/importServices Collection
-
-Stores imported service records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/services/importServices/{documentId}
-{
-  docDate:  value,     // date string
-
-  SKCDiscountPricevalue,     // number
-  advisor        value,     // string
-  advisorName    value,     // string
-  batchNo        value,     // number
-  branchCode     value,     // string
-  branchName     value,     // string
-  causeCode      value,     // null
-  causeCodeDesc  value,     // null
-  customerCode   value,     // string
-  customerName   value,     // string
-  dealerDiscountPricevalue,     // number
-  discountType   value,     // null
-  docDate        value,     // string
-  engineNo       value,     // string
-  freights       value,     // number
-  importBy       value,     // string
-  importTime     value,     // number
-  jobCloseDate   value,     // string
-  model          value,     // string
-  netPrice       value,     // number
-  oilBeforeDiscountvalue,     // number
-  oilDealerDiscountvalue,     // number
-  oilSKCDiscount value,     // number
-  oilSum         value,     // Array (empty)
-  oils           value,     // number
-  orderNo        value,     // string
-  orderReason    value,     // string
-  orderStatus    value,     // string
-  orderType      value,     // string
-  orderTypeDesc  value,     // string
-  others         value,     // number
-  partBeforeDiscountvalue,     // number
-  partDealerDiscountvalue,     // number
-  partSKCDiscountvalue,     // number
-  parts          value,     // number
-  percentDiscountvalue,     // number
-  priceBeforeDiscountvalue,     // number
-  productName    value,     // string
-  saleDate       value,     // string
-  serviceStatus  value,     // string
-  serviceTechnicianvalue,     // Array<String>
-  travels        value,     // number
-  vehicleModel   value,     // string
-  vehicleNo      value,     // string
-  wages          value,     // number
-  workHour       value,     // number
-}
-```
-
-##### 📁 sections/services/serviceClose Collection
-
-Stores service close records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/services/serviceClose/{documentId}
-{
-  approvedDate:  value,     // date string
-
-  CF4_3          value,     // number
-  CF4_6          value,     // number
-  UDT_18         value,     // number
-  UDT_6          value,     // number
-  VAT            value,     // number
-  advance        value,     // number
-  amtAllParts    value,     // number
-  amtBlackGlue   value,     // number
-  amtFreight     value,     // number
-  amtOil         value,     // number
-  amtOther       value,     // number
-  amtPart        value,     // number
-  amtWage        value,     // number
-  approvedDate   value,     // string
-  approvedTime   value,     // string
-  approver       value,     // string
-  branchCode     value,     // string
-  cash           value,     // number
-  cause          value,     // string
-  corrective     value,     // string
-  created        value,     // number
-  createdBy      value,     // string
-  customer       value,     // string
-  customerApprovedDatevalue,     // string
-  customerApprovedTimevalue,     // string
-  customerSignedDatevalue,     // string
-  customerSignedTimevalue,     // string
-  discount       value,     // number
-  discountBlackGluevalue,     // number
-  discountCouponPercentvalue,     // number
-  discountOil    value,     // number
-  discountOther  value,     // number
-  discountPart   value,     // number
-  items          value,     // Array<Object>
-  keywords       value,     // Array<String>
-  model          value,     // null
-  moneyTransfer  value,     // number
-  notFound       value,     // boolean
-  orderStatus    value,     // string
-  payments       value,     // Array<Object>
-  recordedDate   value,     // string
-  refDoc         value,     // Address
-  returnTotal    value,     // number
-  serviceAddress value,     // Address
-  serviceDate    value,     // string
-  serviceId      value,     // string
-  serviceNo      value,     // string
-  serviceNo_lowervalue,     // string
-  serviceNo_partialvalue,     // string
-  serviceTime    value,     // string
-  serviceType    value,     // string
-  servicer       value,     // string
-  status         value,     // string
-  technicianId   value,     // Array<String>
-  times          value,     // number
-  total          value,     // number
-  totalBeforeVat value,     // number
-  vehicleRegNumbervalue,     // string
-  vehicleType    value,     // string
-  warrantyStatus value,     // string
-}
-```
-
-##### 📁 sections/services/serviceCloseItems Collection
-
-Stores service close item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/services/serviceCloseItems/{documentId}
-{
-  serviceItemId:  value,     // string
-
-  FOC            value,     // boolean
-  WR             value,     // boolean
-  _key           value,     // string
-  advance        value,     // number
-  description    value,     // string
-  discount       value,     // number
-  discountCouponPercentvalue,     // number
-  id             value,     // number
-  item           value,     // string
-  key            value,     // number
-  qty            value,     // number
-  returnDiscount value,     // null
-  returnQty      value,     // null
-  returnTotal    value,     // null
-  serviceCode    value,     // string
-  serviceId      value,     // string
-  serviceItemId  value,     // string
-  serviceItemTypevalue,     // string
-  status         value,     // string
-  total          value,     // number
-  unit           value,     // null
-  unitPrice      value,     // string
-}
-```
-
-##### 📁 sections/services/serviceItems Collection
-
-Stores service item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/services/serviceItems/{documentId}
-{
-  serviceItemId:  value,     // string
-
-  FOC            value,     // boolean
-  WR             value,     // boolean
-  _key           value,     // string
-  description    value,     // string
-  discount       value,     // number
-  discountCouponPercentvalue,     // number
-  id             value,     // number
-  item           value,     // string
-  key            value,     // number
-  qty            value,     // number
-  serviceCode    value,     // string
-  serviceId      value,     // string
-  serviceItemId  value,     // string
-  serviceItemTypevalue,     // string
-  status         value,     // string
-  total          value,     // number
-  unit           value,     // null
-  unitPrice      value,     // string
-}
-```
-
-##### 📁 sections/services/serviceOrders Collection
-
-Stores service order records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/services/serviceOrders/{documentId}
-{
-  date:  value,     // date string
-
-  address        value,     // Address
-  appointmentDatevalue,     // string
-  appointmentTimevalue,     // string
-  assigner       value,     // string
-  boughDate      value,     // string
-  branchCode     value,     // string
-  closedDate     value,     // string
-  contact        value,     // Object
-  created        value,     // number
-  createdBy      value,     // string
-  customerId     value,     // string
-  date           value,     // string
-  dealer         value,     // string
-  discount       value,     // number
-  discountCouponPercentvalue,     // number
-  engineNo       value,     // Array<String>
-  firstName      value,     // string
-  firstName_lowervalue,     // string
-  firstName_partialvalue,     // string
-  guaranteedEndDatevalue,     // string
-  hoursOfUse     value,     // string
-  items          value,     // Array<Object>
-  keywords       value,     // Array<String>
-  lastName       value,     // string
-  lastName_lower value,     // string
-  lastName_partialvalue,     // string
-  notifiedBy     value,     // string
-  notifyChannel  value,     // null
-  notifyDate     value,     // string
-  notifyDetails  value,     // string
-  orderStatus    value,     // string
-  peripheralNo   value,     // Array<String>
-  peripheralPCodevalue,     // string
-  phoneNumber    value,     // string
-  prefix         value,     // string
-  productPCode   value,     // string
-  redo           value,     // boolean
-  sameAddress    value,     // boolean
-  sameName       value,     // boolean
-  serviceAddress value,     // Address
-  serviceId      value,     // string
-  serviceNo      value,     // string
-  serviceNo_lowervalue,     // string
-  serviceNo_partialvalue,     // string
-  serviceType    value,     // string
-  status         value,     // string
-  technicianId   value,     // Array<String>
-  times          value,     // number
-  total          value,     // number
-  urgency        value,     // null
-  vehicleNo      value,     // Array<String>
-  vehicleType    value,     // string
-  warrantyStatus value,     // string
-}
-```
-
-#### 📁 sections/stocks Subcollection
-
-##### 📁 sections/stocks/importLog Collection
-
-Stores import log records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/importLog/{documentId}
-{
-  ts:  value,     // timestamp
-
-  batchNo        value,     // number
-  dataType       value,     // string
-  ts             value,     // string
-}
-```
-
-##### 📁 sections/stocks/importPartItems Collection
-
-Stores imported part item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/importPartItems/{documentId}
-{
-  docDate:  value,     // date string
-
-  balance        value,     // number
-  batchNo        value,     // number
-  branch         value,     // string
-  branchCode     value,     // string
-  docDate        value,     // string
-  docNo          value,     // string
-  export         value,     // string
-  import         value,     // number
-  importBy       value,     // string
-  importTime     value,     // number
-  item           value,     // string
-  itemNo         value,     // string
-  movementType   value,     // string
-  peripheralNo   value,     // string
-  productCode    value,     // string
-  productName    value,     // string
-  receiveBranch  value,     // string
-  remark         value,     // string
-  startBalance   value,     // number
-  storeLocation  value,     // string
-  storePoint     value,     // string
-  transferBranchCodevalue,     // string
-  transferDocNo  value,     // string
-  transferLocationCodevalue,     // string
-  unit           value,     // string
-}
-```
-
-##### 📁 sections/stocks/importParts Collection
-
-Stores imported parts records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/importParts/{documentId}
-{
-  docDate:  value,     // date string
-
-  POS_No         value,     // string
-  accountChecked value,     // null
-  accountCheckedByvalue,     // null
-  accountCheckedDatevalue,     // null
-  balance        value,     // number
-  batchNo        value,     // number
-  billNoSKC      value,     // string
-  branch         value,     // string
-  branchCode     value,     // string
-  brand          value,     // string
-  discount       value,     // null
-  docDate        value,     // string
-  docNo          value,     // string
-  export         value,     // string
-  hp             value,     // string
-  import         value,     // number
-  importBy       value,     // string
-  importTime     value,     // number
-  inputBy        value,     // string
-  inputDate      value,     // string
-  inputTime      value,     // string
-  invoiceDate    value,     // string
-  item           value,     // string
-  itemNo         value,     // string
-  keywords       value,     // Array<String>
-  model          value,     // string
-  movementType   value,     // string
-  order          value,     // null
-  pCode          value,     // string
-  peripheralNo   value,     // string
-  priceType      value,     // null
-  productCode    value,     // string
-  productName    value,     // string
-  purchaseNo     value,     // string
-  receiveBranch  value,     // string
-  seller         value,     // string
-  startBalance   value,     // string
-  storeLocation  value,     // string
-  storeLocationCodevalue,     // string
-  storePoint     value,     // string
-  total          value,     // null
-  transactionDatevalue,     // string
-  transferBranchCodevalue,     // string
-  transferDocNo  value,     // string
-  transferLocationCodevalue,     // string
-  typeCode       value,     // string
-  unit           value,     // string
-  unitPrice      value,     // null
-  userName       value,     // string
-  warehouseCheckedvalue,     // number
-  warehouseCheckedByvalue,     // string
-  warehouseCheckedDatevalue,     // string
-  warehouseInputByvalue,     // string
-  warehouseReceiveDatevalue,     // string
-  ปีเอกสารอ้างอิงvalue,     // string
-  ยกเลิก         value,     // string
-  เอกสารอ้างอิง  value,     // string
-  ใบสั่ง VSS     value,     // string
-}
-```
-
-##### 📁 sections/stocks/importVehicleItems Collection
-
-Stores imported vehicle item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/importVehicleItems/{documentId}
-{
-  docDate:  value,     // date string
-
-  balance        value,     // number
-  batchNo        value,     // number
-  branch         value,     // string
-  branchCode     value,     // string
-  docDate        value,     // string
-  docNo          value,     // string
-  export         value,     // string
-  import         value,     // number
-  importBy       value,     // string
-  importTime     value,     // number
-  item           value,     // string
-  itemNo         value,     // string
-  movementType   value,     // string
-  peripheralNo   value,     // string
-  productCode    value,     // string
-  productName    value,     // string
-  receiveBranch  value,     // string
-  remark         value,     // string
-  startBalance   value,     // string
-  storeLocation  value,     // string
-  transferBranchCodevalue,     // string
-  transferDocNo  value,     // string
-  transferLocationCodevalue,     // string
-  unit           value,     // string
-  vehicleNo      value,     // string
-}
-```
-
-##### 📁 sections/stocks/importVehicles Collection
-
-Stores imported vehicles records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/importVehicles/{documentId}
-{
-  docDate:  value,     // date string
-
-  accountChecked value,     // null
-  accountCheckedByvalue,     // null
-  accountCheckedDatevalue,     // null
-  balance        value,     // number
-  batchNo        value,     // number
-  billNoSKC      value,     // string
-  branch         value,     // string
-  branchCode     value,     // string
-  brand          value,     // string
-  discount       value,     // null
-  docDate        value,     // string
-  docNo          value,     // string
-  engineNo       value,     // string
-  export         value,     // string
-  hp             value,     // string
-  import         value,     // number
-  importBy       value,     // string
-  importTime     value,     // number
-  inputBy        value,     // string
-  inputDate      value,     // string
-  inputTime      value,     // string
-  invoiceDate    value,     // null
-  item           value,     // string
-  itemNo         value,     // string
-  keywords       value,     // Array<String>
-  model          value,     // string
-  movementType   value,     // string
-  order          value,     // null
-  peripheralNo   value,     // string
-  priceType      value,     // null
-  productCode    value,     // string
-  productName    value,     // string
-  purchaseNo     value,     // string
-  receiveBranch  value,     // string
-  seller         value,     // null
-  startBalance   value,     // string
-  storeLocation  value,     // string
-  storeLocationCodevalue,     // string
-  total          value,     // null
-  transactionDatevalue,     // string
-  transferBranchCodevalue,     // string
-  transferDocNo  value,     // string
-  transferLocationCodevalue,     // string
-  typeCode       value,     // string
-  unit           value,     // string
-  unitPrice      value,     // null
-  userName       value,     // string
-  vehicleNo      value,     // string
-  warehouseCheckedvalue,     // null
-  warehouseCheckedByvalue,     // null
-  warehouseCheckedDatevalue,     // null
-  warehouseReceiveDatevalue,     // null
-  ปีเอกสารอ้างอิงvalue,     // string
-  ยกเลิก         value,     // string
-  เอกสารอ้างอิง  value,     // string
-  ใบสั่ง VSS     value,     // string
-}
-```
-
-##### 📁 sections/stocks/importVehicles_new Collection
-
-Stores updated imported vehicles records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/importVehicles_new/{documentId}
-{
-  // Fields would be here
-}
-```
-
-##### 📁 sections/stocks/otherVehicleIn Collection
-
-Stores other vehicle in records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/otherVehicleIn/{documentId}
-{
-  importDate:  value,     // date string
-
-  approvedBy     value,     // null
-  approvedDate   value,     // null
-  completed      value,     // boolean
-  created        value,     // number
-  customer       value,     // null
-  customerId     value,     // null
-  deleted        value,     // boolean
-  deliveredBy    value,     // string
-  deliveredDate  value,     // string
-  docNo          value,     // string
-  docNo_lower    value,     // string
-  docNo_partial  value,     // string
-  importDate     value,     // string
-  importId       value,     // string
-  inputBy        value,     // string
-  isUsed         value,     // boolean
-  items          value,     // Array<Object>
-  keywords       value,     // Array<String>
-  origin         value,     // string
-  receivedBy     value,     // string
-  receivedDate   value,     // string
-  recordedBy     value,     // string
-  recordedDate   value,     // string
-  rejected       value,     // boolean
-  remark         value,     // null
-  saleId         value,     // null
-  saleNo         value,     // null
-  subType        value,     // string
-  toDestination  value,     // string
-  transferType   value,     // string
-  verifiedBy     value,     // string
-  verifiedDate   value,     // string
-}
-```
-
-##### 📁 sections/stocks/otherVehicleOut Collection
-
-Stores other vehicle out records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/otherVehicleOut/{documentId}
-{
-  deliveredDate:  value,     // date string
-
-  approvedBy     value,     // null
-  approvedDate   value,     // null
-  branchCode     value,     // string
-  completed      value,     // boolean
-  created        value,     // number
-  deleted        value,     // boolean
-  deliveredBy    value,     // string
-  deliveredDate  value,     // string
-  destination    value,     // string
-  docNo          value,     // string
-  docNo_lower    value,     // string
-  docNo_partial  value,     // string
-  exportDate     value,     // string
-  exportId       value,     // string
-  exportRecordedByvalue,     // string
-  exportRecordedDatevalue,     // string
-  exportVerifiedByvalue,     // string
-  exportVerifiedDatevalue,     // string
-  fromOrigin     value,     // string
-  importDate     value,     // null
-  inputBy        value,     // string
-  isUsed         value,     // boolean
-  items          value,     // Array<Object>
-  keywords       value,     // Array<String>
-  receivedBy     value,     // string
-  receivedDate   value,     // string
-  rejected       value,     // boolean
-  remark         value,     // null
-  transferType   value,     // string
-}
-```
-
-##### 📁 sections/stocks/peripherals Collection
-
-Stores peripheral item records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/peripherals/{documentId}
-{
-  docNo:  value,     // string
-
-  branchCode     value,     // string
-  docNo          value,     // string
-  keywords       value,     // Array<String>
-  peripheralModelvalue,     // string
-  peripheralNo   value,     // string
-  peripheralNoFullvalue,     // string
-  peripheralNo_lowervalue,     // string
-  peripheralNo_partialvalue,     // string
-  productCode    value,     // string
-  productName    value,     // string
-  productPCode   value,     // string
-  productType    value,     // string
-  reserved       value,     // null
-  sold           value,     // null
-}
-```
-
-##### 📁 sections/stocks/purchasePlan Collection
-
-Stores purchase plan records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/purchasePlan/{documentId}
-{
-  date:  value,     // date string
-
-  _key           value,     // string
-  branchCode     value,     // string
-  created        value,     // number
-  date           value,     // string
-  deleted        value,     // boolean
-  inputBy        value,     // string
-  month          value,     // string
-  productCode    value,     // string
-  productName    value,     // string
-  productType    value,     // string
-  qty            value,     // number
-  recordedBy     value,     // string
-  remark         value,     // null
-}
-```
-
-##### 📁 sections/stocks/saleOut Collection
-
-Stores sale out records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/saleOut/{documentId}
-{
-  date:  value,     // date string
-
-  address        value,     // Address
-  approvedBy     value,     // string
-  approvedDate   value,     // string
-  bookId         value,     // string
-  branchCode     value,     // string
-  canceled       value,     // boolean
-  completed      value,     // boolean
-  created        value,     // number
-  customer       value,     // string
-  customerId     value,     // string
-  date           value,     // string
-  deleted        value,     // boolean
-  deliverId      value,     // string
-  deliveredBy    value,     // string
-  deliveredDate  value,     // string
-  docNo          value,     // string
-  docNo_lower    value,     // string
-  docNo_partial  value,     // string
-  docPNo         value,     // string
-  giveaways      value,     // Array<Object>
-  inputBy        value,     // string
-  isUsed         value,     // boolean
-  items          value,     // Array<Object>
-  keywords       value,     // Array<String>
-  phoneNumber    value,     // string
-  receivedBy     value,     // string
-  receivedDate   value,     // string
-  recordedBy     value,     // string
-  recordedDate   value,     // string
-  rejected       value,     // boolean
-  remark         value,     // null
-  saleDate       value,     // string
-  saleId         value,     // string
-  saleNo         value,     // string
-  saleType       value,     // string
-  salesPerson    value,     // Array<String>
-  transferType   value,     // string
-  turnOverItems  value,     // Array (empty)
-  verifiedBy     value,     // string
-  verifiedDate   value,     // string
-}
-```
-
-##### 📁 sections/stocks/saleOutItems Collection
-
-Stores sale out item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/saleOutItems/{documentId}
-{
-  date:  value,     // date string
-
-  _key           value,     // string
-  branchCode     value,     // string
-  bucketNo       value,     // Array (empty)
-  cancelled      value,     // null
-  completed      value,     // null
-  created        value,     // number
-  date           value,     // string
-  deleted        value,     // null
-  deliverId      value,     // string
-  deliverItemId  value,     // string
-  docNo          value,     // string
-  engineNo       value,     // Array (empty)
-  exportType     value,     // string
-  giveaways      value,     // Array (empty)
-  peripheralNo   value,     // Array<String>
-  pressureBladeNovalue,     // Array (empty)
-  productCode    value,     // string
-  productName    value,     // string
-  qty            value,     // number
-  recordedBy     value,     // string
-  rejected       value,     // null
-  remark         value,     // null
-  saleDate       value,     // string
-  saleId         value,     // string
-  saleItemId     value,     // string
-  saleNo         value,     // string
-  sugarcanePickerNovalue,     // Array (empty)
-  toDestination  value,     // null
-  vehicleNo      value,     // Array (empty)
-}
-```
-
-##### 📁 sections/stocks/transfer Collection
-
-Stores transfer records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/transfer/{documentId}
-{
-  deliveredDate:  value,     // date string
-
-  approvedBy     value,     // null
-  approvedDate   value,     // null
-  branchCode     value,     // string
-  cancelled      value,     // null
-  completed      value,     // null
-  created        value,     // number
-  deleted        value,     // null
-  deliveredBy    value,     // string
-  deliveredDate  value,     // string
-  docNo          value,     // string
-  docNo_lower    value,     // string
-  docNo_partial  value,     // string
-  exportDate     value,     // string
-  exportRecordedByvalue,     // string
-  exportRecordedDatevalue,     // string
-  exportVerifiedByvalue,     // string
-  exportVerifiedDatevalue,     // string
-  fromOrigin     value,     // string
-  importDate     value,     // null
-  importRecordedByvalue,     // null
-  importRecordedDatevalue,     // null
-  importVerifiedByvalue,     // null
-  importVerifiedDatevalue,     // null
-  inputBy        value,     // string
-  isUsed         value,     // boolean
-  items          value,     // Array<Object>
-  keywords       value,     // Array<String>
-  receivedBy     value,     // string
-  receivedDate   value,     // string
-  rejected       value,     // null
-  remark         value,     // null
-  toDestination  value,     // string
-  transferId     value,     // string
-  transferType   value,     // string
-}
-```
-
-##### 📁 sections/stocks/transferIn Collection
-
-Stores transfer in records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/transferIn/{documentId}
-{
-  date:  value,     // date string
-
-  branchCode     value,     // string
-  completed      value,     // Object
-  created        value,     // number
-  date           value,     // string
-  deleted        value,     // boolean
-  deliveredBy    value,     // string
-  docNo          value,     // string
-  docNo_lower    value,     // string
-  docNo_partial  value,     // string
-  exportVerifiedByvalue,     // string
-  fromOrigin     value,     // string
-  inputBy        value,     // string
-  items          value,     // Array<Object>
-  keywords       value,     // Array<String>
-  month          value,     // string
-  recordedBy     value,     // string
-  remark         value,     // null
-  transferId     value,     // string
-  transferType   value,     // string
-  verifiedBy     value,     // string
-}
-```
-
-##### 📁 sections/stocks/transferItems Collection
-
-Stores transfer item details.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/transferItems/{documentId}
-{
-  exportDate:  value,     // date string
-
-  branchCode     value,     // string
-  cancelled      value,     // null
-  completed      value,     // null
-  deleted        value,     // null
-  deliveredBy    value,     // string
-  detail         value,     // string
-  docNo          value,     // string
-  docNo_lower    value,     // string
-  engineNo       value,     // Array<String>
-  exportDate     value,     // string
-  exportRecordedByvalue,     // string
-  exportVerifiedByvalue,     // string
-  fromOrigin     value,     // string
-  id             value,     // number
-  importDate     value,     // null
-  isUsed         value,     // boolean
-  key            value,     // number
-  model          value,     // string
-  peripheralNo   value,     // Array<String>
-  productCode    value,     // string
-  productName    value,     // string
-  qty            value,     // number
-  receivedBy     value,     // string
-  rejected       value,     // null
-  toDestination  value,     // string
-  transferId     value,     // string
-  transferItemId value,     // string
-  vehicleItemTypevalue,     // string
-  vehicleNo      value,     // Array<String>
-  vehicleType    value,     // string
-}
-```
-
-##### 📁 sections/stocks/transferOut Collection
-
-Stores transfer out records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/transferOut/{documentId}
-{
-  date:  value,     // date string
-
-  branchCode     value,     // string
-  completed      value,     // Object
-  created        value,     // number
-  date           value,     // string
-  deleted        value,     // boolean
-  deliveredBy    value,     // string
-  docNo          value,     // string
-  docNo_lower    value,     // string
-  docNo_partial  value,     // string
-  inputBy        value,     // string
-  items          value,     // Array<Object>
-  keywords       value,     // Array<String>
-  month          value,     // string
-  qty            value,     // number
-  recordedBy     value,     // string
-  remark         value,     // null
-  toDestination  value,     // string
-  transferId     value,     // string
-  transferType   value,     // string
-  verifiedBy     value,     // string
-}
-```
-
-##### 📁 sections/stocks/vehicles Collection
-
-Stores vehicle inventory records.
-
-_Sample size: Up to 100 latest documents_
-
-```javascript
-// sections/stocks/vehicles/{documentId}
-{
-  docNo:  value,     // string
-
-  auction        value,     // null
-  baac           value,     // null
-  branchCode     value,     // string
-  decal          value,     // null
-  decalTaken     value,     // null
-  docNo          value,     // string
-  engineNo       value,     // null
-  exported       value,     // null
-  isFIFO         value,     // boolean
-  isUsed         value,     // boolean
-  isVehicle      value,     // boolean
-  kbnLeasing     value,     // null
-  keywords       value,     // Array<String>
-  model          value,     // string
-  peripheralNo   value,     // string
-  peripheralNoFullvalue,     // string
-  peripheralNo_lowervalue,     // string
-  peripheralNo_partialvalue,     // string
-  productCode    value,     // string
-  productName    value,     // string
-  productPCode   value,     // string
-  productType    value,     // string
-  reserved       value,     // null
-  seize          value,     // null
-  skl            value,     // null
-  sold           value,     // null
-  transactions   value,     // Array<Object>
-  transfer       value,     // null
-  turnOver       value,     // null
-  vehicleNo      value,     // string
-  vehicleNoFull  value,     // string
-  vehicleNo_lowervalue,     // string
-  vehicleNo_partialvalue,     // string
-  wreck          value,     // null
-}
-```
-
-## 🔄 Relationships and References
-
-Based on the schema analysis, the following relationships are detected:
-
-- `data/account/expenseNames` references `data/account/expenseCategory` through `expenseCategoryId` field
-- `sections/services/serviceCloseItems` likely references `sections/services/serviceItems` through `serviceItemId` field
-- `data/company/branches` has a relationship with `data/company/employees` through branch assignments
-- `data/company/departments` has a relationship with `data/company/employees` through department assignments
-- `data/company/permissions` is related to `data/company/permissionCategories` through category assignment
-- `data/company/userGroups` likely has a relationship with permissions and employees
-
----
-
-## 📝 Data Management Considerations
-
-### Indexing Recommendations
-
-Based on field usage patterns, consider these indexing strategies:
-
-- `messageTokens.updatedAt`: For filtering messageTokens by updatedAt
-- `messages.type`: For filtering messages by type
-- `data/company/employees.created`: For filtering and sorting employees by creation date
-- `sections/sales/bookings.created`: For filtering and sorting bookings by creation date
-- `sections/stocks/importVehicles.docDate`: For date-based filtering of vehicle imports
-- `sections/services/serviceItems.serviceItemId`: For quick lookups of service items
-
-### Security Rule Considerations
-
-Consider implementing these security rules for your collections:
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    // Helper functions
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-
-    function isUserWithRole(role) {
-      return isAuthenticated() &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
-    }
-
-    function isOwner(userId) {
-      return isAuthenticated() && request.auth.uid == userId;
-    }
-
-    // Add rules for your collections based on their content and access patterns
-
-    match /changeLogs/{docId} {
-      allow read: if isAuthenticated();
-      allow write: if isUserWithRole('ADMIN');
-    }
-    match /data/{docId} {
-      allow read: if isAuthenticated();
-      allow write: if isUserWithRole('ADMIN');
-    }
-    match /messageTokens/{docId} {
-      allow read: if isAuthenticated();
-      allow write: if isUserWithRole('ADMIN');
-    }
-    match /messages/{docId} {
-      allow read: if isAuthenticated();
-      allow write: if isUserWithRole('ADMIN');
-    }
-    match /reports/{docId} {
-      allow read: if isAuthenticated();
-      allow write: if isUserWithRole('ADMIN');
-    }
-    match /sections/{docId} {
-      allow read: if isAuthenticated();
-      allow write: if isUserWithRole('ADMIN');
-    }
+    details?: string;
+    affectedModules?: string[];
+  }>;
+  requiredAction?: boolean;  // Whether user action is required
+  actionDescription?: string;// Description of required action
+  created: number;           // Creation timestamp
+  createdBy: string;         // User who created the record
+  deleted: boolean;          // Soft delete flag
+}
+```
+
+## Common Query Patterns
+
+### Multi-Province Queries
+
+All data queries must include province filtering:
+
+```typescript
+// Fetch customers for a specific province
+const getCustomersByProvince = async (provinceId: string): Promise<Customer[]> => {
+  const { hasPermission, hasProvinceAccess } = usePermissions();
+  
+  // Check permissions
+  if (!hasPermission(PERMISSIONS.VIEW_CUSTOMERS) || !hasProvinceAccess(provinceId)) {
+    throw new Error("Insufficient permissions");
   }
-}
+  
+  try {
+    const customersRef = collection(db, "data", "sales", "customers");
+    const customersQuery = query(
+      customersRef,
+      where("provinceId", "==", provinceId),
+      where("deleted", "==", false),
+      orderBy("created", "desc")
+    );
+    
+    const querySnapshot = await getDocs(customersQuery);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Customer[];
+  } catch (error) {
+    console.error("Error fetching customers:", error);
+    throw new Error("Failed to fetch customers");
+  }
+};
+
+// Fetch customers for a specific branch within a province
+const getCustomersByBranch = async (provinceId: string, branchCode: string): Promise<Customer[]> => {
+  const { hasPermission, hasProvinceAccess } = usePermissions();
+  
+  // Check permissions
+  if (!hasPermission(PERMISSIONS.VIEW_CUSTOMERS) || !hasProvinceAccess(provinceId)) {
+    throw new Error("Insufficient permissions");
+  }
+  
+  try {
+    const customersRef = collection(db, "data", "sales", "customers");
+    const customersQuery = query(
+      customersRef,
+      where("provinceId", "==", provinceId),
+      where("branchCode", "==", branchCode),
+      where("deleted", "==", false),
+      orderBy("created", "desc")
+    );
+    
+    const querySnapshot = await getDocs(customersQuery);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Customer[];
+  } catch (error) {
+    console.error("Error fetching customers:", error);
+    throw new Error("Failed to fetch customers");
+  }
+};
 ```
 
----
+### Creating Documents with Province ID
 
-## 🔗 Related Documentation
+All write operations must include the province ID:
 
-- [Firebase Firestore Documentation](https://firebase.google.com/docs/firestore)
-- [Authentication Flow](/Users/arsomjin/Documents/Projects/KBN/kbn/docs/authentication-flow.md)
-- [API Integration](/Users/arsomjin/Documents/Projects/KBN/kbn/docs/api-integration.md)
-- [Roles and Permissions](/Users/arsomjin/Documents/Projects/KBN/kbn/docs/roles-and-permissions.md)
+```typescript
+// Create a new customer with province ID
+const createCustomer = async (customerData: Omit<Customer, "customerId" | "created" | "keywords" | "deleted">, provinceId: string): Promise<string> => {
+  const { hasPermission, hasProvinceAccess } = usePermissions();
+  
+  // Check permissions
+  if (!hasPermission(PERMISSIONS.CREATE_CUSTOMERS) || !hasProvinceAccess(provinceId)) {
+    throw new Error("Insufficient permissions");
+  }
+  
+  try {
+    // Generate lowercase and partial match fields for search
+    const firstName_lower = customerData.firstName.toLowerCase();
+    const lastName_lower = customerData.lastName.toLowerCase();
+    const phoneNumber_lower = customerData.phoneNumber.toLowerCase();
+    
+    // Generate keywords for search
+    const keywords = [
+      firstName_lower,
+      lastName_lower,
+      phoneNumber_lower,
+      `${firstName_lower} ${lastName_lower}`,
+      customerData.branchCode
+    ].filter(Boolean);
+    
+    // Add customer document with required fields
+    const docRef = await addDoc(collection(db, "data", "sales", "customers"), {
+      ...customerData,
+      firstName_lower,
+      lastName_lower,
+      phoneNumber_lower,
+      provinceId,
+      created: Date.now(),
+      inputBy: auth.currentUser?.uid,
+      keywords,
+      deleted: false
+    });
+    
+    return docRef.id;
+  } catch (error) {
+    console.error("Error creating customer:", error);
+    throw new Error("Failed to create customer");
+  }
+};
+```
 
-> This documentation was automatically generated from your Firestore database structure on 5/1/2025.
+### Updating Documents
+
+Update operations with province validation:
+
+```typescript
+// Update customer with province validation
+const updateCustomer = async (customerId: string, customerData: Partial<Customer>, provinceId: string): Promise<void> => {
+  const { hasPermission, hasProvinceAccess } = usePermissions();
+  
+  // Check permissions
+  if (!hasPermission(PERMISSIONS.EDIT_CUSTOMERS) || !hasProvinceAccess(provinceId)) {
+    throw new Error("Insufficient permissions");
+  }
+  
+  try {
+    // Get customer reference
+    const customerRef = doc(db, "data", "sales", "customers", customerId);
+    
+    // Get current document to validate province
+    const customerSnap = await getDoc(customerRef);
+    
+    if (!customerSnap.exists()) {
+      throw new Error("Customer not found");
+    }
+    
+    // Validate province match for security
+    if (customerSnap.data().provinceId !== provinceId) {
+      throw new Error("Province mismatch");
+    }
+    
+    // Update searchable fields if changed
+    const updates: Record<string, any> = {
+      ...customerData,
+      updated: Date.now()
+    };
+    
+    if (customerData.firstName) {
+      updates.firstName_lower = customerData.firstName.toLowerCase();
+    }
+    
+    if (customerData.lastName) {
+      updates.lastName_lower = customerData.lastName.toLowerCase();
+    }
+    
+    if (customerData.phoneNumber) {
+      updates.phoneNumber_lower = customerData.phoneNumber.toLowerCase();
+    }
+    
+    // Generate new keywords if name or phone changed
+    if (customerData.firstName || customerData.lastName || customerData.phoneNumber) {
+      const currentData = customerSnap.data();
+      const firstName = customerData.firstName || currentData.firstName;
+      const lastName = customerData.lastName || currentData.lastName;
+      const phoneNumber = customerData.phoneNumber || currentData.phoneNumber;
+      
+      updates.keywords = [
+        firstName.toLowerCase(),
+        lastName.toLowerCase(),
+        phoneNumber.toLowerCase(),
+        `${firstName.toLowerCase()} ${lastName.toLowerCase()}`,
+        currentData.branchCode
+      ].filter(Boolean);
+    }
+    
+    // Update document
+    await updateDoc(customerRef, updates);
+  } catch (error) {
+    console.error("Error updating customer:", error);
+    throw new Error("Failed to update customer");
+  }
+};
+```
+
+### Soft Delete Pattern
+
+Use soft deletes for data retention:
+
+```typescript
+// Soft delete a customer
+const deleteCustomer = async (customerId: string, provinceId: string): Promise<void> => {
+  const { hasPermission, hasProvinceAccess } = usePermissions();
+  
+  // Check permissions
+  if (!hasPermission(PERMISSIONS.EDIT_CUSTOMERS) || !hasProvinceAccess(provinceId)) {
+    throw new Error("Insufficient permissions");
+  }
+  
+  try {
+    // Get customer reference
+    const customerRef = doc(db, "data", "sales", "customers", customerId);
+    
+    // Get current document to validate province
+    const customerSnap = await getDoc(customerRef);
+    
+    if (!customerSnap.exists()) {
+      throw new Error("Customer not found");
+    }
+    
+    // Validate province match for security
+    if (customerSnap.data().provinceId !== provinceId) {
+      throw new Error("Province mismatch");
+    }
+    
+    // Soft delete by setting 'deleted' flag
+    await updateDoc(customerRef, {
+      deleted: true,
+      updated: Date.now()
+    });
+  } catch (error) {
+    console.error("Error deleting customer:", error);
+    throw new Error("Failed to delete customer");
+  }
+};
+```
+
+### Batch Operations
+
+Use batched writes for consistency:
+
+```typescript
+// Update multiple customers' status
+const updateCustomerStatus = async (customerIds: string[], status: string, provinceId: string): Promise<void> => {
+  const { hasPermission, hasProvinceAccess } = usePermissions();
+  
+  // Check permissions
+  if (!hasPermission(PERMISSIONS.EDIT_CUSTOMERS) || !hasProvinceAccess(provinceId)) {
+    throw new Error("Insufficient permissions");
+  }
+  
+  try {
+    const batch = writeBatch(db);
+    const timestamp = Date.now();
+    
+    // First validate all customers belong to the correct province
+    const validationPromises = customerIds.map(async (id) => {
+      const customerRef = doc(db, "data", "sales", "customers", id);
+      const customerSnap = await getDoc(customerRef);
+      
+      if (!customerSnap.exists()) {
+        throw new Error(`Customer ${id} not found`);
+      }
+      
+      if (customerSnap.data().provinceId !== provinceId) {
+        throw new Error(`Customer ${id} province mismatch`);
+      }
+      
+      return { ref: customerRef, exists: true };
+    });
+    
+    const validatedRefs = await Promise.all(validationPromises);
+    
+    // Update all validated customers
+    validatedRefs.forEach(({ ref }) => {
+      batch.update(ref, {
+        status,
+        updated: timestamp
+      });
+    });
+    
+    // Commit the batch
+    await batch.commit();
+  } catch (error) {
+    console.error("Error updating customer status:", error);
+    throw new Error("Failed to update customer status");
+  }
+};
+```
+
+### Transactions
+
+Use transactions for complex operations:
+
+```typescript
+// Transfer inventory between branches within the same province
+const transferInventory = async (
+  itemId: string,
+  sourceBranch: string,
+  targetBranch: string,
+  quantity: number,
+  provinceId: string
+): Promise<void> => {
+  const { hasPermission, hasProvinceAccess } = usePermissions();
+  
+  // Check permissions
+  if (!hasPermission(PERMISSIONS.EDIT_INVENTORY) || !hasProvinceAccess(provinceId)) {
+    throw new Error("Insufficient permissions");
+  }
+  
+  try {
+    await runTransaction(db, async (transaction) => {
+      // Get source inventory document
+      const sourceRef = doc(db, "sections", "stocks", "inventory", `${sourceBranch}-${itemId}`);
+      const sourceDoc = await transaction.get(sourceRef);
+      
+      if (!sourceDoc.exists()) {
+        throw new Error("Source inventory item not found");
+      }
+      
+      // Validate province match
+      if (sourceDoc.data().provinceId !== provinceId) {
+        throw new Error("Source inventory province mismatch");
+      }
+      
+      // Check if source has enough quantity
+      const sourceData = sourceDoc.data();
+      if (sourceData.quantity < quantity) {
+        throw new Error("Not enough inventory in source branch");
+      }
+      
+      // Get target inventory document
+      const targetRef = doc(db, "sections", "stocks", "inventory", `${targetBranch}-${itemId}`);
+      const targetDoc = await transaction.get(targetRef);
+      
+      // Update source quantity
+      transaction.update(sourceRef, {
+        quantity: sourceData.quantity - quantity,
+        updated: Date.now()
+      });
+      
+      // If target exists, update it; otherwise create it
+      if (targetDoc.exists()) {
+        // Validate province match
+        if (targetDoc.data().provinceId !== provinceId) {
+          throw new Error("Target inventory province mismatch");
+        }
+        
+        transaction.update(targetRef, {
+          quantity: targetDoc.data().quantity + quantity,
+          updated: Date.now()
+        });
+      } else {
+        // Create new inventory in target branch with same item data
+        const newTargetData = {
+          ...sourceData,
+          itemId,
+          branchCode: targetBranch,
+          quantity,
+          created: Date.now()
+        };
+        
+        transaction.set(targetRef, newTargetData);
+      }
+      
+      // Create transfer record
+      const transferRef = doc(collection(db, "sections", "stocks", "transfers"));
+      transaction.set(transferRef, {
+        transferId: transferRef.id,
+        provinceId,
+        itemId,
+        sourceBranch,
+        targetBranch,
+        quantity,
+        date: Date.now(),
+        status: "completed",
+        initiatedBy: auth.currentUser?.uid,
+        created: Date.now(),
+        deleted: false
+      });
+    });
+  } catch (error) {
+    console.error("Error transferring inventory:", error);
+    throw new Error("Failed to transfer inventory");
+  }
+};
+```
+
+## Data Migration Helper
+
+Use this utility to migrate existing data to include province IDs:
+
+```typescript
+// Migration utility to add province ID to existing collections
+const migrateCollectionToMultiProvince = async (
+  collectionPath: string,
+  defaultProvinceId: string
+): Promise<void> => {
+  const { hasPermission } = usePermissions();
+  
+  // Check for admin permission
+  if (!hasPermission(PERMISSIONS.SYSTEM_SETTINGS)) {
+    throw new Error("Insufficient permissions for migration");
+  }
+  
+  try {
+    // Get reference to collection
+    const collectionRef = collection(db, collectionPath);
+    const snapshot = await getDocs(query(collectionRef, where("provinceId", "==", null)));
+    
+    console.log(`Found ${snapshot.size} documents to migrate in ${collectionPath}`);
+    
+    if (snapshot.size === 0) {
+      console.log(`No migration needed for ${collectionPath}`);
+      return;
+    }
+    
+    // Firebase batched writes have a limit of 500 operations
+    const batchSize = 450;
+    let batchCount = 0;
+    let batch = writeBatch(db);
+    let totalMigrated = 0;
+    
+    for (const doc of snapshot.docs) {
+      batch.update(doc.ref, { 
+        provinceId: defaultProvinceId,
+        updated: Date.now() 
+      });
+      
+      batchCount++;
+      totalMigrated++;
+      
+      if (batchCount >= batchSize) {
+        // Commit the batch
+        await batch.commit();
+        console.log(`Committed batch of ${batchCount} updates`);
+        
+        // Start a new batch
+        batch = writeBatch(db);
+        batchCount = 0;
+      }
+    }
+    
+    // Commit any remaining updates
+    if (batchCount > 0) {
+      await batch.commit();
+      console.log(`Committed final batch of ${batchCount} updates`);
+    }
+    
+    console.log(`Migration completed: updated ${totalMigrated} documents in ${collectionPath}`);
+  } catch (error) {
+    console.error(`Error migrating collection ${collectionPath}:`, error);
+    throw new Error(`Failed to migrate collection ${collectionPath}`);
+  }
+};
+```
+
+## Search Optimization
+
+Use these patterns for optimized search:
+
+```typescript
+// Customer search with multiple criteria
+const searchCustomers = async (
+  provinceId: string,
+  searchTerm: string,
+  filters: {
+    branchCode?: string;
+    startDate?: number;
+    endDate?: number;
+  } = {}
+): Promise<Customer[]> => {
+  const { hasPermission, hasProvinceAccess } = usePermissions();
+  
+  // Check permissions
+  if (!hasPermission(PERMISSIONS.VIEW_CUSTOMERS) || !hasProvinceAccess(provinceId)) {
+    throw new Error("Insufficient permissions");
+  }
+  
+  try {
+    // Start with base query conditions
+    let conditions: QueryConstraint[] = [
+      where("provinceId", "==", provinceId),
+      where("deleted", "==", false),
+    ];
+    
+    // Add optional branch filter
+    if (filters.branchCode) {
+      conditions.push(where("branchCode", "==", filters.branchCode));
+    }
+    
+    // Add date range filters if provided
+    if (filters.startDate) {
+      conditions.push(where("created", ">=", filters.startDate));
+    }
+    
+    if (filters.endDate) {
+      conditions.push(where("created", "<=", filters.endDate));
+    }
+    
+    // Search term processing
+    const searchTermLower = searchTerm.toLowerCase().trim();
+    
+    // If search term exists, search in name and phone fields
+    if (searchTermLower) {
+      // We'll use array contains for keywords
+      conditions.push(
+        where("keywords", "array-contains", searchTermLower)
+      );
+    }
+    
+    // Create query with all conditions
+    const customersRef = collection(db, "data", "sales", "customers");
+    const customersQuery = query(
+      customersRef,
+      ...conditions,
+      orderBy("created", "desc"),
+      limit(100) // Limit results for performance
+    );
+    
+    const querySnapshot = await getDocs(customersQuery);
+    
+    return querySnapshot.docs.map(doc => ({
+      id: doc.id,
+      ...doc.data()
+    })) as Customer[];
+  } catch (error) {
+    console.error("Error searching customers:", error);
+    throw new Error("Failed to search customers");
+  }
+};
+```
+
+## Transaction and Denormalization Pattern
+
+Use these patterns for data consistency:
+
+```typescript
+// Create a service order with denormalized data
+const createServiceOrder = async (
+  orderData: Omit<ServiceOrder, "serviceOrderId" | "created" | "inputBy" | "keywords" | "deleted">,
+  provinceId: string
+): Promise<string> => {
+  const { hasPermission, hasProvinceAccess } = usePermissions();
+  
+  // Check permissions
+  if (!hasPermission(PERMISSIONS.CREATE_INVENTORY) || !hasProvinceAccess(provinceId)) {
+    throw new Error("Insufficient permissions");
+  }
+  
+  const serviceOrderId = `SO-${Date.now().toString(36).toUpperCase()}`;
+  
+  try {
+    await runTransaction(db, async (transaction) => {
+      // Verify customer exists and belongs to province
+      const customerRef = doc(db, "data", "sales", "customers", orderData.customerId);
+      const customerDoc = await transaction.get(customerRef);
+      
+      if (!customerDoc.exists()) {
+        throw new Error("Customer not found");
+      }
+      
+      const customerData = customerDoc.data();
+      
+      if (customerData.provinceId !== provinceId) {
+        throw new Error("Customer province mismatch");
+      }
+      
+      // Denormalize customer data for quick access
+      const customerName = `${customerData.firstName} ${customerData.lastName}`;
+      
+      // Update stock quantities for parts used
+      for (const part of orderData.partsUsed) {
+        const partRef = doc(db, "sections", "stocks", "inventory", part.partId);
+        const partDoc = await transaction.get(partRef);
+        
+        if (!partDoc.exists()) {
+          throw new Error(`Part ${part.partId} not found`);
+        }
+        
+        if (partDoc.data().provinceId !== provinceId) {
+          throw new Error(`Part ${part.partId} province mismatch`);
+        }
+        
+        const newQuantity = partDoc.data().quantity - part.quantity;
+        
+        if (newQuantity < 0) {
+          throw new Error(`Insufficient stock for part ${part.partName}`);
+        }
+        
+        transaction.update(partRef, { 
+          quantity: newQuantity,
+          updated: Date.now()
+        });
+      }
+      
+      // Create service order
+      const orderRef = doc(db, "sections", "services", "serviceOrders", serviceOrderId);
+      
+      // Generate keywords for search
+      const keywords = [
+        customerName.toLowerCase(),
+        orderData.vehicleInfo.licensePlate.toLowerCase(),
+        orderData.vehicleInfo.make.toLowerCase(),
+        orderData.vehicleInfo.model.toLowerCase(),
+        serviceOrderId.toLowerCase(),
+        orderData.branchCode.toLowerCase(),
+        ...orderData.serviceItems.map(item => item.serviceName.toLowerCase())
+      ].filter(Boolean);
+      
+      transaction.set(orderRef, {
+        ...orderData,
+        serviceOrderId,
+        customerName,
+        provinceId,
+        created: Date.now(),
+        inputBy: auth.currentUser?.uid,
+        keywords,
+        deleted: false
+      });
+      
+      // If this order is from a booking, update the booking status
+      if (orderData.bookingId) {
+        const bookingRef = doc(db, "sections", "sales", "bookings", orderData.bookingId);
+        const bookingDoc = await transaction.get(bookingRef);
+        
+        if (bookingDoc.exists() && bookingDoc.data().provinceId === provinceId) {
+          transaction.update(bookingRef, {
+            status: "in-progress",
+            updated: Date.now()
+          });
+        }
+      }
+    });
+    
+    return serviceOrderId;
+  } catch (error) {
+    console.error("Error creating service order:", error);
+    throw new Error("Failed to create service order");
+  }
+};
+```

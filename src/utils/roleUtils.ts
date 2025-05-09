@@ -1,22 +1,22 @@
 import { UserProfile } from '../services/authService';
-import { ROLES, isInRoleCategory, RoleCategory } from '../constants/roles';
+import { ROLES, isInRoleCategory, RoleCategory, RoleType } from '../constants/roles';
 import { PERMISSIONS } from '../constants/Permissions';
 
 /**
- * Determines if the user has privileged access based on their role and permissions
+ * Determines if the user has privilege access based on their role and permissions
  *
  * @param userProfile The user's profile
  * @param userPermissions Array of permission strings assigned to the user
- * @returns boolean indicating if user has privileged access
+ * @returns boolean indicating if user has privilege access
  */
 export const hasPrivilegedAccess = (userProfile: UserProfile | null, userPermissions: string[] = []): boolean => {
   if (!userProfile) return false;
 
-  // Only allow PRIVILEGED and SUPER_ADMIN roles
+  // Only allow PRIVILEGE and SUPER_ADMIN roles
   if (
-    isInRoleCategory(userProfile.role, RoleCategory.PRIVILEGED) ||
-    isInRoleCategory(userProfile.role, RoleCategory.SUPER_ADMIN) ||
-    isInRoleCategory(userProfile.role, RoleCategory.DEVELOPER)
+    isInRoleCategory(userProfile.role as RoleType, RoleCategory.PRIVILEGE) ||
+    isInRoleCategory(userProfile.role as RoleType, RoleCategory.SUPER_ADMIN) ||
+    isInRoleCategory(userProfile.role as RoleType, RoleCategory.DEVELOPER)
   ) {
     return true;
   }
@@ -54,17 +54,17 @@ export const getLandingPage = (userProfile: UserProfile | null, userPermissions:
   if (hasPrivilegedAccess(userProfile, userPermissions)) {
     return '/overview';
   }
-  
+
   // GENERAL_MANAGER and PROVINCE_MANAGER go to dashboard
   if (userProfile.role === ROLES.GENERAL_MANAGER || userProfile.role === ROLES.PROVINCE_MANAGER) {
     return '/dashboard';
   }
-  
+
   // BRANCH_MANAGER goes to branch-dashboard
   if (userProfile.role === ROLES.BRANCH_MANAGER) {
     return '/branch-dashboard';
   }
-  
+
   // All other authenticated users go to landing
   return '/landing';
 };
@@ -84,9 +84,9 @@ export const getRoleDisplayName = (role: string): string => {
     [ROLES.LEAD]: 'Team Lead',
     [ROLES.BRANCH_MANAGER]: 'Branch Manager',
     [ROLES.PROVINCE_MANAGER]: 'Province Manager',
+    [ROLES.PROVINCE_ADMIN]: 'Province Administrator',
     [ROLES.GENERAL_MANAGER]: 'General Manager',
-    [ROLES.ADMIN]: 'Administrator',
-    [ROLES.PRIVILEGED]: 'Privileged User',
+    [ROLES.PRIVILEGE]: 'Privileged User',
     [ROLES.SUPER_ADMIN]: 'System Administrator',
     [ROLES.DEVELOPER]: 'Developer'
   };
@@ -131,31 +131,50 @@ export const hasAnyPermission = (userPermissions: string[], requiredPermissions:
 /**
  * Returns a numeric privilege level for a given role for easy comparison.
  * Higher number = higher privilege.
+ *
+ * @param role Role identifier
+ * @returns number representing the privilege level (higher number = higher privilege)
  */
 export const getPrivilegeLevel = (role: string): number => {
+  // Hierarchy: developer -> super_admin -> privilege -> general_manager ->
+  // province_admin -> province_manager -> branch_manager -> lead -> user -> branch -> pending -> guest
+
   switch (role) {
-    case ROLES.SUPER_ADMIN:
-      return 9;
+    // Super admin levels
     case ROLES.DEVELOPER:
-      return 8; 
-    case ROLES.PRIVILEGED:
-      return 7;
-    case ROLES.ADMIN:
-      return 6;
+      return 100;
+    case ROLES.SUPER_ADMIN:
+      return 90;
+
+    // Privileged level
+    case ROLES.PRIVILEGE:
+      return 80;
+
+    // General Manager level
     case ROLES.GENERAL_MANAGER:
-      return 5; // Higher than PROVINCE_MANAGER
+      return 70;
+
+    // Admin levels
+    case ROLES.PROVINCE_ADMIN:
+      return 60;
+
+    // Manager levels
     case ROLES.PROVINCE_MANAGER:
-      return 4;
+      return 50;
     case ROLES.BRANCH_MANAGER:
-      return 3;
+      return 40;
+
+    // Standard staff levels
     case ROLES.LEAD:
-      return 2;
+      return 30;
     case ROLES.USER:
-      return 1;
+      return 20;
     case ROLES.BRANCH:
-      return 1;
+      return 10;
+
+    // Limited access levels
     case ROLES.PENDING:
-      return 0.5;
+      return 5;
     case ROLES.GUEST:
     default:
       return 0;

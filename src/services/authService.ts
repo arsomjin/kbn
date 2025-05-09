@@ -58,6 +58,13 @@ export interface UserProfile {
   purpose?: string; // Purpose of visit for external visitors
   // displayName is deprecated, kept for backward compatibility
   displayName?: string | null;
+  branchCode?: string;
+  isActive?: boolean;
+  isEmailVerified?: boolean;
+  lastLogin?: number;
+  metadata?: Record<string, any>;
+  // Province-related fields for multi-province support
+  accessibleProvinceIds?: string[]; // Array of province IDs the user has access to
 }
 
 // Simple in-memory cache to reduce Firestore reads
@@ -261,10 +268,14 @@ export const updateUserProfile = async (
     const userRef = doc(firestore, 'users', uid);
 
     // Use serverTimestamp for updatedAt to ensure accurate time even with poor client clocks
-    await setDoc(userRef, {
-      ...safeData,
-      updatedAt: serverTimestamp()
-    }, { merge: true });
+    await setDoc(
+      userRef,
+      {
+        ...safeData,
+        updatedAt: serverTimestamp()
+      },
+      { merge: true }
+    );
 
     // Update cache or invalidate it
     userProfileCache.delete(uid);
@@ -407,7 +418,7 @@ export const createUserProfileIfNeeded = async (user: User): Promise<UserProfile
     console.log('[Auth Service] Checking for existing profile for user:', user.uid);
     // Check if a profile already exists
     const existingProfile = await getUserProfile(user.uid, true); // Skip cache
-    
+
     if (existingProfile) {
       console.log('[Auth Service] Existing profile found for user:', user.uid);
       return existingProfile;

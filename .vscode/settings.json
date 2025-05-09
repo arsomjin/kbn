@@ -19,17 +19,13 @@
   "prettier.requireConfig": true,
   "chat.promptFiles": true,
   "github.copilot.chat.codeGeneration.instructions": [
-    {
-      "file": "data-schema.md",
-    },
-    {
-      "file": "collection-samples.json",
-    }
+    
   ],
   "eslint.validate": [
     "javascript",
     "javascriptreact",
     "typescript",
     "typescriptreact"
-  ]
+  ],
+  "firestore-explorer.serviceAccountKeyPath": "/Users/arsomjin/Documents/Projects/keys/serviceAccount.kbn-test.json"
 }

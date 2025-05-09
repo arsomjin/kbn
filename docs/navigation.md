@@ -22,7 +22,7 @@ The navigation is managed using **React Router v6** and is defined in `src/navig
 │       ├── "/logout"                  # Protected logout route
 │       ├── "/pending"                 # For users with PENDING role
 │       ├── "/complete-profile"        # For users with incomplete profiles
-│       ├── "/overview"                # For privileged users
+│       ├── "/overview"                # For privilege users
 │       ├── "/province/:provinceId"    # Province-specific routes
 │       │   ├── dashboard              # Province dashboard
 │       │   ├── settings               # Province settings
@@ -52,13 +52,13 @@ The application implements several protection mechanisms for routes:
 - **PendingGuard**: Only allows users with the PENDING role to access `/pending`.
 - **PermissionProtectedRoute**: Guards routes based on specific permissions, redirecting unauthorized users.
 - **ProtectedRoute**: Checks authentication, profile completion, allowed roles, and minimum privilege level.
-- **Private**: Restricts access to users in a specific role category (e.g., ADMIN, PRIVILEGED, DEVELOPER).
+- **Private**: Restricts access to users in a specific role category (e.g., ADMIN, PRIVILEGE, DEVELOPER).
 - **PublicOnlyRoute**: Prevents authenticated users from accessing public auth routes.
 - **ProvinceGuard**: Verifies if a user has access to the requested province, redirecting to permitted provinces if not.
 
 - **Role Hierarchy Enforcement**: Access controls respect the defined role hierarchy:
   ```
-  DEVELOPER > SUPER_ADMIN > PRIVILEGED > ADMIN > GENERAL_MANAGER > 
+  DEVELOPER > SUPER_ADMIN > PRIVILEGE > ADMIN > GENERAL_MANAGER > 
   PROVINCE_MANAGER > BRANCH_MANAGER > LEAD > USER/BRANCH > PENDING > GUEST
   ```
 
@@ -81,7 +81,7 @@ The application implements several protection mechanisms for routes:
 | `/logout`                 | Logout                   | All authenticated users                                       |
 | `/pending`                | PendingPage              | Only users with PENDING role                                  |
 | `/complete-profile`       | CompleteProfilePage      | Only users with incomplete profiles                           |
-| `/overview`               | Overview                 | PRIVILEGED, SUPER_ADMIN, DEVELOPER roles                      |
+| `/overview`               | Overview                 | PRIVILEGE, SUPER_ADMIN, DEVELOPER roles                      |
 | `/dashboard`              | Dashboard                | GENERAL_MANAGER, PROVINCE_MANAGER                             |
 | `/branch-dashboard`       | BranchDashboard          | BRANCH_MANAGER only                                           |
 | `/province/:provinceId`   | ProvinceLayout           | Users with access to the specified province                   |

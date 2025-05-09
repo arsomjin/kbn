@@ -16,7 +16,8 @@ import {
   QueryDocumentSnapshot,
   setDoc,
   arrayUnion,
-  arrayRemove
+  arrayRemove,
+  serverTimestamp
 } from 'firebase/firestore';
 import { firestore, initializeMessaging, requestNotificationPermission } from './firebase';
 import { getToken } from 'firebase/messaging';
@@ -46,6 +47,7 @@ export interface Notification {
   link?: string;
   imageUrl?: string;
   readBy?: string[]; // Array of user IDs who read the notification
+  provinceId?: string | null; // Province-specific notification or null for system-wide
 }
 
 /**
@@ -75,6 +77,10 @@ export const saveFcmToken = async (userId: string): Promise<boolean> => {
       return false;
     }
 
+    // Get user's province information for province-based token storage
+    const userDoc = await getDoc(doc(firestore, 'users', userId));
+    const userData = userDoc.data();
+
     const tokenRef = doc(firestore, 'fcmTokens', userId);
 
     // Use setDoc instead of updateDoc for the non-existent document case
@@ -84,8 +90,9 @@ export const saveFcmToken = async (userId: string): Promise<boolean> => {
         token,
         userId,
         device: navigator.userAgent,
-        createdAt: Timestamp.now(),
-        updatedAt: Timestamp.now()
+        provinceId: userData?.provinceId || null, // Associate token with user's province
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
       },
       { merge: true }
     );
@@ -112,11 +119,18 @@ export const getNotifications = async (
     if (!userProfile) {
       throw new Error('User profile is required');
     }
-    
+
     const userId = userProfile.uid;
     if (!userId) {
       throw new Error('User ID is required');
     }
+
+    console.log('[NOTIFICATION SERVICE] Getting notifications for:', {
+      userId,
+      role: userProfile.role,
+      province: userProfile.province,
+      accessibleProvinceIds: userProfile.accessibleProvinceIds
+    });
 
     // Base query - includes notifications that:
     // 1. Haven't expired
@@ -135,7 +149,10 @@ export const getNotifications = async (
       notificationsQuery = query(notificationsQuery, startAfter(startAfterDoc));
     }
 
+    console.log('[NOTIFICATION SERVICE] Executing notification query...');
     const querySnapshot = await getDocs(notificationsQuery);
+    console.log(`[NOTIFICATION SERVICE] Query returned ${querySnapshot.size} documents`);
+
     const notifications: Notification[] = [];
     let lastDoc: DocumentSnapshot | undefined;
 
@@ -148,27 +165,112 @@ export const getNotifications = async (
       }
 
       const data = doc.data() as Notification;
+      console.log(`[NOTIFICATION SERVICE] Processing notification ${doc.id}:`, {
+        title: data.title,
+        targetRoles: data.targetRoles,
+        provinceId: data.provinceId
+      });
 
-      // Check if this notification is relevant to the user
-      const isRelevant =
-        // No targeting specified - for all users
-        (!data.targetRoles && !data.targetBranch && !data.targetDepartment) ||
-        // Role targeting
-        (data.targetRoles && userProfile.role && data.targetRoles.includes(userProfile.role)) ||
-        // Branch targeting
-        (data.targetBranch && userProfile.branch && data.targetBranch === userProfile.branch) ||
-        // Department targeting
-        (data.targetDepartment && userProfile.department && data.targetDepartment === userProfile.department);
+      // Check if this notification has no targeting criteria (for all users)
+      const hasNoTargeting = !data.targetRoles && !data.targetBranch && !data.targetDepartment;
 
-      if (isRelevant) {
+      // Check if user's role matches the notification's target roles
+      let matchesRole = false;
+      if (data.targetRoles && userProfile.role && Array.isArray(data.targetRoles)) {
+        // Direct role match
+        matchesRole = data.targetRoles.includes(userProfile.role);
+
+        // Special handling for province_admin - they should also see user registration notifications
+        if (!matchesRole && userProfile.role === 'province_admin') {
+          // Check if this is a user registration notification (based on title pattern)
+          const isUserRegistration =
+            data.title === 'มีผู้ใช้ลงทะเบียนใหม่' ||
+            data.title === 'notifications.adminTitle' ||
+            (data.link && data.link.includes('/review-users'));
+
+          // Check if notification is targeted at roles province_admin should see
+          // Using correct role names from RBAC system
+          const adminRoles = ['SUPER_ADMIN', 'PROVINCE_ADMIN', 'GENERAL_MANAGER'];
+          const hasAdminTargeting = data.targetRoles.some(role => adminRoles.includes(role.toUpperCase()));
+
+          if (isUserRegistration && hasAdminTargeting) {
+            matchesRole = true;
+            console.log(`[NOTIFICATION SERVICE] Province admin matched to user registration notification`);
+          }
+
+          // province_admin should also see notifications for roles they manage
+          const provinceAdminManagesRoles = ['province_manager', 'branch_manager', 'lead', 'user'];
+          const targetsManageableRole = provinceAdminManagesRoles.some(role => data.targetRoles?.includes(role));
+
+          if (targetsManageableRole) {
+            matchesRole = true;
+            console.log(`[NOTIFICATION SERVICE] Province admin can see notification for managed role`);
+          }
+        }
+      }
+
+      // Log detailed information about the role matching
+      console.log(`[NOTIFICATION SERVICE] Role matching for ${doc.id}:`, {
+        userRole: userProfile.role,
+        targetRoles: data.targetRoles,
+        matchesRole
+      });
+
+      const matchesBranch = Boolean(
+        data.targetBranch && userProfile.branch && data.targetBranch === userProfile.branch
+      );
+
+      const matchesDepartment = Boolean(
+        data.targetDepartment && userProfile.department && data.targetDepartment === userProfile.department
+      );
+
+      // Combine all the relevance criteria
+      const isRelevant = hasNoTargeting || matchesRole || matchesBranch || matchesDepartment;
+
+      console.log(`[NOTIFICATION SERVICE] Is notification ${doc.id} relevant by role/branch/dept:`, isRelevant, {
+        hasNoTargeting,
+        matchesRole,
+        matchesBranch,
+        matchesDepartment,
+        targetRoles: data.targetRoles,
+        userRole: userProfile.role
+      });
+
+      // For province_admin, check province match
+      let provinceRelevant = true; // Default true for non-province notifications
+      if (data.provinceId) {
+        if (userProfile.role === 'province_admin') {
+          // Province admin should see notifications for their province or system-wide
+          provinceRelevant = !data.provinceId || data.provinceId === userProfile.province;
+          console.log(`[NOTIFICATION SERVICE] Province admin check for notification ${doc.id}: ${provinceRelevant}`, {
+            notificationProvinceId: data.provinceId,
+            userProvinceId: userProfile.province
+          });
+        } else if (userProfile.accessibleProvinceIds && userProfile.accessibleProvinceIds.length > 0) {
+          // Users with multiple province access
+          provinceRelevant = !data.provinceId || userProfile.accessibleProvinceIds.includes(data.provinceId);
+        } else {
+          // Regular users can only see their province's notifications or system-wide
+          provinceRelevant = !data.provinceId || data.provinceId === userProfile.province;
+        }
+      }
+
+      if (isRelevant && provinceRelevant) {
         // Check if the notification has been read by this user
         const readBy = data.readBy || [];
-        const isRead = readBy.includes(userId); // Use userId instead of userProfile.uid
+        const isRead = readBy.includes(userId);
 
         notifications.push({
           id: doc.id,
           ...data,
           isRead
+        });
+
+        console.log(`[NOTIFICATION SERVICE] Added notification ${doc.id} to results`);
+      } else {
+        console.log(`[NOTIFICATION SERVICE] Skipping notification ${doc.id} - not relevant to user`, {
+          isRelevant,
+          provinceRelevant
         });
       }
     });
@@ -176,6 +278,7 @@ export const getNotifications = async (
     // Determine if there are more notifications to fetch
     const hasMore = querySnapshot.size > pageSize;
 
+    console.log(`[NOTIFICATION SERVICE] Returning ${notifications.length} notifications`);
     return {
       notifications,
       lastDoc,
@@ -259,10 +362,10 @@ export const subscribeToNotifications = (
   }
 
   // In your Redux structure, the uid is directly on userProfile
-  // If userProfile.uid doesn't exist, this function will return 
+  // If userProfile.uid doesn't exist, this function will return
   // an empty unsubscribe function
   const userId = userProfile.uid;
-  
+
   if (!userId) {
     console.error('User ID is required for notification subscription');
     return () => undefined;
@@ -285,21 +388,72 @@ export const subscribeToNotifications = (
     snapshot.forEach(doc => {
       const data = doc.data();
 
-      // Check if this notification is relevant to the user
-      const isRelevant =
-        // No targeting specified - for all users
-        (!data.targetRoles && !data.targetBranch && !data.targetDepartment) ||
-        // Role targeting
-        (data.targetRoles && userProfile.role && data.targetRoles.includes(userProfile.role)) ||
-        // Branch targeting
-        (data.targetBranch && userProfile.branch && data.targetBranch === userProfile.branch) ||
-        // Department targeting
-        (data.targetDepartment && userProfile.department && data.targetDepartment === userProfile.department);
+      // Check if this notification has no targeting criteria (for all users)
+      const hasNoTargeting = !data.targetRoles && !data.targetBranch && !data.targetDepartment;
+
+      // Check if user's role matches the notification's target roles
+      let matchesRole = false;
+      if (data.targetRoles && userProfile.role && Array.isArray(data.targetRoles)) {
+        // Direct role match
+        matchesRole = data.targetRoles.includes(userProfile.role);
+
+        // Special handling for province_admin - they should also see user registration notifications
+        if (!matchesRole && userProfile.role === 'province_admin') {
+          // Check if this is a user registration notification (based on title pattern)
+          const isUserRegistration =
+            data.title === 'มีผู้ใช้ลงทะเบียนใหม่' ||
+            data.title === 'notifications.adminTitle' ||
+            (data.link && data.link.includes('/review-users'));
+
+          // Check if notification is targeted at roles province_admin should see
+          // Using correct role names from RBAC system
+          const adminRoles = ['SUPER_ADMIN', 'PROVINCE_ADMIN', 'GENERAL_MANAGER'];
+          const hasAdminTargeting = data.targetRoles.some(role => adminRoles.includes(role.toUpperCase()));
+
+          if (isUserRegistration && hasAdminTargeting) {
+            matchesRole = true;
+          }
+
+          // province_admin should also see notifications for roles they manage
+          const provinceAdminManagesRoles = ['province_manager', 'branch_manager', 'lead', 'user'];
+          const targetsManageableRole = provinceAdminManagesRoles.some(role => data.targetRoles?.includes(role));
+
+          if (targetsManageableRole) {
+            matchesRole = true;
+          }
+        }
+      }
+
+      const matchesBranch = Boolean(
+        data.targetBranch && userProfile.branch && data.targetBranch === userProfile.branch
+      );
+
+      const matchesDepartment = Boolean(
+        data.targetDepartment && userProfile.department && data.targetDepartment === userProfile.department
+      );
+
+      // Check province relevance
+      let provinceRelevant = true;
+      if (data.provinceId) {
+        if (userProfile.role === 'province_admin') {
+          // Province admin should see notifications for their province or system-wide
+          provinceRelevant = !data.provinceId || data.provinceId === userProfile.province;
+        } else if (userProfile.accessibleProvinceIds && userProfile.accessibleProvinceIds.length > 0) {
+          // Users with multiple province access
+          provinceRelevant = !data.provinceId || userProfile.accessibleProvinceIds.includes(data.provinceId);
+        } else {
+          // Regular users can only see their province's notifications or system-wide
+          provinceRelevant = !data.provinceId || data.provinceId === userProfile.province;
+        }
+      }
+
+      // Combine all the relevance criteria
+      const isRelevant = (hasNoTargeting || matchesRole || matchesBranch || matchesDepartment) && provinceRelevant;
 
       if (isRelevant) {
         // Check if the user has read this notification
         const readBy = data.readBy || [];
-        const isRead = readBy.includes(userId); // Use userId instead of userProfile.uid
+        const isRead = readBy.includes(userId);
 
         // Ensure all required fields are present or provide defaults
         const notification: Notification = {

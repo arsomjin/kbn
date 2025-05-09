@@ -81,7 +81,7 @@ export const AuthProvider: React.FC = ({ children }) => {
     
     const fetchProvinces = async () => {
       // For admin users, fetch all provinces
-      if (["ADMIN", "SUPER_ADMIN", "DEVELOPER"].includes(user.role)) {
+      if (["GENERAL_MANAGER", "SUPER_ADMIN", "DEVELOPER"].includes(user.role)) {
         const provinces = await getAllProvinces();
         setAccessibleProvinces(provinces);
       } 
@@ -124,7 +124,7 @@ export const AuthProvider: React.FC = ({ children }) => {
         accessibleProvinces,
         hasProvinceAccess: (provinceId) => {
           if (!user) return false;
-          if (["ADMIN", "SUPER_ADMIN", "DEVELOPER"].includes(user.role)) return true;
+          if (["GENERAL_MANAGER", "SUPER_ADMIN", "DEVELOPER"].includes(user.role)) return true;
           if (user.role === "GENERAL_MANAGER" && user.accessibleProvinces) {
             return user.accessibleProvinces[provinceId] === true;
           }

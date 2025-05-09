@@ -38,7 +38,7 @@ export const PERMISSIONS = {
   REPORT_CREATE: 'REPORT_CREATE',
   TASK_ASSIGN: 'TASK_ASSIGN',
   TASK_COMPLETE: 'TASK_COMPLETE',
-  
+
   // Document Workflow permissions
   DOCUMENT_CREATE: 'DOCUMENT_CREATE',
   DOCUMENT_EDIT: 'DOCUMENT_EDIT',
@@ -47,7 +47,7 @@ export const PERMISSIONS = {
   DOCUMENT_REVIEW: 'DOCUMENT_REVIEW',
   DOCUMENT_APPROVE: 'DOCUMENT_APPROVE',
   DOCUMENT_REJECT: 'DOCUMENT_REJECT',
-  
+
   // Region Management permissions
   BRANCH_MANAGE: 'BRANCH_MANAGE',
   BRANCH_REPORTS_VIEW: 'BRANCH_REPORTS_VIEW',
@@ -58,7 +58,7 @@ export const PERMISSIONS = {
 } as const;
 
 // Create a type for the permission values
-export type Permission = typeof PERMISSIONS[keyof typeof PERMISSIONS];
+export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 // Permission categories for organization
 export const PERMISSION_CATEGORIES: Record<string, Permission[]> = {

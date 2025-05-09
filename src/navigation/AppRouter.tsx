@@ -14,7 +14,7 @@ import { LoadingOutlined } from '@ant-design/icons';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
 
 // Role checking
-import { RoleCategory, isInRoleCategory, ROLES, UserRole } from '../constants/roles';
+import { RoleCategory, isInRoleCategory, ROLES, UserRole, RoleType } from '../constants/roles';
 import { UserProfile } from '../services/authService';
 import RoleCheck from '../modules/auth/RoleCheck';
 
@@ -115,7 +115,22 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
   const isProfileTransitioning = useSelector((state: any) => state.auth.isProfileTransitioning);
   const location = window.location.pathname;
 
-  console.log('[RequireAuth] isAuthenticated:', isAuthenticated, 'isLoading:', isLoading, 'userProfile:', userProfile, 'hasNoProfile:', hasNoProfile, 'isProfileTransitioning:', isProfileTransitioning, 'hydrated:', hydrated, 'location:', location);
+  console.log(
+    '[RequireAuth] isAuthenticated:',
+    isAuthenticated,
+    'isLoading:',
+    isLoading,
+    'userProfile:',
+    userProfile,
+    'hasNoProfile:',
+    hasNoProfile,
+    'isProfileTransitioning:',
+    isProfileTransitioning,
+    'hydrated:',
+    hydrated,
+    'location:',
+    location
+  );
 
   if (isLoading || isProfileTransitioning || !hydrated) {
     console.log('[RequireAuth] Loading spinner');
@@ -153,7 +168,7 @@ interface PrivateProps {
 const Private: React.FC<PrivateProps> = ({ children, category, fallback = <NotFound /> }) => {
   const { userProfile } = useAuth();
   console.log('PRIVATE:', { userProfile, category });
-  if (!userProfile || !isInRoleCategory(userProfile.role, category)) {
+  if (!userProfile || !isInRoleCategory(userProfile.role as RoleType, category)) {
     return <>{fallback}</>;
   }
 
@@ -242,12 +257,12 @@ const AppRouter: React.FC = () => {
           }
         />
 
-        {/* Overview page for privileged users only */}
+        {/* Overview page for privilege users only */}
         <Route
           path='/overview'
           element={
             <RequireAuth>
-              <Private category={RoleCategory.PRIVILEGED}>
+              <Private category={RoleCategory.PRIVILEGE}>
                 <Overview />
               </Private>
             </RequireAuth>
@@ -265,30 +280,30 @@ const AppRouter: React.FC = () => {
         >
           {/* Index route - conditionally redirect based on role, but only after profile is loaded */}
           <Route index element={<DashboardRedirect />} />
-          
+
           {/* Landing page - accessible to all authenticated users with assigned roles */}
           <Route path='landing' element={<Landing />} />
-          
+
           {/* Dashboard - only for province managers or higher */}
-          <Route 
-            path='dashboard' 
+          <Route
+            path='dashboard'
             element={
               <Private category={RoleCategory.PROVINCE_MANAGER}>
-              <Dashboard />
+                <Dashboard />
               </Private>
-            } 
+            }
           />
-          
+
           {/* Branch Dashboard - only for branch managers or higher */}
-          <Route 
-            path='branch-dashboard' 
+          <Route
+            path='branch-dashboard'
             element={
               <Private category={RoleCategory.BRANCH_MANAGER}>
                 <BranchDashboard />
               </Private>
-            } 
+            }
           />
-          
+
           {/* Profile page - any authenticated user */}
           <Route path='profile' element={<Profile />} />
 
@@ -306,20 +321,22 @@ const AppRouter: React.FC = () => {
           />
 
           {/* Admin routes - only admin roles */}
-          {AdminRoutes.map(route => (
-            <Route
-              key={route.key}
-              path={route.props.path}
-              element={<Private category={RoleCategory.ADMIN}>{route.props.element}</Private>}
-            />
-          ))}
+          <Route path='admin'>
+            {AdminRoutes.map(route => (
+              <Route
+                key={route.key}
+                path={route.props.path}
+                element={<Private category={RoleCategory.PROVINCE_ADMIN}>{route.props.element}</Private>}
+              />
+            ))}
+          </Route>
 
-          {/* Private routes - only privileged roles */}
+          {/* Private routes - only privilege roles */}
           {PrivateRoutes.map(route => (
             <Route
               key={route.key}
               path={route.props.path}
-              element={<Private category={RoleCategory.PRIVILEGED}>{route.props.element}</Private>}
+              element={<Private category={RoleCategory.PRIVILEGE}>{route.props.element}</Private>}
             />
           ))}
         </Route>

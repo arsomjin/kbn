@@ -2,11 +2,11 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import NotFound from '../../components/common/NotFound';
 import UserReview from '../../modules/auth/UserReview';
+import UserRoleManager from '../../modules/auth/UserRoleManager';
 import ProtectedRoute from '../../components/auth/ProtectedRoute';
 import { UserRole } from '../../constants/roles';
-
-// Import admin components (placeholders for now)
-const ComposeNotification = () => <div>Compose Notification Page</div>;
+import { ComposeNotification } from '../../components/notifications';
+import { PERMISSIONS } from '../../constants/Permissions';
 
 /**
  * Admin routes configuration
@@ -17,8 +17,17 @@ export const AdminRoutes = [
     key='review-users'
     path='review-users'
     element={
-      <ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.GENERAL_MANAGER]}>
+      <ProtectedRoute allowedRoles={[UserRole.PROVINCE_ADMIN, UserRole.GENERAL_MANAGER]}>
         <UserReview />
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+    key='manage-users'
+    path='users'
+    element={
+      <ProtectedRoute allowedRoles={[UserRole.PROVINCE_ADMIN, UserRole.SUPER_ADMIN]}>
+        <UserRoleManager />
       </ProtectedRoute>
     }
   />,

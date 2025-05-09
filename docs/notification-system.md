@@ -763,7 +763,7 @@ Notification targeting and delivery leverage the canonical roles and permissions
 - `src/constants/Permissions.ts` (see `PERMISSIONS`)
 
 **Role-based targeting:**
-- When sending notifications to roles (e.g., admins, managers), always use the canonical role keys (e.g., `ROLES.ADMIN`, `ROLES.SUPER_ADMIN`, `ROLES.PROVINCE_MANAGER`, `ROLES.GENERAL_MANAGER`).
+- When sending notifications to roles (e.g., admins, managers), always use the canonical role keys (e.g., `ROLES.PROVINCE_ADMIN`, `ROLES.SUPER_ADMIN`, `ROLES.PROVINCE_MANAGER`, `ROLES.GENERAL_MANAGER`).
 - Do not use legacy or non-canonical role names (e.g., `system-admin`, `owner`, `executive`).
 - See `UserReview.tsx` and `ComposeNotification.tsx` for examples of correct usage.
 
@@ -772,7 +772,7 @@ Notification targeting and delivery leverage the canonical roles and permissions
 - Example:
   ```tsx
   const { hasPermission, hasRole } = usePermissions();
-  if (hasRole(ROLES.ADMIN)) { /* show admin notification actions */ }
+  if (hasRole(ROLES.PROVINCE_ADMIN)) { /* show province_admin notification actions */ }
   if (hasPermission(PERMISSIONS.CONTENT_EDIT)) { /* show edit button */ }
   ```
 
@@ -948,7 +948,7 @@ export const NotificationProvinceSwitcherProps: React.FC<NotificationProvinceSwi
   );
   
   // Check if user has access to see all provinces
-  const canViewAllProvinces = hasRole([ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.DEVELOPER, ROLES.GENERAL_MANAGER]);
+  const canViewAllProvinces = isInRoleCategory(user.role as RoleType, RoleCategory.GENERAL_MANAGER);
   
   return (
     <Space direction="vertical" size="small">

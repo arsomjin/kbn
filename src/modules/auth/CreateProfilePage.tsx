@@ -112,9 +112,9 @@ const CreateProfilePage: React.FC = () => {
       subtitle={t('profile.completeYourProfile')}
       animationKey='create-profile'
     >
-      <motion.div 
-        initial="hidden" 
-        animate="visible" 
+      <motion.div
+        initial='hidden'
+        animate='visible'
         variants={containerVariants}
         className={`max-w-md w-full mx-auto ${isMobile ? 'px-4' : ''}`}
       >
@@ -158,8 +158,8 @@ const CreateProfilePage: React.FC = () => {
                   <Option value={UserRole.LEAD}>{t('roles.lead')}</Option>
                   <Option value={UserRole.BRANCH_MANAGER}>{t('roles.branchManager')}</Option>
                   <Option value={UserRole.PROVINCE_MANAGER}>{t('roles.provinceManager')}</Option>
+                  <Option value={UserRole.PROVINCE_ADMIN}>{t('roles.provinceAdmin')}</Option>
                   <Option value={UserRole.GENERAL_MANAGER}>{t('roles.generalManager')}</Option>
-                  <Option value={UserRole.ADMIN}>{t('roles.admin')}</Option>
                 </Select>
               </Form.Item>
 
@@ -187,13 +187,7 @@ const CreateProfilePage: React.FC = () => {
               </Row>
 
               <Form.Item className='mt-6'>
-                <Button 
-                  type='primary' 
-                  htmlType='submit' 
-                  className='w-full'
-                  size='large' 
-                  loading={loading}
-                >
+                <Button type='primary' htmlType='submit' className='w-full' size='large' loading={loading}>
                   {t('profile.createProfile')}
                 </Button>
               </Form.Item>

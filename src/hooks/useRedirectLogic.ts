@@ -1,16 +1,13 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
-import { usePermissions } from './usePermissions';
-import { ROLES, isInRoleCategory, RoleCategory } from '../constants/roles';
-import { PERMISSIONS } from '../constants/Permissions';
+import { ROLES } from '../constants/roles';
 import { getPrivilegeLevel } from '../utils/roleUtils';
 
 interface UseRedirectLogicParams {
   requiresAuth?: boolean;
   requiresProfileComplete?: boolean;
   allowedRoles?: string[];
-  minPrivilegeLevel?: string; // e.g., 'EDITOR', 'ADMIN', etc.
+  minPrivilegeLevel?: string; // e.g., "EDITOR", "ADMIN", etc.
 }
 
 /**
@@ -21,65 +18,93 @@ const useRedirectLogic = ({
   requiresAuth = false,
   requiresProfileComplete = false,
   allowedRoles,
-  minPrivilegeLevel,
+  minPrivilegeLevel
 }: UseRedirectLogicParams) => {
   const { isAuthenticated, userProfile, isLoading, hasNoProfile } = useAuth();
   const [loading, setLoading] = useState(true);
   const [redirectPath, setRedirectPath] = useState<string | null>(null);
 
   useEffect(() => {
-    // Wait for loading to finish
+    // Set a very short safety timeout to prevent infinite loading
+    // This is just a fallback and should rarely be triggered
+    const timeoutId = setTimeout(() => {
+      if (loading) {
+        console.log('[useRedirectLogic] Force exiting loading state after timeout');
+        setLoading(false);
+      }
+    }, 1000); // Reduced to 1 second
+
+    // Process auth state as soon as we have enough information
+    // Don't wait for isLoading to be false if we can make decisions with current state
+
+    // Early processing for authentication check
+    if (requiresAuth && !isAuthenticated && !isLoading) {
+      console.log('[useRedirectLogic] Not authenticated, redirecting to /auth/login');
+      setLoading(false);
+      setRedirectPath('/auth/login');
+      return () => clearTimeout(timeoutId);
+    }
+
+    // Handle case where we know user is authenticated but has no profile
+    if (requiresAuth && isAuthenticated && hasNoProfile && !isLoading) {
+      console.log('[useRedirectLogic] No profile, redirecting to /complete-profile');
+      setLoading(false);
+      setRedirectPath('/complete-profile');
+      return () => clearTimeout(timeoutId);
+    }
+
+    // Handle case where we know user profile and role
+    if (userProfile && !isLoading) {
+      // Set loading to false as we have enough information to make decisions
+      setLoading(false);
+
+      // Pending role check
+      if (userProfile.role === ROLES.PENDING) {
+        console.log('[useRedirectLogic] PENDING role, redirecting to /pending');
+        setRedirectPath('/pending');
+        return () => clearTimeout(timeoutId);
+      }
+
+      // Allowed roles check
+      if (allowedRoles && !allowedRoles.includes(userProfile.role)) {
+        console.log('[useRedirectLogic] Role not allowed, redirecting to /unauthorized');
+        setRedirectPath('/unauthorized');
+        return () => clearTimeout(timeoutId);
+      }
+
+      // Privilege level check
+      if (minPrivilegeLevel && getPrivilegeLevel(userProfile.role) < getPrivilegeLevel(minPrivilegeLevel)) {
+        console.log('[useRedirectLogic] Insufficient privilege, redirecting to /unauthorized');
+        setRedirectPath('/unauthorized');
+        return () => clearTimeout(timeoutId);
+      }
+
+      // No redirect needed
+      setRedirectPath(null);
+      console.log('[useRedirectLogic] Access granted, no redirect needed');
+      return () => clearTimeout(timeoutId);
+    }
+
+    // If we're still loading and can't make a decision yet, wait
     if (isLoading) {
       setLoading(true);
-      return;
+      return () => clearTimeout(timeoutId);
     }
+
+    // Default case - if we reached here and isLoading is false, we should exit loading state
     setLoading(false);
 
-    console.log('[useRedirectLogic] isAuthenticated:', isAuthenticated, 'isLoading:', isLoading, 'userProfile:', userProfile, 'hasNoProfile:', hasNoProfile, 'requiresAuth:', requiresAuth, 'requiresProfileComplete:', requiresProfileComplete, 'allowedRoles:', allowedRoles, 'minPrivilegeLevel:', minPrivilegeLevel);
-
-    // 1. Auth check
-    if (requiresAuth && !isAuthenticated) {
-      console.log('[useRedirectLogic] Redirecting to /login');
-      setRedirectPath('/login');
-      return;
-    }
-
-    // 2. Profile completion check
-    if (requiresProfileComplete && hasNoProfile) {
-      console.log('[useRedirectLogic] Redirecting to /create-profile');
-      setRedirectPath('/create-profile');
-      return;
-    }
-
-    // 3. Pending role check
-    if (userProfile?.role === ROLES.PENDING) {
-      console.log('[useRedirectLogic] Redirecting to /pending, userProfile.role:', userProfile?.role);
-      setRedirectPath('/pending');
-      return;
-    }
-
-    // 4. Allowed roles check
-    if (allowedRoles && userProfile && !allowedRoles.includes(userProfile.role)) {
-      console.log('[useRedirectLogic] Redirecting to /unauthorized, userProfile.role:', userProfile?.role, 'allowedRoles:', allowedRoles);
-      setRedirectPath('/unauthorized');
-      return;
-    }
-
-    // 5. Privilege level check (using roleUtils)
-    if (minPrivilegeLevel && userProfile) {
-      if (
-        getPrivilegeLevel(userProfile.role) < getPrivilegeLevel(minPrivilegeLevel)
-      ) {
-        console.log('[useRedirectLogic] Redirecting to /unauthorized, userProfile.role:', userProfile?.role, 'minPrivilegeLevel:', minPrivilegeLevel);
-        setRedirectPath('/unauthorized');
-        return;
-      }
-    }
-
-    // No redirect needed
-    setRedirectPath(null);
-    console.log('[useRedirectLogic] No redirect needed, userProfile.role:', userProfile?.role);
-  }, [isAuthenticated, isLoading, userProfile, hasNoProfile, requiresAuth, requiresProfileComplete, allowedRoles, minPrivilegeLevel]);
+    return () => clearTimeout(timeoutId);
+  }, [
+    isAuthenticated,
+    isLoading,
+    userProfile,
+    hasNoProfile,
+    requiresAuth,
+    requiresProfileComplete,
+    allowedRoles,
+    minPrivilegeLevel
+  ]);
 
   return { loading, redirectPath };
 };

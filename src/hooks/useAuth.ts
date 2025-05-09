@@ -35,7 +35,7 @@ export const useAuth = () => {
   // Handle potentially stuck loading state
   useEffect(() => {
     // If status is loading, set a timeout to reset it if it gets stuck
-    if (status === 'loading') {
+    if (status === 'loading' || profileFetchStatus === 'pending') {
       if (loadingTimeoutRef.current) {
         clearTimeout(loadingTimeoutRef.current);
       }
@@ -43,7 +43,12 @@ export const useAuth = () => {
       loadingTimeoutRef.current = setTimeout(() => {
         console.log('Auth loading state timeout reached, forcing reset');
         dispatch(resetLoadingState());
-      }, 10000); // 10 seconds timeout
+        // Also reset profile fetch status if it's stuck in pending
+        if (profileFetchStatus === 'pending') {
+          dispatch(setProfileFetchStatus('failed'));
+          console.log('Forcing profile fetch status reset from pending to failed');
+        }
+      }, 2000); // Reduced from 10000 to 2000 ms (2 seconds)
     } else {
       // Clear timeout if status changed
       if (loadingTimeoutRef.current) {
@@ -57,7 +62,7 @@ export const useAuth = () => {
         clearTimeout(loadingTimeoutRef.current);
       }
     };
-  }, [status, dispatch]);
+  }, [status, profileFetchStatus, dispatch]);
 
   // Subscribe to auth state changes and Firestore profile listener
   useEffect(() => {
@@ -83,49 +88,45 @@ export const useAuth = () => {
 
         // Set up Firestore profile listener if user exists
         if (authUser) {
-          unsubscribeProfile = subscribeToDocument(
-            'users',
-            authUser.uid,
-            (profile) => {
-              // Convert FirestoreDocument to UserProfile
-              let userProfile: any = null;
-              if (profile) {
-                // Convert Firestore Timestamps to ISO string if present
-                const convertTimestamp = (ts: any) => {
-                  if (ts && typeof ts.toDate === 'function') {
-                    return ts.toDate().toISOString();
-                  }
-                  return ts || null;
-                };
-                userProfile = {
-                  uid: profile.uid || profile.id,
-                  firstName: profile.firstName || '',
-                  lastName: profile.lastName || '',
-                  email: profile.email || null,
-                  role: profile.role,
-                  requestedType: profile.requestedType || 'employee',
-                  province: profile.province,
-                  branch: profile.branch,
-                  department: profile.department,
-                  createdAt: convertTimestamp(profile.createdAt),
-                  updatedAt: convertTimestamp(profile.updatedAt),
-                  photoURL: profile.photoURL || null,
-                  phoneNumber: profile.phoneNumber || null,
-                  customPermissions: profile.customPermissions || [],
-                  employeeId: profile.employeeId,
-                  company: profile.company,
-                  purpose: profile.purpose,
-                  displayName: profile.displayName || null
-                };
-              } else if (authUser) {
-                // No profile exists for this user, add to missing profiles
-                dispatch(addMissingProfileUser(authUser.uid));
-                dispatch(setProfileFetchStatus('succeeded'));
-              }
-              dispatch(userProfileLoaded(userProfile));
-              dispatch(setProfileListenerActive(true));
+          unsubscribeProfile = subscribeToDocument('users', authUser.uid, profile => {
+            // Convert FirestoreDocument to UserProfile
+            let userProfile: any = null;
+            if (profile) {
+              // Convert Firestore Timestamps to ISO string if present
+              const convertTimestamp = (ts: any) => {
+                if (ts && typeof ts.toDate === 'function') {
+                  return ts.toDate().toISOString();
+                }
+                return ts || null;
+              };
+              userProfile = {
+                uid: profile.uid || profile.id,
+                firstName: profile.firstName || '',
+                lastName: profile.lastName || '',
+                email: profile.email || null,
+                role: profile.role,
+                requestedType: profile.requestedType || 'employee',
+                province: profile.province,
+                branch: profile.branch,
+                department: profile.department,
+                createdAt: convertTimestamp(profile.createdAt),
+                updatedAt: convertTimestamp(profile.updatedAt),
+                photoURL: profile.photoURL || null,
+                phoneNumber: profile.phoneNumber || null,
+                customPermissions: profile.customPermissions || [],
+                employeeId: profile.employeeId,
+                company: profile.company,
+                purpose: profile.purpose,
+                displayName: profile.displayName || null
+              };
+            } else if (authUser) {
+              // No profile exists for this user, add to missing profiles
+              dispatch(addMissingProfileUser(authUser.uid));
+              dispatch(setProfileFetchStatus('succeeded'));
             }
-          );
+            dispatch(userProfileLoaded(userProfile));
+            dispatch(setProfileListenerActive(true));
+          });
         }
       });
       // Cleanup subscription on component unmount

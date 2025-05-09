@@ -19,7 +19,7 @@ Refer to the attached `docs/app-flow.md` file, which details:
   *   This guard should check:
     *   Authentication status.
     *   Profile completion status.
-    *   Assigned role (`PENDING`, standard roles, privileged roles).
+    *   Assigned role (`PENDING`, standard roles, privilege roles).
     *   Privilege level (derived from role or specific permissions via `roleUtils.ts`).
   *   Ensure users attempting to access unauthorized routes via direct URL entry are redirected appropriately (e.g., to login, complete profile, pending page, or a generic "Not Authorized" page).
 
@@ -29,7 +29,7 @@ Refer to the attached `docs/app-flow.md` file, which details:
   *   Manage loading states effectively while performing checks (auth, profile, role).
 
 3.  **Route Configuration:**
-  *   Demonstrate how to configure routes within `AppRouter.tsx` to specify the required authorization level (e.g., `requiresAuth: true`, `requiresProfileComplete: true`, `allowedRoles: ['ADMIN', 'PRIVILEGED']`, `minPrivilegeLevel: 'EDITOR'`).
+  *   Demonstrate how to configure routes within `AppRouter.tsx` to specify the required authorization level (e.g., `requiresAuth: true`, `requiresProfileComplete: true`, `allowedRoles: ['ADMIN', 'PRIVILEGE']`, `minPrivilegeLevel: 'EDITOR'`).
 
 4.  **Address Specific Scenarios:**
   *   **Unauthenticated User:** Accessing any protected route redirects to Login.

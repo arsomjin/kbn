@@ -16,7 +16,7 @@ The application uses a hierarchical role system with increasing access levels:
 | `PROVINCE_MANAGER` | Higher Intermediate | Province-level managers | Single province |
 | `GENERAL_MANAGER` | Advanced | General managers | Multiple provinces |
 | `ADMIN` | High | Administrative users | All provinces |
-| `PRIVILEGED` | Very High | Users with special privileges | All provinces |
+| `PRIVILEGE` | Very High | Users with special privileges | All provinces |
 | `SUPER_ADMIN`/`DEVELOPER` | Full | Complete system access | All provinces |
 
 Role definitions are in `src/constants/roles.ts`.
@@ -164,7 +164,7 @@ if (hasProvinceAccess(targetProvinceId)) {
 }
 
 // Role-based check with fallback
-if (hasRole(ROLES.ADMIN) || (hasRole(ROLES.PROVINCE_MANAGER) && hasProvinceAccess(targetProvinceId))) {
+if (hasRole(ROLES.PROVINCE_ADMIN) || (hasRole(ROLES.PROVINCE_MANAGER) && hasProvinceAccess(targetProvinceId))) {
   // Allow administrative action
 }
 
@@ -186,14 +186,9 @@ if (hasPermission(PERMISSIONS.DATA_EDIT) && hasProvinceAccess(provinceId)) {
 export const hasProvinceAccess = (provinceId: string): boolean => {
   const { user, hasRole } = useAuth();
   
-  // Super admins can access all provinces
-  if (hasRole([ROLES.SUPER_ADMIN, ROLES.ADMIN, ROLES.DEVELOPER])) {
+  // Role category: GENERAL_MANAGER can access all province
+  if (isInRoleCategory(user.role as RoleType, RoleCategory.GENERAL_MANAGER)) {
     return true;
-  }
-  
-  // General managers can access provinces they're assigned to
-  if (hasRole(ROLES.GENERAL_MANAGER)) {
-    return user.accessibleProvinces?.[provinceId] === true;
   }
   
   // Province managers can access only their assigned province
@@ -224,8 +219,8 @@ export enum ROLES {
   BRANCH_MANAGER = "BRANCH_MANAGER",
   PROVINCE_MANAGER = "PROVINCE_MANAGER", // New role
   GENERAL_MANAGER = "GENERAL_MANAGER", // New role
-  ADMIN = "ADMIN",
-  PRIVILEGED = "PRIVILEGED",
+  PROVINCE_ADMIN = "PROVINCE_ADMIN",
+  PRIVILEGE = "PRIVILEGE",
   SUPER_ADMIN = "SUPER_ADMIN",
   DEVELOPER = "DEVELOPER"
 }
@@ -259,7 +254,7 @@ export const usePermissions = () => {
     if (!user) return [];
     
     // Admins can access all provinces
-    if ([ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.DEVELOPER].includes(user.role)) {
+    if ([ROLES.PROVINCE_ADMIN, ROLES.SUPER_ADMIN, ROLES.DEVELOPER].includes(user.role)) {
       return Object.keys(allProvinces); // From provinces context
     }
     
@@ -278,7 +273,7 @@ export const usePermissions = () => {
     if (!user || !provinceId) return false;
     
     // Admin roles have access to all provinces
-    if ([ROLES.ADMIN, ROLES.SUPER_ADMIN, ROLES.DEVELOPER].includes(user.role)) {
+    if ([ROLES.PRIVILEGE, ROLES.SUPER_ADMIN, ROLES.DEVELOPER].includes(user.role)) {
       return true;
     }
     
