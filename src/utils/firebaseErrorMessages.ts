@@ -318,24 +318,34 @@ export function getFirebaseErrorMessage(error: any, t?: (key: string) => string)
   const code = extractErrorCode(error);
   const category = getErrorCategory(code);
 
-  // For localization: If translation function is provided and the error has a code
-  if (t && code) {
-    // Try to get a localized message based on the code
-    const localizedMessage = t(`firebase.errors.${code}`);
-
-    // If the key doesn't exist in the translations, the i18n library usually returns the key itself
-    // Check if the returned message is not the key itself
-    if (localizedMessage !== `firebase.errors.${code}`) {
-      return localizedMessage;
+  // First try specific error code translation
+  if (t) {
+    if (code) {
+      const localizedMessage = t(`firebase:errors.${code}`);
+      // Use translation if it exists
+      if (localizedMessage !== `firebase:errors.${code}`) {
+        return localizedMessage;
+      }
+    }
+    
+    // Try category fallback translation
+    const categoryMessage = t(`firebase:errors.category.${category}`);
+    if (categoryMessage !== `firebase:errors.category.${category}`) {
+      return categoryMessage;
     }
   }
 
-  // If no translation or the key doesn't exist, fall back to the mapped message
+  // If no translation found or no t function provided, fall back to default messages
   if (code && errorMappings[code]) {
     return errorMappings[code].message;
   }
 
-  // If no specific mapping, use a category default
+  // If we didn't find a translation and have a specific error mapping, use it
+  if (code && errorMappings[code]) {
+    return errorMappings[code].message;
+  }
+
+  // Last resort: use default category message
   return defaultErrorMessages[category];
 }
 

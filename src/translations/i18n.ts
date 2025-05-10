@@ -4,14 +4,18 @@ import LanguageDetector from 'i18next-browser-languagedetector';
 
 import enTranslation from './en/translation.json';
 import thTranslation from './th/translation.json';
+import enFirebase from './en/firebase.json';
+import thFirebase from './th/firebase.json';
 
 // Resources object containing translations
 const resources = {
   en: {
-    translation: enTranslation
+    translation: enTranslation,
+    firebase: enFirebase
   },
   th: {
-    translation: thTranslation
+    translation: thTranslation,
+    firebase: thFirebase
   }
 };
 

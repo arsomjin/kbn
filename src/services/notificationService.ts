@@ -38,9 +38,9 @@ export interface Notification {
   description: string;
   type: NotificationType;
   isRead: boolean;
-  createdAt: Timestamp;
-  updatedAt?: Timestamp | Date;
-  expiresAt?: Timestamp;
+  createdAt: Timestamp | string;
+  updatedAt?: Timestamp | Date | string;
+  expiresAt?: Timestamp | string;
   targetRoles?: string[];
   targetBranch?: string;
   targetDepartment?: string;

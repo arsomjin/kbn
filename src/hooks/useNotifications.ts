@@ -15,6 +15,7 @@ import {
 } from '../store/slices/notificationSlice';
 import { subscribeToNotifications, NotificationType } from '../services/notificationService';
 import { notificationController } from '../controllers/notificationController';
+import { getTimestampMillis, serializeTimestampArray } from '../utils/timestampUtils';
 
 export const useNotifications = (userProfile: UserProfile | null) => {
   const dispatch = useDispatch<AppDispatch>();
@@ -83,12 +84,13 @@ export const useNotifications = (userProfile: UserProfile | null) => {
     if (userProfile) {
       unsubscribe = subscribeToNotifications(userProfile, newNotifications => {
         if (newNotifications.length > 0) {
-          dispatch(updateNotifications(newNotifications));
+          // Serialize notifications before dispatching
+          dispatch(updateNotifications(serializeTimestampArray(newNotifications)));
 
           // Show toast for new unread notifications that just arrived
           const now = Date.now();
           const recentNotifications = newNotifications.filter(n => {
-            const notificationTime = n.createdAt.seconds * 1000;
+            const notificationTime = getTimestampMillis(n.createdAt);
             // Only show toasts for notifications that are less than 10 seconds old
             return !n.isRead && now - notificationTime < 10000;
           });
@@ -119,7 +121,12 @@ export const useNotifications = (userProfile: UserProfile | null) => {
   // Initial fetch of notifications
   useEffect(() => {
     if (userProfile) {
-      dispatch(fetchNotifications({ userProfile, reset: true }));
+      // Fetch notifications and serialize before dispatching
+      dispatch(fetchNotifications({ userProfile, reset: true })).then((action: any) => {
+        if (action.payload && action.payload.notifications) {
+          action.payload.notifications = serializeTimestampArray(action.payload.notifications);
+        }
+      });
     } else {
       // Reset notifications when user logs out
       dispatch(resetNotifications());

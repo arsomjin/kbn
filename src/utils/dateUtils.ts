@@ -57,11 +57,19 @@ export const formatTime = (
 };
 
 // Format a relative time (e.g., "2 hours ago")
-export const formatRelativeTime = (date: Date | Timestamp | null | undefined): string => {
+export const formatRelativeTime = (date: Date | Timestamp | string | null | undefined): string => {
   if (!date) return '';
 
-  // Convert Firestore Timestamp to JavaScript Date if needed
-  const jsDate = date instanceof Timestamp ? date.toDate() : date;
+  let jsDate: Date;
+  if (date instanceof Timestamp) {
+    jsDate = date.toDate();
+  } else if (typeof date === 'string') {
+    // Try ISO string first, fallback to Date constructor
+    const parsed = Date.parse(date);
+    jsDate = isNaN(parsed) ? new Date() : new Date(parsed);
+  } else {
+    jsDate = date as Date;
+  }
 
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - jsDate.getTime()) / 1000);

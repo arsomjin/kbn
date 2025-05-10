@@ -10,6 +10,7 @@ import {
 } from '../../services/notificationService';
 import { UserProfile } from '../../services/authService';
 import { DocumentSnapshot } from 'firebase/firestore';
+import { serializeTimestampArray } from '../../utils/timestampUtils';
 
 export interface Toast {
   id: string;
@@ -64,8 +65,9 @@ export const fetchNotifications = createAsyncThunk(
       const startAfterDoc = reset ? undefined : state.notifications.lastDoc;
 
       const result = await getNotifications(userProfile, pageSize, startAfterDoc);
+      // Serialize notifications before returning
       return {
-        notifications: result.notifications,
+        notifications: serializeTimestampArray(result.notifications),
         lastDoc: result.lastDoc,
         hasMore: result.hasMore,
         reset
@@ -178,24 +180,23 @@ const notificationSlice = createSlice({
       // Update unread count
       state.unreadCount = Math.max(0, state.unreadCount + unreadAdded);
 
-      // Sort notifications by createdAt (newest first)
-      state.notifications.sort((a, b) => {
-        // Safely handle Timestamp objects with type checking
-        const getDateFromTimestamp = (timestamp: any): Date => {
-          if (timestamp && typeof timestamp.toDate === 'function') {
-            return timestamp.toDate();
-          } else if (timestamp instanceof Date) {
-            return timestamp;
-          } else {
-            // Fallback to current date if timestamp is invalid
-            return new Date();
-          }
+      // Process timestamps and sort notifications by createdAt (newest first)
+      state.notifications = state.notifications.map(notification => {
+        const processTimestamp = (ts: any): string => {
+          if (!ts) return new Date().toISOString();
+          if (typeof ts === 'string') return ts;
+          if (typeof ts.toDate === 'function') return ts.toDate().toISOString();
+          if (ts instanceof Date) return ts.toISOString();
+          return new Date().toISOString();
         };
 
-        const dateA = getDateFromTimestamp(a.createdAt);
-        const dateB = getDateFromTimestamp(b.createdAt);
-        return dateB.getTime() - dateA.getTime();
-      });
+        return {
+          ...notification,
+          createdAt: processTimestamp(notification.createdAt),
+          updatedAt: notification.updatedAt ? processTimestamp(notification.updatedAt) : undefined,
+          expiresAt: notification.expiresAt ? processTimestamp(notification.expiresAt) : undefined
+        };
+      }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     },
     setNotificationDrawer(state, action: PayloadAction<boolean>) {
       state.isNotificationDrawerOpen = action.payload;

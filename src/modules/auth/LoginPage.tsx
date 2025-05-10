@@ -148,6 +148,8 @@ const LoginPage: React.FC = () => {
 
   const isMobile = window.innerWidth < 480;
 
+  console.log({ errorDetails, "getFirebaseError": getFirebaseErrorMessage(error, t) });
+
   return (
     <AuthContainer
       title={t('app.title', 'KBN')}
@@ -165,7 +167,7 @@ const LoginPage: React.FC = () => {
           {/* <Card className='rounded-xl shadow-card'> */}
             {error && errorVisible && errorDetails && (
               <Alert
-                message={errorDetails.message || getFirebaseErrorMessage(error, t)}
+                message={ getFirebaseErrorMessage(error, t) || errorDetails.message }
                 type={errorDetails.severity === 'warning' ? 'warning' : errorDetails.severity === 'info' ? 'info' : 'error'}
                 showIcon
                 closable

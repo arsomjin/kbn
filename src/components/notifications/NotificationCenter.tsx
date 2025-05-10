@@ -31,7 +31,9 @@ const NotificationItem: React.FC<{
   };
 
   const config = getTypeConfig(notification.type);
-  const formattedDate = new Date(notification.createdAt.seconds * 1000).toLocaleString();
+  const formattedDate = typeof notification.createdAt === 'string' 
+    ? new Date(notification.createdAt).toLocaleString()
+    : new Date(notification.createdAt.seconds * 1000).toLocaleString();
 
   return (
     <List.Item

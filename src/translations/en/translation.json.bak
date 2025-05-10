@@ -1,20 +1,21 @@
 {
   "app": {
-    "title": "Kubota Benjapol",
+    "title": "KBN",
     "loading": "Loading..."
-  },  "auth": {
+  },
+  "auth": {
     "login": "Login",
     "logout": "Logout",
     "register": "Register",
     "email": "Email",
     "password": "Password",
     "confirmPassword": "Confirm Password",
-    "forgotPassword": "Forgot password?",
+    "forgotPassword": "Forgot Password?",
     "resetPassword": "Reset Password",
     "name": "Name",
-    "loginSuccess": "Login successful!",
+    "loginSuccess": "Successfully logged in!",
     "loginError": "Invalid email or password",
-    "logoutSuccess": "Logged out successfully!",
+    "logoutSuccess": "Successfully logged out!",
     "registerSuccess": "Registration successful!",
     "registerError": "Registration failed",
     "passwordResetSuccess": "Password reset email sent!",
@@ -34,6 +35,46 @@
     "confirmResetTitle": "Confirm Password Reset",
     "confirmResetContent": "Are you sure you want to send a password reset email to {email}?",
     "or": "OR"
+  },
+  "firebase": {
+    "errors": {
+      "auth/invalid-credential": "Invalid email or password.",
+      "auth/user-not-found": "No account found with this email.",
+      "auth/wrong-password": "Invalid email or password.",
+      "auth/email-already-in-use": "This email is already registered.",
+      "auth/weak-password": "Password is too weak. Please use a stronger password.",
+      "auth/too-many-requests": "Too many failed attempts. Please try again later.",
+      "auth/network-request-failed": "Network error. Please check your connection.",
+      "auth/invalid-email": "The email address is not valid.",
+      "auth/user-disabled": "This account has been disabled.",
+      "auth/requires-recent-login": "Please sign in again to complete this security-sensitive action.",
+      "auth/popup-closed-by-user": "Sign in was cancelled.",
+      "auth/account-exists-with-different-credential": "An account already exists with the same email but different sign-in credentials. Try signing in using a different method.",
+      "auth/popup-blocked": "Sign-in popup was blocked by your browser. Please enable popups for this site and try again.",
+      "auth/cancelled-popup-request": "This operation has been cancelled due to another conflicting popup being opened.",
+      "auth/google-sign-in-error": "Unable to sign in with Google. Please try again later.",
+
+      "firestore/permission-denied": "You don't have permission to access this data.",
+      "firestore/not-found": "The requested document does not exist.",
+      "firestore/already-exists": "The document already exists.",
+      "firestore/failed-precondition": "Operation was rejected because the system is not in a state required for the operation.",
+      "firestore/aborted": "The operation was aborted.",
+
+      "storage/unauthorized": "You don't have permission to access this file.",
+      "storage/object-not-found": "The requested file does not exist.",
+      "storage/quota-exceeded": "Storage quota exceeded.",
+      "storage/unauthenticated": "Please sign in to access this feature.",
+      "storage/canceled": "Upload was canceled.",
+
+      "category": {
+        "auth": "An authentication error occurred. Please try again.",
+        "firestore": "A database error occurred. Please try again.",
+        "storage": "A file storage error occurred. Please try again.",
+        "functions": "A server function error occurred. Please try again.",
+        "messaging": "A messaging error occurred. Please try again.",
+        "unknown": "An unexpected error occurred. Please try again."
+      }
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -136,7 +177,7 @@
       "requestedDate": "Requested Date",
       "role": "Role",
       "permissions": "Permissions",
-      "provinces": "Provinces", 
+      "provinces": "Provinces",
       "actions": "Actions",
       "settings": "Settings",
       "province": "Province"
@@ -156,14 +197,6 @@
     },
     "unnamed": "Unnamed User",
     "roles": {
-      "guest": {
-        "label": "Guest",
-        "description": "Unauthenticated or limited access users with minimal permissions"
-      },
-      "pending": {
-        "label": "Pending",
-        "description": "Users awaiting approval with very limited access"
-      },
       "user": {
         "label": "Standard User",
         "description": "Standard authenticated users with basic permissions"
@@ -216,7 +249,7 @@
     "previous": "Previous",
     "submit": "Submit",
     "confirm": "Confirm",
-    "actions": "Actions", 
+    "actions": "Actions",
     "settings": "Settings",
     "profile": "Profile",
     "help": "Help",
@@ -245,7 +278,7 @@
   "time": {
     "justNow": "Just now",
     "minutesAgo": "{{count}} minute ago",
-    "minutesAgo_plural": "{{count}} minutes ago", 
+    "minutesAgo_plural": "{{count}} minutes ago",
     "hoursAgo": "{{count}} hour ago",
     "hoursAgo_plural": "{{count}} hours ago",
     "daysAgo": "{{count}} day ago",
@@ -266,6 +299,48 @@
     "noRecentActivity": "No recent activity to display",
     "adminSection": "Administrator Section",
     "adminNote": "This section is only visible to administrators"
+  },
+      "guest": {
+        "label": "Guest",
+        "description": "Unauthenticated or limited access users with minimal permissions"
+      },
+      "pending": {
+        "label": "Pending",
+        "description": "Users awaiting approval with very limited access"
+      },
+      "user": {
+        "label": "Standard User",
+        "description": "Standard authenticated users with basic permissions"
+      },
+      "branch": {
+        "label": "Branch User",
+        "description": "Branch-level users with basic permissions"
+      },
+      "lead": {
+        "label": "Team Lead",
+        "description": "Document reviewers and team leads with enhanced basic permissions"
+      },
+      "branchManager": {
+        "label": "Branch Manager",
+        "description": "Branch-level managers with intermediate permissions"
+      },
+      "provinceManager": {
+        "label": "Province Manager",
+        "description": "Province-level managers with higher intermediate permissions"
+      },
+      "generalManager": {
+        "label": "General Manager",
+        "description": "General managers with advanced permissions"
+      },
+      "admin": {
+        "label": "Administrator",
+        "description": "Administrative users with high-level privileges"
+      },
+      "privileged": {
+        "label": "Privileged",
+        "description": "Users with very high level special privileges"
+      }
+    }
   },
   "provinces": {
     "selectProvince": "Select province",
@@ -333,7 +408,7 @@
     "sing_buri": "Sing Buri",
     "sisaket": "Sisaket",
     "songkhla": "Songkhla",
-    "sukhothai": "Sukhothai", 
+    "sukhothai": "Sukhothai",
     "suphan_buri": "Suphan Buri",
     "surat_thani": "Surat Thani",
     "surin": "Surin",

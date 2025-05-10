@@ -12,6 +12,42 @@ interface WithTimestamps {
 }
 
 /**
+ * Convert a Timestamp, string, or Date to milliseconds
+ */
+export const getTimestampMillis = (timestamp: Timestamp | string | Date | null | undefined): number => {
+  if (!timestamp) return Date.now();
+
+  if (timestamp instanceof Date) {
+    return timestamp.getTime();
+  }
+
+  if (typeof timestamp === 'string') {
+    // Try to parse as ISO string using Luxon for reliability
+    const dt = DateTime.fromISO(timestamp);
+    if (dt.isValid) return dt.toMillis();
+    // fallback to Date if not ISO
+    return new Date(timestamp).getTime();
+  }
+
+  if (timestamp instanceof Timestamp) {
+    return timestamp.toMillis();
+  }
+
+  return Date.now();
+};
+
+/**
+ * Format relative time from a timestamp
+ */
+export const formatRelativeTime = (timestamp: Timestamp | string | Date | null | undefined): string => {
+  if (!timestamp) return '';
+
+  const millis = getTimestampMillis(timestamp);
+  const dateTime = DateTime.fromMillis(millis);
+  return dateTime.toRelative() || '';
+};
+
+/**
  * Convert Firebase Timestamp to a serializable format (ISO string or milliseconds)
  * @param timestamp - Firebase Timestamp object
  * @param format - Output format ('iso' for ISO string, 'millis' for milliseconds)

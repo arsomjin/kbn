@@ -31,6 +31,7 @@ import { Notification, NotificationType } from '../../services/notificationServi
 import { notificationController } from '../../controllers/notificationController';
 import './NotificationList.css';
 import dayjs from 'dayjs';
+import { getTimestampMillis } from '../../utils/timestampUtils';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -72,7 +73,8 @@ const NotificationList: React.FC = () => {
 
       let matchesDate = true;
       if (filters.dateRange) {
-        const notificationDate = new Date(notification.createdAt.seconds * 1000);
+        const notificationMillis = getTimestampMillis(notification.createdAt);
+        const notificationDate = new Date(notificationMillis);
         const startDate = filters.dateRange[0].toDate();
         const endDate = filters.dateRange[1].toDate();
         // Set end date to end of day
