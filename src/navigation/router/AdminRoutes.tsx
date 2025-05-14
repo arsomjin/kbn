@@ -10,6 +10,9 @@ import { ComposeNotification } from '../../components/notifications';
 import { PERMISSIONS } from '../../constants/Permissions';
 import ProvincesManagement from '../../modules/settings/ProvincesManagement';
 import BranchesManagement from '../../modules/settings/BranchesManagement';
+import { EmployeeList } from '../../modules/employees/components/EmployeeList';
+import { EmployeeForm } from '../../modules/employees/components/EmployeeForm';
+import { EmployeeDetails } from '../../modules/employees/components/EmployeeDetails';
 
 /**
  * Admin routes configuration
@@ -55,6 +58,55 @@ export const AdminRoutes = [
         // through their role hierarchy, so we don't need separate role check
       >
         <BranchesManagement />
+      </PermissionProtectedRoute>
+    }
+  />,
+  // Employee management routes
+  <Route
+    key='employees'
+    path='employees'
+    element={
+      <PermissionProtectedRoute
+        requiredPermission={PERMISSIONS.USER_VIEW}
+        fallbackPath="/dashboard"
+      >
+        <EmployeeList />
+      </PermissionProtectedRoute>
+    }
+  />,
+  <Route
+    key='employees-new'
+    path='employees/new'
+    element={
+      <PermissionProtectedRoute
+        requiredPermission={PERMISSIONS.USER_VIEW}
+        fallbackPath="/dashboard"
+      >
+        <EmployeeForm />
+      </PermissionProtectedRoute>
+    }
+  />,
+  <Route
+    key='employees-edit'
+    path='employees/:id/edit'
+    element={
+      <PermissionProtectedRoute
+        requiredPermission={PERMISSIONS.USER_VIEW}
+        fallbackPath="/dashboard"
+      >
+        <EmployeeForm />
+      </PermissionProtectedRoute>
+    }
+  />,
+  <Route
+    key='employees-details'
+    path='employees/:id'
+    element={
+      <PermissionProtectedRoute
+        requiredPermission={PERMISSIONS.USER_VIEW}
+        fallbackPath="/dashboard"
+      >
+        <EmployeeDetails />
       </PermissionProtectedRoute>
     }
   />

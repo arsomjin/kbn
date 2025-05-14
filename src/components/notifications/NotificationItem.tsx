@@ -2,6 +2,7 @@ import React from 'react';
 import { List, Avatar, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { Notification, NotificationType } from '../../types/notification';
+import { Timestamp } from 'firebase/firestore';
 
 const { Text } = Typography;
 
@@ -25,9 +26,15 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onCli
   };
 
   const config = getTypeConfig(notification.type);
-  const formattedDate = typeof notification.createdAt === 'string' 
-    ? new Date(notification.createdAt).toLocaleString()
-    : new Date(notification.createdAt.seconds * 1000).toLocaleString();
+  const formattedDate = notification.createdAt
+    ? typeof notification.createdAt === 'number'
+      ? new Date(notification.createdAt).toLocaleString()
+      : notification.createdAt instanceof Timestamp
+        ? new Date(notification.createdAt.seconds * 1000).toLocaleString()
+        : typeof notification.createdAt === 'string'
+          ? new Date(notification.createdAt).toLocaleString()
+          : '-'
+    : '-';
 
   return (
     <List.Item

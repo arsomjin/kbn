@@ -14,7 +14,8 @@ import {
   TeamOutlined,
   BankOutlined,
   MenuOutlined,
-  CloseOutlined
+  CloseOutlined,
+  UsergroupAddOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -193,6 +194,13 @@ const MainLayout: React.FC = () => {
         label: t('dashboard:branchDashboard') || 'Branch Dashboard',        
         onClick: () => navigate('/branch-dashboard')
       },
+    // Add Employee Management menu item
+    hasPermission(PERMISSIONS.USER_VIEW) && {
+      key: 'employee-management',
+      icon: <UsergroupAddOutlined />,
+      label: t('employees:title') || 'Employee Management',
+      onClick: () => navigate('/admin/employees')
+    },
     hasRole(ROLES.PROVINCE_ADMIN) && {
       key: 'user-review',
       icon: <TeamOutlined />,
@@ -273,6 +281,10 @@ const MainLayout: React.FC = () => {
     if (location.pathname.startsWith('/admin/users')) {
       if (!openKeys.includes('settings')) setOpenKeys(['settings']);
       return 'user-management';
+    }
+    if (location.pathname.startsWith('/admin/employees')) {
+      if (!openKeys.includes('settings')) setOpenKeys(['settings']);
+      return 'employee-management';
     }
     if (location.pathname.startsWith('/admin/settings')) {
       if (!openKeys.includes('settings')) setOpenKeys(['settings']);

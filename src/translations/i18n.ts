@@ -47,6 +47,8 @@ import enPermissions from './en/permissions.json';
 import thPermissions from './th/permissions.json';
 import enUserRoleManager from './en/userRoleManager.json';
 import thUserRoleManager from './th/userRoleManager.json';
+import enEmployees from './en/employees.json';
+import thEmployees from './th/employees.json';
 
 // Resources object containing translations
 const resources = {
@@ -72,7 +74,8 @@ const resources = {
     sendNotification: enSendNotification,
     permissions: enPermissions,
     userRoleManager: enUserRoleManager,
-    branches: enBranches
+    branches: enBranches,
+    employees: enEmployees
   },
   th: {
     app: thApp,
@@ -96,7 +99,8 @@ const resources = {
     systemSettings: thSystemSettings,
     sendNotification: thSendNotification,
     permissions: thPermissions,
-    userRoleManager: thUserRoleManager
+    userRoleManager: thUserRoleManager,
+    employees: thEmployees
   }
 };
 
@@ -112,7 +116,8 @@ i18n
     defaultNS: 'common',
     ns: [
       'app', 'auth', 'notifications', 'profile', 'userReview', 'roles', 'theme', 'language', 'common', 'validation', 'firebase', 'provinces',
-      'dashboard', 'overview', 'developer', 'content', 'userManagement', 'systemSettings', 'sendNotification', 'permissions', 'userRoleManager'
+      'dashboard', 'overview', 'developer', 'content', 'userManagement', 'systemSettings', 'sendNotification', 'permissions', 'userRoleManager',
+      'branches', 'employees'
     ],
     interpolation: {
       escapeValue: false

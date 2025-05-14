@@ -32,6 +32,7 @@ import { notificationController } from '../../controllers/notificationController
 import './NotificationList.css';
 import dayjs from 'dayjs';
 import { getTimestampMillis } from '../../utils/timestampUtils';
+import { Timestamp } from 'firebase/firestore';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -172,7 +173,13 @@ const NotificationList: React.FC = () => {
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 150,
-      render: (createdAt: any) => <Text type='secondary'>{new Date(createdAt.seconds * 1000).toLocaleString()}</Text>
+      render: (createdAt: any) => {
+        if (!createdAt) return <Text type='secondary'>-</Text>;
+        if (createdAt instanceof Timestamp) {
+          return <Text type='secondary'>{new Date(createdAt.seconds * 1000).toLocaleString()}</Text>;
+        }
+        return <Text type='secondary'>{new Date(createdAt).toLocaleString()}</Text>;
+      }
     }
   ];
 

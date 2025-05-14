@@ -26,6 +26,7 @@ declare module 'react-i18next' {
       permissions: typeof import('./en/permissions.json');
       userRoleManager: typeof import('./en/userRoleManager.json');
       branches: typeof import('./en/branches.json');
+      employees: typeof import('./en/employees.json');
     };
   }
 

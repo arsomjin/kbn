@@ -17,6 +17,6 @@ export const useProvince = (provinceId?: string) => {
   return {
     province: provinceId ? byId[provinceId] : undefined,
     loading,
-    error
+    error,
   };
 };
