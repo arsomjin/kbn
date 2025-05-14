@@ -15,7 +15,7 @@ const BranchName: React.FC<BranchNameProps> = ({ code }) => {
   if (loading) {
     return <Spin size="small" />;
   }
-  console.log(branches);
+  // console.log(branches);
   const branch = branches.find(b => b.branchCode === code);
   if (!branch) return <span>{code}</span>;
 

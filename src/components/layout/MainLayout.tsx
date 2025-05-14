@@ -257,8 +257,6 @@ const MainLayout: React.FC = () => {
   ];
   const navItems: MenuProps['items'] = navItemsRaw.filter(Boolean) as MenuProps['items'];
 
-  console.log(navItems);
-
   // Map pathname to menu key and determine open menu keys
   const [openKeys, setOpenKeys] = useState<string[]>(['settings']);
   

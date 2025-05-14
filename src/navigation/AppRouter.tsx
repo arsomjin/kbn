@@ -107,22 +107,22 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
   const isProfileTransitioning = useSelector((state: any) => state.auth.isProfileTransitioning);
   const location = window.location.pathname;
 
-  console.log(
-    '[RequireAuth] isAuthenticated:',
-    isAuthenticated,
-    'isLoading:',
-    isLoading,
-    'userProfile:',
-    userProfile,
-    'hasNoProfile:',
-    hasNoProfile,
-    'isProfileTransitioning:',
-    isProfileTransitioning,
-    'hydrated:',
-    hydrated,
-    'location:',
-    location
-  );
+  // console.log(
+  //   '[RequireAuth] isAuthenticated:',
+  //   isAuthenticated,
+  //   'isLoading:',
+  //   isLoading,
+  //   'userProfile:',
+  //   userProfile,
+  //   'hasNoProfile:',
+  //   hasNoProfile,
+  //   'isProfileTransitioning:',
+  //   isProfileTransitioning,
+  //   'hydrated:',
+  //   hydrated,
+  //   'location:',
+  //   location
+  // );
 
   if (isLoading || isProfileTransitioning || !hydrated) {
     console.log('[RequireAuth] Loading spinner');
@@ -146,7 +146,7 @@ const RequireAuth: React.FC<RequireAuthProps> = ({ children }) => {
     return <Navigate to='/pending' replace />;
   }
 
-  console.log('[RequireAuth] Rendering children');
+  // console.log('[RequireAuth] Rendering children');
   return <>{children}</>;
 };
 
@@ -159,7 +159,7 @@ interface PrivateProps {
 
 const Private: React.FC<PrivateProps> = ({ children, category, fallback = <NotFound /> }) => {
   const { userProfile } = useAuth();
-  console.log('PRIVATE:', { userProfile, category });
+  // console.log('PRIVATE:', { userProfile, category });
   if (!userProfile || !isInRoleCategory(userProfile.role as RoleType, category)) {
     return <>{fallback}</>;
   }
@@ -187,7 +187,7 @@ const DashboardRedirect = () => {
 // Main AppRouter component
 const AppRouter: React.FC = () => {
   const { userProfile } = useAuth();
-  console.log('[AppRouter] userProfile:', userProfile);
+  // console.log('[AppRouter] userProfile:', userProfile);
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
