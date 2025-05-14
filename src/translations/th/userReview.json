@@ -1,0 +1,183 @@
+{
+  "title": "ตรวจสอบผู้ใช้",
+  "subtitle": "ตรวจสอบและอนุมัติคำขอลงทะเบียนผู้ใช้",
+  "loading": "กำลังโหลดผู้ใช้ที่รอการอนุมัติ...",
+  "empty": "ไม่มีคำขอผู้ใช้ที่รอการอนุมัติ",
+  "tooltip": "ช่วยเหลือเกี่ยวกับกระบวนการตรวจสอบผู้ใช้",
+  "unknown": "ไม่ทราบ",
+  "errors": {
+    "fetchUsers": "ไม่สามารถดึงข้อมูลผู้ใช้ที่รอการอนุมัติได้",
+    "fetchProvinces": "ไม่สามารถดึงข้อมูลจังหวัดได้",
+    "insufficientPermissions": "คุณไม่มีสิทธิ์ในการดำเนินการนี้",
+    "approveUser": "ไม่สามารถอนุมัติผู้ใช้ได้: {{error}}",
+    "rejectUser": "ไม่สามารถปฏิเสธผู้ใช้ได้",
+    "unknown": "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
+    "monitorUsers": "ข้อผิดพลาดในการติดตามผู้ใช้"
+  },
+  "success": {
+    "approved": "อนุมัติผู้ใช้ด้วยบทบาท: {{role}}",
+    "rejected": "ปฏิเสธผู้ใช้สำเร็จ"
+  },
+  "confirm": {
+    "approveTitle": "ยืนยันการอนุมัติผู้ใช้",
+    "approveContent": "คุณแน่ใจหรือไม่ที่จะอนุมัติ {{user}} ด้วยบทบาท {{role}}?",
+    "approveWarning": "การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+    "approve": "อนุมัติ",
+    "rejectTitle": "ยืนยันการปฏิเสธผู้ใช้",
+    "rejectContent": "คุณแน่ใจหรือไม่ที่จะปฏิเสธผู้ใช้นี้?",
+    "rejectWarning": "การดำเนินการนี้ไม่สามารถย้อนกลับได้และผู้ใช้จะต้องลงทะเบียนใหม่",
+    "reject": "ปฏิเสธ"
+  },
+  "notifications": {
+    "userTitle": "อนุมัติบัญชีแล้ว",
+    "userDescription": "บัญชีของคุณได้รับการอนุมัติด้วยบทบาท: {{role}}",
+    "userRejectedTitle": "ปฏิเสธบัญชีแล้ว",
+    "userRejectedDescription": "การลงทะเบียนบัญชีของคุณถูกปฏิเสธ กรุณาติดต่อฝ่ายสนับสนุนสำหรับข้อมูลเพิ่มเติม",
+    "adminTitle": "อนุมัติผู้ใช้ใหม่แล้ว",
+    "adminDescription": "ผู้ใช้ {{user}} ได้รับการอนุมัติด้วยบทบาท {{role}}",
+    "adminRejectedTitle": "ปฏิเสธการลงทะเบียนผู้ใช้แล้ว",
+    "adminRejectedDescription": "การลงทะเบียนของผู้ใช้ {{user}} ถูกปฏิเสธ"
+  },
+  "columns": {
+    "name": "ชื่อ",
+    "email": "อีเมล",
+    "requestedDate": "วันที่ขอ",
+    "role": "บทบาท",
+    "permissions": "สิทธิ์",
+    "provinces": "จังหวัด",
+    "actions": "การดำเนินการ",
+    "settings": "ตั้งค่า",
+    "province": "จังหวัด",
+    "status": "สถานะ",
+    "requestedRole": "บทบาทที่ขอ",
+    "assignedRole": "บทบาทที่ได้รับ",
+    "lastUpdate": "อัพเดทล่าสุด"
+  },
+  "actions": {
+    "approve": "อนุมัติ",
+    "reject": "ปฏิเสธ",
+    "viewDetails": "ดูรายละเอียด",
+    "edit": "แก้ไข"
+  },
+  "status": {
+    "pending": "รอการอนุมัติ",
+    "approved": "อนุมัติแล้ว",
+    "rejected": "ปฏิเสธแล้ว"
+  },
+  "buttons": {
+    "approve": "อนุมัติ",
+    "reject": "ปฏิเสธ",
+    "configure": "กำหนดค่า",
+    "configurePage": "กำหนดค่าสิทธิ์ผู้ใช้",
+    "configureProvinces": "กำหนดค่าจังหวัด"
+  },
+  "permissionCount": "{{count}} สิทธิ์",
+  "noPermissions": "ไม่มีสิทธิ์",
+  "noProvinces": "ไม่ได้กำหนดจังหวัด",    
+  "editModal": {
+    "title": "แก้ไขการตั้งค่าผู้ใช้",
+    "tabs": {
+      "role": "บทบาท",
+      "permissions": "สิทธิ์",
+      "provinces": "จังหวัด",
+      "summary": "สรุป"
+    },
+    "moveButtons": {
+      "toRight": "เพิ่มสิทธิ์ที่เลือก",
+      "toLeft": "ลบสิทธิ์ที่เลือก"
+    },
+    "roleTitle": "เลือกบทบาทผู้ใช้",
+    "roleLabel": "บทบาท",
+    "roleDescription": "กำหนดบทบาทเพื่อควบคุมสิทธิ์การเข้าถึง",
+    "roleInfo": "ข้อมูลบทบาท",
+    "roleInfoDescription": "บทบาทจะกำหนดสิทธิ์และขอบเขตการเข้าถึงของผู้ใช้",
+    "permissionsTitle": "กำหนดสิทธิ์",
+    "permissionsDescription": "เลือกสิทธิ์ที่ต้องการให้กับผู้ใช้",
+    "availablePermissions": "สิทธิ์ที่มีให้เลือก",
+    "assignedPermissions": "สิทธิ์ที่ได้รับ",
+    "resetPermissions": "รีเซ็ตสิทธิ์เป็นค่าเริ่มต้น",
+    "provincesTitle": "กำหนดจังหวัด",
+    "provincesDescription": "เลือกจังหวัดที่ผู้ใช้สามารถเข้าถึงได้",
+    "selectedProvinces": "จังหวัดที่เลือก",
+    "selectProvinces": "เลือกจังหวัด",
+    "provincesExtra": "สามารถเลือกได้หลายจังหวัด",
+    "selectProvincesPlaceholder": "เลือกจังหวัด...",
+    "noProvincesWarning": "ยังไม่ได้เลือกจังหวัด",
+    "autoProvinceAccess": "สิทธิ์เข้าถึงจังหวัดอัตโนมัติ",
+    "autoProvinceAccessDescription": "บทบาทนี้จะได้รับสิทธิ์เข้าถึงทุกจังหวัดโดยอัตโนมัติ",
+    "employeeProvinceNote": "พนักงานจะถูกผูกกับจังหวัด: {{province}}",
+    "employeeProvinceWarning": "เนื่องจากเป็นพนักงาน ผู้ใช้นี้ถูกกำหนดให้กับ {{provinceName}} สามารถกำหนดสิทธิ์การเข้าถึงจังหวัดเพิ่มเติมได้ที่นี่",
+    "employeeProvinceRestriction": "พนักงานต้องมีจังหวัดที่สังกัด",
+    "employeeProvinceAccess": "สิทธิ์การเข้าถึงจังหวัดของพนักงาน",
+    "employeeProvinceDefault": "จังหวัดที่สังกัดเริ่มต้น: {{province}}",
+    "summaryTitle": "สรุปข้อมูลผู้ใช้",
+    "selectedRole": "บทบาทที่เลือก",
+    "userDetails": "รายละเอียดผู้ใช้",
+    "email": "อีเมล",
+    "displayName": "ชื่อที่แสดง",
+    "columns": {
+      "name": "ชื่อ",
+      "email": "อีเมล",
+      "provinces": "จังหวัด",
+      "permissions": "สิทธิ์"
+    },
+    "noPermissions": "ไม่มีสิทธิ์",
+    "noProvince": "ไม่มีจังหวัด",
+    "unnamed": "ไม่มีชื่อผู้ใช้",
+    "userType": "ประเภทผู้ใช้",
+    "type": {
+      "employee": "พนักงาน",
+      "visitor": "ผู้เยี่ยมชม"
+    },
+    "branch": "สาขา",
+    "department": "แผนก",
+    "confirmChanges": "กรุณาตรวจสอบและยืนยันการเปลี่ยนแปลงก่อนบันทึก"
+  },
+  "unnamed": "ผู้ใช้ที่ไม่มีชื่อ",
+  "roles": {
+    "guest": {
+      "label": "ผู้เยี่ยมชม",
+      "description": "ผู้ใช้ที่ไม่ได้เข้าสู่ระบบหรือมีสิทธิ์จำกัด"
+    },
+    "pending": {
+      "label": "รอการอนุมัติ",
+      "description": "ผู้ใช้ที่รอการอนุมัติและมีสิทธิ์จำกัดมาก"
+    },
+    "user": {
+      "label": "ผู้ใช้ทั่วไป",
+      "description": "ผู้ใช้ทั่วไปที่มีสิทธิ์พื้นฐาน"
+    },
+    "branch": {
+      "label": "ผู้ใช้สาขา",
+      "description": "ผู้ใช้ระดับสาขาที่มีสิทธิ์พื้นฐาน"
+    },
+    "lead": {
+      "label": "หัวหน้าทีม",
+      "description": "ผู้ตรวจสอบเอกสารและหัวหน้าทีมที่มีสิทธิ์พื้นฐานเพิ่มเติม"
+    },
+    "branch_manager": {
+      "label": "ผู้จัดการสาขา",
+      "description": "ผู้จัดการระดับสาขาที่มีสิทธิ์ระดับกลาง"
+    },
+    "province_manager": {
+      "label": "ผู้จัดการจังหวัด",
+      "description": "ผู้จัดการระดับจังหวัดที่มีสิทธิ์ระดับกลางสูง"
+    },
+    "province_admin": {
+      "label": "ผู้ดูแลระบบจังหวัด",
+      "description": "ผู้ดูแลระบบระดับจังหวัดที่มีสิทธิ์ระดับสูง"
+    },
+    "general_manager": {
+      "label": "ผู้จัดการทั่วไป",
+      "description": "ผู้จัดการทั่วไปที่มีสิทธิ์ขั้นสูง"
+    },
+    "super_admin": {
+      "label": "ผู้ดูแลระบบ",
+      "description": "ผู้ดูแลระบบมีสิทธิ์ระดับสูง"
+    },
+    "privilege": {
+      "label": "ผู้ใช้พิเศษ",
+      "description": "ผู้ดูแลระบบที่มีสิทธิ์สูงสุด"
+    }
+  }
+} 

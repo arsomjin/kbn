@@ -1,0 +1,56 @@
+{
+  "title": "Province Management",
+  "selectProvince": "Select Province",
+  "fields": {
+    "code": "Code",
+    "name": "Thai Name",
+    "nameEn": "English Name",
+    "region": "Region",
+    "status": "Status",
+    "description": "Description"
+  },
+  "regions": {
+    "undefined": "Not Specified",
+    "central": "Central",
+    "north": "North",
+    "northeast": "Northeast",
+    "east": "East",
+    "west": "West",
+    "south": "South"
+  },
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "actions": {
+    "add": "Add Province",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "modal": {
+    "addTitle": "Add New Province",
+    "editTitle": "Edit Province",
+    "deleteTitle": "Delete Province",
+    "deleteConfirmation": "Are you sure you want to delete this province?"
+  },
+  "validation": {
+    "required": "This field is required",
+    "codeFormat": "Code must be 2-10 uppercase letters, numbers, or hyphens",
+    "noUnderscore": "Code must not contain underscores",
+    "maxLength": "Maximum {{max}} characters allowed"
+  },
+  "messages": {
+    "createSuccess": "Province added successfully",
+    "updateSuccess": "Province updated successfully",
+    "deleteSuccess": "Province deleted successfully"
+  },
+  "errors": {
+    "fetchFailed": "Failed to fetch provinces",
+    "saveFailed": "Failed to save province",
+    "deleteFailed": "Failed to delete province"
+  },
+  "pagination": {
+    "total": "Total: {{total}} items",
+    "itemsPerPage": "Items per page"
+  }
+}

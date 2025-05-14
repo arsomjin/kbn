@@ -1,0 +1,5 @@
+{
+    "instructions": {
+      "default": "You are helping refactor and migrate JavaScript code to a fully-typed TypeScript architecture with responsive design, RBAC enforcement, and localization. Use Luxon for dates, Ant Design + Tailwind for UI, and follow /docs/design-system.md."
+    }
+  }

@@ -1,0 +1,31 @@
+{
+  "title": "Contact Us",
+  "date": "Date: {{date}}",
+  "success": {
+    "title": "Success!",
+    "message": "Your message has been sent."
+  },
+  "error": {
+    "title": "Error",
+    "submission": "There was an error submitting the form. Please try again."
+  },
+  "form": {
+    "name": {
+      "label": "Name",
+      "required": "Please enter your name.",
+      "placeholder": "Enter your name"
+    },
+    "email": {
+      "label": "Email",
+      "required": "Please enter your email.",
+      "invalid": "Please enter a valid email address.",
+      "placeholder": "Enter your email"
+    },
+    "message": {
+      "label": "Message",
+      "required": "Please enter your message.",
+      "placeholder": "Enter your message"
+    },
+    "submit": "Send Message"
+  }
+} 

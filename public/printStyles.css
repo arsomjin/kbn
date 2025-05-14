@@ -1,0 +1,17 @@
+/* Print styles for clean output */
+@media print {
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .no-print, .no-print * {
+    display: none !important;
+  }
+  /* Add more print-specific rules as needed */
+}
+
+#print-root {
+  padding: 24px;
+  font-family: 'Inter', Arial, sans-serif;
+  color: #222;
+}

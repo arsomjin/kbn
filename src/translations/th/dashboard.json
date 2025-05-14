@@ -1,0 +1,21 @@
+{
+  "title": "แดชบอร์ด",
+  "welcome": "ยินดีต้อนรับ",
+  "totalUsers": "ผู้ใช้ทั้งหมด",
+  "notifications": "การแจ้งเตือน",
+  "completedTasks": "งานที่เสร็จสมบูรณ์",
+  "pendingTasks": "งานที่รอดำเนินการ",
+  "recentActivity": "กิจกรรมล่าสุด",
+  "noRecentActivity": "ไม่มีกิจกรรมล่าสุด",
+  "adminSection": "ส่วนผู้ดูแลระบบ",
+  "adminNote": "ยินดีต้อนรับสู่ส่วนผู้ดูแลระบบ ที่นี่คุณสามารถจัดการการตั้งค่าและการกำหนดค่าทั้งระบบได้",
+  "branchDashboard": "แดชบอร์ดสาขา",
+  "branchWelcome": "ยินดีต้อนรับกลับ, {{name}} นี่คือภาพรวมของสาขาของคุณ",
+  "branchUsers": "ผู้ใช้สาขา",
+  "pendingDocuments": "เอกสารที่รอดำเนินการ",
+  "upcomingDeadlines": "กำหนดเวลาที่กำลังจะมาถึง",
+  "branchPerformance": "ประสิทธิภาพสาขา",
+  "branchPerformanceNote": "สาขาของคุณทำงานได้ดี โดยมีงานที่เสร็จสมบูรณ์ {{count}} รายการในเดือนนี้",
+  "recentActivities": "กิจกรรมล่าสุด",
+  "noBranchActivities": "ไม่มีกิจกรรมล่าสุดของสาขา"
+} 

@@ -1,0 +1,29 @@
+{
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "edit": "Edit",
+  "create": "Create",
+  "search": "Search",
+  "filter": "Filter",
+  "back": "Back",
+  "next": "Next",
+  "previous": "Previous",
+  "submit": "Submit",
+  "confirm": "Confirm",
+  "actions": "Actions",
+  "settings": "Settings",
+  "profile": "Profile",
+  "help": "Help",
+  "error": "Error",
+  "success": "Success",
+  "warning": "Warning",
+  "info": "Information",
+  "user": "User",
+  "or": "OR",
+  "home": "Home",
+  "toggleTheme": "Toggle Theme",
+  "errors": {
+    "notFound": "Sorry, the page you are looking for does not exist."
+  }
+} 
