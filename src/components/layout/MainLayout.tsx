@@ -15,7 +15,8 @@ import {
   BankOutlined,
   MenuOutlined,
   CloseOutlined,
-  UsergroupAddOutlined
+  UsergroupAddOutlined,
+  AccountBookOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -37,11 +38,15 @@ import { hasPrivilegedAccess, getLandingPage } from '../../utils/roleUtils';
 
 // Constants
 import { ROLES, RoleCategory } from '../../constants/roles';
-import { PERMISSIONS } from '../../constants/Permissions';
+import { PERMISSIONS } from '../../constants/permissions';
 
 const { Header, Sider, Content } = Layout;
 
-const MainLayout: React.FC = () => {
+interface MainLayoutProps {
+  children?: React.ReactNode;
+}
+
+const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
@@ -194,6 +199,29 @@ const MainLayout: React.FC = () => {
         label: t('dashboard:branchDashboard') || 'Branch Dashboard',        
         onClick: () => navigate('/branch-dashboard')
       },
+    // Add Account Management menu item
+    hasPermission(PERMISSIONS.VIEW_ACCOUNTS) && {
+      key: 'account',
+      icon: <AccountBookOutlined />,
+      label: t('account:title') || 'Account Management',
+      children: [
+        {
+          key: 'account-overview',
+          label: t('account:overview') || 'Overview',
+          onClick: () => navigate('/account')
+        },
+        {
+          key: 'account-income',
+          label: t('account:income') || 'Income',
+          onClick: () => navigate('/account/income')
+        },
+        {
+          key: 'account-expense',
+          label: t('account:expense') || 'Expense',
+          onClick: () => navigate('/account/expense')
+        }
+      ]
+    },
     // Add Employee Management menu item
     hasPermission(PERMISSIONS.USER_VIEW) && {
       key: 'employee-management',
@@ -273,6 +301,12 @@ const MainLayout: React.FC = () => {
     if (location.pathname.startsWith('/overview')) return 'overview';
     if (location.pathname.startsWith('/dashboard')) return 'dashboard';
     if (location.pathname.startsWith('/branch-dashboard')) return 'branch-dashboard';
+    if (location.pathname.startsWith('/account')) {
+      if (location.pathname === '/account') return 'account-overview';
+      if (location.pathname.startsWith('/account/income')) return 'account-income';
+      if (location.pathname.startsWith('/account/expense')) return 'account-expense';
+      return 'account';
+    }
     if (location.pathname.startsWith('/admin/review-users')) return 'user-review';
     if (location.pathname.startsWith('/admin/send-notification')) return 'send-notification';
     if (location.pathname.startsWith('/developer')) return 'developer';
@@ -475,7 +509,7 @@ const MainLayout: React.FC = () => {
           className='p-3 sm:p-6 bg-background dark:bg-gray-900 min-h-[calc(100vh-64px)]'
           style={isMobile ? { paddingTop: 64 } : {}}
         >
-          <Outlet />
+          {children || <Outlet />}
         </Content>
       </Layout>
     </Layout>

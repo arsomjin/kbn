@@ -12,7 +12,7 @@ The navigation is managed using **React Router v6** and is defined in `src/navig
 /src/navigation/AppRouter.tsx
 ├── <BrowserRouter>
 │   └── <Routes>
-│       ├── "*"                        # Catch-all: NotFound page
+│       ├── "*"                        # Catch-all: Redirect to home
 │       ├── "/role-check"              # Role-based redirect after authentication
 │       ├── "/auth"                    # Auth layout (public routes)
 │       │   ├── login                  # Login page
@@ -34,6 +34,20 @@ The navigation is managed using **React Router v6** and is defined in `src/navig
 │           ├── dashboard              # GENERAL_MANAGER, PROVINCE_MANAGER
 │           ├── branch-dashboard       # BRANCH_MANAGER only
 │           ├── profile                # User profile management
+│           ├── province/*            # Province-specific routes
+│           │   ├── dashboard         # Province dashboard
+│           │   ├── settings          # Province settings
+│           │   └── reports           # Province reports
+│           ├── admin/*               # Admin routes
+│           │   ├── review-users      # User approval
+│           │   ├── users             # User management
+│           │   ├── send-notification # Send notifications
+│           │   ├── provinces         # Province management
+│           │   ├── branches          # Branch management
+│           │   └── employees/*       # Employee management
+│           │       ├── new           # Create employee
+│           │       ├── :id/edit      # Edit employee
+│           │       └── :id           # View employee details
 │           ├── about                  # About page
 │           ├── developer              # Developer info (DEVELOPER role)
 │           ├── review-users           # User approval (admin roles)
@@ -58,7 +72,7 @@ The application implements several protection mechanisms for routes:
 
 - **Role Hierarchy Enforcement**: Access controls respect the defined role hierarchy:
   ```
-  DEVELOPER > SUPER_ADMIN > PRIVILEGE > ADMIN > GENERAL_MANAGER > 
+  DEVELOPER > SUPER_ADMIN > PRIVILEGE > GENERAL_MANAGER > PROVINCE_ADMIN > 
   PROVINCE_MANAGER > BRANCH_MANAGER > LEAD > USER/BRANCH > PENDING > GUEST
   ```
 
@@ -78,20 +92,18 @@ The application implements several protection mechanisms for routes:
 | `/auth/signup`            | RegisterPage             | Public (no auth)                                              |
 | `/auth/reset-password`    | ForgotPasswordPage       | Public (no auth)                                              |
 | `/auth/verification`      | Verification             | Public (no auth)                                              |
-| `/logout`                 | Logout                   | All authenticated users                                       |
 | `/pending`                | PendingPage              | Only users with PENDING role                                  |
 | `/complete-profile`       | CompleteProfilePage      | Only users with incomplete profiles                           |
-| `/overview`               | Overview                 | PRIVILEGE, SUPER_ADMIN, DEVELOPER roles                      |
-| `/dashboard`              | Dashboard                | GENERAL_MANAGER, PROVINCE_MANAGER                             |
-| `/branch-dashboard`       | BranchDashboard          | BRANCH_MANAGER only                                           |
-| `/province/:provinceId`   | ProvinceLayout           | Users with access to the specified province                   |
-| `/province/:provinceId/*` | Province sub-routes      | Province-specific routes with province access check           |
+| `/dashboard`              | Dashboard                | All authenticated users                                       |
 | `/profile`                | Profile                  | All authenticated users                                       |
-| `/about`                  | About                    | All authenticated users                                       |
-| `/developer`              | Developer                | DEVELOPER role only                                           |
-| `/review-users`           | UserReview               | ADMIN, GENERAL_MANAGER and above                              |
-| `/send-notification`      | ComposeNotification      | ADMIN and above roles                                         |
-| `*`                       | NotFound                 | Catch-all for undefined or unauthorized routes                |
+| `/province/*`             | ProvinceLayout           | Users with province access                                    |
+| `/admin/*`                | AdminRoutes              | Admin roles (PROVINCE_ADMIN, SUPER_ADMIN, GENERAL_MANAGER)    |
+| `/admin/review-users`     | UserReview               | PROVINCE_ADMIN, SUPER_ADMIN, GENERAL_MANAGER                  |
+| `/admin/users`            | UserRoleManager          | PROVINCE_ADMIN, SUPER_ADMIN, GENERAL_MANAGER                  |
+| `/admin/send-notification`| ComposeNotification      | Admin roles                                                   |
+| `/admin/provinces`        | ProvincesManagement      | PRIVILEGE, SUPER_ADMIN                                        |
+| `/admin/branches`         | BranchesManagement       | BRANCH_MANAGE permission                                      |
+| `/admin/employees/*`      | EmployeeManagement       | USER_VIEW permission                                          |
 
 ---
 
@@ -103,7 +115,6 @@ The application implements several protection mechanisms for routes:
 - **PendingGuard**: Ensures only users with PENDING role can access `/pending`.
 - **PermissionProtectedRoute**: Protects routes based on specific permissions.
 - **ProtectedRoute**: Implements comprehensive route guarding based on authentication, profile completion, roles, and privilege levels.
-- **Private**: Component for role category-based access control.
 - **ProvinceGuard**: Component that verifies province access permissions.
 - **PublicOnlyRoute**: Prevents authenticated users from accessing public routes.
 - **MainLayout**: Main application layout for authenticated users.
@@ -115,7 +126,7 @@ The application implements several protection mechanisms for routes:
 
 ## 🌐 Multi-Province Navigation
 
-The KBN platform now supports multiple provinces, with province-specific routes and access controls:
+The KBN platform supports multiple provinces, with province-specific routes and access controls:
 
 ### Province Route Protection
 
@@ -123,7 +134,7 @@ All province-specific routes are protected using the ProvinceGuard component:
 
 ```tsx
 <Route
-  path="/province/:provinceId/*"
+  path="/province/*"
   element={
     <RequireAuth>
       <ProvinceGuard>
@@ -138,7 +149,6 @@ All province-specific routes are protected using the ProvinceGuard component:
   <Route path="dashboard" element={<ProvinceDashboard />} />
   <Route path="settings" element={<ProvinceSettings />} />
   <Route path="reports" element={<ProvinceReports />} />
-  {/* Additional province routes */}
 </Route>
 ```
 
@@ -179,26 +189,14 @@ The application provides province context throughout the app:
 </ProvinceContext.Provider>
 ```
 
-### Province Selector Component
-
-The UI includes a province selector to switch between accessible provinces:
-
-```tsx
-<ProvinceSelector
-  onChange={(provinceId) => {
-    navigate(`/province/${provinceId}/dashboard`);
-  }}
-/>
-```
-
 ---
 
 ## 📝 Notes
 
-- **Dynamic Redirection**: The landing page (`/`) uses `getDashboardRoute(userProfile)` to redirect users based on their role and profile status.
+- **Dynamic Redirection**: The landing page (`/`) uses `getLandingPage(userProfile)` to redirect users based on their role and profile status.
 - **Real-time Role Updates**: Firestore listeners and Redux state are used for real-time updates and redirection when a user's role or profile status changes.
 - **Permission-Based UI**: Navigation menu items and UI components conditionally render based on user permissions.
-- **Numeric Privilege Comparison**: The `getPrivilegeLevel()` utility is used to compare roles numerically for access control decisions.
+- **Numeric Privilege Comparison**: The `ROLE_HIERARCHY` object is used to compare roles numerically for access control decisions.
 - **Legacy Auth Routes**: `/login`, `/register`, `/forgot-password` redirect to `/auth/*` equivalents.
 - **Province Access Checks**: All data requests include province filtering to ensure users only access data from provinces they have permissions for.
 - **Default Province Selection**: If a user has access to multiple provinces, the system selects their primary province by default.

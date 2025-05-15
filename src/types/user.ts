@@ -1,5 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 import { Province, ProvinceAccess } from "./province";
+import { Permission } from '../constants/permissions';
 
 /**
  * Core user authentication information
@@ -32,6 +33,11 @@ export type UserStatus = 'active' | 'pending' | 'inactive' | 'blocked';
  * User type enumeration
  */
 export type UserType = 'employee' | 'visitor';
+
+/**
+ * User request type enumeration
+ */
+export type UserRequestType = 'employee' | 'visitor';
 
 /**
  * Employee-specific information
@@ -83,28 +89,35 @@ export type FirestoreUserData = Omit<User, 'id'>;
  */
 export interface UserProfile {
   uid: string;
-  firstName: string;
-  lastName: string;
-  displayName?: string;
-  email: string;
-  phoneNumber?: string | null;
-  photoURL?: string | null;
-  role: RoleType;
+  accessibleProvinceIds: string[];
+  customPermissions: Permission[];
+  deleted: boolean;
   status: UserStatus;
   type: UserType;
   provinceId: string;
-  employeeId?: string;
-  employeeCode?: string;
-  branch?: string;
-  department?: string;
-  position?: string;
-  workBegin?: string;
-  workEnd?: string;
-  purpose?: string;
-  organization?: string;
-  startDate?: string;
-  endDate?: string;
-  created: number;
-  updated: number;
+  role: RoleType;
+  created: string;
+  updated: string;
   inputBy: string;
+  auth: {
+    displayName: string;
+    email: string;
+    emailVerified: boolean;
+    firstName: string;
+    lastName: string;
+    isAnonymous: boolean;
+    lastLogin: string | null;
+    phoneNumber: string;
+    photoURL: string;
+  };
+  employeeInfo?: {
+    branch: string;
+    department: string;
+    employeeCode: string;
+    employeeId: string;
+    workBegin: string | null;
+  };
+  requestedType?: UserRequestType;
+  company: string;
+  purpose: string;
 }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Statistic, Button, Typography } from 'antd';
 import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
-import { PERMISSIONS } from '../../constants/Permissions';
+import { PERMISSIONS } from '../../constants/permissions';
 
 const { Title } = Typography;
 

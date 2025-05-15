@@ -31,7 +31,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { firestore } from '../../services/firebase';
 import { ROLES, RoleType } from '../../constants/roles';
-import { PERMISSIONS } from '../../constants/Permissions';
+import { PERMISSIONS } from '../../constants/permissions';
 import { notificationController } from '../../controllers/notificationController';
 import { NotificationType } from '../../services/notificationService';
 import { ColumnsType } from 'antd/es/table';

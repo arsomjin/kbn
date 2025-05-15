@@ -1,66 +1,59 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import LoadingScreen from '../common/LoadingScreen';
-import useRedirectLogic from '../../hooks/useRedirectLogic';
+import { useAuth } from '../../hooks/useAuth';
+import { Spin } from 'antd';
+import { LoadingOutlined } from '@ant-design/icons';
+import { UserRole, hasRolePrivilege } from '../../constants/roles';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiresAuth?: boolean;
-  requiresProfileComplete?: boolean;
-  allowedRoles?: string[];
-  minPrivilegeLevel?: string;
+  allowedRoles?: UserRole[];
 }
 
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  children,
-  requiresAuth = true,
-  requiresProfileComplete = false,
-  allowedRoles,
-  minPrivilegeLevel,
-}) => {
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
+  const { isAuthenticated, isLoading, userProfile } = useAuth();
   const location = useLocation();
-  const { t } = useTranslation();
-  const { loading, redirectPath } = useRedirectLogic({
-    requiresAuth,
-    requiresProfileComplete,
+
+  console.log('[ProtectedRoute] State:', {
+    isAuthenticated,
+    isLoading,
+    currentPath: location.pathname,
     allowedRoles,
-    minPrivilegeLevel,
+    userRole: userProfile?.role
   });
 
-  const mounted = React.useRef(false);
-  const [showLoading, setShowLoading] = React.useState(false);
-
-  React.useEffect(() => {
-    mounted.current = true;
-    // Only show loading screen if loading takes more than 100ms
-    // This prevents flash of loading screen for fast transitions
-    const timer = setTimeout(() => {
-      if (mounted.current && loading) {
-        setShowLoading(true);
-      }
-    }, 100);
-
-    return () => {
-      mounted.current = false;
-      clearTimeout(timer);
-    };
-  }, [loading]);
-
-  // Don't render anything while doing initial permission check
-  // This prevents flash of 404/unauthorized content
-  if (loading && !showLoading) {
-    return null;
+  if (isLoading) {
+    console.log('[ProtectedRoute] Loading state - showing spinner');
+    return (
+      <div className='flex justify-center items-center h-screen'>
+        <Spin indicator={<LoadingOutlined style={{ fontSize: 36 }} spin />} />
+      </div>
+    );
   }
 
-  if (loading) {
-    return <LoadingScreen overlay tip={t('common:loading')} />;
+  if (!isAuthenticated) {
+    console.log('[ProtectedRoute] Not authenticated - redirecting to login');
+    return <Navigate to='/auth/login' state={{ from: location }} replace />;
   }
 
-  if (redirectPath) {
-    return <Navigate to={redirectPath} state={{ from: location }} replace />;
+  // Check if user has required role
+  if (allowedRoles && userProfile) {
+    const hasRequiredRole = allowedRoles.some(role => 
+      hasRolePrivilege(userProfile.role as UserRole, role)
+    );
+    console.log('[ProtectedRoute] Role check:', {
+      hasRequiredRole,
+      userRole: userProfile.role,
+      allowedRoles
+    });
+
+    if (!hasRequiredRole) {
+      console.log('[ProtectedRoute] Insufficient role - redirecting to dashboard');
+      return <Navigate to='/dashboard' replace />;
+    }
   }
 
+  console.log('[ProtectedRoute] Authenticated and authorized - rendering protected content');
   return <>{children}</>;
 };
 

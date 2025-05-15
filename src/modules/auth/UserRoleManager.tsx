@@ -1,4 +1,4 @@
-import React, { useState, useEffect, JSX } from 'react';
+import React, { useState, useEffect, useCallback, JSX } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Table,
@@ -33,7 +33,7 @@ import {
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { firestore } from '../../services/firebase';
 import { usePermissions } from '../../hooks/usePermissions';
-import { PERMISSIONS } from '../../constants/Permissions';
+import { PERMISSIONS } from '../../constants/permissions';
 import { ROLES, RoleType, ROLE_PERMISSIONS, ROLE_HIERARCHY } from '../../constants/roles';
 import { notificationController } from '../../controllers/notificationController';
 import { NotificationType } from '../../services/notificationService';
@@ -70,6 +70,13 @@ interface UserTableItem {
 const UserRoleManager: React.FC = () => {
   const { t } = useTranslation(['userRoleManager', 'roles', 'permissions', 'common']);
   const { hasPermission, hasProvinceAccess } = usePermissions();
+
+  // Memoize permission checks to prevent unnecessary useEffect reruns
+  const canViewUsers = hasPermission(PERMISSIONS.USER_VIEW);
+  const checkProvinceAccess = useCallback(
+    (provinceId: string) => hasProvinceAccess(provinceId),
+    []
+  );
 
   // State for users data
   const [users, setUsers] = useState<UserTableItem[]>([]);
@@ -124,28 +131,50 @@ const UserRoleManager: React.FC = () => {
 
   // Effect to fetch users data
   useEffect(() => {
+    let isMounted = true;
+    let isFetching = false;
+
     const fetchUsers = async () => {
-      if (!hasPermission(PERMISSIONS.USER_VIEW)) {
-        notification.error({
-          message: t('common.error'),
-          description: t('permissions.insufficientPermissions')
-        });
-        setLoading(false);
+      // Prevent duplicate fetches
+      if (isFetching) {
+        console.log('[UserRoleManager] Fetch already in progress, skipping...');
+        return;
+      }
+
+      console.log('[UserRoleManager] Starting to fetch users...');
+
+      if (!canViewUsers) {
+        console.log('[UserRoleManager] User does not have USER_VIEW permission');
+        if (isMounted) {
+          notification.error({
+            message: t('common.error'),
+            description: t('permissions.insufficientPermissions')
+          });
+          setLoading(false);
+        }
         return;
       }
 
       try {
-        setLoading(true);
+        isFetching = true;
+        if (isMounted) {
+          setLoading(true);
+        }
+        console.log('[UserRoleManager] Fetching users from Firestore...');
         const usersRef = collection(firestore, 'users');
         const usersQuery = query(usersRef, where('deleted', '!=', true));
         const querySnapshot = await getDocs(usersQuery);
 
+        if (!isMounted) return;
+
+        console.log('[UserRoleManager] Firestore query completed, processing results...');
         const usersList: UserTableItem[] = [];
         querySnapshot.forEach(doc => {
           const userData = doc.data();
 
           // Check if current user has access to this user's province
-          if (userData.provinceId && !hasProvinceAccess(userData.provinceId)) {
+          if (userData.provinceId && !checkProvinceAccess(userData.provinceId)) {
+            console.log(`[UserRoleManager] Skipping user ${doc.id} - no province access`);
             return; // Skip users from provinces the current user cannot access
           }
 
@@ -168,20 +197,37 @@ const UserRoleManager: React.FC = () => {
           });
         });
 
-        setUsers(usersList);
+        console.log(`[UserRoleManager] Processed ${usersList.length} users`);
+        if (isMounted) {
+          setUsers(usersList);
+        }
       } catch (error) {
-        console.error('Error fetching users:', error);
-        notification.error({
-          message: t('userRoleManager.errors.fetchUsers'),
-          description: error instanceof Error ? error.message : t('common.unexpectedError')
-        });
+        console.error('[UserRoleManager] Error fetching users:', error);
+        if (isMounted) {
+          notification.error({
+            message: t('userRoleManager.errors.fetchUsers'),
+            description: error instanceof Error ? error.message : t('common.unexpectedError')
+          });
+        }
       } finally {
-        setLoading(false);
+        isFetching = false;
+        if (isMounted) {
+          console.log('[UserRoleManager] Setting loading to false');
+          setLoading(false);
+        }
       }
     };
 
     fetchUsers();
-  }, [hasPermission, hasProvinceAccess, t]);
+
+    // Cleanup function
+    return () => {
+      isMounted = false;
+    };
+  }, [
+    // Only rerun if translation function changes (permissions checks are memoized above)
+    t
+  ]);
 
   // Effect to fetch provinces data
   useEffect(() => {

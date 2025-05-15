@@ -7,7 +7,7 @@ import ProtectedRoute from '../../components/auth/ProtectedRoute';
 import PermissionProtectedRoute from '../../components/auth/PermissionProtectedRoute';
 import { UserRole } from '../../constants/roles';
 import { ComposeNotification } from '../../components/notifications';
-import { PERMISSIONS } from '../../constants/Permissions';
+import { PERMISSIONS } from '../../constants/permissions';
 import ProvincesManagement from '../../modules/settings/ProvincesManagement';
 import BranchesManagement from '../../modules/settings/BranchesManagement';
 import { EmployeeList } from '../../modules/employees/components/EmployeeList';

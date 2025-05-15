@@ -106,7 +106,6 @@ const customers = await getDocs(query(
   customersRef,
   where("deleted", "==", false),
   where("provinceId", "==", currentProvinceId), // Required filter
-  orderBy("created", "desc")
 ));
 
 // Document creation with province

@@ -4,11 +4,13 @@ import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
+import { Permission } from '../../constants/permissions';
 
 interface PermissionProtectedRouteProps {
   children: React.ReactNode;
-  requiredPermission?: string;
+  requiredPermission?: Permission;
   fallbackPath?: string;
+  provinceCheck?: () => boolean;
 }
 
 /**
@@ -30,7 +32,8 @@ interface PermissionProtectedRouteProps {
 const PermissionProtectedRoute: React.FC<PermissionProtectedRouteProps> = ({
   children,
   requiredPermission,
-  fallbackPath = '/dashboard'
+  fallbackPath = '/dashboard',
+  provinceCheck
 }) => {
   const { isAuthenticated, userProfile, isLoading } = useAuth();
   const { hasPermission } = usePermissions();
@@ -54,6 +57,11 @@ const PermissionProtectedRoute: React.FC<PermissionProtectedRouteProps> = ({
   // If permission check is required, verify user has the permission
   if (requiredPermission && !hasPermission(requiredPermission)) {
     // Redirect to fallback path if user doesn't have required permission
+    return <Navigate to={fallbackPath} replace />;
+  }
+
+  // If province check is required, verify user has access to the province
+  if (provinceCheck && !provinceCheck()) {
     return <Navigate to={fallbackPath} replace />;
   }
 

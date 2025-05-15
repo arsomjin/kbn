@@ -140,3 +140,28 @@
     @apply bg-primary-dark text-white;
   }
 }
+
+/* Card Title Utility Class */
+.card-title {
+  @apply text-blue-700 dark:text-blue-300 font-bold;
+}
+
+/* Strongest override for Ant Design Typography Title (all heading levels) */
+.ant-typography.ant-typography-title,
+.ant-typography.ant-typography-title-1,
+.ant-typography.ant-typography-title-2,
+.ant-typography.ant-typography-title-3,
+.ant-typography.ant-typography-title-4,
+.ant-typography.ant-typography-title-5 {
+  color: #1d4ed8 !important; /* Tailwind blue-700 */
+  font-weight: bold !important;
+}
+.dark .ant-typography.ant-typography-title,
+.dark .ant-typography.ant-typography-title-1,
+.dark .ant-typography.ant-typography-title-2,
+.dark .ant-typography.ant-typography-title-3,
+.dark .ant-typography.ant-typography-title-4,
+.dark .ant-typography.ant-typography-title-5 {
+  color: #7dd3fc !important; /* Tailwind blue-300 */
+  font-weight: bold !important;
+}

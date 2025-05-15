@@ -1,4 +1,4 @@
-import { User, UserProfile, RoleType, UserStatus, UserType, EmployeeInfo, VisitorInfo, UserAuth } from "../types/user";
+import { User, UserProfile, RoleType, UserStatus, UserType, EmployeeInfo, VisitorInfo, UserAuth, UserRequestType } from "../types/user";
 
 /**
  * Form data interface for user registration/update
@@ -105,49 +105,57 @@ export const transformUserData = (
  * Transform a User object to UserProfile for UI/forms
  */
 export const transformToUserProfile = (user: User): UserProfile => {
-  const baseProfile: UserProfile = {
-    uid: user.auth.uid,
-    firstName: user.auth.firstName || "",
-    lastName: user.auth.lastName || "",
-    displayName: user.auth.displayName,
-    email: user.auth.email,
-    phoneNumber: user.auth.phoneNumber,
-    photoURL: user.auth.photoURL,
-    role: user.role,
+  const baseProfile: Partial<UserProfile> = {
+    uid: user.id,
+    accessibleProvinceIds: [],
+    customPermissions: [],
+    deleted: user.deleted,
     status: user.status,
     type: user.type,
     provinceId: user.provinceId,
-    created: user.created,
-    updated: user.updated,
-    inputBy: user.inputBy
+    role: user.role,
+    created: user.created.toString(),
+    updated: user.updated.toString(),
+    inputBy: user.inputBy,
+    auth: {
+      displayName: user.auth.displayName,
+      email: user.auth.email,
+      emailVerified: user.auth.emailVerified || false,
+      firstName: user.auth.firstName || '',
+      lastName: user.auth.lastName || '',
+      isAnonymous: user.auth.isAnonymous || false,
+      lastLogin: user.auth.lastLogin?.toString() || null,
+      phoneNumber: user.auth.phoneNumber || '',
+      photoURL: user.auth.photoURL || '',
+    },
+    company: '',
+    purpose: ''
   };
 
-  // Add employee-specific fields if present
-  if (user.employeeInfo) {
+  if (user.type === 'employee' && user.employeeInfo) {
     return {
       ...baseProfile,
-      employeeId: user.employeeInfo.employeeId,
-      employeeCode: user.employeeInfo.employeeCode,
-      branch: user.employeeInfo.branch,
-      department: user.employeeInfo.department,
-      position: user.employeeInfo.position,
-      workBegin: user.employeeInfo.workBegin || undefined,
-      workEnd: user.employeeInfo.workEnd || undefined
-    };
+      employeeInfo: {
+        branch: user.employeeInfo.branch || '',
+        department: user.employeeInfo.department || '',
+        employeeCode: user.employeeInfo.employeeCode || '',
+        employeeId: user.employeeInfo.employeeId,
+        workBegin: user.employeeInfo.workBegin || null,
+      },
+      requestedType: 'employee' as UserRequestType
+    } as UserProfile;
   }
 
-  // Add visitor-specific fields if present
-  if (user.visitorInfo) {
+  if (user.type === 'visitor' && user.visitorInfo) {
     return {
       ...baseProfile,
-      purpose: user.visitorInfo.purpose,
-      organization: user.visitorInfo.organization,
-      startDate: user.visitorInfo.startDate,
-      endDate: user.visitorInfo.endDate || undefined
-    };
+      requestedType: 'visitor' as UserRequestType,
+      company: user.visitorInfo.organization || '',
+      purpose: user.visitorInfo.purpose
+    } as UserProfile;
   }
 
-  return baseProfile;
+  return baseProfile as UserProfile;
 };
 
 /**

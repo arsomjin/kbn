@@ -21,12 +21,26 @@ import {
 import { subscribeToAuthChanges } from '../services/authService';
 import { authPersistenceReady } from '../services/firebase';
 import { subscribeToDocument } from '../utils/firestoreUtils';
+import { auth } from 'firebase/config';
+import { User } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { UserProfile } from '../types/user';
+import { db } from '../firebase/config';
+
+export interface SerializableUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  provinceId: string;
+  role: string;
+}
 
 export const useAuth = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const { user, userProfile, status, error, profileFetchStatus, missingProfileUsers, profileFetchAttempted } =
+  const { user, userProfile, status, error, profileFetchStatus, missingProfileUsers, profileFetchAttempted, hydrated } =
     useSelector((state: RootState) => state.auth);
-  const hydrated = useSelector((state: RootState) => state.auth.hydrated);
 
   // Use ref for tracking initialization to prevent unnecessary renders
   const initialized = useRef(false);
@@ -160,76 +174,25 @@ export const useAuth = () => {
   }, [dispatch, profileFetchAttempted, missingProfileUsers]);
 
   const login = async (email: string, password: string) => {
-    try {
-      console.log('Attempting login...');
-      // Reset the profile fetch status before login
-      dispatch(setProfileFetchStatus('idle'));
-      dispatch(setProfileFetchAttempted(false));
-
-      return await dispatch(loginUser({ email, password })).unwrap();
-    } catch (error) {
-      console.error('Login error:', error);
-      throw error;
-    }
+    return dispatch(loginUser({ email, password }));
   };
 
   const logout = async () => {
-    try {
-      console.log('Attempting logout...');
-      // Reset the profile fetch status before logout
-      dispatch(setProfileFetchStatus('idle'));
-      dispatch(setProfileFetchAttempted(false));
-      dispatch(clearMissingProfileUsers());
-
-      return await dispatch(logoutUser()).unwrap();
-    } catch (error) {
-      console.error('Logout error:', error);
-      throw error;
-    }
+    return dispatch(logoutUser());
   };
 
   const resetAuthError = () => {
     dispatch(clearError());
   };
 
-  // Force profile fetch - useful for refreshing profile data
   const refreshUserProfile = () => {
-    // Only allow fetch if listener is NOT active
-    const state = (window as any).store?.getState?.();
-    if (user && (!state || !state.auth?.profileListenerActive)) {
-      console.log('Refreshing user profile (no listener active)');
-      dispatch(setProfileFetchStatus('idle'));
-      dispatch(setProfileFetchAttempted(false));
-      if (user.uid) {
-        dispatch(removeMissingProfileUser(user.uid));
-      }
+    if (user) {
       dispatch(fetchUserProfile());
-    } else {
-      console.log('Skipped refreshUserProfile: listener is active');
     }
   };
 
-  // Check if the user is authenticated but has no profile
-  const hasNoProfile = !!(
-    user &&
-    profileFetchStatus === 'succeeded' &&
-    !userProfile &&
-    missingProfileUsers.includes(user.uid)
-  );
-
-  // Google sign-in method
   const loginWithGoogle = async () => {
-    try {
-      console.log('Attempting Google login...');
-      // Reset the profile fetch status before login
-      dispatch(setProfileFetchStatus('idle'));
-      dispatch(setProfileFetchAttempted(false));
-
-      return await dispatch(loginWithGoogleThunk()).unwrap();
-    } catch (error) {
-      console.error('Google login error:', error);
-      throw error;
-    }
+    return dispatch(loginWithGoogleThunk());
   };
 
   return {
@@ -237,13 +200,13 @@ export const useAuth = () => {
     userProfile,
     isAuthenticated: !!user,
     isLoading: status === 'loading' || profileFetchStatus === 'pending',
-    hasNoProfile,
+    hasNoProfile: !!user && !userProfile,
     error,
     login,
     logout,
-    loginWithGoogle,
     resetAuthError,
     refreshUserProfile,
+    loginWithGoogle,
     hydrated
   };
 };

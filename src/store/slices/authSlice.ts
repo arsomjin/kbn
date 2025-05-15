@@ -18,6 +18,7 @@ interface SerializableUser {
   phoneNumber: string | null;
   photoURL: string | null;
   emailVerified: boolean;
+  provinceId?: string; // Add provinceId as optional property
 }
 
 // Convert Firebase User to serializable object

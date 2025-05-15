@@ -1,87 +1,65 @@
-import { useContext, useMemo, useCallback } from 'react';
-import { PermissionContext } from '../contexts/PermissionContext';
-import { ROLES, RoleCategory, RoleType, isInRoleCategory } from '../constants/roles';
-import { Province } from '../types/province';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
+import { Permission } from '../constants/permissions';
+import { UserProfile } from '../types/user';
+import { ROLE_PERMISSIONS, ROLES } from '../constants/roles';
 
 /**
  * Hook providing permission-checking functionality throughout the application,
  * including province-based access control
  */
 export const usePermissions = () => {
-  const context = useContext(PermissionContext);
+  const { userProfile } = useSelector((state: RootState) => state.auth);
 
-  if (!context) {
-    throw new Error('usePermissions must be used within a PermissionProvider');
-  }
+  const hasPermission = (permission: Permission): boolean => {
+    if (!userProfile) return false;
 
-  // List of provinces the user has access to
-  const userProvinces = useMemo<Province[]>(() => {
-    const user = context.user;
-    const allProvinces = context.provinces || [];
-
-    if (!user) return [];
-
-    // Admin roles have access to all provinces
-    if (user.role === ROLES.SUPER_ADMIN ||
-        user.role === ROLES.DEVELOPER ||
-        user.role === ROLES.PRIVILEGE ||
-        isInRoleCategory(user.role as RoleType, RoleCategory.GENERAL_MANAGER)) {
-      return allProvinces;
+    // Check if user has the permission in their custom permissions
+    if (userProfile.customPermissions?.includes(permission)) {
+      return true;
     }
 
-    // Province Managers with multiple province access
-    if (user.accessibleProvinceIds && user.accessibleProvinceIds.length > 0) {
-      return allProvinces.filter(province => user.accessibleProvinceIds?.includes(province.id));
+    // Check if user's role has the permission
+    const rolePermissions = ROLE_PERMISSIONS[userProfile.role as keyof typeof ROLE_PERMISSIONS] || [];
+    return rolePermissions.includes(permission);
+  };
+
+  const hasRole = (role: string | string[]): boolean => {
+    if (!userProfile) return false;
+
+    if (Array.isArray(role)) {
+      return role.includes(userProfile.role);
     }
 
-    // Other roles can only access their assigned province
-    if (user.province) {
-      const userProvince = allProvinces.find(p => p.id === user.province);
-      return userProvince ? [userProvince] : [];
+    return userProfile.role === role;
+  };
+
+  const hasProvinceAccess = (provinceId: string): boolean => {
+    if (!userProfile) return false;
+
+    // Users with GENERAL_MANAGER role and higher can access all provinces
+    if (userProfile.role === ROLES.GENERAL_MANAGER || 
+        userProfile.role === ROLES.PRIVILEGE || 
+        userProfile.role === ROLES.SUPER_ADMIN || 
+        userProfile.role === ROLES.DEVELOPER) {
+      return true;
     }
 
-    return [];
-  }, [context.user, context.provinces]);
+    // Check if user has access to the province
+    return userProfile.accessibleProvinceIds?.includes(provinceId) || false;
+  };
 
-  // Check if user has access to specific province
-  const hasProvinceAccess = useCallback(
-    (provinceId: string): boolean => {
-      const user = context.user;
-
-      if (!user || !provinceId) return false;
-
-      // Admin roles have access to all provinces
-      if (user.role === ROLES.SUPER_ADMIN ||
-          user.role === ROLES.DEVELOPER ||
-          user.role === ROLES.PRIVILEGE ||
-          isInRoleCategory(user.role as RoleType, RoleCategory.GENERAL_MANAGER)) {
-        return true;
-      }
-
-      // Other roles with multiple province access check their accessible provinces
-      if (user.accessibleProvinceIds && user.accessibleProvinceIds.length > 0) {
-        return user.accessibleProvinceIds.includes(provinceId);
-      }
-
-      // All other roles can only access their assigned province
-      return user.province === provinceId;
-    },
-    [context.user]
-  );
-
-  // Alternative name for hasProvinceAccess for more readable code in some contexts
-  const canAccessProvince = useCallback(
-    (provinceId: string): boolean => {
-      return hasProvinceAccess(provinceId);
-    },
-    [hasProvinceAccess]
-  );
+  const canAccessProvince = (provinceId: string): boolean => {
+    return hasProvinceAccess(provinceId);
+  };
 
   return {
-    ...context, // Include all the existing permission context properties
-    userProvinces,
+    userProfile,
+    hasPermission,
+    hasRole,
     hasProvinceAccess,
-    canAccessProvince
+    canAccessProvince,
+    permissions: userProfile?.customPermissions || [],
   };
 };
 

@@ -10,10 +10,11 @@ import {
   isInRoleCategory
 } from '../constants/roles';
 import { Province } from '../types/province';
+import { Permission } from '../constants/permissions';
 
 interface PermissionContextType {
-  permissions: string[];
-  hasPermission: (permission: string) => boolean;
+  permissions: Permission[];
+  hasPermission: (permission: Permission) => boolean;
   hasRole: (role: string | string[]) => boolean;
   hasProvinceAccess: (provinceId: string) => boolean;
   canAccessProvince: (provinceId: string) => boolean;
@@ -25,7 +26,7 @@ interface PermissionContextType {
 
 // Create context with default values
 export const PermissionContext = createContext<PermissionContextType>({
-  permissions: [],
+  permissions: [] as Permission[],
   hasPermission: () => false,
   hasRole: () => false,
   hasProvinceAccess: () => false,
@@ -56,14 +57,14 @@ export const PermissionProvider: React.FC<PermissionProviderProps> = ({ userProf
     const rolePermissions = ROLE_PERMISSIONS[userProfile.role as RoleType] || [];
 
     // Add any custom permissions assigned directly to the user
-    const customPermissions = userProfile.customPermissions || [];
+    const customPermissions = (userProfile.customPermissions || []) as Permission[];
 
     // Combine and deduplicate permissions
-    return Array.from(new Set([...rolePermissions, ...customPermissions]));
+    return Array.from(new Set([...rolePermissions, ...customPermissions])) as Permission[];
   }, [userProfile]);
 
   // Function to check if the user has a specific permission
-  const hasPermission = (permission: string): boolean => {
+  const hasPermission = (permission: Permission): boolean => {
     return permissions.includes(permission);
   };
 
@@ -183,7 +184,7 @@ export const PermissionProvider: React.FC<PermissionProviderProps> = ({ userProf
  * As described in the documentation
  */
 export const withTestPermissions =
-  (permissions: string[], provinces: Province[] = []) =>
+  (permissions: Permission[], provinces: Province[] = []) =>
   (Component: React.ComponentType<any>) => {
     return (props: any) => {
       // Mock the permission context for testing
@@ -191,7 +192,7 @@ export const withTestPermissions =
         <PermissionContext.Provider
           value={{
             permissions,
-            hasPermission: (permission: string) => permissions.includes(permission),
+            hasPermission: (permission: Permission) => permissions.includes(permission),
             hasRole: (role: string | string[]) => (Array.isArray(role) ? true : true), // Simplified for testing
             hasProvinceAccess: () => true, // Simplified for testing
             canAccessProvince: () => true, // Simplified for testing
