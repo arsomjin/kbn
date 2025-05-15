@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, ReactElement } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Layout, Menu, Button, Badge, Avatar, Dropdown, Drawer, Space } from 'antd';
 import type { MenuProps } from 'antd';
@@ -38,12 +38,38 @@ import { hasPrivilegedAccess, getLandingPage } from '../../utils/roleUtils';
 
 // Constants
 import { ROLES, RoleCategory } from '../../constants/roles';
-import { PERMISSIONS } from '../../constants/permissions';
+import { PERMISSIONS } from '../../constants/Permissions';
 
 const { Header, Sider, Content } = Layout;
 
 interface MainLayoutProps {
   children?: React.ReactNode;
+}
+
+interface NavItemType {
+  title: string;
+  items?: Array<{
+    title: string;
+    key: string;
+    icon?: React.ReactNode;
+    label: string;
+    to?: string;
+    onClick?: () => void;
+    children?: Array<{
+      key: string;
+      icon?: React.ReactNode;
+      label: string;
+      onClick?: () => void;
+    }>;
+  }>;
+}
+
+interface ValidMenuNavItem {
+  key: string; 
+  icon: ReactElement;
+  label: string;
+  onClick?: () => void | Promise<void>;
+  children?: ValidMenuNavItem[];
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
@@ -291,7 +317,38 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       ].filter(Boolean)
     }
   ];
-  const navItems: MenuProps['items'] = navItemsRaw.filter(Boolean) as MenuProps['items'];
+
+  // Define valid nav item type
+  type NavItem = {
+    key: string;
+    icon?: React.ReactNode;
+    label: string | React.ReactNode;
+    onClick?: () => void | Promise<void>;
+    children?: Array<{
+      key: string;
+      icon?: React.ReactNode;
+      label: string | React.ReactNode;
+      onClick?: () => void | Promise<void>;
+    }>;
+  };
+
+  // Type-safe nav items
+  type MenuNavItem = {
+    key: string; 
+    icon: React.ReactElement;
+    label: string;
+    onClick?: () => void | Promise<void>;
+    children?: MenuNavItem[];
+  };
+
+  // Clean up nav items and ensure type safety
+  const validNavItems = (navItemsRaw.filter(Boolean) as ValidMenuNavItem[])
+    .map(item => ({
+      ...item, 
+      key: item.key || String(item.label || '').toLowerCase()
+    }));
+
+  const navItems = validNavItems as MenuProps['items'];
 
   // Map pathname to menu key and determine open menu keys
   const [openKeys, setOpenKeys] = useState<string[]>(['settings']);

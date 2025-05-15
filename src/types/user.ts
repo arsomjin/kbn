@@ -1,6 +1,6 @@
 import { Timestamp } from "firebase/firestore";
 import { Province, ProvinceAccess } from "./province";
-import { Permission } from '../constants/permissions';
+import { Permission } from '../constants/Permissions';
 
 /**
  * Core user authentication information

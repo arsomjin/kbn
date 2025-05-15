@@ -1,4 +1,4 @@
-import { PERMISSIONS, Permission } from './permissions';
+import { PERMISSIONS, Permission } from './Permissions';
 
 /**
  * User role enum defining all possible roles in the system

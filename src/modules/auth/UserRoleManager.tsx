@@ -33,7 +33,7 @@ import {
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { firestore } from '../../services/firebase';
 import { usePermissions } from '../../hooks/usePermissions';
-import { PERMISSIONS } from '../../constants/permissions';
+import { PERMISSIONS } from '../../constants/Permissions';
 import { ROLES, RoleType, ROLE_PERMISSIONS, ROLE_HIERARCHY } from '../../constants/roles';
 import { notificationController } from '../../controllers/notificationController';
 import { NotificationType } from '../../services/notificationService';

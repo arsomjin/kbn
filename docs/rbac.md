@@ -57,7 +57,7 @@ The permission system should be implemented at multiple levels:
 
 ```tsx
 import { Navigate, useParams } from "react-router-dom";
-import { PERMISSIONS } from "../constants/permissions";
+import { PERMISSIONS } from "../constants/Permissions";
 import { usePermissions } from "../hooks/usePermissions";
 
 interface PermissionProtectedRouteProps {
@@ -108,7 +108,7 @@ export const PermissionProtectedRoute: React.FC<PermissionProtectedRouteProps> =
 ```tsx
 import React from "react";
 import { usePermissions } from "../hooks/usePermissions";
-import { PERMISSIONS } from "../constants/permissions";
+import { PERMISSIONS } from "../constants/Permissions";
 import { AccessDenied } from "../components/common/AccessDenied";
 
 interface CustomerDetailProps {
@@ -145,7 +145,7 @@ export const CustomerDetail: React.FC<CustomerDetailProps> = ({
 import React from "react";
 import { Button } from "antd";
 import { usePermissions } from "../hooks/usePermissions";
-import { PERMISSIONS } from "../constants/permissions";
+import { PERMISSIONS } from "../constants/Permissions";
 
 interface ActionButtonsProps {
   provinceId: string;
@@ -182,7 +182,7 @@ export const ActionButtons: React.FC<ActionButtonsProps> = ({ provinceId }) => {
 import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 import { db } from "../firebase";
 import { usePermissions } from "../hooks/usePermissions";
-import { PERMISSIONS } from "../constants/permissions";
+import { PERMISSIONS } from "../constants/Permissions";
 
 export const createCustomer = async (customerData: CustomerData, provinceId: string): Promise<string> => {
   const { hasPermission, hasProvinceAccess } = usePermissions();

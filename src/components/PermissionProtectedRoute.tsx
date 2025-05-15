@@ -2,7 +2,7 @@ import React from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { Result, Button } from "antd";
 import { useTranslation } from "react-i18next";
-import { PermissionValue } from "constants/permissions";
+import { PermissionValue } from "constants/Permissions";
 import { hasPermission } from "utils/permissions";
 
 interface PermissionProtectedRouteProps {

@@ -24,7 +24,7 @@ import PendingGuard from './router/PendingGuard';
 import ProvinceGuard from './router/ProvinceGuard';
 
 // Constants
-import { PERMISSIONS } from '../constants/permissions';
+import { PERMISSIONS } from '../constants/Permissions';
 
 // Lazy-loaded components
 const LoginPage = lazy(() => import('../modules/auth/LoginPage'));

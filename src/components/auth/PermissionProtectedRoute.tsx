@@ -4,7 +4,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { usePermissions } from '../../hooks/usePermissions';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { Permission } from '../../constants/permissions';
+import { Permission } from '../../constants/Permissions';
 
 interface PermissionProtectedRouteProps {
   children: React.ReactNode;

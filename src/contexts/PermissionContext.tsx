@@ -10,7 +10,7 @@ import {
   isInRoleCategory
 } from '../constants/roles';
 import { Province } from '../types/province';
-import { Permission } from '../constants/permissions';
+import { Permission } from '../constants/Permissions';
 
 interface PermissionContextType {
   permissions: Permission[];

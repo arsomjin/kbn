@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { PERMISSIONS } from '../../constants/permissions';
+import { PERMISSIONS } from '../../constants/Permissions';
 import PermissionProtectedRoute from '../../components/auth/PermissionProtectedRoute';
 import Account from '../../modules/account';
 import NotFound from '../../components/common/NotFound';

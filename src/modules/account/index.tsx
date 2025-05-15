@@ -6,7 +6,7 @@ import { useAuth } from "../../hooks/useAuth";
 import { usePermissions } from "../../hooks/usePermissions";
 import { hasProvinceAccess } from "../../utils/permissions";
 import { ROLES } from "../../constants/roles";
-import { PERMISSIONS } from "../../constants/permissions";
+import { PERMISSIONS } from '../../constants/Permissions';
 
 // Import screens
 import Overview from "./screens/Overview";

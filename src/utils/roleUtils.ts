@@ -1,6 +1,6 @@
 import { UserProfile } from '../services/authService';
 import { ROLES, isInRoleCategory, RoleCategory, RoleType } from '../constants/roles';
-import { PERMISSIONS } from '../constants/permissions';
+import { PERMISSIONS } from '../constants/Permissions';
 
 /**
  * Determines if the user has privilege access based on their role and permissions

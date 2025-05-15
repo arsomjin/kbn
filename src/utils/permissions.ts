@@ -1,6 +1,6 @@
 import { useSelector } from "react-redux";
-import { PERMISSIONS, PermissionValue } from "constants/permissions";
-import { Permission } from '../constants/permissions';
+import { PERMISSIONS, PermissionValue } from "constants/Permissions";
+import { Permission } from '../constants/Permissions';
 import { RootState } from '../store';
 import { store } from '../store';
 import { UserProfile } from '../services/authService';

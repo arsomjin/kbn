@@ -1,0 +1,12 @@
+{
+  "title": "Daily Bank Deposit",
+  "button": {
+    "save": "Save"
+  },
+  "success": {
+    "save": "Successfully saved deposit ID: {{id}}"
+  },
+  "error": {
+    "no_deposit_id": "No bank deposit ID found"
+  }
+} 

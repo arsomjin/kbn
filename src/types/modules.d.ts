@@ -24,7 +24,7 @@ declare module 'utils/format' {
 }
 
 declare module 'utils/permissions' {
-  import { PermissionValue } from 'constants/permissions';
+  import { PermissionValue } from 'constants/Permissions';
 
   const hasPermission: (permission: PermissionValue) => boolean;
   const hasProvinceAccess: (provinceId: string) => boolean;

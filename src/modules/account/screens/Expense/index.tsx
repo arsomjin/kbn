@@ -23,7 +23,7 @@ import { db } from '../../../../firebase/config';
 import { AccountExpenseRecord } from "../../types";
 import { formatCurrency, formatDate } from "utils/format";
 import { hasPermission, hasProvinceAccess } from "utils/permissions";
-import { PERMISSIONS } from "constants/permissions";
+import { PERMISSIONS, PermissionValue } from 'constants/Permissions';
 
 const { Option } = Select;
 
@@ -39,6 +39,10 @@ const Expense: React.FC = () => {
   const [data, setData] = useState<AccountExpenseRecord[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<AccountExpenseRecord | null>(null);
+
+  const canEdit = hasPermission('MANAGE_EXPENSE' as PermissionValue);
+  const canDelete = hasPermission('MANAGE_EXPENSE' as PermissionValue);
+  const canAdd = hasPermission('MANAGE_EXPENSE' as PermissionValue);
 
   // Fetch expense data
   const fetchData = useCallback(async () => {
@@ -137,7 +141,7 @@ const Expense: React.FC = () => {
       key: "actions",
       render: (_: any, record: AccountExpenseRecord) => (
         <Space>
-          {hasPermission(PERMISSIONS.EDIT_EXPENSE) && (
+          {canEdit && (
             <Button
               icon={<EditOutlined />}
               onClick={() => {
@@ -150,7 +154,7 @@ const Expense: React.FC = () => {
               }}
             />
           )}
-          {hasPermission(PERMISSIONS.DELETE_EXPENSE) && (
+          {canDelete && (
             <Button
               danger
               icon={<DeleteOutlined />}
@@ -172,7 +176,7 @@ const Expense: React.FC = () => {
       <Card
         title={t("title")}
         extra={
-          hasPermission(PERMISSIONS.ADD_EXPENSE) && (
+          canAdd && (
             <Button
               type="primary"
               icon={<PlusOutlined />}
