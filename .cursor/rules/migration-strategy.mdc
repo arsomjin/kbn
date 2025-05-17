@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: Migration requirements and structure
+globs: ["**/*"]
+alwaysApply: true
+---
+
+- Preserve all functionality and business logic during migration.
+- Improve code where reasonable but do not remove features.
+- Always register new modules in routing, navigation, and menus if applicable.
+- Reuse shared utilities and hooks.

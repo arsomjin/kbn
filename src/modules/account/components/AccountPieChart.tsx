@@ -4,7 +4,7 @@ import { Typography, Card } from "antd";
 import { Pie } from "@ant-design/plots";
 import { AccountPieChartProps } from "../types";
 import { formatCurrency } from "utils/format";
-import { useTheme } from "hooks/useTheme";
+import { useTheme } from "../../../hooks/useTheme";
 
 const { Title } = Typography;
 

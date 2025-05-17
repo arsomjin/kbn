@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: RBAC and province enforcement
+globs: ["src/**/*"]
+alwaysApply: true
+---
+
+- Always include `provinceId` when querying or creating Firestore documents.
+- Implement role-based permission checks at route, component, and service layers.

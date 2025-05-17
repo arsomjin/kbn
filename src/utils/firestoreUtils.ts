@@ -25,10 +25,18 @@ import {
   DocumentSnapshot,
   QuerySnapshot,
   QueryDocumentSnapshot,
-  FieldValue
+  FieldValue,
+  arrayUnion,
+  arrayRemove,
+  Query,
+  CollectionReference
 } from 'firebase/firestore';
 import { firestore } from '../services/firebase';
 import { FirebaseErrorCategory } from './firebaseErrorMessages';
+import { DateTime } from 'luxon';
+import { getDeviceInfo, DeviceInfo } from './device';
+import { store } from '../store';
+import { cleanValuesBeforeSave } from './functions';
 
 // Types
 export interface PaginatedResult<T> {
@@ -42,6 +50,33 @@ export interface FirestoreDocument {
   createdAt?: Timestamp | Date | FieldValue;
   updatedAt?: Timestamp | Date | FieldValue;
   [key: string]: any;
+}
+
+interface AuthState {
+  user: {
+    uid: string;
+    firstName?: string;
+    lastName?: string;
+    email: string | null;
+  } | null;
+  isAuthenticated: boolean;
+}
+
+interface ErrorLogData extends Record<string, unknown> {
+  ts: number;
+  by?: string;
+  uid?: string;
+  email?: string | null;
+  error: unknown;
+  device: DeviceInfo;
+  snap?: unknown;
+  module?: string;
+}
+
+interface ErrorWithExtras {
+  snap?: unknown;
+  module?: string;
+  [key: string]: unknown;
 }
 
 /**
@@ -420,6 +455,284 @@ export const callFunction = async (name: string, data: any): Promise<any> => {
     return { success: true };
   } catch (error) {
     console.error(`Error calling function "${name}":`, error);
+    throw error;
+  }
+};
+
+/**
+ * Adds error logs to Firestore for monitoring
+ * @param error - The error to log
+ */
+export const addErrorLogs = (error: any): void => {
+  console.error("Error logged:", error);
+  // In a real implementation, this would send the error to Firestore
+};
+
+/**
+ * Check if a document exists in Firestore
+ * @param collectionPath Collection path
+ * @param id Document ID
+ * @returns Promise resolving to boolean indicating existence
+ */
+export const documentExists = async (collectionPath: string, id: string): Promise<boolean> => {
+  try {
+    const docRef = doc(firestore, collectionPath, id);
+    const snapshot = await getDoc(docRef);
+    return snapshot.exists();
+  } catch (error) {
+    console.error(`Error checking document existence ${id} in ${collectionPath}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Get multiple documents by their IDs
+ * @param collectionPath Collection path
+ * @param ids Array of document IDs
+ * @returns Promise resolving to array of documents
+ */
+export const getDocumentsByIds = async <T extends FirestoreDocument>(
+  collectionPath: string,
+  ids: string[]
+): Promise<T[]> => {
+  try {
+    const docs = await Promise.all(
+      ids.map(id => getDocById<T>(collectionPath, id))
+    );
+    return docs.filter((doc): doc is NonNullable<typeof doc> => doc !== null);
+  } catch (error) {
+    console.error(`Error fetching multiple documents from ${collectionPath}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Create or update a document (upsert)
+ * @param collectionPath Collection path
+ * @param id Document ID
+ * @param data Document data
+ * @returns Promise resolving to the document ID
+ */
+export const upsertDocument = async <T extends Omit<FirestoreDocument, 'id'>>(
+  collectionPath: string,
+  id: string,
+  data: T
+): Promise<string> => {
+  try {
+    const docRef = doc(firestore, collectionPath, id);
+    const exists = await documentExists(collectionPath, id);
+
+    const docData = {
+      ...data,
+      ...(exists ? { updatedAt: serverTimestamp() } : { createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
+    };
+
+    await setDoc(docRef, docData);
+    return id;
+  } catch (error) {
+    console.error(`Error upserting document ${id} in ${collectionPath}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Soft delete a document by setting a deleted flag
+ * @param collectionPath Collection path
+ * @param id Document ID
+ * @returns Promise that resolves when soft delete is complete
+ */
+export const softDeleteDocument = async (
+  collectionPath: string,
+  id: string
+): Promise<void> => {
+  try {
+    const docRef = doc(firestore, collectionPath, id);
+    await updateDoc(docRef, {
+      deleted: true,
+      deletedAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error(`Error soft deleting document ${id} from ${collectionPath}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Restore a soft-deleted document
+ * @param collectionPath Collection path
+ * @param id Document ID
+ * @returns Promise that resolves when restore is complete
+ */
+export const restoreDocument = async (
+  collectionPath: string,
+  id: string
+): Promise<void> => {
+  try {
+    const docRef = doc(firestore, collectionPath, id);
+    await updateDoc(docRef, {
+      deleted: false,
+      deletedAt: null,
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error(`Error restoring document ${id} in ${collectionPath}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Get documents with array contains condition
+ * @param collectionPath Collection path
+ * @param field Field to check
+ * @param value Value to check for in array
+ * @returns Promise resolving to array of documents
+ */
+export const getDocumentsWithArrayContains = async <T extends FirestoreDocument>(
+  collectionPath: string,
+  field: string,
+  value: any
+): Promise<T[]> => {
+  try {
+    const q = query(
+      collection(firestore, collectionPath),
+      where(field, 'array-contains', value)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(doc => convertDoc<T>(doc));
+  } catch (error) {
+    console.error(`Error fetching documents with array contains from ${collectionPath}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Add an item to an array field in a document
+ * @param collectionPath Collection path
+ * @param id Document ID
+ * @param field Array field name
+ * @param value Value to add
+ * @returns Promise that resolves when update is complete
+ */
+export const addToArray = async (
+  collectionPath: string,
+  id: string,
+  field: string,
+  value: any
+): Promise<void> => {
+  try {
+    const docRef = doc(firestore, collectionPath, id);
+    await updateDoc(docRef, {
+      [field]: arrayUnion(value),
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error(`Error adding to array field ${field} in document ${id}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Remove an item from an array field in a document
+ * @param collectionPath Collection path
+ * @param id Document ID
+ * @param field Array field name
+ * @param value Value to remove
+ * @returns Promise that resolves when update is complete
+ */
+export const removeFromArray = async (
+  collectionPath: string,
+  id: string,
+  field: string,
+  value: any
+): Promise<void> => {
+  try {
+    const docRef = doc(firestore, collectionPath, id);
+    await updateDoc(docRef, {
+      [field]: arrayRemove(value),
+      updatedAt: serverTimestamp()
+    });
+  } catch (error) {
+    console.error(`Error removing from array field ${field} in document ${id}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Get documents with compound queries
+ * @param collectionPath Collection path
+ * @param conditions Array of query conditions
+ * @param options Additional query options
+ * @returns Promise resolving to array of documents
+ */
+export const getDocumentsWithCompoundQuery = async <T extends FirestoreDocument>(
+  collectionPath: string,
+  conditions: Array<{
+    field: string;
+    operator: '==' | '!=' | '>' | '<' | '>=' | '<=' | 'array-contains' | 'in' | 'not-in' | 'array-contains-any';
+    value: any;
+  }>,
+  options: {
+    orderByField?: string;
+    orderDirection?: 'asc' | 'desc';
+    limitCount?: number;
+  } = {}
+): Promise<T[]> => {
+  try {
+    const { orderByField, orderDirection = 'desc', limitCount } = options;
+    const collectionRef = collection(firestore, collectionPath);
+    let queryRef: Query<DocumentData> = collectionRef;
+
+    // Add where conditions
+    conditions.forEach(({ field, operator, value }) => {
+      queryRef = query(queryRef, where(field, operator, value));
+    });
+
+    // Add ordering if specified
+    if (orderByField) {
+      queryRef = query(queryRef, orderBy(orderByField, orderDirection));
+    }
+
+    // Add limit if specified
+    if (limitCount) {
+      queryRef = query(queryRef, limit(limitCount));
+    }
+
+    const querySnapshot = await getDocs(queryRef);
+    return querySnapshot.docs.map(doc => convertDoc<T>(doc));
+  } catch (error) {
+    console.error(`Error fetching documents with compound query from ${collectionPath}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Get document count for a collection or query
+ * @param collectionPath Collection path
+ * @param conditions Optional query conditions
+ * @returns Promise resolving to document count
+ */
+export const getDocumentCount = async (
+  collectionPath: string,
+  conditions: Array<{
+    field: string;
+    operator: '==' | '!=' | '>' | '<' | '>=' | '<=' | 'array-contains' | 'in' | 'not-in' | 'array-contains-any';
+    value: any;
+  }> = []
+): Promise<number> => {
+  try {
+    const collectionRef = collection(firestore, collectionPath);
+    let queryRef: Query<DocumentData> = collectionRef;
+
+    // Add where conditions
+    conditions.forEach(({ field, operator, value }) => {
+      queryRef = query(queryRef, where(field, operator, value));
+    });
+
+    const querySnapshot = await getDocs(queryRef);
+    return querySnapshot.size;
+  } catch (error) {
+    console.error(`Error getting document count from ${collectionPath}:`, error);
     throw error;
   }
 };

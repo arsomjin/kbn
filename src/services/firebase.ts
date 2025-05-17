@@ -34,7 +34,7 @@ const firebaseConfig = {
 console.log(`Initializing Firebase in ${process.env.REACT_APP_ENV || 'development'} environment`);
 
 // Use a guard to prevent multiple initializations (important for HMR/dev)
-const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
+export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
 // Initialize Firebase services
 export const auth = getAuth(app);

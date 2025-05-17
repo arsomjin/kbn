@@ -4,7 +4,7 @@ import { Table } from "antd";
 import { DateTime } from "luxon";
 import { AccountTableProps } from "../types";
 import { formatCurrency, formatDate } from "../../../utils/format";
-import { useTheme } from "hooks/useTheme";
+import { useTheme } from "../../../hooks/useTheme";
 
 /**
  * Account table component

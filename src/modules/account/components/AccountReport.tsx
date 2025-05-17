@@ -6,7 +6,7 @@ import { DateTime } from "luxon";
 import dayjs from "dayjs";
 import { AccountReportProps } from "../types";
 import { formatCurrency } from "utils/format";
-import { useTheme } from "hooks/useTheme";
+import { useTheme } from "../../../hooks/useTheme";
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;

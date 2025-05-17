@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: Firebase best practices
+globs: ["**/*"]
+alwaysApply: true
+---
+
+- Use modular Firebase SDK imports (e.g., `getFirestore(app)`) instead of `useContext(FirebaseContext)`.
+- Match the Firestore logic and permission model from the new project setup.

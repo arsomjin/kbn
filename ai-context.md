@@ -95,6 +95,7 @@ To assist with the migration, share the following information about the existing
 - Explicit return types in TypeScript
 - JSDoc for complex functions
 - Use functional components with hooks
+- Convert all relative import paths (e.g., ../../utils) to project-root-based absolute imports using "@/..."
 
 ## Multi-Province Architecture
 All data must include provinceId field and queries must filter by province:
@@ -215,6 +216,13 @@ See [design system documentation](/docs/design-system.md) for colors, typography
 ## Role-Based Access Control
 See [RBAC documentation](/docs/rbac.md) for detailed role hierarchy and permissions. The implementation is available in `/src/constants/roles.ts` which defines role types, hierarchy, and permission mappings.
 
+# Type Fixing Behavior
+- Auto-fix all TypeScript errors across the codebase
+- Use best-effort type inference, fallback to `any` with a TODO
+- Prioritize preserving functionality
+- Use existing shared types from `types/`, `interfaces/`, `models/` folders
+- Do not stop for confirmation when processing batch errors
+
 ## Refer to Project Documentation
 - [Detailed Data Schema](/docs/data-schema-detail.md) - Firestore collection structure, interfaces, and query patterns
 - [Design System](/docs/design-system.md) - Colors, typography, and component styling guidelines
@@ -252,9 +260,11 @@ See [RBAC documentation](/docs/rbac.md) for detailed role hierarchy and permissi
    - Replace outdated libraries with modern equivalents if necessary.
 
 ### 🕓 5. Date/Time Handling
-- Replace `moment`, `moment-timezone`, `dayjs`, etc. with [Luxon](https://moment.github.io/luxon/).
+- Replace `moment`, `moment-timezone`, `dayjs`, etc. with [Luxon](https://moment.github.io/luxon/) — preferred across all business logic and components.
 - Use `DateTime` for all date parsing, formatting, and manipulation.
 - Combine Luxon with i18next for localized formatting.
+
+- Do not use `dayjs` unless required by a third-party library; always prefer Luxon.
 
 ### 🌐 6. i18next Internationalization
 - Migrate all user-facing strings to `t("key")` format.

@@ -4,12 +4,14 @@ import authReducer from './slices/authSlice';
 import themeReducer from './slices/themeSlice';
 import notificationReducer from './slices/notificationSlice';
 import branchesReducer from './slices/branchesSlice';
+import dataReducer from './slices/dataSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
   theme: themeReducer,
   notifications: notificationReducer,
-  branches: branchesReducer
+  branches: branchesReducer,
+  data: dataReducer
 });
 
 export const store = configureStore({

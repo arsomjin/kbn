@@ -1,0 +1,22 @@
+{
+  "title": "Input Price",
+  "subtitle": "Account",
+  "pleaseEnterPrice": "Please enter product price",
+  "save": "Save",
+  "saveSuccess": "Data saved successfully",
+  "searchByReceipt": "Search by Receipt No.",
+  "taxInvoiceNo": "Tax Invoice No.",
+  "taxInvoiceDate": "Tax Invoice Date",
+  "priceType": "Price Type",
+  "taxFiledPeriod": "Tax Filing Period",
+  "credit": "Credit",
+  "dueDate": "Due Date",
+  "total": "Total Amount",
+  "discount": "Discount",
+  "deposit": "Deposit",
+  "vat": "VAT",
+  "grandTotal": "Grand Total",
+  "unit": "THB",
+  "days": "days",
+  "enterNumber": "Please enter a number"
+} 

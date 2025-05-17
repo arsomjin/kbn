@@ -1,0 +1,22 @@
+{
+  "title": "บันทึกราคาสินค้า",
+  "subtitle": "Account",
+  "pleaseEnterPrice": "กรุณาป้อนราคาสินค้า",
+  "save": "บันทึก",
+  "saveSuccess": "บันทึกข้อมูลสำเร็จ",
+  "searchByReceipt": "ค้นหาจาก เลขที่ใบรับสินค้า",
+  "taxInvoiceNo": "เลขที่ใบกำกับภาษี",
+  "taxInvoiceDate": "วันที่ใบกำกับภาษี",
+  "priceType": "ประเภทราคา",
+  "taxFiledPeriod": "ยื่นภาษีในงวด",
+  "credit": "เครดิต",
+  "dueDate": "วันครบกำหนด",
+  "total": "จำนวนเงิน",
+  "discount": "หักส่วนลด",
+  "deposit": "หักเงินมัดจำ",
+  "vat": "ภาษีมูลค่าเพิ่ม",
+  "grandTotal": "ยอดรวมทั้งสิ้น",
+  "unit": "บาท",
+  "days": "วัน",
+  "enterNumber": "กรุณาป้อนเป็นตัวเลข"
+} 

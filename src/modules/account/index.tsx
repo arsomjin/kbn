@@ -10,8 +10,9 @@ import { PERMISSIONS } from '../../constants/Permissions';
 
 // Import screens
 import Overview from "./Overview";
-import Income from "./Income";
-import Expense from "./Expense";
+import Income from "./Income/index";
+import Expense from "./Expense/index";
+import InputPrice from "./InputPrice/index";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -142,6 +143,26 @@ const Account: React.FC = () => {
                   description={t(
                     'account:expenseRestricted.message',
                     'You do not have permission to view expense information.'
+                  )}
+                  type="warning"
+                  showIcon
+                  className="dark:bg-gray-700"
+                />
+              )
+            }
+          />
+          <Route
+            path="/input-price/*"
+            element={
+              hasPermission(PERMISSIONS.VIEW_ACCOUNTS) || 
+              hasRole([ROLES.SUPER_ADMIN, ROLES.DEVELOPER, ROLES.PRIVILEGE]) ? (
+                <InputPrice />
+              ) : (
+                <Alert
+                  message={t('account:inputPriceRestricted.title', 'Input Price Access Restricted')}
+                  description={t(
+                    'account:inputPriceRestricted.message',
+                    'You do not have permission to access the price input system.'
                   )}
                   type="warning"
                   showIcon

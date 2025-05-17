@@ -245,6 +245,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           key: 'account-expense',
           label: t('account:expense') || 'Expense',
           onClick: () => navigate('/account/expense')
+        },
+        {
+          key: 'account-price-input',
+          label: 'บันทึกราคาสินค้า',
+          children: [
+            {
+              key: 'account-price-input-vehicle',
+              label: 'รถและอุปกรณ์',
+              onClick: () => navigate('/account/input-price')
+            }
+          ]
         }
       ]
     },
@@ -362,6 +373,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       if (location.pathname === '/account') return 'account-overview';
       if (location.pathname.startsWith('/account/income')) return 'account-income';
       if (location.pathname.startsWith('/account/expense')) return 'account-expense';
+      if (location.pathname.startsWith('/account/input-price')) return 'account-price-input-vehicle';
       return 'account';
     }
     if (location.pathname.startsWith('/admin/review-users')) return 'user-review';
