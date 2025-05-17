@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getProvinces } from '../services/provinceService';
 import { Province } from '../types/province';
+import { useAuth } from './useAuth';
 
 interface UseProvincesOptions {
   status?: 'active' | 'inactive';
@@ -25,11 +26,19 @@ export const useProvinces = (
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const { user, isAuthenticated } = useAuth();
 
   const fetchProvinces = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
+
+      // Log authentication state
+      console.log('Auth state when fetching provinces:', {
+        isAuthenticated,
+        userId: user?.uid,
+        email: user?.email
+      });
 
       // Check cache if not skipping
       const now = Date.now();
@@ -62,7 +71,7 @@ export const useProvinces = (
     } finally {
       setLoading(false);
     }
-  }, [options]);
+  }, [options, user, isAuthenticated]);
 
   useEffect(() => {
     fetchProvinces();

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { db } from '../../../firebase/config';
 import { DateTime } from 'luxon';
 import { FinancialDataPoint, AccountOverviewData } from '../types';
 import { useAuth } from '../../../hooks/useAuth';
+import { firestore } from '../../../services/firebase';
 
 export const useFinancialData = (range: [DateTime, DateTime]) => {
   const [data, setData] = useState<AccountOverviewData>({
@@ -33,7 +33,7 @@ export const useFinancialData = (range: [DateTime, DateTime]) => {
 
         // Fetch income data
         const incomeQuery = query(
-          collection(db, 'sections/account/incomes'),
+          collection(firestore, 'sections/account/incomes'),
           provinceWhere,
           where('date', '>=', startDate.toJSDate()),
           where('date', '<=', endDate.toJSDate()),
@@ -42,7 +42,7 @@ export const useFinancialData = (range: [DateTime, DateTime]) => {
 
         // Fetch expense data
         const expenseQuery = query(
-          collection(db, 'sections/account/expenses'),
+          collection(firestore, 'sections/account/expenses'),
           provinceWhere,
           where('date', '>=', startDate.toJSDate()),
           where('date', '<=', endDate.toJSDate()),

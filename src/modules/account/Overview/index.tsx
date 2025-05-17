@@ -3,11 +3,11 @@ import { Card, Row, Col, Select } from "antd";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import { DateTime } from "luxon";
-import { AccountReport } from "../../components/AccountReport";
-import { AccountPieChart } from "../../components/AccountPieChart";
-import { AccountTable } from "../../components/AccountTable";
-import { useFinancialData } from "../../hooks/useFinancialData";
-import { AccountOverviewData } from "../../types";
+import { AccountReport } from "../components/AccountReport";
+import { AccountPieChart } from "../components/AccountPieChart";
+import { AccountTable } from "../components/AccountTable";
+import { useFinancialData } from "../hooks/useFinancialData";
+import { AccountOverviewData } from "../types";
 import { formatCurrency } from "utils/format";
 
 const { Option } = Select;

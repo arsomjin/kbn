@@ -19,14 +19,12 @@ import {
   addMissingProfileUser
 } from '../store/slices/authSlice';
 import { subscribeToAuthChanges } from '../services/authService';
-import { authPersistenceReady } from '../services/firebase';
+import { authPersistenceReady, auth, firestore } from '../services/firebase';
 import { subscribeToDocument } from '../utils/firestoreUtils';
-import { auth } from 'firebase/config';
 import { User } from 'firebase/auth';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { UserProfile } from '../types/user';
-import { db } from '../firebase/config';
 
 export interface SerializableUser {
   uid: string;

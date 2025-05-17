@@ -17,6 +17,7 @@ import {
 import { firestore } from "./firebase";
 import { Province } from "../types/province";
 
+// Use the correct Firestore path for provinces
 const COLLECTION_PATH = "data/company/provinces";
 
 // Firestore converter for Province type
@@ -87,6 +88,13 @@ export const getProvinces = async (params?: {
     return snapshot.docs.map(doc => doc.data());
   } catch (error) {
     console.error("Error fetching provinces:", error);
+    if (error instanceof Error) {
+      console.error("Error details:", {
+        message: error.message,
+        name: error.name,
+        stack: error.stack
+      });
+    }
     throw error;
   }
 };

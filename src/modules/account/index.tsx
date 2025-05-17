@@ -9,9 +9,9 @@ import { ROLES } from "../../constants/roles";
 import { PERMISSIONS } from '../../constants/Permissions';
 
 // Import screens
-import Overview from "./screens/Overview";
-import Income from "./screens/Income";
-import Expense from "./screens/Expense";
+import Overview from "./Overview";
+import Income from "./Income";
+import Expense from "./Expense";
 
 const { Content } = Layout;
 const { Title } = Typography;

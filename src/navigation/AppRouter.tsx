@@ -42,8 +42,8 @@ const ProvinceDashboard = lazy(() => import('../modules/dashboard/ProvinceDashbo
 const ProvinceSettings = lazy(() => import('../modules/settings/ProvinceSettings'));
 const ProvinceReports = lazy(() => import('../modules/dashboard/ProvinceReports'));
 const Account = lazy(() => import('../modules/account'));
-const Income = lazy(() => import('../modules/account/screens/Income'));
-const Expense = lazy(() => import('../modules/account/screens/Expense'));
+const Income = lazy(() => import('../modules/account/Income'));
+const Expense = lazy(() => import('../modules/account/Expense'));
 
 // Loading spinner component
 const LoadingSpinner = () => (
