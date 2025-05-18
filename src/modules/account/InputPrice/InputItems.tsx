@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { DateTime } from 'luxon';
+import dayjs from 'dayjs';
 import EditableRowTable from '../../../components/EditableRowTable';
 import { showWarn } from '../../../utils/functions';
-import { TableSummary as ApiTableSummary } from '../../../api/Table';
+import { TableSummary } from 'api/Table';
 import { ExpandedRowRender } from './api';
 import { Numb } from '../../../utils/number';
 import { InputPriceItem } from './types';
 import { StatusMap } from '../../../data/Constant';
-import { TableData } from '../../../components/Table/types';
+import { TableData } from 'components/Table/types';
 import { useTranslation } from 'react-i18next';
+import MTable from 'components/Table';
 
 interface InputItemsProps {
   items: InputPriceItem[];
@@ -23,11 +24,6 @@ interface InputItemsProps {
 // Inline status map
 const STATUS_PENDING = 'pending';
 
-// Local TableSummary stub
-const TableSummary: React.FC<{ pageData: InputPriceItem[]; dataLength: number; startAt: number; sumKeys: string[] }> = ({ pageData, dataLength, startAt, sumKeys }) => {
-  // You can implement your own summary logic here if needed
-  return null;
-};
 
 const initItem: InputPriceItem = {
   productCode: '',
@@ -64,7 +60,7 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
     try {
       const lastNo = parseInt(Math.floor(Math.random() * 10000).toString());
       const padLastNo = ('0'.repeat(3) + lastNo).slice(-5);
-      const itemId = `RES-VH-ITEM${DateTime.now().toFormat('yyyyMMdd')}${padLastNo}`;
+      const itemId = `RES-VH-ITEM${dayjs().format('YYYYMMDD')}${padLastNo}`;
 
       const newItem: InputPriceItem = {
         ...initItem,
@@ -131,7 +127,8 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
     },
     {
       title: t('productCode', 'รหัส'),
-      dataIndex: 'productCode'
+      dataIndex: 'productCode',
+      ellipsis: true
     },
     {
       title: t('productName', 'ชื่อสินค้า'),
@@ -141,17 +138,20 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
     {
       title: t('warehouse', 'คลัง'),
       dataIndex: 'storeLocationCode',
-      align: 'center' as const
+      align: 'center' as const,
+      ellipsis: true
     },
     {
       title: t('quantity', 'จำนวน'),
       dataIndex: 'qty',
-      align: 'center' as const
+      align: 'center' as const,
+      ellipsis: true
     },
     {
       title: t('unit', 'หน่วย'),
       dataIndex: 'unit',
-      align: 'center' as const
+      align: 'center' as const,
+      ellipsis: true
     },
     {
       title: t('unitPrice', 'ราคา / หน่วย'),
@@ -159,56 +159,61 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
       editable: true,
       required: true,
       number: true,
-      width: 160
+      ellipsis: true
     },
     {
       title: t('discount', 'ส่วนลด'),
       dataIndex: 'discount',
       editable: true,
-      number: true
+      number: true,
+      ellipsis: true
     },
     {
       title: t('total', 'จำนวนเงิน'),
-      dataIndex: 'total'
+      dataIndex: 'total',
+      ellipsis: true
     }
   ];
 
   const startAt = columns.findIndex(l => l.dataIndex === 'qty');
 
   return (
-    <EditableRowTable
-      dataSource={data as unknown as TableData[]}
-      columns={columns}
-      onUpdate={(updatedData, dataIndex, rowIndex) => {
-        // Handle null dataIndex coming from EditableRowTable
-        const actualDataIndex = dataIndex || undefined;
-        // Convert string rowIndex to number if provided
-        const actualRowIndex = rowIndex !== undefined && typeof rowIndex === 'string' ? parseInt(rowIndex) : rowIndex;
-        // Cast back to InputPriceItem[]
-        onUpdateItem(updatedData as unknown as InputPriceItem[], actualDataIndex, actualRowIndex);
-      }}
-      onDelete={onDeleteItem}
-      miniAddButton
-      pagination={false}
-      size="small"
-      disabled={!grant}
-      readOnly={readOnly}
-      loading={loading}
-      scroll={undefined}
-      locale={{}}
-      initialItemValues={undefined}
-      onAdd={undefined}
-      forceValidate={undefined}
-      noScroll={undefined}
-      handleEdit={undefined}
-      handleSelect={undefined}
-      rowClassName={undefined}
-      deletedButtonAtEnd={undefined}
-      expandable={{
-        expandedRowRender: (record: TableData) => ExpandedRowRender(record as unknown as InputPriceItem),
-        rowExpandable: () => true
-      }}
-    />
+      <EditableRowTable
+        dataSource={data as unknown as TableData[]}
+        columns={columns}
+        onUpdate={(updatedData, dataIndex, rowIndex) => {
+          // Handle null dataIndex coming from EditableRowTable
+          const actualDataIndex = dataIndex || undefined;
+          // Convert string rowIndex to number if provided
+          const actualRowIndex = rowIndex !== undefined && typeof rowIndex === 'string' ? parseInt(rowIndex) : rowIndex;
+          // Cast back to InputPriceItem[]
+          onUpdateItem(updatedData as unknown as InputPriceItem[], actualDataIndex, actualRowIndex);
+        }}
+        onDelete={onDeleteItem}
+        miniAddButton
+        summary={(pageData: InputPriceItem[]) => (
+          <TableSummary pageData={pageData} dataLength={data.length} startAt={8} sumKeys={['total']} />
+        )}  
+        pagination={false}
+        size="small"
+        disabled={!grant}
+        readOnly={readOnly}
+        loading={loading}
+        scroll={{ x: 'max-content', y: 400 }}
+        locale={{ emptyText: '' }}
+        initialItemValues={undefined}
+        onAdd={undefined}
+        forceValidate={undefined}
+        noScroll={false}
+        handleEdit={undefined}
+        handleSelect={undefined}
+        rowClassName={undefined}
+        deletedButtonAtEnd={undefined}
+        expandable={{
+          expandedRowRender: (record: TableData) => <ExpandedRowRender record={record as InputPriceItem} />,
+          rowExpandable: () => true
+        }}
+      />
   );
 };
 

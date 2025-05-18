@@ -84,7 +84,7 @@ const Input = forwardRef<InputRef, InputProps>((props, ref) => {
   );
 
   const formatter = (val: string | number | undefined) => formatNumber(val) as string;
-  const inputParser = (val: string | undefined) => parser(val) as string | number;
+  const inputParser = (val: string | undefined) => parser(val ?? '') as string | number;
   const _onKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       const form = (e.target as HTMLInputElement).form;

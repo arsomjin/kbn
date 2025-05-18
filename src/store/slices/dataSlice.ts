@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Dealer } from '../../types/dealer';
 
 interface Bank {
   bankId: string;
@@ -17,12 +18,7 @@ interface DataState {
     branchName: string;
     [key: string]: any;
   }>;
-  dealers: Record<string, {
-    dealerName: string;
-    prefix?: string;
-    lastName?: string;
-    [key: string]: any;
-  }>;
+  dealers: Record<string, Dealer>;
   isLoading: boolean;
   error: string | null;
 }
@@ -45,6 +41,9 @@ const dataSlice = createSlice({
     addBank: (state, action: PayloadAction<{ bankId: string; bank: Bank }>) => {
       state.banks[action.payload.bankId] = action.payload.bank;
     },
+    setDealers: (state, action: PayloadAction<Record<string, Dealer>>) => {
+      state.dealers = action.payload;
+    },
     setDataLoading: (state, action: PayloadAction<boolean>) => {
       state.isLoading = action.payload;
     },
@@ -54,6 +53,6 @@ const dataSlice = createSlice({
   }
 });
 
-export const { setBanks, addBank, setDataLoading, setDataError } = dataSlice.actions;
+export const { setBanks, addBank, setDealers, setDataLoading, setDataError } = dataSlice.actions;
 
 export default dataSlice.reducer; 

@@ -1,10 +1,10 @@
-import { DateTime } from "luxon";
+import type { Dayjs } from 'dayjs';
 
 /**
  * Financial data point interface
  */
 export interface FinancialDataPoint {
-  date: DateTime;
+  date: Dayjs;
   income: number;
   expense: number;
   balance: number;
@@ -58,8 +58,8 @@ export interface AccountOverviewData {
 export interface AccountReportProps {
   title: string;
   branchName: string;
-  range: [DateTime, DateTime];
-  onRangeChange: (range: [DateTime, DateTime]) => void;
+  range: [Dayjs, Dayjs];
+  onRangeChange: (range: [Dayjs, Dayjs]) => void;
   data: AccountOverviewData;
 }
 
@@ -69,7 +69,7 @@ export interface AccountReportProps {
 export interface AccountPieChartProps {
   title: string;
   branchName: string;
-  range: [DateTime, DateTime];
+  range: [Dayjs, Dayjs];
   data: AccountOverviewData;
 }
 
@@ -78,7 +78,7 @@ export interface AccountPieChartProps {
  */
 export interface AccountTableProps {
   data: FinancialDataPoint[];
-  range: [DateTime, DateTime];
+  range: [Dayjs, Dayjs];
 }
 
 /**
@@ -92,28 +92,28 @@ export interface UseFinancialDataReturn {
 
 export interface IncomeRecord {
   id: string;
-  date: DateTime;
+  date: Dayjs;
   amount: number;
   category: string;
   description: string;
   branchId: string;
   provinceId: string;
   createdBy: string;
-  createdAt: DateTime;
-  updatedAt: DateTime;
+  createdAt: Dayjs;
+  updatedAt: Dayjs;
   status: 'pending' | 'approved' | 'rejected';
 }
 
 export interface ExpenseRecord {
   id: string;
-  date: DateTime;
+  date: Dayjs;
   amount: number;
   category: string;
   description: string;
   branchId: string;
   provinceId: string;
   createdBy: string;
-  createdAt: DateTime;
-  updatedAt: DateTime;
+  createdAt: Dayjs;
+  updatedAt: Dayjs;
   status: 'pending' | 'approved' | 'rejected';
 } 

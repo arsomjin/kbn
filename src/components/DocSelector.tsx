@@ -5,6 +5,7 @@ import { createOptionsFromFirestore, createOptionsFromFirestoreKeywords } from '
 import { hasNameAndSurnamePattern } from 'utils/RegEx';
 import { getFirestore, Firestore } from 'firebase/firestore';
 import { app } from 'services/firebase';
+import { Option, ErrorWithMessage, SelectRef, SelectOption } from '../types/common';
 
 interface DocSelectorProps {
   collection: string;
@@ -25,30 +26,6 @@ interface DocSelectorProps {
   showAddNew?: () => void;
   startSearchAt?: number;
   isUsed?: boolean;
-  [key: string]: any;
-}
-
-interface SelectRef {
-  focus: () => void;
-  blur: () => void;
-  clear: () => void;
-  isFocused: () => boolean;
-  setNativeProps: (props: any) => void;
-}
-
-interface Option {
-  label: string;
-  value: string;
-  key?: string;
-  className?: string;
-  [key: string]: any;
-}
-
-interface ErrorWithMessage extends Error {
-  message: string;
-  snap?: {
-    function: string;
-  };
   [key: string]: any;
 }
 
@@ -127,7 +104,8 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
       }
     };
 
-    const handleChange = (value: { key?: string; label: React.ReactNode; value: string | number } | { key?: string; label: React.ReactNode; value: string | number }[]) => {
+    const handleChange = (value: SelectOption | SelectOption[]) => {
+      console.log('DocSelector: handleChange called with value:', value);
       if (Array.isArray(value)) {
         onChange?.(value.map(v => v.value as string));
       } else {
@@ -135,9 +113,12 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
       }
     };
 
-    const _fetchSearchList = async (search: string): Promise<Option[]> => {
+    // Memoize _fetchSearchList to avoid debounce issues
+    const _fetchSearchList = React.useCallback(async (search: string): Promise<Option[]> => {
       try {
-        if (!search || (search && search.length < (startSearchAt || 3))) {
+        console.log('DocSelector: _fetchSearchList called with search:', search);
+        if (!search || (search && search.length < (startSearchAt || 4))) {
+          console.log('DocSelector: Search text too short, returning empty array');
           return [];
         }
         let list: Option[] = [];
@@ -159,7 +140,8 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
         } else {
           list = await fetchSearchList(search);
         }
-        return isMounted.current ? list : [];
+        console.log('DocSelector: Returning list:', list);
+        return list;
       } catch (error: unknown) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         const customError = new Error(errorMessage) as ErrorWithMessage;
@@ -168,7 +150,7 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
         errorHandler(customError);
         return [];
       }
-    };
+    }, [collection, orderBy, wheres, labels, startSearchAt, isUsed, showAddNew]);
 
     const fetchSearchList = async (search: string): Promise<Option[]> => {
       try {

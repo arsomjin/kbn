@@ -1,4 +1,4 @@
-import { DateTime } from 'luxon';
+import dayjs, { Dayjs } from 'dayjs';
 import { DocumentData } from 'firebase/firestore';
 import { TableData } from 'components/Table/types';
 
@@ -50,10 +50,10 @@ export interface InputPriceItem {
 export interface InputPriceFormValues {
   billNoSKC: string | null;
   taxInvoiceNo: string | null;
-  taxInvoiceDate: DateTime | undefined;
+  taxInvoiceDate: Dayjs | undefined;
   taxFiledPeriod: string | null;
   creditDays: number | null;
-  dueDate: DateTime | undefined;
+  dueDate: Dayjs | undefined;
   priceType: string | null;
   remark: string | null;
   billDiscount: number | null;

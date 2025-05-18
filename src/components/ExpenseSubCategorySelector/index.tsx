@@ -139,7 +139,7 @@ const ExpenseSubCategorySelector = forwardRef<ExpenseSubCategorySelectorRef, Exp
         }
 
         dispatch({ type: "SET_EXPENSE_SUB_CATEGORIES", payload: mExpenseSubCategories });
-        showSuccess({ content: "บันทึกข้อมูลสำเร็จ" });
+        showSuccess(undefined, "บันทึกข้อมูลสำเร็จ");
         setShowAddNew(false);
       } catch (e) {
         showWarn((e as Error).message);

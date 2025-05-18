@@ -27,7 +27,7 @@ Place the completed and properly migrated module under:
 - Convert to **TypeScript** with full and accurate typings
 - Apply **responsive layout** using **Ant Design + Tailwind CSS**
 - Implement **Role-Based Access Control (RBAC)**, and ensure filtering by `provinceId`
-- Use **Luxon** for all date/time logic
+- Use **dayjs** for all date/time logic
 - Replace hardcoded text with **i18next** keys under `account.json` namespace
 - Maintain **exact business logic**, behavior, and data flow — no simplification without justification
 - Ensure full **dark mode compatibility**

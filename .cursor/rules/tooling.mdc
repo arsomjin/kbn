@@ -10,5 +10,5 @@ alwaysApply: true
 ---
 
 - Use **Yarn** for all package management tasks. Avoid using `npm`.
-- Utilize **Luxon** for date and time operations. Do not use `moment.js`.
+- Utilize **Dayjs** for date and time operations. Do not use `moment.js`.
 - Prefer **Day.js** for all date/time manipulation to maintain compatibility with Ant Design components

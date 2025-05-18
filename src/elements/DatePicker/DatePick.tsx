@@ -41,7 +41,7 @@ const DatePick = forwardRef<any, DatePickProps>(({
   };
 
   const getValue = () => {
-    if (!value) {
+    if (!value || typeof value !== 'string') {
       return undefined;
     }
     return dayjs(DateTime.fromFormat(value, mFormat || 'yyyy-MM-dd').toJSDate());

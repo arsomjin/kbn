@@ -105,7 +105,7 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({
       }
 
       dispatch({ type: "SET_CUSTOMERS", payload: mCustomers });
-      showSuccess({ content: "บันทึกข้อมูลสำเร็จ" });
+      showSuccess(undefined, "บันทึกข้อมูลสำเร็จ");
       onOk(values as Customer);
     } catch (e) {
       showWarn((e as Error).message);

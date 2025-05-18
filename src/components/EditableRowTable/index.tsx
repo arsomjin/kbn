@@ -1,37 +1,49 @@
-import React from 'react';
-import MTable from '../Table/MTable';
-import type { TableProps } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
-import { TableData, CustomColumnsType } from '../Table/types';
+import React, { useEffect, useState } from 'react';
+import { Table, Form } from 'antd';
+import type { TablePaginationConfig } from 'antd/es/table';
+import { PlusOutlined } from '@ant-design/icons';
+import { EditableCell } from 'api/Table/EditableCell';
+import { GetColumns } from 'api/Table';
+import { h } from 'api/Dimension';
+import { showWarn, waitFor } from 'utils/functions';
+import { Button } from 'elements';
+import { TableBaseRecord, TableColumnConfig as OrigTableColumnConfig } from 'types/table';
+
+// Override TableColumnConfig to enforce title: React.ReactElement
+export interface TableColumnConfig<T extends TableBaseRecord> extends Omit<OrigTableColumnConfig<T>, 'title' | 'children'> {
+  title: React.ReactElement;
+  children?: TableColumnConfig<any>[] | TableColumnConfig<T>[];
+}
 
 interface EditableRowTableProps {
-  columns: CustomColumnsType<TableData>;
-  dataSource: TableData[];
-  scroll?: { x?: number | string; y?: number | string };
+  columns: TableColumnConfig<TableBaseRecord>[];
+  dataSource: TableBaseRecord[];
+  scroll?: {
+    x?: number | string;
+    y?: number | string;
+  };
   size?: 'small' | 'middle' | 'large';
-  locale?: Record<string, string>;
-  footer?: (() => React.ReactNode) | undefined;
-  initialItemValues?: Record<string, any>;
-  onAdd?: (data: TableData[]) => void;
-  onDelete?: (key: string | number) => void;
-  onUpdate?: (data: TableData[], dataIndex: string | null, rowIndex: string | number) => void;
+  locale?: {
+    emptyText: string;
+  };
+  footer?: (data: readonly TableBaseRecord[]) => React.ReactNode;
+  initialItemValues?: Partial<TableBaseRecord>;
+  onAdd?: (data: TableBaseRecord[]) => void;
+  onDelete?: (key: string) => void;
+  onUpdate?: (data: TableBaseRecord[], dataIndex?: string, rowIndex?: string) => void;
   forceValidate?: boolean | number;
   noScroll?: boolean;
-  pagination?: any;
+  pagination?: false | TablePaginationConfig;
   miniAddButton?: boolean;
-  handleEdit?: (record: TableData) => void;
-  handleSelect?: (record: TableData) => void;
+  handleEdit?: (record: TableBaseRecord) => void;
+  handleSelect?: (record: TableBaseRecord) => void;
   disabled?: boolean;
   readOnly?: boolean;
-  rowClassName?: string | ((record: TableData, index: number) => string);
+  rowClassName?: string | ((record: TableBaseRecord, index: number) => string);
   deletedButtonAtEnd?: boolean;
   [key: string]: any;
 }
 
-/**
- * EditableRowTable - Legacy shim that uses the unified MTable component
- * with row-based editing mode
- */
 const EditableRowTable: React.FC<EditableRowTableProps> = ({
   columns,
   dataSource,
@@ -39,7 +51,7 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
   size,
   locale,
   footer,
-  initialItemValues = {},
+  initialItemValues,
   onAdd,
   onDelete,
   onUpdate,
@@ -55,49 +67,204 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
   deletedButtonAtEnd,
   ...tableProps
 }) => {
-  // Create handlers compatible with MTable's expected types
-  const handleAdd = onAdd ? 
-    async (data: TableData[]) => {
-      onAdd(data);
-      return data;
-    } : 
-    false;
-    
-  const handleDelete = onDelete ?
-    async (key: string) => {
-      onDelete(key);
-      // We need to return the data after deletion, but since this is a shim,
-      // we'll just filter out the deleted item from dataSource
-      return dataSource.filter(item => item.key !== key);
-    } :
-    false;
+  const [form] = Form.useForm();
+  const [data, setData] = useState<TableBaseRecord[]>(dataSource);
+  const [editingKey, setEditingKey] = useState<string>('');
 
-  const editHandler = handleEdit || false;
+  const isEditing = (record: TableBaseRecord) => record.key === editingKey;
+
+  useEffect(() => {
+    const row = form.getFieldsValue();
+    const editKey = dataSource.findIndex(l => l.key === editingKey);
+    if (editKey > -1) {
+      const mUpdate: Record<string, any> = {};
+      Object.keys(row).forEach(k => {
+        mUpdate[k] = dataSource[editKey][k];
+      });
+      form.setFieldsValue(mUpdate);
+    }
+    setData(dataSource);
+  }, [dataSource, editingKey, form]);
+
+  const edit = async (record: TableBaseRecord, rowIndex: number) => {
+    try {
+      const dArr = await save(editingKey);
+      setEditingKey(record.key);
+      form.setFieldsValue({
+        ...initialItemValues,
+        ...record
+      });
+      handleSave(dArr.data, undefined, rowIndex.toString());
+    } catch (e) {
+      showWarn(e);
+    }
+  };
+
+  const save = (key: string, isDelete?: boolean) =>
+    new Promise<{ item: TableBaseRecord; data: TableBaseRecord[]; rowIndex: string }>(async (resolve, reject) => {
+      try {
+        const shouldValidate = forceValidate === true || forceValidate === 0;
+        const row = shouldValidate && !isDelete
+          ? await form.validateFields()
+          : await form.getFieldsValue();
+
+        const newData = [...data];
+        const index = newData.findIndex(item => key === item.key);
+
+        if (index > -1) {
+          const item = newData[index];
+          const mRow: Record<string, any> = { ...row };
+          Object.keys(row).forEach(k => {
+            if (row[k] === undefined) {
+              mRow[k] = null;
+            }
+          });
+          newData.splice(index, 1, { ...item, ...mRow });
+          resolve({ item: { ...item, ...mRow }, data: newData, rowIndex: key });
+        }
+        resolve({ item: row as TableBaseRecord, data: newData, rowIndex: key });
+      } catch (errInfo) {
+        console.log('Validate Failed:', errInfo);
+        reject(errInfo);
+      }
+    });
+
+  const handleSave = (arr: TableBaseRecord[], dataIndex?: string, rowIndex?: string) => {
+    onUpdate?.(arr, dataIndex, rowIndex);
+  };
+
+  const handleAdd = async () => {
+    try {
+      const dArr = await save(editingKey);
+      onAdd?.(dArr.data);
+    } catch (e) {
+      showWarn(e);
+    }
+  };
+
+  const handleDelete = async (deleteKey: string) => {
+    try {
+      onDelete?.(deleteKey);
+      await waitFor(400);
+      setEditingKey('');
+    } catch (e) {
+      showWarn(e);
+    }
+  };
+
+  const cancel = () => {
+    setEditingKey('');
+  };
+
+  const onKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>, dIndex: string) => {
+    const dColumns = columns.filter(l => l.editable);
+    const isLastRow = editingKey === (data.length - 1).toString();
+    const isLastField = dColumns.length > 0 && dIndex === dColumns[dColumns.length - 1].dataIndex;
+    if (['Tab', 'Enter'].includes(e.key)) {
+      if (isLastField) {
+        onBlur(dIndex);
+        setEditingKey('');
+        if (!isLastRow) {
+          edit(data[parseInt(editingKey) + 1], parseInt(editingKey) + 1);
+        }
+      } else if (['productCode'].includes(dIndex)) {
+        onBlur(dIndex);
+      }
+    }
+  };
+
+  const onBlur = async (dIndex: string) => {
+    const dArr = await save(editingKey);
+    handleSave(dArr.data, dIndex, editingKey);
+  };
+
+  const mColumns = GetColumns({
+    columns,
+    handleEdit,
+    handleSelect,
+    handleDelete,
+    onDelete,
+    onBlur: () => onBlur(''),
+    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => onKeyDown(e, ''),
+    isEditing,
+    size,
+    disabled,
+    readOnly,
+    deletedButtonAtEnd
+  }) as TableColumnConfig<TableBaseRecord>[];
+
+  const totalWidth = mColumns.reduce((sum: number, elem) => {
+    const width = typeof elem.width === 'number' ? elem.width : 0;
+    return sum + width;
+  }, 0);
+
+  const tableWidth = typeof totalWidth === 'number' && totalWidth > 100 ? '100%' : totalWidth;
 
   return (
-    <MTable
-      columns={columns}
-      dataSource={dataSource}
-      canAdd={handleAdd}
-      onChange={onUpdate}
-      canDelete={handleDelete}
-      canEdit={editHandler}
-      editMode="row"
-      forceValidate={forceValidate}
-      scroll={scroll}
-      size={size}
-      locale={locale}
-      footer={footer}
-      noScroll={noScroll}
-      miniAddButton={miniAddButton}
-      pagination={pagination}
-      rowClassName={rowClassName}
-      disabled={disabled}
-      readOnly={readOnly}
-      initialItemValues={initialItemValues}
-      tableProps={tableProps}
-    />
+    <Form form={form} component={false}>
+      <Table
+        components={{
+          body: {
+            cell: EditableCell
+          }
+        }}
+        bordered
+        dataSource={data}
+        columns={mColumns}
+        scroll={
+          noScroll ? undefined : scroll ? { ...scroll, x: tableWidth } : { x: tableWidth, y: h(40) }
+        }
+        size={size || 'small'}
+        locale={locale || { emptyText: 'ไม่มีข้อมูล' }}
+        rowClassName={
+          rowClassName ||
+          ((record, index) =>
+            record?.deleted
+              ? 'deleted-row'
+              : record?.transferCompleted
+                ? 'completed-row'
+                : record?.rejected
+                  ? 'rejected-row'
+                  : 'editable-row')
+        }
+        pagination={
+          typeof pagination !== 'undefined'
+            ? pagination
+            : {
+                onChange: cancel,
+                showSizeChanger: true
+              }
+        }
+        onRow={(record, rowIndex) => ({
+          onClick: () => {
+            if (editingKey !== record.key && typeof rowIndex === 'number') {
+              edit(record, rowIndex);
+            }
+          }
+        })}
+        footer={
+          typeof footer !== 'undefined'
+            ? footer
+            : typeof onAdd !== 'undefined' && !disabled && !readOnly
+              ? () => (
+                  <Button
+                    onClick={handleAdd}
+                    ghost
+                    type="primary"
+                    size="small"
+                    className="mt-1"
+                    disabled={disabled || readOnly}
+                    icon={<PlusOutlined />}
+                  >
+                    เพิ่มรายการ
+                  </Button>
+                )
+              : undefined
+        }
+        {...tableProps}
+      />
+    </Form>
   );
 };
 
-export default EditableRowTable;
+export default EditableRowTable; 

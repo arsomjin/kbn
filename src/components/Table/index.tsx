@@ -1,41 +1,55 @@
-import React, { useState, useEffect, useContext } from "react";
-import { Table, Popconfirm, Button, Form, Typography } from "antd";
-import type { ColumnType } from "antd/es/table";
-import type { FormInstance } from "antd";
-import type { PanelRender } from 'rc-table/lib/interface';
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import React, { useState, useEffect } from "react";
+import { Table, Popconfirm, Button } from "antd";
+import type { TableProps, ColumnType } from "antd/es/table";
+import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
-import EditableRow from "./EditableRow";
+import { EditableRow } from "./EditableRow";
 import EditableCell from "./EditableCell";
 import { getRenderColumns } from "./helper";
-import { showWarn, waitFor, Numb } from "utils/functions";
-import { 
-  MTableProps, 
-  TableData, 
-  EditingCell, 
-  CustomColumnType, 
-  CustomColumnsType, 
-  asReactChild 
-} from "./types";
-import { useProvince } from "hooks/useProvince";
-import { usePermission } from "hooks/usePermission";
+
 import "./table.css";
 
-const { Text } = Typography;
+interface TableData {
+  key: string;
+  _key?: string;
+  id?: number;
+  deleted?: boolean;
+  rejected?: boolean;
+  completed?: boolean;
+  [key: string]: any;
+}
 
-// Example shape for a new row (optional)
-const defaultNewRow: Partial<TableData> = {};
+interface ReusableEditableTableProps {
+  columns?: ColumnType<TableData>[];
+  dataSource?: TableData[];
+  onChange?: (data: TableData[], dataIndex: string | null, rowIndex: number) => void;
+  defaultRowItem?: Record<string, any>;
+  readOnly?: boolean;
+  canDelete?: boolean | ((key: string) => Promise<TableData[]>);
+  canAdd?: boolean | ((data: TableData[]) => Promise<TableData[]>);
+  canEdit?: boolean | ((record: TableData, dataIndex: string | null, rowIndex: number) => void);
+  permanentDelete?: boolean;
+  disabled?: boolean;
+  tableProps?: Partial<TableProps<TableData>>;
+}
 
-/**
- * Enhanced MTable component - combines the functionality of:
- * - MTable: Basic editable table with cell-based editing
- * - EditableCellTable: Cell-by-cell editing functionality
- * - EditableRowTable: Row-based editing functionality
- * 
- * The component adapts its behavior based on the provided props.
- */
-const MTable: React.FC<MTableProps> = ({
+interface RootState {
+  data: {
+    branches: any[];
+    departments: any[];
+    userGroups: any[];
+    dealers: any[];
+    banks: any[];
+    expenseCategories: any[];
+    employees: any[];
+    executives: any[];
+    expenseAccountNames: any[];
+  };
+}
+
+const defaultNewRow: Record<string, any> = {};
+
+const ReusableEditableTable: React.FC<ReusableEditableTableProps> = ({
   columns = [],
   dataSource = [],
   onChange,
@@ -46,29 +60,10 @@ const MTable: React.FC<MTableProps> = ({
   canEdit = false,
   permanentDelete = false,
   disabled = false,
-  tableProps = {},
-  provinceId,
-  editMode = 'cell', // 'cell', 'row', or 'inline'
-  forceValidate = false,
-  scroll,
-  size = 'small',
-  locale,
-  footer,
-  noScroll = false,
-  miniAddButton = false,
-  rowClassName,
-  pagination,
-  initialItemValues = {},
-  onAdd
+  tableProps = {}
 }) => {
-  const { t } = useTranslation();
-  const { currentProvince } = useProvince();
-  const { hasPermission } = usePermission();
-  const [form] = Form.useForm();
+  const [editingCell, setEditingCell] = useState<{ key: string; dataIndex: string } | null>(null);
   const [data, setData] = useState<TableData[]>([]);
-  const [editingCell, setEditingCell] = useState<EditingCell | null>(null);
-  const [editingKey, setEditingKey] = useState<string>('');
-  const [count, setCount] = useState<number>(dataSource.length);
   
   const {
     branches,
@@ -80,220 +75,82 @@ const MTable: React.FC<MTableProps> = ({
     employees,
     executives,
     expenseAccountNames
-  } = useSelector((state: any) => state.data);
+  } = useSelector((state: RootState) => state.data);
 
-  // Filter data by province if provinceId is provided
   useEffect(() => {
-    const filteredData = dataSource.filter(item => 
-      !provinceId || item.provinceId === provinceId || item.provinceId === currentProvince?.id
-    );
-    const initData = filteredData.map((item, idx) => ({
+    console.log({ dataSource });
+    const initData = dataSource.map((item, idx) => ({
       ...item,
       key: item.key || idx.toString()
     }));
     setData(initData);
-    setCount(initData.length);
-  }, [dataSource, provinceId, currentProvince]);
+  }, [dataSource]);
 
-  // For row-based editing: check if a row is being edited
-  const isEditing = (record: TableData) => record.key === editingKey;
-
-  // For row-based editing: start editing a row
-  const editRow = async (record: TableData, rowIndex?: number) => {
-    try {
-      // Save previously editing row if any
-      if (editingKey !== '') {
-        const dArr = await saveRow(editingKey);
-        // Handle save result if needed
-      }
-      // Set new editing row
-      setEditingKey(record.key);
-      form.setFieldsValue({
-        ...initialItemValues,
-        ...record
-      });
-    } catch (e) {
-      showWarn(e instanceof Error ? e.message : String(e));
-    }
-  };
-
-  // For row-based editing: save a row
-  const saveRow = (key: string, isDelete?: boolean) =>
-    new Promise<{ item: any; data: any[]; rowIndex: string | number }>(async (resolve, reject) => {
-      try {
-        // Validate fields
-        const row = (forceValidate && !isDelete)
-          ? await form.validateFields()
-          : await form.getFieldsValue();
-        
-        // Save row
-        const newData = [...data];
-        const index = newData.findIndex(item => key === item.key);
-
-        if (index > -1) {
-          const item = newData[index];
-          const mRow: Record<string, any> = { ...row };
-          Object.keys(row).forEach(k => {
-            if (row[k] === undefined) {
-              mRow[k] = null;
-            }
-          });
-          newData.splice(index, 1, { ...item, ...mRow });
-          resolve({ item: { ...item, ...mRow }, data: newData, rowIndex: key });
-        } else {
-          resolve({ item: row, data: newData, rowIndex: key });
-        }
-      } catch (errInfo) {
-        console.log('Validate Failed:', errInfo);
-        reject(errInfo);
-      }
-    });
-
-  // Cancel row editing
-  const cancelEdit = () => {
-    setEditingKey('');
-  };
-
-  // For cell-based editing
-  const handleCellSave = (updatedRow: TableData, dataIndex: string, rowIndex: number) => {
+  const handleSave = (record: TableData) => {
     const newData = [...data];
-    const index = newData.findIndex(row => row.key === updatedRow.key);
-    
+    const index = newData.findIndex(row => row.key === record.key);
     if (index > -1) {
-      newData[index] = {
-        ...updatedRow,
-        provinceId: provinceId || currentProvince?.id
-      };
+      newData[index] = record;
       setData(newData);
-      onChange?.(newData, dataIndex, rowIndex);
+      onChange?.(newData, null, index);
     }
   };
 
-  // Handle adding a new row
   const handleAdd = async () => {
-    if (disabled || !hasPermission("CREATE")) return;
-
-    try {
-      // For row-based editing, save the current row first
-      if (editMode === 'row' && editingKey !== '') {
-        const dArr = await saveRow(editingKey);
-      }
-
-      if (typeof canAdd === "function") {
-        try {
-          const newData = await canAdd(data);
-          setData(newData);
-          onChange?.(newData, null, -1);
-        } catch (err) {
-          console.error(err);
-        }
-      } else {
-        const newKey = `${Date.now()}`;
-        const newRow = {
-          ...defaultRowItem,
-          ...initialItemValues,
-          _key: newKey,
-          key: data.length.toString(),
-          id: data.length,
-          provinceId: provinceId || currentProvince?.id
-        };
-        const newData = [...data, newRow];
-        setData(newData);
-        setCount(count + 1);
-        onChange?.(newData, null, -1);
-        
-        // If row editing mode, start editing the new row
-        if (editMode === 'row') {
-          setEditingKey(newRow.key);
-          form.setFieldsValue(newRow);
-        }
-      }
-    } catch (e) {
-      showWarn(e instanceof Error ? e.message : String(e));
-    }
-  };
-
-  // Delete a row
-  const handleDelete = async (key: string) => {
-    if (!hasPermission("DELETE")) return;
-    try {
-      if (typeof canDelete === "function") {
-        const newData = await canDelete(key);
+    if (disabled) return;
+    if (typeof canAdd === "function") {
+      try {
+        const newData = await canAdd(data);
         setData(newData);
         onChange?.(newData, null, -1);
-        return;
+      } catch (err) {
+        console.error(err);
       }
-
-      let newData = [...data];
-
-      if (!permanentDelete) {
-        const index = newData.findIndex(item => item.key === key);
-        if (index > -1) {
-          newData[index].deleted = true;
-        }
-      } else {
-        newData = data.filter(item => item.key !== key);
-      }
-
+    } else {
+      const newKey = `${Date.now()}`;
+      const newRow: TableData = {
+        ...defaultRowItem,
+        _key: newKey,
+        key: data.length.toString(),
+        id: data.length
+      };
+      const newData = [...data, newRow];
       setData(newData);
       onChange?.(newData, null, -1);
-      
-      // If row editing mode, reset editing key
-      if (editMode === 'row') {
-        await waitFor(400);
-        setEditingKey('');
-      }
-    } catch (e) {
-      showWarn(e instanceof Error ? e.message : String(e));
     }
   };
 
-  // Handle edit button click
+  const handleDelete = async (key: string) => {
+    if (typeof canDelete === "function") {
+      const newData = await canDelete(key);
+      setData(newData);
+      onChange?.(newData, null, -1);
+      return;
+    }
+
+    let newData = [...data];
+
+    if (!permanentDelete) {
+      const index = newData.findIndex(item => item.key === key);
+      if (index > -1) {
+        newData[index].deleted = true;
+      }
+    } else {
+      newData = data.filter(item => item.key !== key);
+    }
+
+    setData(newData);
+    onChange?.(newData, null, -1);
+  };
+
   const handleEdit = async (record: TableData) => {
-    if (!hasPermission("UPDATE")) return;
     const cannotEdit = record?.deleted || record?.rejected || record?.completed;
     const rowIndex = data.findIndex(r => r.key === record.key);
-    
-    if (!cannotEdit) {
-      if (typeof canEdit === "function") {
-        canEdit(record, null, rowIndex);
-      } else if (editMode === 'row') {
-        editRow(record, rowIndex);
-      }
+    if (!cannotEdit && typeof canEdit === "function") {
+      canEdit(record, null, rowIndex);
     }
   };
 
-  // Key press handling for row editing mode
-  const onKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>, dIndex: string) => {
-    if (editMode === 'row') {
-      const dColumns = columns.filter(col => 'editable' in col && col.editable) as CustomColumnType<TableData>[];
-      const isLastRow = Number(editingKey) === data.length - 1;
-      const lastColumn = dColumns.length > 0 ? dColumns[dColumns.length - 1] : null;
-      const isLastField = lastColumn && typeof lastColumn.dataIndex === 'string' && dIndex === lastColumn.dataIndex;
-      
-      if (['Tab', 'Enter'].includes(e.key)) {
-        if (isLastField) {
-          onBlur(dIndex);
-          setEditingKey('');
-          if (!isLastRow) {
-            editRow(data[Number(editingKey) + 1]);
-          }
-        } else if (['productCode'].includes(dIndex)) {
-          onBlur(dIndex);
-        }
-      }
-    }
-  };
-
-  // Blur handling for row editing mode
-  const onBlur = async (dIndex: string) => {
-    if (editMode === 'row') {
-      const dArr = await saveRow(editingKey);
-      onChange?.(dArr.data, dIndex, Number(editingKey));
-    }
-  };
-
-  // Prepare object for getRenderColumns
   const db = {
     branches,
     departments,
@@ -306,114 +163,39 @@ const MTable: React.FC<MTableProps> = ({
     expenseAccountNames
   };
 
-  // Apply ellipsis to all columns by default
-  const columnsWithEllipsis = columns.map(col => {
-    // Create a new column object with proper typing to avoid ReactI18NextChildren issues
-    const newCol = { ...col };
-    
-    // Safely handle title with proper type handling
-    if (typeof newCol.title === 'string') {
-      newCol.title = <span title={newCol.title}>{asReactChild(newCol.title)}</span>;
-    } else {
-      // If it's not a string, just use it without title attribute
-      newCol.title = <span>{asReactChild(newCol.title)}</span>;
-    }
-    
-    // Set ellipsis property
-    newCol.ellipsis = true;
-    
-    // Handle children if they exist
-    if ('children' in newCol && newCol.children) {
-      newCol.children = newCol.children.map((childCol: any) => {
-        const newChildCol = { ...childCol, ellipsis: true };
-        
-        // Apply the same title handling for children
-        if (typeof newChildCol.title === 'string') {
-          newChildCol.title = <span title={newChildCol.title}>{asReactChild(newChildCol.title)}</span>;
-        } else {
-          newChildCol.title = <span>{asReactChild(newChildCol.title)}</span>;
-        }
-        
-        return newChildCol;
-      });
-    }
-    
-    return newCol;
-  });
+  const mergedCols = getRenderColumns(columns, db, handleSave, editingCell, setEditingCell);
 
-  // Process columns based on editing mode
-  const processedColumns = editMode === 'row'
-    ? columnsWithEllipsis.map(col => {
-        if ('editable' in col && col.editable) {
-          return {
-            ...col,
-            onCell: (record: TableData) => {
-              // Return type that matches HTMLAttributes<any> & TdHTMLAttributes<any>
-              const cellProps: any = {
-                record,
-                dataIndex: 'dataIndex' in col ? String(col.dataIndex || '') : '',
-                editing: isEditing(record)
-              };
-              
-              // Handle title specially to avoid type issues
-              if (typeof col.title === 'string') {
-                cellProps.title = col.title;
-              }
-              
-              return cellProps;
-            },
-          };
-        }
-        return col;
-      })
-    : columnsWithEllipsis;
-
-  const mergedCols = getRenderColumns(
-    processedColumns, 
-    db, 
-    handleCellSave, 
-    editingCell, 
-    setEditingCell
-  );
-
-  // Add delete column if needed
-  if (canDelete && !readOnly && !disabled && hasPermission("DELETE")) {
+  if (canDelete && !readOnly && !disabled) {
     mergedCols.push({
-      title: t("common.delete"),
+      title: "ลบ",
       dataIndex: "__delete__",
       align: "center",
-      ellipsis: true,
-      render: (_: unknown, record: TableData) => (
+      render: (_: any, record: TableData) => (
         <Popconfirm
-          title={t("common.confirmDelete")}
+          title="ยืนยันการลบ?"
           onConfirm={() => handleDelete(record.key)}
-          okText={t("common.ok")}
-          cancelText={t("common.cancel")}
+          okText="ตกลง"
+          cancelText="ยกเลิก"
           overlayClassName="my-popconfirm"
         >
           <DeleteOutlined className="text-danger mb-2" />
         </Popconfirm>
       )
-    });
+    } as ColumnType<TableData>);
   }
 
-  // Add edit column if needed
-  if (canEdit && !(disabled || readOnly) && hasPermission("UPDATE") && typeof canEdit === 'function') {
+  if (canEdit && !(disabled || readOnly)) {
     const editCol: ColumnType<TableData> = {
       title: "🖊",
       dataIndex: "__edit__",
-      key: "editColumn",
-      render: (_: unknown, record: TableData) => (
+      render: (_: any, record: TableData) => (
         <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
       ),
       align: "center",
-      width: 50,
-      ellipsis: true
+      width: 50
     };
 
-    const idIndex = mergedCols.findIndex((col: any) => {
-      return col.dataIndex && ["id", "key"].includes(col.dataIndex);
-    });
+    const idIndex = mergedCols.findIndex(col => ["id", "key"].includes(col.dataIndex as string));
     if (idIndex > -1) {
       mergedCols.splice(idIndex + 1, 0, editCol);
     } else {
@@ -421,103 +203,29 @@ const MTable: React.FC<MTableProps> = ({
     }
   }
 
-  // Calculate total width for scroll
-  const totalWidth = mergedCols.reduce(
-    (sum: number, elem: any) => sum + Numb(elem.width || 0), 
-    0
-  );
-  const tableWidth = typeof totalWidth === 'number' && totalWidth > 100 ? '100%' : totalWidth;
-
-  // Default footer with add button
-  const defaultFooter: PanelRender<TableData> = () => (
-    miniAddButton ? (
-      <Button 
-        type="text"
-        size="small"
-        className="mx-2 mb-1"
-        onClick={handleAdd}
-      >
-        <i className="material-icons text-primary">add</i>
-      </Button>
-    ) : (
-      <Button
-        onClick={handleAdd}
-        className="mt-1"
-        size="small"
-        icon={<PlusOutlined />}
-      >
-        {t("common.addItem")}
-      </Button>
-    )
-  );
-
-  // Determine which components to use based on editing mode
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell
-    }
-  };
-
-  // Row props for row editing mode
-  const getRowProps = editMode === 'row' ? {
-    onRow: (record: TableData, rowIndex?: number) => ({
-      onClick: () => {
-        if (editingKey !== record.key && !record.deleted && !readOnly) {
-          editRow(record, rowIndex);
-        }
-      }
-    })
-  } : {};
-
   return (
     <div>
-      {canAdd && !readOnly && !disabled && hasPermission("CREATE") && !footer && (
+      {canAdd && !readOnly && !disabled && (
         <Button onClick={handleAdd} style={{ margin: 8 }}>
-          + {t("common.addItem")}
+          + เพิ่มรายการ
         </Button>
       )}
-      <Form form={form} component={false}>
-        <Table
-          components={components}
-          dataSource={data}
-          columns={mergedCols}
-          rowClassName={
-            rowClassName ||
-            ((record) =>
-              record?.deleted
-                ? 'deleted-row'
-                : record?.transferCompleted
-                  ? 'completed-row'
-                  : record?.rejected
-                    ? 'rejected-row'
-                    : 'editable-row')
+      <Table<TableData>
+        dataSource={data}
+        columns={mergedCols}
+        components={{
+          body: {
+            row: EditableRow,
+            cell: EditableCell
           }
-          pagination={
-            typeof pagination !== 'undefined'
-              ? pagination
-              : {
-                  onChange: editMode === 'row' ? cancelEdit : undefined,
-                  showSizeChanger: true
-                }
-          }
-          scroll={noScroll ? undefined : scroll ? { x: tableWidth, y: 400, ...scroll } : { x: tableWidth, y: 400 }}
-          size={size}
-          locale={locale || { emptyText: t('common.noData') }}
-          bordered
-          footer={
-            typeof footer !== 'undefined'
-              ? footer
-              : onAdd && !disabled && !readOnly
-                ? defaultFooter
-                : undefined
-          }
-          {...getRowProps}
-          {...tableProps}
-        />
-      </Form>
+        }}
+        pagination={false}
+        tableLayout="auto"
+        size="small"
+        {...tableProps}
+      />
     </div>
   );
 };
 
-export default MTable; 
+export default ReusableEditableTable; 

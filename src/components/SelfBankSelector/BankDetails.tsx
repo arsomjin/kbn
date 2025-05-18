@@ -33,8 +33,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({ onOk, onCancel, visible }) =>
     (values: Bank) => {
       showConfirm(
         () => onConfirm(values),
-        `เพิ่มธนาคาร ${values.bankName}`,
-        false
+        `เพิ่มธนาคาร ${values.bankName}`
       );
     },
     [onConfirm]
@@ -79,7 +78,7 @@ const BankDetails: React.FC<BankDetailsProps> = ({ onOk, onCancel, visible }) =>
         <Form.Item name="bankName" rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]} label="ธนาคาร">
           <BankNameSelector />
         </Form.Item>
-        <Form.Item name="accNo" label="เลขที่บัญชี" rules={getRules({ rules: ['required'] })}>
+        <Form.Item name="accNo" label="เลขที่บัญชี" rules={getRules(['required'])}>
           <Input placeholder="กรุณาป้อน เลขบัญชีธนาคาร" />
         </Form.Item>
         <Form.Item name="name" label="ชื่อบัญชี" rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}>

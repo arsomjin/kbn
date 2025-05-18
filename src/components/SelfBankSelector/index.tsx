@@ -103,10 +103,7 @@ const SelfBankSelector = forwardRef<SelfBankSelectorRef, SelfBankSelectorProps>(
       mBanks[bankId] = newBank;
       dispatch(setBanks(mBanks));
       
-      showSuccess({
-        content: 'บันทึกข้อมูลสำเร็จ',
-        onClick: () => setShowAddNew(false)
-      });
+      showSuccess(() => setShowAddNew(false), 'บันทึกข้อมูลสำเร็จ');
       setShowAddNew(false);
     } catch (e) {
       showWarn(e as string);

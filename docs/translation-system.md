@@ -122,14 +122,16 @@ export const ItemCount: React.FC<ItemCountProps> = ({ count }) => {
 // "items.count": "{{count}} รายการ"
 ```
 
-### Formatting with Luxon
+### Formatting with Dayjs
 
-Format dates properly with Luxon:
+Format dates properly with dayjs:
 
 ```tsx
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { DateTime } from "luxon";
+import dayjs from "dayjs";
+import "dayjs/locale/th"; // Import Thai locale
+import "dayjs/locale/en"; // Import English locale
 
 interface DateDisplayProps {
   timestamp: number;
@@ -139,13 +141,22 @@ export const DateDisplay: React.FC<DateDisplayProps> = ({ timestamp }) => {
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language;
   
-  const dateTime = DateTime.fromMillis(timestamp)
-    .setLocale(currentLanguage) // Set locale based on selected language
-    .toFormat("dd MMMM yyyy"); // Format date
+  // Set locale based on selected language
+  dayjs.locale(currentLanguage);
   
-  return <p>{t("date.display", { date: dateTime })}</p>;
+  // Format date using dayjs
+  const formattedDate = dayjs(timestamp).format("DD MMMM YYYY");
+  
+  return <p>{t("date.display", { date: formattedDate })}</p>;
 };
 ```
+
+Key differences from the previous example:
+- Uses `dayjs` instead of `DateTime`
+- Imports required locales explicitly
+- Uses `dayjs.locale()` to set the current language
+- Uses `format()` instead of `toFormat()`
+- Format string uses uppercase `DD` and `YYYY` (dayjs convention)
 
 ### Translation Keys Naming Convention
 
@@ -358,7 +369,9 @@ When migrating from JavaScript to TypeScript, follow these steps for translation
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Form, Input, Button, Alert } from "antd";
-import { DateTime } from "luxon";
+import dayjs from "dayjs";
+import "dayjs/locale/th"; // Import Thai locale
+import "dayjs/locale/en"; // Import English locale
 
 interface ContactFormProps {
   onSubmit: (data: ContactFormData) => Promise<void>;
@@ -377,9 +390,11 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   
-  const currentDate = DateTime.now()
-    .setLocale(i18n.language)
-    .toFormat("dd MMMM yyyy");
+  // Set locale based on current language
+  dayjs.locale(i18n.language);
+  
+  // Format current date using dayjs
+  const currentDate = dayjs().format("DD MMMM YYYY");
   
   const handleSubmit = async (values: ContactFormData) => {
     setLoading(true);
@@ -488,3 +503,63 @@ export const ContactForm: React.FC<ContactFormProps> = ({ onSubmit }) => {
   );
 };
 ```
+
+## Date Formatting Best Practices
+
+When working with dates in translations:
+
+1. **Always Import Required Locales**:
+```tsx
+import "dayjs/locale/th";
+import "dayjs/locale/en";
+```
+
+2. **Set Locale Based on Current Language**:
+```tsx
+dayjs.locale(i18n.language);
+```
+
+3. **Use Consistent Format Strings**:
+- `DD` for day of month (01-31)
+- `MM` for month (01-12)
+- `MMMM` for full month name
+- `YYYY` for full year
+- `HH` for 24-hour format
+- `mm` for minutes
+
+4. **Handle Timezone Differences**:
+```tsx
+// For UTC dates
+dayjs.utc(date).format("YYYY-MM-DD HH:mm:ss");
+
+// For local dates
+dayjs(date).format("YYYY-MM-DD HH:mm:ss");
+```
+
+5. **Relative Time**:
+```tsx
+// Add relative time plugin
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+
+// Use in translations
+t("time.relative", { time: dayjs(date).fromNow() });
+```
+
+6. **Date Ranges**:
+```tsx
+// Format date range
+const startDate = dayjs(range[0]).format("DD MMM YYYY");
+const endDate = dayjs(range[1]).format("DD MMM YYYY");
+t("date.range", { start: startDate, end: endDate });
+```
+
+7. **Date Validation**:
+```tsx
+const isValidDate = dayjs(date).isValid();
+if (!isValidDate) {
+  return t("date.invalid");
+}
+```
+
+Remember to always use dayjs's format strings (uppercase for date components) and handle locale changes appropriately when the language changes.

@@ -8,14 +8,14 @@ KBN is a business management platform built with React, TypeScript, and Firebase
 - Single province → Multi-province architecture
 - Implement full RBAC across provinces, branches, and roles
 - Maintain backward compatibility with existing data
-- Convert date libraries to Luxon
+- Convert date libraries to Dayjs
 - Complete i18next integration throughout the app
 
 ## Tech Stack
 - **Frontend**: React 18+, TypeScript, Redux Toolkit
 - **Backend**: Firebase (Firestore, Auth, Storage, Functions)
 - **UI/Styling**: Ant Design + Tailwind CSS
-- **Other**: Luxon, i18next, React Router, Jest/Playwright
+- **Other**: Dayjs, i18next, React Router, Jest/Playwright
 
 ## Code Style Guidelines
 - Double quotes for strings
@@ -86,9 +86,9 @@ return <h1>{t("component.title")}</h1>;
 // With variables
 const welcomeMessage = t("welcome.message", { name: userName });
 
-// With date formatting (using Luxon)
+// With date formatting (using dayjs)
 const formattedDate = t("event.date", { 
-  date: DateTime.fromMillis(timestamp).toFormat("yyyy-MM-dd")
+  date: dayjs(timestamp).format("YYYY-MM-DD")
 });
 ```
 

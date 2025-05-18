@@ -1,30 +1,35 @@
-import React, { useState } from "react";
-import { Form, Popconfirm, Tooltip, Select, Table, Typography, Tag, message } from "antd";
-import type { FormInstance } from "antd/es/form";
-import type { Rule } from "antd/es/form";
-import type { ColumnType } from "antd/es/table";
-import type { ArgsProps } from "antd/es/message";
-import numeral from "numeral";
-import dayjs from "dayjs";
-import { CheckOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, RightOutlined, CloseOutlined } from "@ant-design/icons";
-import DealerSelector from "components/DealerSelector/DealerSelector";
-import BranchSelector from "components/BranchSelector";
-import ExpenseCategorySelector from "components/ExpenseCategorySelector";
-import DepartmentSelector from "components/DepartmentSelector";
-import ExpenseNameSelector from "components/ExpenseNameSelector";
-import EmployeeSelector from "components/EmployeeSelector";
-import WithHoldingTaxDocSelector from "components/WithHoldingTaxDocSelector";
-import BankSelector from "components/BankSelector";
-import VehicleSelector from "components/VehicleSelector";
-import DocSelector from "components/DocSelector";
-import StoreLocationSelector from "components/StoreLocationSelector";
-import PriceTypeSelector from "components/PriceTypeSelector";
-import { useSelector } from "react-redux";
-import WithHoldingTaxSelector from "components/WithHoldingTaxSelector";
-import SelfBankSelector from "components/SelfBankSelector";
-import VehicleItemTypeSelector from "components/VehicleItemTypeSelector";
-import { DatePicker, Input, Button } from "elements";
-import CommonSelector from "components/CommonSelector";
+import React, { useRef, KeyboardEvent, useContext } from 'react';
+import { Form, Popconfirm, Tooltip, Select, Table, Typography, Tag, FormInstance } from 'antd';
+import { Rule } from 'antd/es/form';
+import numeral from 'numeral';
+import { DateTime } from 'luxon';
+import { 
+  CheckOutlined, 
+  DeleteOutlined, 
+  InfoCircleOutlined, 
+  EditOutlined,
+  CheckCircleOutlined,
+  RightOutlined,
+  CloseOutlined
+} from '@ant-design/icons';
+import DealerSelector from 'components/DealerSelector';
+import BranchSelector from 'components/BranchSelector';
+import ExpenseCategorySelector from 'components/ExpenseCategorySelector';
+import DepartmentSelector from 'components/DepartmentSelector';
+import ExpenseNameSelector from 'components/ExpenseNameSelector';
+import EmployeeSelector from 'components/EmployeeSelector';
+import WithHoldingTaxDocSelector from 'components/WithHoldingTaxDocSelector';
+import BankSelector from 'components/BankSelector';
+import VehicleSelector from 'components/VehicleSelector';
+import DocSelector from 'components/DocSelector';
+import StoreLocationSelector from 'components/StoreLocationSelector';
+import PriceTypeSelector from 'components/PriceTypeSelector';
+import { useSelector } from 'react-redux';
+import WithHoldingTaxSelector from 'components/WithHoldingTaxSelector';
+import SelfBankSelector from 'components/SelfBankSelector';
+import VehicleItemTypeSelector from 'components/VehicleItemTypeSelector';
+import { DatePicker, Input, Button } from 'elements';
+import CommonSelector from 'components/CommonSelector';
 import {
   Seller,
   PriceType,
@@ -38,106 +43,47 @@ import {
   VehicleType,
   WVehicleType,
   DeliveryType,
-  PaymentType,
-  PaymentMethod,
-  BuyType
-} from "data/Constant";
-import PaymentTypeSelector from "components/PaymentTypeSelector";
-import PaymentMethodSelector from "components/PaymentMethodSelector";
-import CustomerSelector from "components/CustomerSelector";
-import { removeAllNonAlphaNumericCharacters } from "utils/RegEx";
-import { showLog, isDateTypeField, validateMobileNumber, Numb, parser, showWarning } from "utils/functions";
-import BooleanSelector from "components/BooleanSelector";
-import { createArrOfLength } from "utils/functions";
-import ServiceSelector from "components/ServiceSelector/";
-import { getNameFromEmployeeCode } from "modules/Utils";
-import BuyTypeSelector from "components/BuyTypeSelector";
-import ExecutiveSelector from "components/ExecutiveSelector";
-import { TableBaseRecord, TableContext, EditableRowProps, GetInputNodeProps } from "types/table";
-
-// Update TableColumnConfig type to match Ant Design's requirements
-interface TableColumnConfig<T> extends Omit<ColumnType<T>, 'title'> {
-  title: React.ReactElement;
-  dataIndex: string;
-  editable?: boolean;
-  required?: boolean;
-  number?: boolean;
-  inputType?: 'text' | 'number' | 'select' | 'date' | 'status';
-  rules?: Rule[];
-  children?: TableColumnConfig<T>[];
-}
-
-// Type definitions
-interface TableData {
-  dealers: Record<string, any>;
-  branches: Record<string, any>;
-  banks: Record<string, any>;
-  departments: Record<string, any>;
-  userGroups: Record<string, any>;
-  expenseCategories: Record<string, any>;
-  employees: Record<string, any>;
-  executives: Record<string, any>;
-  expenseAccountNames: Record<string, any>;
-}
-
-interface TableSummaryProps {
-  pageData: any[];
-  dataLength: number;
-  startAt: number;
-  sumKeys?: string[];
-  align?: 'left' | 'center' | 'right';
-  labelAlign?: 'left' | 'center' | 'right';
-  sumClassName?: string[];
-  noDecimal?: boolean;
-  columns?: TableColumnConfig<any>[];
-  label?: string;
-  hasSection?: boolean;
-}
-
-interface ExpenseNameSelectorProps {
-  placeholder?: string;
-  size?: 'small' | 'middle' | 'large';
-  onSelect?: (value: any) => void;
-  ref?: React.RefObject<any>;
-  value?: any;
-}
-
-interface GetColumnsProps {
-  columns?: TableColumnConfig<any>[];
-  handleDelete?: (key: string) => void;
-  handleSave?: (record: any) => void;
-  handleSelect?: (record: any) => void;
-  handleEdit?: (record: any) => void;
-  onDelete?: (record: any) => void;
-  isEditing?: (record: any) => boolean;
-  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onBlur?: () => void;
-  size?: 'small' | 'middle' | 'large';
-  hasChevron?: boolean;
-  hasEdit?: boolean;
-  disabled?: boolean;
-  readOnly?: boolean;
-  deletedButtonAtEnd?: boolean;
-}
-
-interface ValidatorProps {
-  dataIndex: string;
-  number?: boolean;
-  getFieldValue: (field: string) => any;
-  [key: string]: any;
-}
-
-interface GiveawayTag {
-  name: string;
-  total: number;
-}
+  PaymentType
+} from 'data/Constant';
+import PaymentTypeSelector from 'components/PaymentTypeSelector';
+import PaymentMethodSelector from 'components/PaymentMethodSelector';
+import CustomerSelector from 'components/CustomerSelector';
+import { removeAllNonAlphaNumericCharacters } from 'utils/RegEx';
+import { showLog, isDateTypeField, validateMobileNumber, Numb, parser, showWarning } from 'utils/functions';
+import BooleanSelector from 'components/BooleanSelector';
+import { createArrOfLength } from 'utils/functions';
+import ServiceSelector from 'components/ServiceSelector';
+import { getNameFromEmployeeCode } from 'modules/Utils';
+import BuyTypeSelector from 'components/BuyTypeSelector';
+import { BuyType } from 'data/Constant';
+import ExecutiveSelector from 'components/ExecutiveSelector';
+import { PaymentMethod } from 'data/Constant';
+import { ColumnProps } from './helper';
+import {
+  TableBaseRecord,
+  TableColumnConfig,
+  TableContext,
+  TableEventHandlers,
+  TableState,
+  EditableRowProps,
+  EditableCellProps,
+  GetInputNodeProps,
+  GetRenderColumnsProps,
+  GetColumnsProps,
+  CreateValidatorProps,
+  TableSummaryProps,
+  GetRulesProps,
+  GetIndexFromColumnsProps,
+  GetColumnDataIndexProps,
+  GetColumnTitlesProps
+} from 'types/table';
 
 const { Option } = Select;
 const { Text } = Typography;
 
-export const EditableContext = React.createContext<FormInstance | null>(null);
+const EditableContext = React.createContext<FormInstance | null>(null);
 
-export const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
+const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
   const [form] = Form.useForm();
   return (
     <Form form={form} component={false} scrollToFirstError>
@@ -148,183 +94,30 @@ export const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => 
   );
 };
 
-export const ColumnProps: Record<string, { width: number }> = {
-  id: { width: 50 },
-  productCode: { width: 180 },
-  pCode: { width: 180 },
-  serviceCode: { width: 180 },
-  productName: { width: 180 },
-  productType: { width: 100 },
-  partType: { width: 100 },
-  vehicleType: { width: 100 },
-  serviceItemType: { width: 120 },
-  storeLocationCode: { width: 120 },
-  partLocationCode: { width: 120 },
-  isUsed: { width: 100 },
-  import: { width: 60 },
-  unit: { width: 60 },
-  unitPrice: { width: 130 },
-  discount: { width: 130 },
-  total: { width: 140 },
-  amount: { width: 140 },
-  amtReceived: { width: 140 },
-  amtFull: { width: 130 },
-  operation: { width: 45 },
-  branchCode: { width: 110 },
-  payToBranch: { width: 110 },
-  branch: { width: 80 },
-  date: { width: 120 },
-  inputDate: { width: 120 },
-  incomeDate: { width: 120 },
-  transferDate: { width: 120 },
-  importDate: { width: 120 },
-  receivedDate: { width: 120 },
-  recordedDate: { width: 120 },
-  transferInDate: { width: 120 },
-  transferOutDate: { width: 120 },
-  exportDate: { width: 120 },
-  saleDate: { width: 120 },
-  docDate: { width: 120 },
-  receiveDate: { width: 120 },
-  deliverDate: { width: 120 },
-  deliveredDate: { width: 120 },
-  decalRecordedDate: { width: 120 },
-  decalWithdrawDate: { width: 120 },
-  depositDate: { width: 120 },
-  deliverTime: { width: 80 },
-  arrivalTime: { width: 80 },
-  appointmentTime: { width: 80 },
-  year: { width: 120 },
-  seller: { width: 180 },
-  payer: { width: 120 },
-  paymentType: { width: 120 },
-  paymentMethod: { width: 100 },
-  senderEmployee: { width: 150 },
-  receiverEmployee: { width: 150 },
-  salesPerson: { width: 150 },
-  technicianId: { width: 150 },
-  technician: { width: 150 },
-  person: { width: 150 },
-  sender: { width: 120 },
-  recordedBy: { width: 120 },
-  verifiedBy: { width: 120 },
-  deliveredBy: { width: 120 },
-  receivedBy: { width: 120 },
-  employeeId: { width: 120 },
-  employeeCode: { width: 120 },
-  depositor: { width: 120 },
-  expenseCategoryId: { width: 180 },
-  expenseName: { width: 240 },
-  item: { width: 240 },
-  expenseBranch: { width: 180 },
-  department: { width: 180 },
-  balance: { width: 120 },
-  expenseAccountName: { width: 200 },
-  expenseAccountNameId: { width: 200 },
-  dealer: { width: 180 },
-  billNo: { width: 140 },
-  isVatIncluded: { width: 100 },
-  receiver: { width: 220 },
-  bank: { width: 120 },
-  selfBank: { width: 160 },
-  selfBankId: { width: 180 },
-  accNo: { width: 130 },
-  selfAccNo: { width: 130 },
-  remark: { width: 180 },
-  bankName: { width: 200 },
-  selfBankName: { width: 200 },
-  refNo: { width: 180 },
-  payInNo: { width: 140 },
-  taxInvoiceNo: { width: 180 },
-  docNo: { width: 140 },
-  whTaxDoc: { width: 120 },
-  vehicleNo: { width: 200 },
-  turnOverVehicleNo: { width: 200 },
-  itemType: { width: 180 },
-  prefix: { width: 70 },
-  firstName: { width: 120 },
-  nickName: { width: 80 },
-  lastName: { width: 140 },
-  userGroup: { width: 120 },
-  saleNo: { width: 160 },
-  bookNo: { width: 160 },
-  assessmentResult: { width: 100 },
-  assessmentDate: { width: 120 },
-  saleType: { width: 120 },
-  engineNo: { width: 180 },
-  pressureBladeNo: { width: 180 },
-  bucketNo: { width: 180 },
-  sugarcanePickerNo: { width: 180 },
-  chassisNumber: { width: 140 },
-  importType: { width: 100 },
-  isDecal: { width: 80 },
-  isTakeOut: { width: 80 },
-  peripheralNo: { width: 200 },
-  priceType: { width: 120 },
-  hasWHTax: { width: 120 },
-  whTax: { width: 140 },
-  VAT: { width: 140 },
-  ledgerCompleted: { width: 48 },
-  taxInvoiceCompleted: { width: 48 },
-  vehicleItemType: { width: 120 },
-  qty: { width: 60 },
-  returnQty: { width: 100 },
-  percentage: { width: 80 },
-  amtOilType: { width: 120 },
-  amtPartType: { width: 120 },
-  netPrice: { width: 120 },
-  netTotal: { width: 120 },
-  AD_Discount: { width: 120 },
-  SKCDiscount: { width: 120 },
-  SKCManualDiscount: { width: 120 },
-  discountCoupon: { width: 120 },
-  discountPointRedeem: { width: 120 },
-  sourceOfData: { width: 180 },
-  customerName: { width: 200 },
-  orderTypeDesc: { width: 180 },
-  model: { width: 120 },
-  orderNo: { width: 120 },
-  vehicleRegNumber: { width: 100 },
-  gasCost: { width: 120 },
-  distance: { width: 120 },
-  origin: { width: 120 },
-  fromOrigin: { width: 120 },
-  destination: { width: 120 },
-  toDestination: { width: 120 },
-  transferType: { width: 100 },
-  deliverType: { width: 100 },
-  giveaways: { width: 160 },
-  customer: { width: 180 },
-  picker: { width: 180 },
-  address: { width: 80 },
-  moo: { width: 80 },
-  village: { width: 80 },
-  tambol: { width: 80 },
-  amphoe: { width: 80 },
-  province: { width: 80 },
-  postcode: { width: 80 },
-  phoneNumber: { width: 120 }
+// Helper function to handle Enter key behavior
+const handleEnterKey = (e: KeyboardEvent<HTMLInputElement>) => {
+  if (e.key === 'Enter') {
+    const value = e.currentTarget.value;
+    showLog('Current value:', value);
+  }
 };
 
-// Helper function to handle Enter key behavior
-const handleEnterKey = (
-  event: React.KeyboardEvent<HTMLInputElement>,
-  ref: React.RefObject<HTMLInputElement>,
-  save: (value?: any) => void
-): void => {
-  if (event.key === "Enter") {
-    const input = event.target as HTMLInputElement;
-    const currentValue = input?.value?.trim() || "";
-    showLog("handleEnterKey_value", currentValue);
-    if (!currentValue) {
-      if (ref?.current?.blur) {
-        ref.current.blur();
-      }
-      return;
-    } else {
-      save(currentValue);
-    }
+const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, dataIndex: string, handlers: TableEventHandlers<any>): void => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    e.stopPropagation();
+    handlers.onKeyDown?.(e.key, dataIndex);
   }
+};
+
+const handleBlur = (e: React.FocusEvent<HTMLInputElement>, dataIndex: string, handlers: TableEventHandlers<any>): void => {
+  e.preventDefault();
+  e.stopPropagation();
+  handlers.onBlur?.(dataIndex);
+};
+
+const handleSelect = (handlers: TableEventHandlers<any>): void => {
+  handlers.onSelect?.();
 };
 
 export const getInputNode = ({
@@ -339,43 +132,49 @@ export const getInputNode = ({
 }: GetInputNodeProps): React.ReactNode => {
   const mProps = {
     ref,
-    ...(typeof onBlur === "function" && { onBlur: (e: React.FocusEvent<HTMLInputElement>) => { if (typeof save === 'function') save(e); } }),
+    ...(typeof onBlur === 'function' && { onBlur: save }),
     ...(number && { number: true })
   };
+
   const selectProps = {
-    ref,
-    onSelect: (value: any) => { if (typeof save === 'function') save(value); }
+    ...(typeof save === 'function' && { onSelect: save })
   };
+
   const dateProps = {
     ref,
-    onChange: (value: any) => { if (typeof save === 'function') save(value); }
+    ...(typeof save === 'function' && { onChange: save })
   };
 
-  const isBoolean = ["isDecal", "isTakeOut", "WR", "FOC"].includes(dataIndex);
-  const isSale = ["/sale-machines", "/sale-booking"].includes(path || "");
-  const isWarehouse = ["/warehouse/export-by-transfer"].includes(path || "");
+  const isBoolean = ['isDecal', 'isTakeOut', 'WR', 'FOC'].includes(dataIndex);
+  const isSale = ['/sale-machines', '/sale-booking'].includes(path || '');
+  const isWarehouse = ['/warehouse/export-by-transfer'].includes(path || '');
 
-  let inputNode = <Input {...mProps} size={size || "small"} />;
+  let inputNode = <Input {...mProps} size={size || 'small'} />;
 
   if (isBoolean) {
-    inputNode = <BooleanSelector {...mProps} size={size || "small"} />;
+    inputNode = <BooleanSelector {...mProps} size={size || 'small'} />;
   } else {
     switch (dataIndex) {
-      case "payer":
-      case "senderEmployee":
-      case "picker":
-      case "receiverEmployee":
-      case "sender":
-      case "recordedBy":
-      case "verifiedBy":
-      case "deliveredBy":
-      case "receivedBy":
-      case "person":
-      case "employeeId":
-      case "employeeCode":
-      case "depositor":
+      case 'payer':
+      case 'senderEmployee':
+      case 'picker':
+      case 'receiverEmployee':
+      case 'sender':
+      case 'recordedBy':
+      case 'verifiedBy':
+      case 'deliveredBy':
+      case 'receivedBy':
+      case 'person':
+      case 'employeeId':
+      case 'employeeCode':
+      case 'depositor':
         inputNode = (
-          <EmployeeSelector placeholder="ชื่อ (ชื่อเล่น)" size={size || "small"} allowNotInList {...selectProps} />
+          <EmployeeSelector 
+            placeholder="ชื่อ (ชื่อเล่น)" 
+            size={size || 'small'} 
+            allowNotInList 
+            {...selectProps} 
+          />
         );
         break;
 
@@ -401,11 +200,9 @@ export const getInputNode = ({
       case 'expenseAccountName':
         inputNode = (
           <ExpenseNameSelector
-            placeholder="ชื่อรายการ"
-            size={size || 'small'}
-            value={record?.expenseName}
-            onSelect={value => selectProps.onSelect && selectProps.onSelect(value)}
-            ref={selectProps.ref}
+            placeholder="ชื่อบัญชี"
+            size={size}
+            {...selectProps}
           />
         );
         break;
@@ -432,8 +229,7 @@ export const getInputNode = ({
           <VehicleSelector
             placeholder="รุ่น/ รหัส / ชื่อสินค้า"
             size={size || 'small'}
-            record={record || {}}
-            {...selectProps}
+            {...(selectProps as any)}
           />
         );
         break;
@@ -456,7 +252,7 @@ export const getInputNode = ({
             size={size || 'small'}
             dropdownStyle={{ minWidth: 420 }}
             dropdownAlign={{ offset: [-80, 4] }}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e)}
             {...selectProps}
           />
         );
@@ -475,7 +271,7 @@ export const getInputNode = ({
             size={size || 'small'}
             dropdownStyle={{ minWidth: 300 }}
             dropdownAlign={{ offset: [-80, 4] }}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e)}
             {...selectProps}
           />
         ) : (
@@ -488,7 +284,7 @@ export const getInputNode = ({
       case 'vehicleNo': {
         const nextProps = {
           ...selectProps,
-          ...(typeof onBlur === 'function' && { onBlur: (e: React.FocusEvent<HTMLInputElement>) => { if (typeof save === 'function') save(e); } })
+          ...(typeof onBlur === 'function' && { onBlur: save })
         };
         let vNoQueries = [];
         if (record?.productCode && record.productCode !== 'undefined') {
@@ -511,7 +307,7 @@ export const getInputNode = ({
             mode="tags"
             hasKeywords
             startSearchAt={2}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e)}
             {...nextProps}
           />
         );
@@ -521,7 +317,7 @@ export const getInputNode = ({
       case 'peripheralNo': {
         const nextProps2 = {
           ...selectProps,
-          ...(typeof onBlur === 'function' && { onBlur: (e: React.FocusEvent<HTMLInputElement>) => { if (typeof save === 'function') save(e); } })
+          ...(typeof onBlur === 'function' && { onBlur: save })
         };
         let peripheralQueries = [];
         if (record?.branchCode) {
@@ -541,7 +337,7 @@ export const getInputNode = ({
             mode="tags"
             hasKeywords
             startSearchAt={2}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e)}
             {...nextProps2}
           />
         );
@@ -577,7 +373,7 @@ export const getInputNode = ({
             mode="tags"
             notFoundContent={null}
             size={size || 'small'}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e)}
             {...selectProps}
           />
         );
@@ -630,13 +426,13 @@ export const getInputNode = ({
         if (record?.paymentType === 'cash') {
           bDisable = true;
         }
-        inputNode = <SelfBankSelector size={size || 'small'} disabled={bDisable} {...selectProps} />;
+        inputNode = <SelfBankSelector size={size || 'small'} disabled={bDisable} {...(selectProps as any)} />;
         break;
       }
 
       case 'branchCode':
       case 'payToBranch':
-        inputNode = <BranchSelector branchCode="true" size={size || 'small'} {...selectProps} />;
+        inputNode = <BranchSelector branchCode="branchCode" size={size || 'small'} {...(selectProps as any)} />;
         break;
 
       case 'storeLocationCode': {
@@ -702,14 +498,14 @@ export const getInputNode = ({
         break;
 
       case 'returnQty': {
-        const returnOption = record?.qty ? createArrOfLength(record.qty + 1).map(String) : ['1', '2', '3', '4', '5'];
+        const returnOption = record?.qty ? createArrOfLength(record.qty + 1) : [1, 2, 3, 4, 5];
         inputNode = (
           <CommonSelector
-            optionData={returnOption}
+            optionData={returnOption.map(String)}
             size={size || 'small'}
             placeholder="จำนวน"
             dropdownStyle={{ minWidth: 80 }}
-            {...selectProps}
+            {...(selectProps as any)}
           />
         );
         break;
@@ -763,40 +559,44 @@ export const getInputNode = ({
   return inputNode;
 };
 
-export const getRenderColumns = (
-  columns: TableColumnConfig<any>[],
-  handleSave: (record: any) => void,
-  db: TableData,
-  isEditing: (record: any) => boolean,
-  onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void,
-  onBlur: () => void,
-  size: 'small' | 'middle' | 'large' = 'small'
-) => {
+export const getRenderColumns = ({
+  columns,
+  handleSave,
+  db,
+  isEditing,
+  onKeyDown,
+  onBlur,
+  size
+}: GetRenderColumnsProps): TableColumnConfig<any>[] => {
   const {
-    dealers,
     branches,
-    banks,
     departments,
     userGroups,
+    dealers,
+    banks,
     expenseCategories,
     employees,
     executives,
     expenseAccountNames
   } = db;
+
   return columns.map((col, n) => {
+    let mCol: TableColumnConfig<any> = {
+      title: col.title,
+      dataIndex: col.dataIndex,
+      ...(col.width && { width: col.width }),
+      ...(col.align && { align: col.align })
+    };
+
     if (col.children || col.render) {
       return { ...col, title: <div className="text-center">{col.title}</div> };
     }
-    let mCol = {
-      ...col,
-      title: <div className="text-center">{col.title}</div>
-    };
-    if ('titleAlign' in col && (col as any).titleAlign) {
-      switch ((col as any).titleAlign) {
+    if ('titleAlign' in col && col.titleAlign) {
+      switch (col.titleAlign) {
         case 'left':
           mCol = {
             ...mCol,
-            title: <span>{col.title}</span>
+            title: col.title
           };
           break;
         case 'right':
@@ -868,7 +668,7 @@ export const getRenderColumns = (
         align: 'center',
         render: text => (
           <div className={!text ? 'transparent' : ''}>
-            {text === 'N/A' ? text : !!text ? dayjs(text, 'YYYY-MM-DD').format('D/MM/YYYY') : ''}
+            {text === 'N/A' ? text : !!text ? DateTime.fromISO(text).toLocaleString(DateTime.DATE_MED) : ''}
           </div>
         )
       };
@@ -877,7 +677,9 @@ export const getRenderColumns = (
         ...mCol,
         align: 'center',
         render: txt => (
-          <div className={`text-center ${txt ? 'text-success' : 'text-warning'}`}>{txt ? <CheckOutlined className="text-success" twoToneColor="#52c41a" /> : <CloseOutlined className="text-warning" />}</div>
+          <div className={`text-center ${txt ? 'text-success' : 'text-warning'}`}>
+            {txt ? <CheckCircleOutlined /> : <CloseOutlined />}
+          </div>
         )
       };
     } else {
@@ -1059,7 +861,7 @@ export const getRenderColumns = (
         case 'priceType':
           mCol = {
             ...mCol,
-            render: text => <div className={!text ? 'transparent' : ''}>{text ? PriceType[text as keyof typeof PriceType] : '-'}</div>
+            render: text => <div className={!text ? 'transparent' : ''}>{text ? (PriceType as any)[text] : '-'}</div>
           };
           break;
         case 'hasWHTax':
@@ -1067,7 +869,7 @@ export const getRenderColumns = (
             ...mCol,
             render: text => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && WitholdingTax[text as keyof typeof WitholdingTax] ? WitholdingTax[text as keyof typeof WitholdingTax] : text || '-'}
+                {text && (WitholdingTax as any)[text] ? (WitholdingTax as any)[text] : text || '-'}
               </div>
             )
           };
@@ -1077,7 +879,7 @@ export const getRenderColumns = (
             ...mCol,
             render: text => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && WitholdingTaxDoc[text as keyof typeof WitholdingTaxDoc] ? WitholdingTaxDoc[text as keyof typeof WitholdingTaxDoc] : text || '-'}
+                {text && (WitholdingTaxDoc as any)[text] ? (WitholdingTaxDoc as any)[text] : text || '-'}
               </div>
             )
           };
@@ -1087,7 +889,7 @@ export const getRenderColumns = (
             ...mCol,
             render: text => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && PaymentType[text as keyof typeof PaymentType] ? PaymentType[text as keyof typeof PaymentType] : text || '-'}
+                {text && (PaymentType as any)[text] ? (PaymentType as any)[text] : text || '-'}
               </div>
             )
           };
@@ -1097,7 +899,7 @@ export const getRenderColumns = (
             ...mCol,
             render: text => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && PaymentMethod[text as keyof typeof PaymentMethod] ? PaymentMethod[text as keyof typeof PaymentMethod] : text || '-'}
+                {text && (PaymentMethod as any)[text] ? (PaymentMethod as any)[text] : text || '-'}
               </div>
             )
           };
@@ -1107,7 +909,7 @@ export const getRenderColumns = (
             ...mCol,
             render: text => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && BuyType[text as keyof typeof BuyType] ? BuyType[text as keyof typeof BuyType] : text || '-'}
+                {text && (BuyType as any)[text] ? (BuyType as any)[text] : text || '-'}
               </div>
             )
           };
@@ -1116,7 +918,7 @@ export const getRenderColumns = (
           mCol = {
             ...mCol,
             render: text => (
-              <div className={!text && text !== 0 ? 'transparent' : ''}>{text ? VehicleItemType[text as keyof typeof VehicleItemType] : '-'}</div>
+              <div className={!text && text !== 0 ? 'transparent' : ''}>{text ? (VehicleItemType as any)[text] : '-'}</div>
             )
           };
           break;
@@ -1125,7 +927,7 @@ export const getRenderColumns = (
             ...mCol,
             render: text => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text ? OtherVehicleImportType[text as keyof typeof OtherVehicleImportType] : '-'}
+                {text ? (OtherVehicleImportType as any)[text] : '-'}
               </div>
             )
           };
@@ -1163,7 +965,7 @@ export const getRenderColumns = (
             ...mCol,
             render: text => (
               <div className={!text ? 'transparent' : ''}>
-                {text ? `${parser(text).slice(0, 3)}-${parser(text).slice(3, 6)}-${parser(text).slice(-4)}` : '-'}
+                {text ? `${String(parser(text)).slice(0, 3)}-${String(parser(text)).slice(3, 6)}-${String(parser(text)).slice(-4)}` : '-'}
               </div>
             )
           };
@@ -1171,19 +973,19 @@ export const getRenderColumns = (
         case 'saleType':
           mCol = {
             ...mCol,
-            render: text => <div>{text ? SaleType[text as keyof typeof SaleType] : '-'}</div>
+            render: text => <div>{text ? (SaleType as any)[text] : '-'}</div>
           };
           break;
         case 'transferType':
           mCol = {
             ...mCol,
-            render: text => <div>{text ? TransferType[text as keyof typeof TransferType] : '-'}</div>
+            render: text => <div>{text ? (TransferType as any)[text] : '-'}</div>
           };
           break;
         case 'deliverType':
           mCol = {
             ...mCol,
-            render: text => <div>{text ? DeliveryType[text as keyof typeof DeliveryType] : '-'}</div>
+            render: text => <div>{text ? (DeliveryType as any)[text] : '-'}</div>
           };
           break;
         case 'isUsed':
@@ -1195,8 +997,8 @@ export const getRenderColumns = (
         case 'giveaways':
           mCol = {
             ...mCol,
-            render: (arr: GiveawayTag[]) => (
-              <span>{arr ? arr.map((tag: GiveawayTag, i: number) => <Tag key={i}>{`${tag.name} x${tag.total}`}</Tag>) : '-'}</span>
+            render: (arr: any[]) => (
+              <span>{arr ? arr.map((tag: any, i: number) => <Tag key={i}>{`${tag.name} x${tag.total}`}</Tag>) : '-'}</span>
             )
           };
           break;
@@ -1214,18 +1016,16 @@ export const getRenderColumns = (
           mCol = {
             ...mCol,
             render: arr => (
-              <span>{arr ? (Array.isArray(arr) ? arr.map((tag, i) => <Tag key={i}>{tag}</Tag>) : arr) : '-'}</span>
+              <span>{arr ? (Array.isArray(arr) ? arr.map((tag: any, i: number) => <Tag key={i}>{tag}</Tag>) : arr) : '-'}</span>
             )
           };
           break;
         case 'toDestination':
           mCol = {
             ...mCol,
-            render: (text, record) => {
-              return (
-                <div>{text ? (record.transferType === 'sold' ? text : branches[text]?.branchName || text) : '-'}</div>
-              );
-            }
+            render: (text, record) => (
+              <div>{text ? (record.transferType === 'sold' ? text : branches[text]?.branchName || text) : '-'}</div>
+            )
           };
           break;
         case 'customer':
@@ -1245,21 +1045,12 @@ export const getRenderColumns = (
             }
           };
           break;
-        case 'origin':
-        case 'fromOrigin':
-          mCol = {
-            ...mCol,
-            render: (text, record) => {
-              return <div>{text ? (text === 'SKC' ? 'SKC' : branches[text]?.branchName || text) : '-'}</div>;
-            }
-          };
-          break;
-
         default:
           mCol = {
             ...mCol,
             render: text => <div className={!text ? 'transparent' : ''}>{text || '-'}</div>
           };
+          break;
       }
     }
 
@@ -1277,21 +1068,21 @@ export const getRenderColumns = (
       };
       let resultForRowType = {
         ...mCol,
-        ...ColumnProps[col.dataIndex],
+        ...((ColumnProps as any)[col.dataIndex]),
         ...(col.width && { width: col.width }),
-        key: String(n),
-        onCell: (record: TableBaseRecord) => ({
+        key: n.toString(),
+        onCell: (record: any) => ({
           record,
           ...cellObj,
-          editing: isEditing(record)
+          ...(typeof isEditing === 'function' ? { editing: isEditing(record) } : {})
         })
       };
       let resultForCellType = {
         ...mCol,
-        ...ColumnProps[col.dataIndex],
+        ...((ColumnProps as any)[col.dataIndex]),
         ...(col.width && { width: col.width }),
-        key: String(n),
-        onCell: (record: TableBaseRecord) => ({
+        key: n.toString(),
+        onCell: (record: any) => ({
           record,
           ...cellObj
         })
@@ -1301,32 +1092,33 @@ export const getRenderColumns = (
     }
     return {
       ...mCol,
-      key: String(n),
-      ...ColumnProps[col.dataIndex],
+      key: n.toString(),
+      ...((ColumnProps as any)[col.dataIndex]),
       ...(col.width && { width: col.width }),
       ...(col.align && { align: col.align })
     };
   });
 };
 
-export const GetColumns = ({
-  columns = [],
-  handleDelete,
-  handleSave,
-  handleSelect,
-  handleEdit,
-  onDelete,
-  isEditing,
-  onKeyDown,
-  onBlur,
-  size,
-  hasChevron,
-  hasEdit,
-  disabled,
-  readOnly,
-  deletedButtonAtEnd
-}: GetColumnsProps) => {
-  // Pull data from your Redux store
+export const GetColumns = (props: GetColumnsProps): TableColumnConfig<any>[] => {
+  const {
+    columns = [],
+    handleDelete,
+    handleSave,
+    handleSelect,
+    handleEdit,
+    onDelete,
+    isEditing,
+    onKeyDown,
+    onBlur,
+    size,
+    hasChevron,
+    hasEdit,
+    disabled,
+    readOnly,
+    deletedButtonAtEnd
+  } = props;
+
   const {
     branches,
     departments,
@@ -1339,7 +1131,6 @@ export const GetColumns = ({
     expenseAccountNames
   } = useSelector((state: any) => state.data);
 
-  // Prepare object for getRenderColumns
   const db = {
     branches,
     departments,
@@ -1352,34 +1143,22 @@ export const GetColumns = ({
     expenseAccountNames
   };
 
-  // Generate base columns
-  let mColumns = getRenderColumns(
-    columns, 
-    handleSave || (() => undefined), 
-    db, 
-    isEditing || (() => false), 
-    onKeyDown || (() => undefined), 
-    onBlur || (() => undefined), 
-    size
-  );
+  let mColumns = getRenderColumns({ columns, handleSave, db, isEditing, onKeyDown, onBlur, size });
 
-  // --- 1) Insert Delete column if "onDelete" is available
-  //     and table is not disabled/readonly.
   const canDelete = typeof onDelete !== 'undefined' && !(disabled || readOnly);
   if (canDelete) {
-    const deleteCol: TableColumnConfig<any> = {
-      title: <div>ลบ</div>,
+    const deleteCol = {
+      title: 'ลบ',
       dataIndex: 'operation',
-      align: 'center',
+      align: 'center' as const,
       width: 80,
-      key: 'deleteColumn',
       render: (_: any, record: any) => {
         const alreadyGone = record?.deleted || record?.rejected || record?.completed;
         if (!alreadyGone) {
           return (
             <Popconfirm
               title="แน่ใจหรือไม่ ?"
-              onConfirm={() => handleDelete?.(record.key)}
+              onConfirm={() => handleDelete && handleDelete(record.key)}
               okText="ลบ"
               cancelText="ยกเลิก"
             >
@@ -1391,16 +1170,11 @@ export const GetColumns = ({
           <Button
             type="link"
             icon={<DeleteOutlined className="text-danger" />}
-            onClick={() =>
-              message.warning(`ไม่สามารถลบได้ ${record.deleted ? 'รายการถูกลบแล้ว' : record.completed ? 'ทำรายการสำเร็จแล้ว' : ''}`)
-            }
+            onClick={() => showWarning('ไม่สามารถลบได้ ...' as any)}
           />
         );
       }
     };
-
-    // If you want the delete button next to the "id" column (and not at the end),
-    // find that column's index and insert. Otherwise push it onto the end.
     const idIndex = mColumns.findIndex(col => col.dataIndex === 'id' && !deletedButtonAtEnd);
     if (idIndex > -1) {
       mColumns.splice(idIndex + 1, 0, deleteCol);
@@ -1409,36 +1183,30 @@ export const GetColumns = ({
     }
   }
 
-  // --- 2) Insert a Chevron column if "hasChevron"
-  //     The code is fine, just check for the function presence.
   if (hasChevron && !(disabled || readOnly)) {
     mColumns.push({
-      title: <span>→</span>,
+      title: '→',
       dataIndex: 'selectRecord',
-      key: 'selectColumn' as string,
+      align: 'center' as const,
       render: (_: any, record: any) => (
         <Button
           type="link"
           icon={<RightOutlined />}
           onClick={() => {
-            // If it's not deleted and handleSelect is present, call it.
             if (!record.deleted && typeof handleSelect === 'function') {
               handleSelect(record);
             }
           }}
         />
-      ),
-      align: 'center',
-      width: 50
+      )
     });
   }
 
-  // --- 3) Insert an Edit column if "hasEdit"
   if (hasEdit && !(disabled || readOnly)) {
-    const editCol: TableColumnConfig<any> = {
-      title: <div>🖊</div>,
+    const editCol = {
+      title: '🖊',
       dataIndex: 'editRecord',
-      key: 'editColumn',
+      align: 'center' as const,
       render: (_: any, record: any) => (
         <Button
           type="link"
@@ -1450,12 +1218,8 @@ export const GetColumns = ({
             }
           }}
         />
-      ),
-      align: 'center',
-      width: 50
+      )
     };
-
-    // Place it right next to "id" if that column exists
     const idIndex = mColumns.findIndex(col => col.dataIndex === 'id');
     if (idIndex > -1) {
       mColumns.splice(idIndex + 1, 0, editCol);
@@ -1467,134 +1231,79 @@ export const GetColumns = ({
   return mColumns;
 };
 
-export const createValidator = ({ dataIndex, number, getFieldValue, ...vProps }: ValidatorProps) => {
-  // You can append more custom validators as needed
+export const createValidator = ({ dataIndex, number, getFieldValue }: CreateValidatorProps): Rule[] => {
   switch (dataIndex) {
     case 'vehicleNo':
-      return {
-        validator(rule: Rule, value: any) {
+      return [{
+        validator(rule: any, value: any) {
           const peripheralNo = getFieldValue('peripheralNo');
-          // If neither vehicleNo nor peripheralNo is set, prompt user
           if (!value && !peripheralNo) {
             return Promise.reject('กรุณาป้อนข้อมูล (vehicleNo หรือ peripheralNo)');
           }
           return Promise.resolve();
         }
-      };
-
+      }];
     case 'peripheralNo':
-      return {
-        validator(rule: Rule, value: any) {
+      return [{
+        validator(rule: any, value: any) {
           const vehicleNo = getFieldValue('vehicleNo');
           if (!value && !vehicleNo) {
             return Promise.reject('กรุณาป้อนข้อมูล (vehicleNo หรือ peripheralNo)');
           }
           return Promise.resolve();
         }
-      };
-
+      }];
     default:
-      // For numeric fields, ensure user typed a number
-      return {
-        validator(rule: Rule, value: any) {
+      return [{
+        validator(rule: any, value: any) {
           if (number) {
-            // If empty or numeric => pass
             if (!value || !isNaN(value)) {
               return Promise.resolve();
             }
-            return Promise.reject('กรุณาป้อนตัวเลข');
+            return Promise.reject('กรุณาป้อนเป็นตัวเลข');
           }
-          // Not numeric => pass through
           return Promise.resolve();
         }
-      };
+      }];
   }
 };
 
-export const TableSummary = ({
-  pageData,
-  dataLength,
-  startAt,
-  sumKeys,
-  align,
-  labelAlign,
-  sumClassName,
-  noDecimal,
-  columns,
-  label,
-  hasSection
-}: TableSummaryProps) => {
-  if (dataLength === 0) {
-    return null;
-  }
-  // Filter out any deleted items
-  const dArr = pageData.filter(l => !l.deleted);
-
-  let total = 0;
-  let sumObj: Record<string, number> = {};
-
-  // Decide if we sum rows that are isSection or not
-  const relevantRows = hasSection ? dArr.filter(l => l?.isSection) : dArr.filter(l => !l?.isSection);
-
-  if (sumKeys && Array.isArray(sumKeys)) {
-    sumKeys.forEach(k => {
-      sumObj[k] = relevantRows.reduce((acc, elem) => acc + Numb(elem[k]), 0);
-    });
-  } else {
-    // If no sumKeys, default to sum 'total'
-    total = relevantRows.reduce((acc, elem) => acc + Numb(elem.total), 0);
-  }
-
-  if (pageData.length === 0) {
-    return null;
-  }
+export const TableSummary: React.FC<TableSummaryProps> = ({ columns, data, sumKeys, align, noDecimal }) => {
+  const total = data.reduce((sum, record) => {
+    if (sumKeys) {
+      return sum + sumKeys.reduce((acc, key) => acc + (record[key] as number || 0), 0);
+    }
+    return sum + (record.total as number || 0);
+  }, 0);
 
   return (
-    <Table.Summary.Row className="bg-gray-100 dark:bg-gray-800">
-      {Array.from(new Array(startAt), (_, i) => (
-        <Table.Summary.Cell key={i} index={i} />
-      ))}
-      <Table.Summary.Cell index={startAt}>
-        <div style={{ textAlign: labelAlign || 'right' }}>
-          <Text className="text-gray-700 dark:text-gray-200">{label || 'ยอดรวม'}</Text>
-        </div>
-      </Table.Summary.Cell>
-      {sumKeys && Array.isArray(sumKeys) ? (
-        columns ? (
-          // If columns exist, figure out dataIndices to match each sumKey
-          getIndexFromColumns(columns)
-            .slice(startAt + 1)
-            .map((colDataIndex, idx) => {
-              if (sumKeys.includes(colDataIndex)) {
-                return (
-                  <Table.Summary.Cell key={colDataIndex} index={idx + startAt + 1}>
-                    <div style={{ textAlign: align || 'right' }}>
-                      <Text className={`${sumClassName && sumClassName[idx] ? sumClassName[idx] : 'text-primary dark:text-primary-light'}`}>
-                        {numeral(sumObj[colDataIndex]).format(noDecimal ? '0,0' : '0,0.00')}
-                      </Text>
-                    </div>
-                  </Table.Summary.Cell>
-                );
-              }
-              return <Table.Summary.Cell key={colDataIndex} index={idx + startAt + 1} />;
-            })
-        ) : (
-          // If no columns passed, just map sumObj
-          Object.keys(sumObj).map((k, i) => (
-            <Table.Summary.Cell key={k} index={i + startAt + 1}>
+    <Table.Summary.Row>
+      {columns.map((col, index) => {
+        if (index === 0) {
+          return (
+            <Table.Summary.Cell key={index} index={index}>
               <div style={{ textAlign: align || 'right' }}>
-                <Text className={`${sumClassName && sumClassName[i] ? sumClassName[i] : 'text-primary dark:text-primary-light'}`}>
-                  {numeral(sumObj[k]).format(noDecimal ? '0,0' : '0,0.00')}
-                </Text>
+                <Text className="text-primary">รวม</Text>
               </div>
             </Table.Summary.Cell>
-          ))
-        )
-      ) : (
-        // If no sumKeys, just show total
-        <Table.Summary.Cell index={startAt + 1}>
+          );
+        }
+        if (sumKeys && sumKeys.includes(col.dataIndex)) {
+          const colTotal = data.reduce((sum, record) => sum + (record[col.dataIndex] as number || 0), 0);
+          return (
+            <Table.Summary.Cell key={index} index={index}>
+              <div style={{ textAlign: align || 'right' }}>
+                <Text className="text-primary">{numeral(colTotal).format(noDecimal ? '0,0' : '0,0.00')}</Text>
+              </div>
+            </Table.Summary.Cell>
+          );
+        }
+        return <Table.Summary.Cell key={index} index={index} />;
+      })}
+      {!sumKeys && (
+        <Table.Summary.Cell index={columns.length}>
           <div style={{ textAlign: align || 'right' }}>
-            <Text className="text-primary dark:text-primary-light">{numeral(total).format(noDecimal ? '0,0' : '0,0.00')}</Text>
+            <Text className="text-primary">{numeral(total).format(noDecimal ? '0,0' : '0,0.00')}</Text>
           </div>
         </Table.Summary.Cell>
       )}
@@ -1602,11 +1311,11 @@ export const TableSummary = ({
   );
 };
 
-export const getRules = (rules: (string | { pattern?: RegExp; message?: string; minLength?: number; minMessage?: string })[]) => {
+export const getRules = ({ rules }: GetRulesProps): Rule[] => {
   const requiredRule = [{ required: true, message: 'กรุณาป้อนข้อมูล' }];
   const numberRule = [
     () => ({
-      validator(rule: Rule, value: any) {
+      validator(rule: any, value: any) {
         if (!value || !isNaN(value)) {
           return Promise.resolve();
         }
@@ -1616,7 +1325,7 @@ export const getRules = (rules: (string | { pattern?: RegExp; message?: string; 
   ];
   const mobileNumberRule = [
     () => ({
-      validator(rule: Rule, value: any) {
+      validator(rule: any, value: any) {
         if (!value) {
           return Promise.resolve();
         }
@@ -1644,37 +1353,33 @@ export const getRules = (rules: (string | { pattern?: RegExp; message?: string; 
         result = result.concat(mobileNumberRule);
         break;
       }
-      // If user passes an object like { pattern: /regex/, message: '...' }
-      case typeof rule === 'object' && rule !== null && 'pattern' in rule && rule.pattern instanceof RegExp: {
+      case typeof rule === 'object' && 'pattern' in rule: {
         const { pattern, message } = rule as { pattern: RegExp; message?: string };
         result.push({ pattern, message: message || 'รูปแบบไม่ถูกต้อง' });
         break;
       }
-      // If user passes { minLength: 5, message: '...' }
-      case typeof rule === 'object' && rule !== null && 'minLength' in rule: {
-        const { minLength, minMessage } = rule as { minLength: number; minMessage?: string };
+      case typeof rule === 'object' && 'minLength' in rule: {
+        const { minLength, message } = rule as { minLength: number; message?: string };
         result.push({
           min: minLength,
-          message: minMessage || `กรุณาป้อนอย่างน้อย ${minLength} ตัวอักษร`
+          message: message || `กรุณาป้อนอย่างน้อย ${minLength} ตัวอักษร`
         });
         break;
       }
-      default:
-        break;
     }
   });
 
   return result;
 };
 
-export const getRulesFromColumn = (col: { required?: boolean; number?: boolean }) => {
+export const getRulesFromColumn = (col: TableColumnConfig<any>) => {
   const { required, number } = col;
 
   if (required && number) {
     return [
       { required: true, message: 'กรุณาป้อนข้อมูล' },
       {
-        validator(rule: Rule, value: any) {
+        validator(rule: any, value: any) {
           if (!value || !isNaN(value)) {
             return Promise.resolve();
           }
@@ -1687,7 +1392,7 @@ export const getRulesFromColumn = (col: { required?: boolean; number?: boolean }
   } else if (number) {
     return [
       {
-        validator(rule: Rule, value: any) {
+        validator(rule: any, value: any) {
           if (!value || !isNaN(value)) {
             return Promise.resolve();
           }
@@ -1699,20 +1404,38 @@ export const getRulesFromColumn = (col: { required?: boolean; number?: boolean }
   return undefined;
 };
 
-export const getIndexFromColumns = (columns: TableColumnConfig<any>[]) => {
-  // Recursively gather dataIndex from nested children arrays
+const getIndexFromColumns = ({ columns, startAt = 0 }: GetIndexFromColumnsProps): string[] => {
   const result: string[] = [];
-
   const traverse = (cols: TableColumnConfig<any>[]) => {
     cols.forEach(col => {
-      if (col.children && Array.isArray(col.children)) {
-        traverse(col.children);
-      } else {
+      if (col.dataIndex) {
         result.push(col.dataIndex);
+      }
+      if (col.children) {
+        traverse(col.children);
       }
     });
   };
-
   traverse(columns);
-  return result;
+  return result.slice(startAt);
+};
+
+export const getColumnDataIndex = ({ columns, startAt = 0 }: GetColumnDataIndexProps): string[] => {
+  return getIndexFromColumns({ columns, startAt });
+};
+
+export const getColumnTitles = ({ columns, startAt = 0 }: GetColumnTitlesProps): string[] => {
+  const result: string[] = [];
+  const traverse = (cols: TableColumnConfig<any>[]) => {
+    cols.forEach(col => {
+      if (col.title) {
+        result.push(col.title as string);
+      }
+      if (col.children) {
+        traverse(col.children);
+      }
+    });
+  };
+  traverse(columns);
+  return result.slice(startAt);
 };

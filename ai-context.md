@@ -2,6 +2,7 @@
 
 You are an expert developer assisting with a large-scale migration project.
 You are a professional React developer.
+You are a skilled professional TypeScript developer.
 You are a skilled Firebase developer.
 
 Please help migrate components from this JavaScript project to TypeScript with full type safety:
@@ -16,7 +17,7 @@ KBN is a business management platform built with React, TypeScript, and Firebase
 - Implement full RBAC across provinces, branches, and roles
 - Maintain backward compatibility with existing data
 - Upgrade Legacy or Broken Components
-- Convert date libraries to Luxon
+- Convert date libraries to dayjs
 - Complete i18next integration throughout the app
 
 ## Database Migration Strategy
@@ -84,7 +85,7 @@ To assist with the migration, share the following information about the existing
 - **Frontend**: React 18+, TypeScript, Redux Toolkit
 - **Backend**: Firebase (Firestore, Auth, Storage, Functions)
 - **UI/Styling**: Ant Design + Tailwind CSS
-- **Other**: Luxon, i18next, React Router, Jest/Playwright
+- **Other**: dayjs, i18next, React Router, Jest/Playwright
 
 ## Code Style Guidelines
 - Double quotes for strings
@@ -155,9 +156,9 @@ return <h1>{t("component.title")}</h1>;
 // With variables
 const welcomeMessage = t("welcome.message", { name: userName });
 
-// With date formatting (using Luxon)
+// With date formatting (using dayjs)
 const formattedDate = t("event.date", { 
-  date: DateTime.fromMillis(timestamp).toFormat("yyyy-MM-dd")
+  date: dayjs(timestamp).format("YYYY-MM-DD")
 });
 ```
 
@@ -260,11 +261,29 @@ See [RBAC documentation](/docs/rbac.md) for detailed role hierarchy and permissi
    - Replace outdated libraries with modern equivalents if necessary.
 
 ### 🕓 5. Date/Time Handling
-- Replace `moment`, `moment-timezone`, `dayjs`, etc. with [Luxon](https://moment.github.io/luxon/) — preferred across all business logic and components.
-- Use `DateTime` for all date parsing, formatting, and manipulation.
-- Combine Luxon with i18next for localized formatting.
-
-- Do not use `dayjs` unless required by a third-party library; always prefer Luxon.
+- Use [dayjs](https://day.js.org/) for all date parsing, formatting, and manipulation.
+- Import required locales explicitly:
+  ```typescript
+  import dayjs from 'dayjs';
+  import 'dayjs/locale/th';
+  import 'dayjs/locale/en';
+  ```
+- Use consistent format strings:
+  - `DD` for day of month (01-31)
+  - `MM` for month (01-12)
+  - `MMMM` for full month name
+  - `YYYY` for full year
+  - `HH` for 24-hour format
+  - `mm` for minutes
+- Set locale based on current language:
+  ```typescript
+  dayjs.locale(i18n.language);
+  ```
+- Use dayjs plugins as needed:
+  ```typescript
+  import relativeTime from 'dayjs/plugin/relativeTime';
+  dayjs.extend(relativeTime);
+  ```
 
 ### 🌐 6. i18next Internationalization
 - Migrate all user-facing strings to `t("key")` format.

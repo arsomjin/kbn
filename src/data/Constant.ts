@@ -1,5 +1,5 @@
 import { w, h } from 'api';
-import { DateTime } from 'luxon';
+import dayjs from 'dayjs';
 import { isMobile } from 'react-device-detect';
 
 export const ExecMenu = [
@@ -795,8 +795,8 @@ export const giveAwayInputColumnsHidePrice = [
 
 export const initDuration = [
   // DateTime.now().minus({ years: 10 }).toFormat('yyyy-MM-dd'),
-  DateTime.now().startOf('week').toFormat('yyyy-MM-dd'),
-  DateTime.now().toFormat('yyyy-MM-dd')
+  dayjs().startOf('week').format('YYYY-MM-DD'),
+  dayjs().format('YYYY-MM-DD')
 ];
 
 export const MKT_Channels = {
@@ -851,7 +851,6 @@ export const ProductNames = [
   'แทรกเตอร์ B2440S-B โครงกันอ้อย SG270',
   'จอบหมุน RX220GA',
   'ผานบุกเบิก DP224E-Heavy Plus',
-  'แทรกเตอร์ M6040-B + ใบมีด FD202H',
   'จอบหมุน RX220H',
   'รถขุด + KIS KX033-4',
   'โดรน K-D1 package A(2 battery)',
@@ -867,13 +866,9 @@ export const ProductNames = [
   'ผานพรวน DH246HW',
   'ชุดเก็บเกี่ยวข้าวโพด CK70&70G',
   'เครื่องอัดฟาง HB135',
-  'แทรกเตอร์ L5018SP+FL588 เกษตรการ์ด',
   'ผานบุกเบิก DP264L',
   'ผานพรวน DH268N',
-  'โดรน K-D1 package B(6 battery)',
-  'แทรกเตอร์ M9540-B เฮฟวี่ + ใบมีด FD210L',
   'ใบมีดดันหน้า FD186F',
-  'แทรกเตอร์ MU4902-B + ใบมีด FD190',
   'ผานพรวน DH267L',
   'ชุดเก็บเกี่ยวข้าวโพด CK93',
   'เครื่องตัดหญ้า SX135',
@@ -934,17 +929,9 @@ export const ProductNames = [
   'เครื่องปลูกอ้อยแบบท่อน SBP100',
   'ชุดเหล็กถ่วงหน้า M-Series (1ชุด / 6ก้อน)',
   'เหล็กถ่วงตัวแม่  M5/M9',
-  'แทรกเตอร์ MU5702-B + ใบมีด FD203G',
-  'โดรนการเกษตร DJI รุ่นAGRAS T20(B 4 bat.)',
-  'แทรกเตอร์ B2440S-B + ใบมีด SD132',
   'ใบมีดดันหน้า FD164E',
-  'แทรกเตอร์ M8540-B + ใบมีด FD210L',
-  'แทรกเตอร์ L4018SP+ FL508 มาตรฐาน',
   'ผานพรวน DH205B',
-  'แทรกเตอร์ L5018SP VT+FL588 เกษตรการ์ด',
-  'แทรกเตอร์ M135X พร้อมหลังคา',
-  'ใบมีดดันหน้า FD245',
-  'รถขุด KX033-4 ตู้แอร์'
+  'ใบมีดดันหน้า FD245'
 ];
 
 export const droneNames = [

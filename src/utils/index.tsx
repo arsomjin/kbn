@@ -9,7 +9,7 @@ import { distinctArr } from 'utils/functions';
 import { removeAllNonAlphaNumericCharacters } from './RegEx';
 import { VehicleNameKeywords } from 'data/Constant';
 import getSidebarNavItems from 'data/sidebar-nav-items';
-import { getFirestore, collection, getDocs, doc, query, where, getDoc, WhereFilterOp, orderBy, startAt, endAt, limit } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, query, where, getDoc, WhereFilterOp, orderBy, startAt, endAt, limit as limitFn } from 'firebase/firestore';
 import { app } from 'services/firebase';
 import _ from 'lodash';
 
@@ -199,6 +199,10 @@ interface FetchFirestoreKeywordsProps {
   limit?: number;
 }
 
+// Set global search limit and minimum characters
+const GLOBAL_SEARCH_LIMIT = 20;
+const GLOBAL_MIN_CHARS = 4;
+
 export const fetchFirestoreKeywords = async ({
   searchText,
   searchCollection,
@@ -207,9 +211,9 @@ export const fetchFirestoreKeywords = async ({
   firestore,
   startSearchAt,
   labels,
-  limit = 30
+  limit = GLOBAL_SEARCH_LIMIT
 }: FetchFirestoreKeywordsProps) => {
-  if (!searchText || searchText.length < (startSearchAt || 3)) {
+  if (!searchText || searchText.length < (startSearchAt || GLOBAL_MIN_CHARS)) {
     return [];
   }
   const segments = searchCollection.split('/') as [string, ...string[]];
@@ -218,9 +222,11 @@ export const fetchFirestoreKeywords = async ({
   if (wheres && wheres.length) {
     whereClauses = wheres.map(([field, op, value]) => where(field, op as WhereFilterOp, value));
   }
-  let q: any = colRef;
+  let q: any;
   if (whereClauses.length > 0) {
-    q = query(colRef, ...whereClauses);
+    q = query(colRef, ...whereClauses, limitFn(limit));
+  } else {
+    q = query(colRef, limitFn(limit));
   }
   const snap = await getDocs(q);
   let dataArr: any[] = [];
@@ -230,12 +236,14 @@ export const fetchFirestoreKeywords = async ({
       dataArr.push({ _id: doc.id, ...docData });
     }
   });
-  let fields = Array.isArray(orderBy) ? orderBy : [orderBy];
-  if (labels) {
-    fields = fields.concat(labels);
-    fields = uniq(fields);
-  }
   dataArr = distinctArr(dataArr, [Array.isArray(orderBy) ? orderBy[0] : orderBy], []);
+  console.log(`[fetchFirestoreKeywords] dataArr: ${JSON.stringify(dataArr)}`);
+  console.log(`[fetchFirestoreKeywords] array_length: ${dataArr.length}`);
+  console.log(`[fetchFirestoreKeywords] limit: ${limit}`);
+  // Add too many results message if needed
+  if (dataArr.length === limit) {
+    dataArr.push({ label: 'Too many results, please type more', value: '', disabled: true });
+  }
   return dataArr;
 };
 
@@ -256,21 +264,25 @@ export const fetchSearchsEachField = async (
   firestore: any,
   fields: string[]
 ): Promise<any[]> => {
-  const limitValue = 30;
+  const limitValue = GLOBAL_SEARCH_LIMIT;
   try {
+    console.log('fetchSearchsEachField input:', { searchText, orderByField, searchCollection, fields });
     const segments = searchCollection.split("/") as [string, ...string[]];
     const colRef = collection(firestore, ...segments);
     const sTxt = searchText.toLowerCase();
+    console.log('Search text (lowercase):', sTxt);
 
     const q = query(
       colRef,
       orderBy(`${orderByField}_lower`),
       startAt(sTxt),
       endAt(sTxt + "\uf8ff"),
-      limit(limitValue)
+      limitFn(limitValue)
     );
 
     const snap = await getDocs(q);
+    console.log('Query snapshot size:', snap.size);
+    
     const lowerArr: any[] = [];
     snap.forEach((doc) => {
       let item: Record<string, any> = { _id: doc.id };
@@ -279,8 +291,13 @@ export const fetchSearchsEachField = async (
       });
       lowerArr.push(item);
     });
+    console.log('Found items:', lowerArr);
+    if (lowerArr.length === limitValue) {
+      lowerArr.push({ label: 'Too many results, please type more', value: '', disabled: true });
+    }
     return lowerArr;
   } catch (e) {
+    console.error('Error in fetchSearchsEachField:', e);
     return [];
   }
 };
@@ -290,12 +307,14 @@ export const fetchSearchsKeywords = async (
   searchCollection: string,
   firestore: any,
   fields: string[],
-  limitValue: number
+  limitValue: number = GLOBAL_SEARCH_LIMIT
 ): Promise<any[]> => {
-  if (!searchText || !searchCollection) {
+  if (!searchText || !searchCollection || searchText.length < GLOBAL_MIN_CHARS) {
+    console.log('fetchSearchsKeywords: Invalid input', { searchText, searchCollection });
     return [];
   }
   try {
+    console.log('fetchSearchsKeywords input:', { searchText, searchCollection, fields, limitValue });
     const segments = searchCollection.split("/") as [string, ...string[]];
     const colRef = collection(firestore, ...segments);
     let sTxt = '';
@@ -305,14 +324,17 @@ export const fetchSearchsKeywords = async (
     } else {
       sTxt = searchText.toLowerCase();
     }
+    console.log('Search text (lowercase):', sTxt);
 
     const q = query(
       colRef,
       where('keywords', 'array-contains', sTxt.toLowerCase()),
-      limit(limitValue)
+      limitFn(limitValue)
     );
 
     const snapshot = await getDocs(q);
+    console.log('Query snapshot size:', snapshot.size);
+    
     const arr: any[] = [];
     
     if (!snapshot.empty) {
@@ -324,8 +346,13 @@ export const fetchSearchsKeywords = async (
         arr.push(item);
       });
     }
+    console.log('Found items:', arr);
+    if (arr.length === limitValue) {
+      arr.push({ label: 'Too many results, please type more', value: '', disabled: true });
+    }
     return arr;
   } catch (e) {
+    console.error('Error in fetchSearchsKeywords:', e);
     return [];
   }
 };
@@ -650,12 +677,13 @@ export const createOptionsFromFirestoreKeywords = ({
   orderBy,
   wheres,
   firestore,
-  startSearchAt,
+  startSearchAt = GLOBAL_MIN_CHARS,
   labels,
   isUsed
 }: CreateOptionsFromFirestoreKeywordsParams) =>
   new Promise<any[]>(async (r, j) => {
     try {
+      // Only fetch up to GLOBAL_SEARCH_LIMIT results ONCE
       let dataArr = await fetchFirestoreKeywords({
         searchText,
         searchCollection,
@@ -663,7 +691,8 @@ export const createOptionsFromFirestoreKeywords = ({
         wheres,
         firestore,
         startSearchAt,
-        labels
+        labels,
+        limit: GLOBAL_SEARCH_LIMIT
       });
       if (dataArr.length === 0 && !!dataArr[0]?.productCode) {
         let ArrIsUsed = dataArr.filter(l => l.productCode.startsWith('2-'));
@@ -740,6 +769,11 @@ export const createOptionsFromFirestore = ({
           dataArr = dataArr.concat(arr);
         });
         dataArr = distinctArr(dataArr, [orderBy[0]], []);
+        // Limit the total number of results after concatenation
+        if (dataArr.length > GLOBAL_SEARCH_LIMIT) {
+          dataArr = dataArr.slice(0, GLOBAL_SEARCH_LIMIT);
+          dataArr.push({ label: 'Too many results, please type more', value: '', disabled: true });
+        }
       } else {
         dataArr = await fetchSearchsEachField(searchText, orderBy, searchCollection, firestore, fields);
       }

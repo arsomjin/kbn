@@ -165,3 +165,19 @@
   color: #7dd3fc !important; /* Tailwind blue-300 */
   font-weight: bold !important;
 }
+
+/* Responsive table wrapper for horizontal scroll on mobile */
+.responsive-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.responsive-table-wrapper .ant-table {
+  min-width: 700px;
+}
+
+@media (max-width: 600px) {
+  .responsive-table-wrapper {
+    -webkit-overflow-scrolling: touch;
+  }
+}

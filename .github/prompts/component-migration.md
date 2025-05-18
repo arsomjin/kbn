@@ -5,9 +5,9 @@
 - Update icon usage in all components to use Ant Design's `<Icon />` components.
 
 ## 2. Date/Time Handling
-- Replace all usage of `moment`, `moment-timezone`, `dayjs`, or similar libraries with [Luxon](https://moment.github.io/luxon/).
-- Refactor all date parsing, formatting, and manipulation to use Luxon's `DateTime` API.
-- Ensure all user-facing date/time strings are formatted using i18next and Luxon together.
+- Replace all usage of `moment`, `moment-timezone`, `dayjs`, or similar libraries with [dayjs](https://moment.github.io/dayjs/).
+- Refactor all date parsing, formatting, and manipulation to use dayjs's `DateTime` API.
+- Ensure all user-facing date/time strings are formatted using i18next and dayjs together.
 
 ## 3. UI Component Library
 - Replace all UI components from `shards-react`, `@material-ui/core`, or other non-standard libraries with [Ant Design](https://ant.design/) components.
@@ -50,4 +50,4 @@
 ---
 
 **Summary:**
-Migrate all components to use Ant Design, Luxon, TypeScript, and i18next. Ensure full RBAC and multi-province support. Follow KBN's code style and documentation for a consistent, maintainable codebase.
+Migrate all components to use Ant Design, dayjs, TypeScript, and i18next. Ensure full RBAC and multi-province support. Follow KBN's code style and documentation for a consistent, maintainable codebase.

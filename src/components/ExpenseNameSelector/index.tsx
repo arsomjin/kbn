@@ -139,7 +139,7 @@ const ExpenseNameSelector = forwardRef<ExpenseNameSelectorRef, ExpenseNameSelect
         }
 
         dispatch({ type: "SET_EXPENSE_NAMES", payload: mExpenseNames });
-        showSuccess({ content: "บันทึกข้อมูลสำเร็จ" });
+        showSuccess(undefined, "บันทึกข้อมูลสำเร็จ");
         setShowAddNew(false);
       } catch (e) {
         showWarn((e as Error).message);

@@ -138,7 +138,7 @@ const ExecutiveSelector = forwardRef<ExecutiveSelectorRef, ExecutiveSelectorProp
         }
 
         dispatch({ type: "SET_EXECUTIVES", payload: mExecutives });
-        showSuccess({ content: "บันทึกข้อมูลสำเร็จ" });
+        showSuccess(undefined, "บันทึกข้อมูลสำเร็จ");
         setShowAddNew(false);
       } catch (e) {
         showWarn((e as Error).message);

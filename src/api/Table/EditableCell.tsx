@@ -1,25 +1,21 @@
-import React, { useRef, KeyboardEvent } from 'react';
-import { Form, Input } from 'antd';
-import type { InputRef } from 'antd';
-import type { Rule } from 'antd/es/form';
+import React, { useContext, useEffect, useRef } from 'react';
+import { Form } from 'antd';
 import { useLocation } from 'react-router-dom';
-import { getInputNode } from './index';
-import { TableData } from 'components/Table/types';
+import { createValidator, EditableContext, getInputNode } from './index';
 
 interface EditableCellProps {
-  title: string;
-  editable?: boolean;
+  title: React.ReactNode;
+  editable: boolean;
   children: React.ReactNode;
   dataIndex: string;
-  record: TableData;
+  record: any;
   number?: boolean;
   required?: boolean;
-  editing?: boolean;
-  index?: number;
-  onKeyDown: (key: string, dataIndex: string) => void;
-  onBlur: (dataIndex: string) => void;
+  editing: boolean;
+  index: number;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>, dataIndex: string) => void;
+  onBlur?: () => void;
   size?: 'small' | 'middle' | 'large';
-  [key: string]: unknown;
 }
 
 export const EditableCell: React.FC<EditableCellProps> = ({
@@ -37,55 +33,53 @@ export const EditableCell: React.FC<EditableCellProps> = ({
   size,
   ...restProps
 }) => {
-  const tdRef = useRef<HTMLTableCellElement>(null);
-  const inputRef = useRef<InputRef>(null);
+  const form = useContext(EditableContext)!;
   const location = useLocation();
-  const path = location.pathname;
+  const tdRef = useRef(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const cellRef = useRef<HTMLTableCellElement>(null);
 
-  const handleKeyDown = (event: KeyboardEvent<HTMLTableCellElement>) => {
-    if (event.key === 'Enter') {
-      // If the input field is empty, automatically trigger blur to move to the next cell
-      const input = inputRef.current?.input;
-      if (input && (!input.value || input.value.trim() === '')) {
-        onBlur(dataIndex);
-        return;
-      }
+  useEffect(() => {
+    if (editing) {
+      inputRef.current?.focus();
     }
-    onKeyDown(event.key, dataIndex);
+  }, [editing]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (onKeyDown) {
+      onKeyDown(e, dataIndex);
+    }
   };
 
   const handleBlur = () => {
-    onBlur(dataIndex);
+    if (onBlur) {
+      onBlur();
+    }
   };
 
   let childNode = children;
 
   if (editing) {
-    const inputNode = getInputNode({
+    let INode = getInputNode({
       dataIndex,
-      record,
+      number,
       ref: inputRef,
-      save: () => onBlur(dataIndex),
       size,
-      path
+      record,
+      onBlur,
     });
-
-    const rules: Rule[] = [
-      ...(required ? [{
-        required: true,
-        message: `กรุณาป้อน ${title}`
-      }] : []),
-      ...(number ? [{
-        type: 'number' as const,
-        transform: (value: string) => Number(value),
-        message: 'กรุณาป้อนตัวเลข'
-      }] : [])
-    ];
-
+    if (
+      React.isValidElement(INode) &&
+      (INode.type === 'input' || INode.type === 'textarea') &&
+      !(INode.props as any).onKeyDown
+    ) {
+      INode = React.cloneElement(INode as React.ReactElement<any>, {
+        onKeyDown: handleKeyDown as any,
+      });
+    }
     return (
       <td
         ref={tdRef}
-        onKeyDown={handleKeyDown}
         onBlur={handleBlur}
         {...restProps}
         style={{
@@ -99,9 +93,31 @@ export const EditableCell: React.FC<EditableCellProps> = ({
             style={{
               margin: 0
             }}
-            rules={rules}
+            rules={
+              required
+                ? [
+                    {
+                      required: true,
+                      message: `กรุณาป้อน ${title}`
+                    },
+                    vProps =>
+                      createValidator({
+                        dataIndex,
+                        number,
+                        ...vProps
+                      })
+                  ]
+                : [
+                    vProps =>
+                      createValidator({
+                        dataIndex,
+                        number,
+                        ...vProps
+                      })
+                  ]
+            }
           >
-            {inputNode}
+            {INode}
           </Form.Item>
         ) : (
           childNode

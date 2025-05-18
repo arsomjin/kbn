@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Card, Row, Col, Select } from "antd";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
-import { DateTime } from "luxon";
+import dayjs, { Dayjs } from "dayjs";
 import { AccountReport } from "../components/AccountReport";
 import { AccountPieChart } from "../components/AccountPieChart";
 import { AccountTable } from "../components/AccountTable";
@@ -18,14 +18,14 @@ const { Option } = Select;
 const Overview: React.FC = () => {
   const { t } = useTranslation("account", "common");
   const { branchCode = "all" } = useParams<{ branchCode: string }>();
-  const [range, setRange] = useState<[DateTime, DateTime]>([
-    DateTime.now().startOf("month"),
-    DateTime.now().endOf("month")
+  const [range, setRange] = useState<[Dayjs, Dayjs]>([
+    dayjs().startOf("month"),
+    dayjs().endOf("month")
   ]);
 
   const { data, loading, error } = useFinancialData(range);
 
-  const handleRangeChange = (newRange: [DateTime, DateTime]) => {
+  const handleRangeChange = (newRange: [Dayjs, Dayjs]) => {
     setRange(newRange);
   };
 

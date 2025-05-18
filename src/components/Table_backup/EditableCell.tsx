@@ -1,25 +1,11 @@
 import React, { useEffect, useRef, useContext } from "react";
-import { Form, Input, InputRef } from "antd";
+import { Form, Input } from "antd";
+import type { InputRef } from "antd";
 import type { Rule } from "antd/es/form";
 import { EditableContext } from "./EditableRow";
-import { getInputNode } from "../../api/Table";
+import { getInputNode } from "api/Table";
 import { getValidationRules } from "./helper";
-
-interface EditableCellProps {
-  record: Record<string, any>;
-  dataIndex: string;
-  title: string;
-  children: React.ReactNode;
-  editable?: boolean;
-  handleSave: (record: Record<string, any>, dataIndex: string, rowIndex: number) => void;
-  columns: any[];
-  editingCell: { key: string; dataIndex: string } | null;
-  setEditingCell: (cell: { key: string; dataIndex: string } | null) => void;
-  rowKey: string;
-  rowIndex: number;
-  colIndex: number;
-  align?: "left" | "center" | "right";
-}
+import { EditableCellProps, TableData } from "./types";
 
 const EditableCell: React.FC<EditableCellProps> = ({
   record,
@@ -28,16 +14,16 @@ const EditableCell: React.FC<EditableCellProps> = ({
   children,
   editable,
   handleSave,
-  columns,
+  columns = [],
   editingCell,
   setEditingCell,
   rowKey,
   rowIndex,
-  colIndex,
+  colIndex = 0,
   align,
   ...restProps
 }) => {
-  const form = useContext(EditableContext) as ReturnType<typeof Form.useForm>[0];
+  const form = useContext(EditableContext);
   const inputRef = useRef<InputRef>(null);
 
   // Tracks if we replaced '0' with '' for this cell
@@ -47,10 +33,10 @@ const EditableCell: React.FC<EditableCellProps> = ({
 
   // Focus as soon as we become the active cell:
   useEffect(() => {
-    if (isCurrentlyEditing) {
+    if (isCurrentlyEditing && form) {
       const currentVal = record[dataIndex];
       // If the underlying value is 0, replace it with '' in the form:
-      if (["0", 0, "0.00"].includes(currentVal)) {
+      if (["0", 0, "0.00"].includes(currentVal as string | number)) {
         form.setFieldsValue({ [dataIndex]: "" });
         replacedZeroRef.current = true;
       } else {
@@ -62,21 +48,24 @@ const EditableCell: React.FC<EditableCellProps> = ({
   }, [isCurrentlyEditing, record, dataIndex, form]);
 
   // Move to the next cell:
-  const moveToNextCell = async (updatedRow: Record<string, any>) => {
+  const moveToNextCell = async (updatedRow: TableData) => {
+    if (!setEditingCell || !rowKey) return;
+
     const nextColIndex = colIndex + 1;
     let foundColumn;
     for (let i = nextColIndex; i < columns.length; i++) {
-      if (columns[i].editable) {
-        foundColumn = columns[i];
+      const column = columns[i];
+      if ('editable' in column && column.editable) {
+        foundColumn = column;
         break;
       }
     }
-    if (foundColumn) {
+    if (foundColumn && 'dataIndex' in foundColumn && typeof foundColumn.dataIndex === 'string') {
       setEditingCell({ key: rowKey, dataIndex: foundColumn.dataIndex });
     } else {
       try {
         // Validate all fields in this row before finishing editing.
-        await form.validateFields();
+        await form?.validateFields();
         // If validation passes, finish editing (which may trigger new row addition)
         setEditingCell(null);
       } catch (error) {
@@ -88,8 +77,12 @@ const EditableCell: React.FC<EditableCellProps> = ({
 
   // Save current cell, then optionally jump to the next:
   const saveCell = async () => {
+    if (!handleSave || !rowIndex) return;
+
     try {
-      const values = await form.validateFields([dataIndex]) as Record<string, any>;
+      const values = await form?.validateFields([dataIndex]);
+      if (!values) return;
+      
       let newValue = values[dataIndex];
 
       // Only revert '' back to 0 if we originally converted 0 -> '' in useEffect
@@ -98,7 +91,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       }
 
       const updatedRow = { ...record, [dataIndex]: newValue }; // Pass up the new row to parent
-      handleSave(updatedRow, dataIndex, rowIndex);
+      handleSave(updatedRow);
       // Move focus
       moveToNextCell(updatedRow);
     } catch (err) {
@@ -116,12 +109,19 @@ const EditableCell: React.FC<EditableCellProps> = ({
           const inputNode = getInputNode({
             dataIndex,
             record,
-            ref: inputRef,
+            ref: inputRef as React.RefObject<InputRef>,
             save: saveCell
           });
+          
           if (React.isValidElement(inputNode)) {
-            return React.cloneElement(inputNode as React.ReactElement<any>, { onBlur: saveCell });
+            return React.cloneElement(
+              inputNode,
+              {
+                onBlur: saveCell
+              } as React.ComponentProps<typeof Input>
+            );
           }
+          
           return (
             <Input
               ref={inputRef}
@@ -161,7 +161,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
                 ? { textAlign: "right" }
                 : {})
         }}
-        onClick={() => setEditingCell({ key: rowKey, dataIndex })}
+        onClick={() => {
+          if (setEditingCell && rowKey && dataIndex) {
+            setEditingCell({ key: rowKey, dataIndex });
+          }
+        }}
       >
         {children}
       </div>

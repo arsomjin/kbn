@@ -13,6 +13,8 @@
   "expense": "รายจ่าย",
   "tax": "ภาษี",
   "total": "รวม",
+  "account-price-input": "บันทึกราคาสินค้า",
+  "account-price-input-vehicle": "รถและอุปกรณ์",
   "incomeCategories": {
     "title": "หมวดหมู่รายรับ",
     "vehicle": "ขายรถ",

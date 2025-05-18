@@ -866,7 +866,7 @@ export const getDealerName = (id: string): string | null => {
   }
   return dealers[id]?.dealerName === 'สำนักงานใหญ่'
     ? dealers[id].dealerName
-    : `${dealers[id].prefix}${dealers[id].dealerName} ${dealers[id].lastName || ''}`;
+    : `${dealers[id].dealerPrefix || ''}${dealers[id].dealerName} ${dealers[id].dealerLastName || ''}`;
 };
 
 export const cleanKeywordsArr = (arr: string[]): string[] => {

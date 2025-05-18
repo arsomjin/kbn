@@ -248,11 +248,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         },
         {
           key: 'account-price-input',
-          label: 'บันทึกราคาสินค้า',
+          label: t('account:account-price-input') || 'บันทึกราคาสินค้า',
           children: [
             {
               key: 'account-price-input-vehicle',
-              label: 'รถและอุปกรณ์',
+              label: t('account:account-price-input-vehicle') || 'รถและอุปกรณ์',
               onClick: () => navigate('/account/input-price')
             }
           ]
@@ -359,7 +359,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       key: item.key || String(item.label || '').toLowerCase()
     }));
 
-  const navItems = validNavItems as MenuProps['items'];
+  // When collapsed, remove children to prevent popover
+  const navItems = (collapsed
+    ? validNavItems.map(item => ({ ...item, children: undefined }))
+    : validNavItems) as MenuProps['items'];
 
   // Map pathname to menu key and determine open menu keys
   const [openKeys, setOpenKeys] = useState<string[]>(['settings']);
@@ -412,7 +415,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           trigger={null}
           collapsible
           collapsed={collapsed}
-          className='bg-white dark:bg-gray-800 shadow hidden md:block'
+          width={260}
+          collapsedWidth={80}
+          className='bg-white dark:bg-gray-800 shadow hidden md:block fixed top-0 left-0 h-screen z-40'
+          style={{ height: '100vh', position: 'fixed', left: 0, top: 0, zIndex: 40 }}
         >
           <div className='h-16 flex items-center justify-center border-b border-gray-200 dark:border-gray-700'>
             <img
@@ -422,15 +428,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             />
             <h1 className='text-primary font-bold text-lg'>{collapsed ? 'KBN' : 'KBN Platform'}</h1>
           </div>
-          <Menu
-            theme={theme === 'dark' ? 'dark' : 'light'}
-            mode='inline'
-            selectedKeys={[getSelectedKey()]}
-            openKeys={openKeys}
-            onOpenChange={setOpenKeys}
-            items={navItems}
-            className='mt-2'
-          />
+          <div style={{ overflowY: 'auto', height: 'calc(100vh - 64px)' }}>
+            <Menu
+              theme={theme === 'dark' ? 'dark' : 'light'}
+              mode='inline'
+              selectedKeys={[getSelectedKey()]}
+              openKeys={openKeys}
+              onOpenChange={setOpenKeys}
+              items={navItems}
+              className='mt-2'
+              getPopupContainer={() => document.querySelector('.ant-layout-sider') || document.body}
+              triggerSubMenuAction='click'
+            />
+          </div>
         </Sider>
       )}
 
@@ -511,22 +521,21 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   transition: 'opacity 0.2s',
                   pointerEvents: mobileHeaderFade < 0.1 ? 'none' : 'auto'
                 }
-              : {}
+              : { marginLeft: collapsed ? 80 : 260 }
           }
         >
           {isMobile ? (
             <>
               {/* Clean mobile header with NotificationCenter, profile in middle, burger menu on right */}
-              <div className='flex items-center ml-4'>
-                {/* NotificationCenter on the left */}
+              <div className='flex items-center gap-4 ml-4' style={{ height: 40 }}>
+                <ThemeSwitch />
                 <NotificationCenter />
-                {/* Profile avatar in center */}
                 <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
-                  <div className='cursor-pointer'>
+                  <div className='cursor-pointer flex items-center' style={{ height: 36 }}>
                     <UserAvatar
                       photoURL={photoURL}
                       displayName={userProfile?.displayName ?? user?.displayName ?? undefined}
-                      className='bg-primary ml-4'
+                      className='bg-primary'
                       size={36}
                     />
                   </div>
@@ -551,23 +560,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   className='h-16 w-16 text-lg'
                 />
               </div>
-              <div className='flex items-center mr-4'>
-                <Space size={16}>
-                  <ThemeSwitch />
-                  {/* NotificationCenter for desktop */}
-                  <NotificationCenter />
-                  {/* User menu */}
-                  <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
-                    <div className='cursor-pointer'>
-                      <UserAvatar
-                        photoURL={photoURL}
-                        displayName={userProfile?.displayName ?? user?.displayName ?? undefined}
-                        className='bg-primary'
-                        size={32}
-                      />
-                    </div>
-                  </Dropdown>
-                </Space>
+              <div className='flex items-center gap-4 mr-4' style={{ height: 40 }}>
+                <ThemeSwitch />
+                <NotificationCenter />
+                <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
+                  <div className='cursor-pointer flex items-center' style={{ height: 32 }}>
+                    <UserAvatar
+                      photoURL={photoURL}
+                      displayName={userProfile?.displayName ?? user?.displayName ?? undefined}
+                      className='bg-primary'
+                      size={32}
+                    />
+                  </div>
+                </Dropdown>
               </div>
             </>
           )}
@@ -576,7 +581,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         {/* Main content */}
         <Content
           className='p-3 sm:p-6 bg-background dark:bg-gray-900 min-h-[calc(100vh-64px)]'
-          style={isMobile ? { paddingTop: 64 } : {}}
+          style={isMobile ? { paddingTop: 64 } : { marginLeft: collapsed ? 80 : 260, minHeight: 'calc(100vh - 64px)' }}
         >
           {children || <Outlet />}
         </Content>

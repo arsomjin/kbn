@@ -1,15 +1,14 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Card, Typography, DatePicker } from "antd";
+import { Card, Typography } from "antd";
 import { Line } from "@ant-design/plots";
-import { DateTime } from "luxon";
 import dayjs from "dayjs";
 import { AccountReportProps } from "../types";
 import { formatCurrency } from "utils/format";
 import { useTheme } from "../../../hooks/useTheme";
+import { DatePicker } from "elements";
 
 const { Title } = Typography;
-const { RangePicker } = DatePicker;
 
 /**
  * Account report component with line chart
@@ -25,11 +24,11 @@ export const AccountReport: React.FC<AccountReportProps> = ({
   const { isDarkMode } = useTheme();
 
   const chartData = data.data.map(point => ({
-    date: point.date.toFormat('yyyy-MM-dd'),
+    date: point.date.format('YYYY-MM-DD'),
     value: point.income,
     type: t('income')
   })).concat(data.data.map(point => ({
-    date: point.date.toFormat('yyyy-MM-dd'),
+    date: point.date.format('YYYY-MM-DD'),
     value: point.expense,
     type: t('expense')
   })));
@@ -62,13 +61,14 @@ export const AccountReport: React.FC<AccountReportProps> = ({
       title={title}
       className="dark:bg-gray-800 dark:border-gray-700"
       extra={
-        <RangePicker
-          value={[dayjs(range[0].toJSDate()), dayjs(range[1].toJSDate())]}
+        <DatePicker
+          isRange
+          value={[range[0].format("YYYY-MM-DD"), range[1].format("YYYY-MM-DD")]}
           onChange={(dates) => {
-            if (dates) {
+            if (dates && Array.isArray(dates)) {
               onRangeChange([
-                DateTime.fromJSDate(dates[0]!.toDate()),
-                DateTime.fromJSDate(dates[1]!.toDate())
+                dayjs(dates[0], "YYYY-MM-DD"),
+                dayjs(dates[1], "YYYY-MM-DD")
               ]);
             }
           }}

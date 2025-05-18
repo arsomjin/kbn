@@ -3,6 +3,7 @@ import { Table, Popconfirm, Button, Form, Typography } from "antd";
 import type { ColumnType } from "antd/es/table";
 import type { FormInstance } from "antd";
 import type { PanelRender } from 'rc-table/lib/interface';
+import type { HTMLAttributes, TdHTMLAttributes } from 'react';
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
@@ -16,11 +17,13 @@ import {
   EditingCell, 
   CustomColumnType, 
   CustomColumnsType, 
-  asReactChild 
+  asReactChild,
+  TableColumnConfig 
 } from "./types";
 import { useProvince } from "hooks/useProvince";
 import { usePermission } from "hooks/usePermission";
 import "./table.css";
+import { TableColumnConfig as TableColumnConfigType } from "types/table";
 
 const { Text } = Typography;
 
@@ -314,6 +317,8 @@ const MTable: React.FC<MTableProps> = ({
     // Safely handle title with proper type handling
     if (typeof newCol.title === 'string') {
       newCol.title = <span title={newCol.title}>{asReactChild(newCol.title)}</span>;
+    } else if (typeof newCol.title === 'function') {
+      // leave as-is for grouped headers
     } else {
       // If it's not a string, just use it without title attribute
       newCol.title = <span>{asReactChild(newCol.title)}</span>;
@@ -323,17 +328,17 @@ const MTable: React.FC<MTableProps> = ({
     newCol.ellipsis = true;
     
     // Handle children if they exist
-    if ('children' in newCol && newCol.children) {
-      newCol.children = newCol.children.map((childCol: any) => {
+    if (Array.isArray((newCol as any).children)) {
+      (newCol as any).children = ((newCol as any).children).map((childCol: any) => {
         const newChildCol = { ...childCol, ellipsis: true };
-        
         // Apply the same title handling for children
         if (typeof newChildCol.title === 'string') {
           newChildCol.title = <span title={newChildCol.title}>{asReactChild(newChildCol.title)}</span>;
+        } else if (typeof newChildCol.title === 'function') {
+          // leave as-is
         } else {
           newChildCol.title = <span>{asReactChild(newChildCol.title)}</span>;
         }
-        
         return newChildCol;
       });
     }
@@ -347,42 +352,39 @@ const MTable: React.FC<MTableProps> = ({
         if ('editable' in col && col.editable) {
           return {
             ...col,
-            onCell: (record: TableData) => {
-              // Return type that matches HTMLAttributes<any> & TdHTMLAttributes<any>
-              const cellProps: any = {
-                record,
-                dataIndex: 'dataIndex' in col ? String(col.dataIndex || '') : '',
-                editing: isEditing(record)
-              };
-              
-              // Handle title specially to avoid type issues
-              if (typeof col.title === 'string') {
-                cellProps.title = col.title;
-              }
-              
-              return cellProps;
-            },
+            onCell: (record: TableData) => ({
+              record,
+              dataIndex: 'dataIndex' in col ? String(col.dataIndex || '') : '',
+              editing: isEditing(record),
+              className: 'editable-cell'
+            } as unknown as HTMLAttributes<any> & TdHTMLAttributes<any>)
           };
         }
         return col;
       })
     : columnsWithEllipsis;
 
-  const mergedCols = getRenderColumns(
-    processedColumns, 
-    db, 
-    handleCellSave, 
-    editingCell, 
-    setEditingCell
-  );
+  // Use ColumnType for columns
+  const mergedCols = getRenderColumns({
+    columns: processedColumns,
+    db,
+    handleSave: (record: TableData) => {
+      const dataIndex = '';
+      const rowIndex = data.findIndex(item => item.key === record.key);
+      handleCellSave(record, dataIndex, rowIndex);
+    },
+    isEditing: (record: TableData) => record.key === editingKey,
+    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => onKeyDown(e, ''),
+    onBlur: () => onBlur(''),
+    size
+  }) as ColumnType<TableData>[];
 
   // Add delete column if needed
   if (canDelete && !readOnly && !disabled && hasPermission("DELETE")) {
-    mergedCols.push({
+    const deleteCol: ColumnType<TableData> = {
       title: t("common.delete"),
       dataIndex: "__delete__",
       align: "center",
-      ellipsis: true,
       render: (_: unknown, record: TableData) => (
         <Popconfirm
           title={t("common.confirmDelete")}
@@ -394,30 +396,55 @@ const MTable: React.FC<MTableProps> = ({
           <DeleteOutlined className="text-danger mb-2" />
         </Popconfirm>
       )
-    });
+    };
+    mergedCols.push(deleteCol);
   }
 
   // Add edit column if needed
-  if (canEdit && !(disabled || readOnly) && hasPermission("UPDATE") && typeof canEdit === 'function') {
+  if (editMode === 'row' && !readOnly && canEdit) {
     const editCol: ColumnType<TableData> = {
-      title: "🖊",
-      dataIndex: "__edit__",
-      key: "editColumn",
-      render: (_: unknown, record: TableData) => (
-        <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
-      ),
-      align: "center",
-      width: 50,
-      ellipsis: true
+      title: t('action'),
+      dataIndex: 'action',
+      width: 100,
+      align: 'center',
+      render: (_: any, record: TableData) => {
+        const editable = isEditing(record);
+        return editable ? (
+          <span>
+            <Typography.Link onClick={() => {
+              const newData = [...data];
+              const index = newData.findIndex(item => record.key === item.key);
+              if (index > -1) {
+                const item = newData[index];
+                newData.splice(index, 1, {
+                  ...item,
+                  ...record,
+                });
+                setData(newData);
+                setEditingKey('');
+              }
+            }} style={{ marginRight: 8 }}>
+              {t('save')}
+            </Typography.Link>
+            <Popconfirm title={t('sureToCancel')} onConfirm={() => setEditingKey('')}>
+              <Typography.Link>{t('cancel')}</Typography.Link>
+            </Popconfirm>
+          </span>
+        ) : (
+          <Typography.Link disabled={editingKey !== ''} onClick={() => setEditingKey(record.key)}>
+            <EditOutlined />
+          </Typography.Link>
+        );
+      }
     };
 
-    const idIndex = mergedCols.findIndex((col: any) => {
-      return col.dataIndex && ["id", "key"].includes(col.dataIndex);
+    const idIndex = mergedCols.findIndex((col) => {
+      return col.dataIndex && ["id", "key"].includes(String(col.dataIndex));
     });
     if (idIndex > -1) {
       mergedCols.splice(idIndex + 1, 0, editCol);
     } else {
-      mergedCols.push(editCol);
+      mergedCols.unshift(editCol);
     }
   }
 
@@ -471,7 +498,7 @@ const MTable: React.FC<MTableProps> = ({
   } : {};
 
   return (
-    <div>
+    <div className="responsive-table-wrapper" >
       {canAdd && !readOnly && !disabled && hasPermission("CREATE") && !footer && (
         <Button onClick={handleAdd} style={{ margin: 8 }}>
           + {t("common.addItem")}
@@ -501,7 +528,7 @@ const MTable: React.FC<MTableProps> = ({
                   showSizeChanger: true
                 }
           }
-          scroll={noScroll ? undefined : scroll ? { x: tableWidth, y: 400, ...scroll } : { x: tableWidth, y: 400 }}
+          scroll={noScroll ? undefined : scroll ? { x: 'max-content', y: 400, ...scroll } : { x: 'max-content', y: 400 }}
           size={size}
           locale={locale || { emptyText: t('common.noData') }}
           bordered
@@ -520,4 +547,4 @@ const MTable: React.FC<MTableProps> = ({
   );
 };
 
-export default MTable; 
+export default MTable;

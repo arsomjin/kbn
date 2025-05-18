@@ -132,7 +132,7 @@ const DealerSelector = forwardRef<any, DealerSelectorProps>(
         }
 
         dispatch({ type: "SET_DEALERS", payload: mDealers });
-        showSuccess({ content: "บันทึกข้อมูลสำเร็จ" });
+        showSuccess(undefined, "บันทึกข้อมูลสำเร็จ");
         setShowAddNew(false);
       } catch (e) {
         showWarn((e as Error).message);

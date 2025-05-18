@@ -13,6 +13,8 @@
   "expense": "Expense",
   "tax": "Tax",
   "total": "Total",
+  "account-price-input": "Product Price Entry",
+  "account-price-input-vehicle": "Vehicle & Equipment",
   "incomeCategories": {
     "title": "Income Category",
     "vehicle": "Vehicle Sales",

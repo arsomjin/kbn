@@ -302,3 +302,7 @@
 .dark .notification-time {
   color: #b9b5ad;
 }
+
+.notification-bell {
+  font-size: 22px !important;
+}

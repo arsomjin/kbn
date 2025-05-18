@@ -73,7 +73,7 @@ const PageTitle: React.FC<PageTitleProps> = ({
         <Col xs={0} md={24}>
           <div className="flex items-center justify-between px-4 py-2">
             <div>
-              <h2 className="h4 font-medium mb-0">{title}</h2>
+              <h2 className="text-xl font-medium mb-0">{title}</h2>
               {subtitle && <div className="text-muted small">{subtitle}</div>}
             </div>
             <div style={{ minWidth: '50%' }}>

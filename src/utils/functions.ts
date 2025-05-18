@@ -132,23 +132,15 @@ export const getCurrentDevice = (): DeviceInfo => {
 };
 
 // Logging utilities
-export const showLog = (tag: string, log?: unknown): void => {
-  if (__DEV__) {
-    if (typeof tag !== 'undefined' && typeof log !== 'undefined') {
-      console.log(`${tag}: `, log);
-    } else if (typeof log === 'undefined') {
-      console.log(tag);
-    }
+export const showLog = (...args: any[]) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.log(...args);
   }
 };
 
-export const showWarn = (tag: string, log?: unknown): void => {
-  if (__DEV__) {
-    if (typeof tag !== 'undefined' && typeof log !== 'undefined') {
-      console.warn(`${tag}: `, log);
-    } else if (typeof log === 'undefined') {
-      console.warn(tag);
-    }
+export const showWarn = (...args: any[]) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.warn(...args);
   }
 };
 
@@ -158,20 +150,16 @@ export const showWarn = (tag: string, log?: unknown): void => {
  * @returns New unique ID
  */
 export const createNewId = (prefix: string): string => {
-  const timestamp = Date.now().toString(36);
-  const random = Math.random().toString(36).substring(2, 7);
-  return `${prefix}${timestamp}${random}`.toUpperCase();
+  const timestamp = Date.now().toString();
+  const random = Math.random().toString(36).substring(2, 8);
+  return `${prefix}${timestamp}${random}`;
 };
 
 // Message utilities
-export const showSuccess = (config: MessageConfig): void => {
-  message.success({
-    content: config.content || 'สำเร็จ',
-    style: {
-      marginTop: isMobile ? 32 : 64
-    },
-    duration: config.duration || 5,
-    onClick: config.onClick
+export const showSuccess = (callback?: () => void, message = 'บันทึกข้อมูลสำเร็จ') => {
+  Modal.success({
+    content: message,
+    onOk: callback
   });
 };
 
@@ -241,13 +229,13 @@ export const dateToThai = (text: string): string => {
 };
 
 // Number utilities
-export const Numb = (val: unknown): number => {
-  if (!val || isNaN(Number(val))) {
-    return 0;
+export const Numb = (value: any): number => {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
+    const num = parseFloat(value.replace(/,/g, ''));
+    return isNaN(num) ? 0 : num;
   }
-  const mNum = val.toString().replace(/(\r\n|\n|\r|,| |)/g, '');
-  const rNum = isNaN(Number(mNum)) ? 0 : Number(mNum);
-  return isVerySmallNumber(rNum) ? 0 : rNum;
+  return 0;
 };
 
 export const formatCurrency = (value: string | number): string => {
@@ -479,14 +467,9 @@ export const capitalizeFirstLetter = (string: string): string => {
   return '';
 };
 
-export const validateMobileNumber = (text: string): boolean => {
-  if (!text) {
-    return false;
-  }
-  const inputtxt = text.replace(/(\r\n|\n|\r| |-)/g, '');
-  const phoneno = /^0\(?([0-9]{2})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$/;
-  if (phoneno.test(inputtxt)) return true;
-  return false;
+export const validateMobileNumber = (mobile: string): boolean => {
+  const mobileRegex = /^0[1-9][0-9]{8}$/;
+  return mobileRegex.test(mobile);
 };
 
 export const getPermCatFromPermissions = (
@@ -524,16 +507,12 @@ export const showToBeContinue = (): void => {
   });
 };
 
-export const showConfirm = (
-  confirmAction?: () => void,
-  itemName?: string,
-  unCancellable?: boolean
-): void => {
-  showActionSheet(
-    confirmAction,
-    'ยืนยัน',
-    `คุณต้องการยืนยัน${itemName ? ` ${itemName}` : ''} ใช่หรือไม่?`
-  );
+export const showConfirm = (onOk: () => void, message: string) => {
+  Modal.confirm({
+    title: 'ยืนยัน',
+    content: message,
+    onOk
+  });
 };
 
 export const showConfirmDelete = (
@@ -851,10 +830,10 @@ export const isValidDate = (d: unknown): boolean => {
   return !isNaN(d.getTime());
 };
 
-export const isDateTypeField = (val: unknown): boolean => {
-  if (typeof val !== 'string') return false;
-  const lowerVal = val.toLowerCase();
-  return lowerVal.endsWith('date') || val.includes('วันที่') || lowerVal.startsWith('date');
+export const isDateTypeField = (field: string): boolean => {
+  return field.toLowerCase().includes('date') || 
+         field.toLowerCase().includes('day') || 
+         field.toLowerCase().includes('time');
 };
 
 export const isTimeTypeField = (val: unknown): boolean => {
@@ -902,14 +881,8 @@ export const isRowCompleted = (
   });
 };
 
-export const parser = (value: unknown): string | number | unknown => {
-  if (!value) {
-    return value;
-  }
-  if (!(typeof value === 'number' || typeof value === 'string')) {
-    return value;
-  }
-  return value.toString().replace(/(\r\n|\n|\r| |-|฿\s?)|(,*)/g, '');
+export const parser = (value: string): string => {
+  return value.replace(/[^\d.-]/g, '');
 };
 
 export const formatNumber = (value: unknown): string | unknown => {
@@ -1018,7 +991,7 @@ export const formatValuesBeforeLoad = (values: Record<string, unknown>): Record<
       mValues[k] = null;
     }
     if (hasToParse(k)) {
-      mValues[k] = parser(values[k]);
+      mValues[k] = typeof values[k] === 'string' ? parser(values[k] as string) : typeof values[k] === 'number' ? parser(String(values[k])) : parser('');
     }
   });
   return mValues;

@@ -1,11 +1,14 @@
 import React from "react";
 import { Form } from "antd";
-import type { FormInstance } from "antd/es/form";
-import { EditableRowProps, EditableContextType } from "./types";
 
-export const EditableContext = React.createContext<FormInstance | null>(null);
+export const EditableContext = React.createContext<ReturnType<typeof Form.useForm>[0] | null>(null);
 
-const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
+interface EditableRowProps {
+  index: number;
+  children: React.ReactNode;
+}
+
+export const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
   const [form] = Form.useForm();
   return (
     <Form form={form} component={false}>
@@ -14,6 +17,4 @@ const EditableRow: React.FC<EditableRowProps> = ({ index, ...props }) => {
       </EditableContext.Provider>
     </Form>
   );
-};
-
-export default EditableRow; 
+}; 

@@ -140,7 +140,7 @@ const ServiceSelector = forwardRef<ServiceSelectorRef, ServiceSelectorProps>(
         }
 
         dispatch({ type: "SET_SERVICES", payload: mServices });
-        showSuccess({ content: "บันทึกข้อมูลสำเร็จ" });
+        showSuccess(undefined, "บันทึกข้อมูลสำเร็จ");
         setShowAddNew(false);
       } catch (e) {
         showWarn((e as Error).message);

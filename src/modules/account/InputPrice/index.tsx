@@ -1,10 +1,9 @@
-import React, { useCallback } from 'react';
-import { Form, Card, Row, Col } from 'antd';
+import React, { useCallback, useMemo } from 'react';
+import { Form, Card, Row, Col, Modal } from 'antd';
 import { getFirestore, collection, doc, getDocs, query, where, setDoc } from 'firebase/firestore';
 import { useMergeState } from 'hooks/useMergeState';
 
 import { CheckOutlined, SearchOutlined } from '@ant-design/icons';
-import { DateTime } from 'luxon';
 import { useSelector } from 'react-redux';
 import { showWarn, arrayForEach, showSuccess, firstKey, sortArr } from 'utils/functions';
 import PageTitle from 'components/common/PageTitle';
@@ -18,8 +17,12 @@ import { InputPriceState, InputPriceFormValues, InputPriceProps, InputPriceItem 
 import { useTranslation } from 'react-i18next';
 import { Button, Stepper } from 'elements';
 import DocSelector from 'components/DocSelector';
-import { DatePicker, Input, InputNumber } from 'antd';
+import { Input, InputNumber } from 'antd';
 import PriceTypeSelector from 'components/PriceTypeSelector';
+import { DatePicker } from 'elements';
+import dayjs from 'dayjs';
+import { isString, isNumber, isDayjs } from '../../../utils/validation';
+import { showConfirm } from '../../../utils/functions';
 
 // Add custom styles for the summary component
 import './inputPrice.css';
@@ -63,11 +66,12 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
   const _onValuesChange = async (val: Partial<InputPriceFormValues>) => {
     try {
       const changeKey = firstKey(val);
-      if (changeKey === 'billNoSKC' && val[changeKey]) {
+      console.log(changeKey);
+      if (changeKey === 'billNoSKC' && isString(val[changeKey])) {
         const importVehiclesRef = collection(firestore, 'sections', 'stocks', 'importVehicles');
         const q = query(importVehiclesRef, where('billNoSKC', '==', val[changeKey]));
         const snap = await getDocs(q);
-        
+        console.log(snap.empty);
         if (!snap.empty) {
           const arr: InputPriceItem[] = [];
           snap.forEach(docSnap => {
@@ -141,16 +145,14 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
       } else if (changeKey && ['creditDays', 'taxInvoiceDate'].includes(changeKey)) {
         const taxInvoiceDate = form.getFieldValue('taxInvoiceDate');
         const creditDays = form.getFieldValue('creditDays');
-        if (!creditDays || isNaN(Number(creditDays))) {
-          return;
-        }
-        if (taxInvoiceDate) {
+        if (!isNumber(creditDays)) return;
+        if (isDayjs(taxInvoiceDate)) {
           form.setFieldsValue({
-            dueDate: DateTime.fromJSDate(taxInvoiceDate.toJSDate()).plus({ days: Number(creditDays) })
+            dueDate: taxInvoiceDate.add(Number(creditDays), 'day')
           });
         } else {
           form.setFieldsValue({
-            dueDate: DateTime.now().plus({ days: Number(creditDays) })
+            dueDate: dayjs().add(Number(creditDays), 'day')
           });
         }
       }
@@ -161,8 +163,23 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
 
   const footer = cState.noItemUpdated ? <h6>{t('pleaseEnterPrice')}</h6> : undefined;
 
+  const { billDiscount, deductDeposit, priceType, total } = cState;
+
+  // Calculate summary values in real-time
+  const summary = useMemo(() => {
+    const safeTotal = Numb(total);
+    const safeDiscount = Numb(billDiscount);
+    const safeDeposit = Numb(deductDeposit);
+    const afterDiscount = safeTotal - safeDiscount;
+    const afterDepositDeduct = afterDiscount - safeDeposit;
+    const billVAT = priceType === 'noVat' ? 0 : afterDepositDeduct * 0.07;
+    const billTotal = afterDepositDeduct + billVAT;
+    return { afterDiscount, afterDepositDeduct, billVAT, billTotal };
+  }, [total, billDiscount, deductDeposit, priceType]);
+
   const onBillDiscountChange = (value: number | null) => {
     if (value === null || isNaN(value)) {
+      setCState({ billDiscount: 0 });
       return;
     }
     setCState({ billDiscount: value });
@@ -170,6 +187,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
 
   const onDeductDepositChange = (value: number | null) => {
     if (value === null || isNaN(value)) {
+      setCState({ deductDeposit: 0 });
       return;
     }
     setCState({ deductDeposit: value });
@@ -193,57 +211,84 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
     setCState({ priceType, total: Number(total.toFixed(4)) });
   };
 
-  const { billDiscount, deductDeposit, priceType, total } = cState;
-
-  const afterDiscount = Numb(total) - Numb(billDiscount);
-  const afterDepositDeduct = Numb(total) - Numb(billDiscount) - Numb(deductDeposit);
-  const billVAT = priceType === 'noVat' ? 0 : afterDepositDeduct ? afterDepositDeduct * 0.07 : 0;
-  const billTotal =
-    Numb(total) - Numb(billDiscount) - Numb(deductDeposit) + (priceType === 'includeVat' ? 0 : Numb(billVAT));
-
   const onConfirm = useCallback(
     async (mValues: InputPriceFormValues) => {
-      try {
-        const dueDate = mValues.dueDate ? DateTime.fromJSDate(mValues.dueDate.toJSDate()).toFormat('yyyy-MM-dd') : undefined;
-        const { billDiscount, deductDeposit } = cState;
-        const expense = {
-          ...mValues,
-          dueDate,
-          total,
-          billDiscount,
-          deductDeposit,
-          billVAT,
-          billTotal,
-          expenseType: 'purchaseTransfer',
-          receiveNo: mValues.taxInvoiceNo,
-          branchCode: '0450',
-          date: DateTime.now().toFormat('yyyy-MM-dd'),
-          time: Date.now(),
-          inputBy: user.uid,
-          isPart: false
-        };
-        const expenseId = createNewId('ACC-EXP');
-        const expenseItem = cleanValuesBeforeSave({
-          ...expense,
-          expenseId,
-          _key: expenseId
-        });
-        
-        const expensesRef = collection(firestore, 'sections', 'account', 'expenses');
-        await setDoc(doc(expensesRef, expenseId), expenseItem);
-        
-        if (mValues?.items) {
-          await arrayForEach(mValues.items, async (it: InputPriceItem) => {
-            // Update payment info
+      showConfirm(async () => {
+        try {
+          const dueDate = mValues.dueDate ? mValues.dueDate.format('YYYY-MM-DD') : undefined;
+          const { billDiscount, deductDeposit } = cState;
+          const expense = {
+            ...mValues,
+            dueDate,
+            total,
+            billDiscount,
+            deductDeposit,
+            billVAT: summary.billVAT,
+            billTotal: summary.billTotal,
+            expenseType: 'purchaseTransfer',
+            receiveNo: mValues.taxInvoiceNo,
+            branchCode: '0450',
+            date: dayjs().format('YYYY-MM-DD'),
+            time: Date.now(),
+            inputBy: user.uid,
+            isPart: false
+          };
+          const expenseId = createNewId('ACC-EXP');
+          const expenseItem = cleanValuesBeforeSave({
+            ...expense,
+            expenseId,
+            _key: expenseId
           });
+          const expensesRef = collection(firestore, 'sections', 'account', 'expenses');
+          await setDoc(doc(expensesRef, expenseId), expenseItem);
+          if (mValues?.items) {
+            await arrayForEach(mValues.items, async (it: InputPriceItem) => {
+              // Update payment info
+            });
+          }
+          showSuccess(t('saveSuccess'));
+          resetToInitial();
+        } catch (error) {
+          showWarn(error instanceof Error ? error.message : String(error));
         }
-        showSuccess(t('saveSuccess'));
-        resetToInitial();
-      } catch (error) {
-        showWarn(error instanceof Error ? error.message : String(error));
-      }
+      }, t('confirmSubmit', 'Are you sure you want to submit?'));
     },
-    [cState, total, billVAT, billTotal, user.uid, firestore, resetToInitial, t]
+    [cState, total, summary.billVAT, summary.billTotal, user.uid, firestore, resetToInitial, t]
+  );
+
+  const summaryContent = (
+    <div className="flex flex-col justify-between h-full">
+      <RenderSummary
+        total={total || 0}
+        afterDiscount={summary.afterDiscount}
+        afterDepositDeduct={summary.afterDepositDeduct}
+        billVAT={summary.billVAT}
+        billTotal={summary.billTotal}
+        onBillDiscountChange={onBillDiscountChange}
+        onDeductDepositChange={onDeductDepositChange}
+        billDiscount={billDiscount}
+        deductDeposit={deductDeposit}
+      />
+
+      {/* Save Button */}
+      <div className="flex justify-end mt-6">
+        <Button 
+          type="primary" 
+          htmlType="submit" 
+          icon={<CheckOutlined />} 
+          form="input-price-form" 
+          className="save-button"
+          style={{ 
+            minWidth: 160, 
+            fontSize: 16,
+            height: 40
+          }}
+        >
+          {t('save')}
+        </Button>
+      </div>
+    </div>
+
   );
 
   return (
@@ -256,136 +301,115 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
         showStepper={true}
       />
 
-      <Card size="default">
+      <Card size={isMobile ? "small" : "default"}>
         <Form
           id="input-price-form"
           form={form}
-          onValuesChange={_onValuesChange}
+          onValuesChange={(changed, all) => {
+            _onValuesChange(changed);
+            console.log('Changed:', changed);
+            console.log('All values:', all);
+          }}
           onFinish={onConfirm}
           initialValues={initialValues}
           layout="vertical"
         >
-          {/* Search Field */}
-          <Form.Item 
-            label={<span><SearchOutlined /> {t('searchByReceiptNumber')}</span>}
-            name="billNoSKC"
-          >
-            <DocSelector
-              collection="sections/stocks/importVehicles"
-              orderBy={['billNoSKC']}
-              wheres={[["warehouseChecked", "!=", null], ["total", "==", null]]}
-              size="middle"
-              placeholder={t('receiptNumber')}
-              hasKeywords
-            />
-          </Form.Item>
-
-          {/* Form Fields in 2 Column Grid */}
-          <Row gutter={16}>
-            <Col xs={24} md={8}>
-              <Form.Item
-                name="taxInvoiceNo"
-                label={<span className="font-medium">* {t('taxInvoiceNo')}</span>}
-                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-              >
-                <Input placeholder={t('taxInvoiceNo')} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={8}>
-              <Form.Item 
-                name="taxInvoiceDate" 
-                label={<span className="font-medium">* {t('taxInvoiceDate')}</span>}
-                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-              >
-                <DatePicker placeholder={t('taxInvoiceDate')} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={8}>
-              <Form.Item 
-                name="priceType" 
-                label={<span className="font-medium">* {t('priceType')}</span>}
-                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-              >
-                <PriceTypeSelector onChange={onPriceTypeChange} />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Row gutter={16}>
-            <Col xs={24} md={8}>
-              <Form.Item
-                name="taxFiledPeriod"
-                label={<span className="font-medium">* {t('taxFiledPeriod')}</span>}
-                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-              >
-                <Input placeholder={t('taxFiledPeriod')} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={8}>
-              <Form.Item
-                name="creditDays"
-                label={<span className="font-medium">* {t('credit')}</span>}
-                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-              >
-                <InputNumber placeholder={t('credit')} addonAfter={t('days')} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={8}>
-              <Form.Item
-                name="dueDate"
-                label={<span className="font-medium">* {t('dueDate')}</span>}
-                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-              >
-                <DatePicker placeholder={t('dueDate')} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-          </Row>
-
-          {/* Table */}
-          <div className="mt-4">
-            <InputItems
-              items={form.getFieldValue('items') || []}
-              onChange={items => form.setFieldsValue({ items: items as any })}
-              grant={grant}
-              readOnly={readOnly}
-              footer={footer}
-              noItemUpdated={cState.noItemUpdated}
-            />
-          </div>
-        </Form>
-      </Card>
-      
-      <Card className="sticky top-4">
-        <div className="flex flex-col justify-between h-full">
-          <RenderSummary
-            total={total || 0}
-            afterDiscount={afterDiscount}
-            afterDepositDeduct={afterDepositDeduct}
-            billVAT={billVAT}
-            billTotal={billTotal}
-            onBillDiscountChange={onBillDiscountChange}
-            onDeductDepositChange={onDeductDepositChange}
-          />
-
-          {/* Save Button */}
-          <div className="flex justify-end mt-6">
-            <Button 
-              type="primary" 
-              htmlType="submit" 
-              icon={<CheckOutlined />} 
-              form="input-price-form" 
-              className="save-button"
-              style={{ 
-                minWidth: 160, 
-                fontSize: 16,
-                height: 40
-              }}
+            <Form.Item 
+              label={<span><SearchOutlined /> {t('searchByReceiptNumber')}</span>}
+              name="billNoSKC"
             >
-              {t('save')}
-            </Button>
-          </div>
-        </div>
+              <DocSelector
+                collection="sections/stocks/importVehicles"
+                orderBy={['billNoSKC']}
+                wheres={[["warehouseChecked", "!=", null], ["total", "==", null]]}
+                size="middle"
+                placeholder={t('receiptNumber')}
+                hasKeywords
+              />
+            </Form.Item>
+
+            {/* Form Fields in 2 Column Grid */}
+            <Row gutter={16}>
+              <Col xs={24} md={8}>
+                <Form.Item
+                  name="taxInvoiceNo"
+                  label={<span className="font-medium">* {t('taxInvoiceNo')}</span>}
+                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+                >
+                  <Input placeholder={t('taxInvoiceNo')} />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={8}>
+                <Form.Item 
+                  name="taxInvoiceDate" 
+                  label={<span className="font-medium">* {t('taxInvoiceDate')}</span>}
+                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+                >
+                  <DatePicker placeholder={t('taxInvoiceDate')} style={{ width: '100%' }} />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={8}>
+                <Form.Item 
+                  name="priceType" 
+                  label={<span className="font-medium">* {t('priceType')}</span>}
+                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+                >
+                  <PriceTypeSelector onChange={onPriceTypeChange} />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={16}>
+              <Col xs={24} md={8}>
+                <Form.Item
+                  name="taxFiledPeriod"
+                  label={<span className="font-medium">* {t('taxFiledPeriod')}</span>}
+                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+                >
+                  <Input placeholder={t('taxFiledPeriod')} />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={8}>
+                <Form.Item
+                  name="creditDays"
+                  label={<span className="font-medium">* {t('credit')}</span>}
+                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+                >
+                  <InputNumber placeholder={t('credit')} addonAfter={t('days')} style={{ width: '100%' }} />
+                </Form.Item>
+              </Col>
+              <Col xs={24} md={8}>
+                <Form.Item
+                  name="dueDate"
+                  label={<span className="font-medium">* {t('dueDate')}</span>}
+                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+                >
+                  <DatePicker placeholder={t('dueDate')} style={{ width: '100%' }} />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            {/* Table */}
+            <div className="mt-4">
+              <InputItems
+                items={form.getFieldValue('items') || []}
+                onChange={items => form.setFieldsValue({ items: items as any })}
+                grant={grant}
+                readOnly={readOnly}
+                footer={footer}
+                noItemUpdated={cState.noItemUpdated}
+              />
+            </div>      
+          </Form>
       </Card>
+
+      {!isMobile ?
+        <Card className="sticky top-4" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
+          {summaryContent}
+        </Card>
+        :
+        <div className="w-full" style={{ width: '100%' }}>{summaryContent}</div>
+      }
     </div>
   );
 };

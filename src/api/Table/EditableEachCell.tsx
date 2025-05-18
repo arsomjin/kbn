@@ -1,30 +1,24 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Form, Input } from 'antd';
-import type { InputRef } from 'antd';
-import type { Rule } from 'antd/es/form';
-import { DateTime } from 'luxon';
+import { Form } from 'antd';
+import type { FormInstance } from 'antd';
+import dayjs from 'dayjs';
 import { useLocation } from 'react-router-dom';
-import { EditableContext } from 'components/Table/EditableRow';
-import { getInputNode } from './index';
-import { TableData } from 'components/Table/types';
-import { showLog } from 'utils/functions';
+import { showLog, isDateTypeField } from '../../utils/functions';
+import { EditableContext, getInputNode } from './index';
+import { TableBaseRecord } from '../../types/table';
 
 interface EditableEachCellProps {
-  title: string;
+  title: React.ReactNode;
   editable?: boolean;
   children: React.ReactNode;
   dataIndex: string;
-  record: TableData;
-  handleSave: (record: TableData) => void;
+  record: TableBaseRecord;
+  handleSave: (record: TableBaseRecord) => void;
   number?: boolean;
   required?: boolean;
   deletable?: boolean;
-  [key: string]: unknown;
+  [key: string]: any;
 }
-
-const isDateTypeField = (fieldName: string): boolean => {
-  return ['date', 'inputDate', 'createdAt', 'updatedAt'].includes(fieldName);
-};
 
 export const EditableEachCell: React.FC<EditableEachCellProps> = ({
   title,
@@ -39,8 +33,8 @@ export const EditableEachCell: React.FC<EditableEachCellProps> = ({
   ...restProps
 }) => {
   const [editing, setEditing] = useState(false);
-  const inputRef = useRef<InputRef>(null);
-  const form = useContext(EditableContext);
+  const inputRef = useRef<any>(null);
+  const form = useContext(EditableContext) as FormInstance;
   const location = useLocation();
   const path = location.pathname;
 
@@ -55,26 +49,19 @@ export const EditableEachCell: React.FC<EditableEachCellProps> = ({
       return showLog('This record has been deleted.');
     }
     setEditing(!editing);
-    
     const isDate = isDateTypeField(dataIndex);
-    const value = record[dataIndex];
-    
-    if (form) {
-      form.setFieldsValue({
-        [dataIndex]: isDate && value ? DateTime.fromISO(value as string) : value
-      });
-    }
+    form.setFieldsValue({
+      [dataIndex]: isDate ? dayjs(record[dataIndex], 'YYYY-MM-DD') : record[dataIndex]
+    });
   };
 
   const save = async () => {
-    if (!form) return;
-    
     try {
       const values = await form.validateFields();
       toggleEdit();
       handleSave({ ...record, ...values });
     } catch (errInfo) {
-      console.warn('Save failed:', errInfo);
+      // Handle validation errors silently
     }
   };
 
@@ -83,26 +70,15 @@ export const EditableEachCell: React.FC<EditableEachCellProps> = ({
   let childNode = children;
 
   if (editable) {
-    const inputNode = getInputNode({
+    const INode = getInputNode({
       dataIndex,
-      record,
+      number,
       ref: inputRef,
       save,
+      record,
       onBlur,
       path
     });
-
-    const rules: Rule[] = [
-      ...(required ? [{
-        required: true,
-        message: `กรุณาป้อน ${title}`
-      }] : []),
-      ...(number ? [{
-        type: 'number' as const,
-        transform: (value: string) => Number(value),
-        message: 'กรุณาป้อนตัวเลข'
-      }] : [])
-    ];
 
     childNode = editing ? (
       <Form.Item
@@ -110,9 +86,41 @@ export const EditableEachCell: React.FC<EditableEachCellProps> = ({
           margin: 0
         }}
         name={dataIndex}
-        rules={rules}
+        rules={
+          required
+            ? [
+                {
+                  required: true,
+                  message: `กรุณาป้อน ${title}`
+                },
+                vProps => ({
+                  validator(rule, value) {
+                    if (number) {
+                      if (!value || !isNaN(value)) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject('กรุณาป้อนเป็นตัวเลข');
+                    }
+                    return Promise.resolve();
+                  }
+                })
+              ]
+            : [
+                vProps => ({
+                  validator(rule, value) {
+                    if (number) {
+                      if (!value || !isNaN(value)) {
+                        return Promise.resolve();
+                      }
+                      return Promise.reject('กรุณาป้อนเป็นตัวเลข');
+                    }
+                    return Promise.resolve();
+                  }
+                })
+              ]
+        }
       >
-        {inputNode}
+        {INode}
       </Form.Item>
     ) : (
       <div
@@ -138,4 +146,4 @@ export const EditableEachCell: React.FC<EditableEachCellProps> = ({
       {childNode}
     </td>
   );
-};
+}; 

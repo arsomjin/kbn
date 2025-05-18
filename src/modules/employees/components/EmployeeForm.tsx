@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Form, Input, Select, DatePicker, InputNumber, Button, Card, Space, Upload, Avatar, Typography } from "antd";
+import { Form, Input, Select, InputNumber, Button, Card, Space, Upload, Avatar, Typography } from "antd";
 import { UploadOutlined, UserOutlined } from "@ant-design/icons";
 import { EmployeeFormData, EmployeeStatus } from "../types";
 import { useProvince } from "../../../hooks/useProvince";
@@ -8,6 +8,7 @@ import { useAuth } from "../../../hooks/useAuth";
 import { employeeService } from "../services/employeeService";
 import { useNavigate } from "react-router-dom";
 import { message } from "antd";
+import { DatePicker } from "elements";
 
 const { Title } = Typography;
 

@@ -22,7 +22,7 @@ New module should be placed under:
 - [ ] Apply responsive design using **Ant Design + Tailwind CSS**
 - [ ] Integrate **Role-Based Access Control (RBAC)** as applicable
 - [ ] Filter or restrict data access using relevant business context (e.g., `provinceId`, `role`, `branch`)
-- [ ] Replace all `Date`/`moment` usages with **Luxon**
+- [ ] Replace all `Date`/`moment` usages with **dayjs**
 - [ ] Migrate all strings to **i18next**, using a dedicated namespace (e.g., `<module>.json`)
 - [ ] Refactor or modernize **outdated patterns or broken dependencies**
 - [ ] Ensure **dark mode compatibility**
@@ -61,4 +61,4 @@ Replace placeholders:
 - Do not use `useContext(FirebaseContext)` — instead, use direct modular imports from the Firebase SDK (e.g., `getFirestore(app)`, `getAuth(app)`).
 - Convert all non-absolute import paths (e.g., `../../utils`) to project-root-based absolute paths (e.g., `@/utils`)
 - Use **Yarn** for all package management tasks — do not use `npm`.
-- Use **Luxon** for date/time manipulation. Do not use `moment.js` or `dayjs` unless explicitly required by a third-party library.
+- Use **dayjs** for date/time manipulation. Do not use `moment.js` or `luxon` unless explicitly required by a third-party library.

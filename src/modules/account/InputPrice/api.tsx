@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Form, Input, Row, Col, InputNumber, Card, Descriptions } from 'antd';
-import { DateTime } from 'luxon';
+import dayjs from 'dayjs';
 import { sortArr, showWarn } from '../../../utils/functions';
 import PriceTypeSelector from 'components/PriceTypeSelector';
 import { SearchOutlined } from '@ant-design/icons';
@@ -14,25 +14,34 @@ import { getRules } from '../../../utils/form';
 import type { FormInstance } from 'antd/lib/form';
 import { isMobile } from 'react-device-detect';
 import { useTranslation } from 'react-i18next';
+import "./RenderSummary.css";
 
-export const ExpandedRowRender = (record: InputPriceItem): React.ReactElement => {
+export const ExpandedRowRender: React.FC<{ record: InputPriceItem }> = ({ record }) => {
   const { t } = useTranslation('inputPrice');
   return (
-  <div className="ml-4 bg-light bordered pb-1">
-    <Row>
-      <Col md={4}>
-        {record?.receiveNo && <ListItem label={t('receiptNumber')} info={record.receiveNo} />}
-        {record?.billNoSKC && <ListItem label={t('receiptNumber')} info={record.billNoSKC} />}
-        {record?.branch && <ListItem label={t('branchReceived')} info={record.branch} />}
-        <ListItem label={t('inputDate')} info={DateTime.fromFormat(record.inputDate || '', 'yyyy-MM-dd').toFormat('dd/MM/yyyy')} />
-      </Col>
-      <Col md={4}>
-        {record?.productCode && <ListItem label={t('productCode')} info={record.productCode} />}
-        {record?.vehicleNo && <ListItem label={t('vehicleNumber')} info={record.vehicleNo.join(', ')} />}
-        {record?.peripheralNo && <ListItem label={t('peripheralNumber')} info={Array.isArray(record.peripheralNo) ? record.peripheralNo.join(', ') : record.peripheralNo} />}
-      </Col>
-    </Row>
-  </div>
+    <div className="expanded-row-container" style={{ padding: 16, borderRadius: 8, margin: '8px 0' }}>
+      <Card bordered={false} style={{ boxShadow: '0 2px 8px #f0f1f2', borderRadius: 8 }} bodyStyle={{ padding: 16 }}>
+        <Row gutter={[16, 16]}>
+          <Col xs={24} md={12}>
+            <div style={{ marginBottom: 8, fontWeight: 500, color: '#555' }}>{t('receiptInfo', 'ข้อมูลใบรับสินค้า')}</div>
+            <Descriptions column={1} size="small" bordered={false} layout="vertical">
+              {record?.receiveNo && <Descriptions.Item label={t('receiptNumber')}>{record.receiveNo}</Descriptions.Item>}
+              {record?.billNoSKC && <Descriptions.Item label={t('receiptNumber')}>{record.billNoSKC}</Descriptions.Item>}
+              {record?.branch && <Descriptions.Item label={t('branchReceived')}>{record.branch}</Descriptions.Item>}
+              <Descriptions.Item label={t('inputDate')}>{dayjs(record.inputDate).format('DD/MM/YYYY')}</Descriptions.Item>
+            </Descriptions>
+          </Col>
+          <Col xs={24} md={12}>
+            <div style={{ marginBottom: 8, fontWeight: 500, color: '#555' }}>{t('productInfo', 'ข้อมูลสินค้า')}</div>
+            <Descriptions column={1} size="small" bordered={false} layout="vertical">
+              {record?.productCode && <Descriptions.Item label={t('productCode')}>{record.productCode}</Descriptions.Item>}
+              {record?.vehicleNo && <Descriptions.Item label={t('vehicleNumber')}>{Array.isArray(record.vehicleNo) ? record.vehicleNo.join(', ') : record.vehicleNo}</Descriptions.Item>}
+              {record?.peripheralNo && <Descriptions.Item label={t('peripheralNumber')}>{Array.isArray(record.peripheralNo) ? record.peripheralNo.join(', ') : record.peripheralNo}</Descriptions.Item>}
+            </Descriptions>
+          </Col>
+        </Row>
+      </Card>
+    </div>
   );
 };
 
@@ -167,97 +176,73 @@ export const checkItemsUpdated = (fArr: InputPriceItem[]): boolean => {
   return fArr.every(l => l.total !== null && l.unitPrice !== null);
 };
 
-export const RenderSummary: React.FC<RenderSummaryProps> = ({
+export const RenderSummary: React.FC<RenderSummaryProps & { billDiscount?: number | null; deductDeposit?: number | null }> = ({
   total,
   afterDiscount,
   afterDepositDeduct,
   billVAT,
   billTotal,
   onBillDiscountChange,
-  onDeductDepositChange
+  onDeductDepositChange,
+  billDiscount,
+  deductDeposit
 }) => {
-  const { t } = useTranslation('inputPrice');
-  
+  const { t } = useTranslation("inputPrice");
+
   return (
-      <Descriptions 
-        column={1} 
-        bordered
-        size="small"
-        contentStyle={{ textAlign: 'right', paddingRight: 12 }}
-        labelStyle={{ fontWeight: 'normal', paddingLeft: 12 }}
-        colon={false}
-        className="summary-descriptions"
-      >
-        <Descriptions.Item label={t('total')}>
-          <span style={{ fontWeight: 500, marginRight: 8 }}>
-            {total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+    <Descriptions
+      column={1}
+      bordered
+      size="small"
+      contentStyle={{ textAlign: "right", paddingRight: 12, whiteSpace: "nowrap" }}
+      labelStyle={{ fontWeight: "normal", paddingLeft: 12, whiteSpace: "nowrap" }}
+      colon={false}
+      className="summary-descriptions"
+      layout="horizontal"
+    >
+      <Descriptions.Item label={t("total")}> 
+        <span className="summary-value">{total.toLocaleString(undefined, { minimumFractionDigits: 2 })} {t("unit")}</span>
+      </Descriptions.Item>
+      <Descriptions.Item label={t("discount")}> 
+        <div className="summary-flex">
+          <InputNumber
+            value={isNaN(Number(billDiscount)) ? undefined : billDiscount}
+            placeholder="0"
+            onChange={onBillDiscountChange}
+            className="summary-input"
+            bordered={false}
+            controls={false}
+          />
+          <span className="summary-unit">{t("unit")}</span>
+          <span className="summary-value">
+            {numeral(afterDiscount).format('0,0.00')} {t("unit")}
           </span>
-          <span>{t('unit')}</span>
-        </Descriptions.Item>
-        
-        <Descriptions.Item label={t('discount')}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-            <InputNumber
-              value={isNaN(Number(total - afterDiscount)) ? undefined : (total - afterDiscount)}
-              placeholder="0"
-              onChange={onBillDiscountChange}
-              style={{ 
-                width: 80, 
-                textAlign: 'right', 
-                fontWeight: 600,
-                border: 'none',
-                background: 'transparent'
-              }}
-              bordered={false}
-              controls={false}
-            />
-            <span style={{ marginLeft: 8, fontWeight: 600 }}>{t('unit')}</span>
-            <span style={{ minWidth: 80, marginLeft: 16, fontWeight: 500 }}>
-              {(afterDiscount - total).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            </span>
-            <span style={{ marginLeft: 4 }}>{t('unit')}</span>
-          </div>
-        </Descriptions.Item>
-        
-        <Descriptions.Item label={t('deposit')}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-            <InputNumber
-              value={isNaN(Number(afterDepositDeduct - afterDiscount)) ? undefined : Math.abs(afterDepositDeduct - afterDiscount)}
-              placeholder="0"
-              onChange={value => onDeductDepositChange(Number(value) || 0)}
-              style={{ 
-                width: 80, 
-                textAlign: 'right', 
-                fontWeight: 600,
-                border: 'none',
-                background: 'transparent' 
-              }}
-              bordered={false}
-              controls={false}
-            />
-            <span style={{ marginLeft: 8, fontWeight: 600 }}>{t('unit')}</span>
-            <span style={{ minWidth: 80, marginLeft: 16, fontWeight: 500 }}>
-              {(afterDepositDeduct - afterDiscount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-            </span>
-            <span style={{ marginLeft: 4 }}>{t('unit')}</span>
-          </div>
-        </Descriptions.Item>
-        
-        <Descriptions.Item label={t('vat', 'ภาษีมูลค่าเพิ่ม 7%')}>
-          <span style={{ fontWeight: 500, marginRight: 8 }}>
-            {billVAT.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+        </div>
+      </Descriptions.Item>
+      <Descriptions.Item label={t("deposit")}> 
+        <div className="summary-flex">
+          <InputNumber
+            value={isNaN(Number(deductDeposit)) ? undefined : deductDeposit}
+            placeholder="0"
+            onChange={value => onDeductDepositChange(Number(value) || 0)}
+            className="summary-input"
+            bordered={false}
+            controls={false}
+          />
+          <span className="summary-unit">{t("unit")}</span>
+          <span className="summary-value">
+            {numeral(afterDepositDeduct).format('0,0.00')} {t("unit")}
           </span>
-          <span>{t('unit')}</span>
-        </Descriptions.Item>
-        
-        <Descriptions.Item 
-          label={<span style={{ fontWeight: 600 }}>{t('grandTotal')}</span>}
-        >
-          <span style={{ fontWeight: 700, marginRight: 8 }}>
-            {billTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-          </span>
-          <span style={{ fontWeight: 600 }}>{t('unit')}</span>
-        </Descriptions.Item>
-      </Descriptions>
+        </div>
+      </Descriptions.Item>
+      <Descriptions.Item label={t("vat", "ภาษีมูลค่าเพิ่ม 7%")}> 
+        <span className="summary-value">{billVAT.toLocaleString(undefined, { minimumFractionDigits: 2 })} {t("unit")}</span>
+      </Descriptions.Item>
+      <Descriptions.Item label={<span style={{ fontWeight: 600 }}>{t("grandTotal")}</span>}> 
+        <span className="summary-value summary-grand">
+          {billTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })} {t("unit")}
+        </span>
+      </Descriptions.Item>
+    </Descriptions>
   );
 }; 

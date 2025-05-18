@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
-import { DateTime } from 'luxon';
+import dayjs, { Dayjs } from 'dayjs';
 import { FinancialDataPoint, AccountOverviewData } from '../types';
 import { useAuth } from '../../../hooks/useAuth';
 import { firestore } from '../../../services/firebase';
 
-export const useFinancialData = (range: [DateTime, DateTime]) => {
+export const useFinancialData = (range: [Dayjs, Dayjs]) => {
   const [data, setData] = useState<AccountOverviewData>({
     data: [],
     totalIncome: 0,
@@ -35,8 +35,8 @@ export const useFinancialData = (range: [DateTime, DateTime]) => {
         const incomeQuery = query(
           collection(firestore, 'sections/account/incomes'),
           provinceWhere,
-          where('date', '>=', startDate.toJSDate()),
-          where('date', '<=', endDate.toJSDate()),
+          where('date', '>=', startDate.toDate()),
+          where('date', '<=', endDate.toDate()),
           orderBy('date', 'asc')
         );
 
@@ -44,8 +44,8 @@ export const useFinancialData = (range: [DateTime, DateTime]) => {
         const expenseQuery = query(
           collection(firestore, 'sections/account/expenses'),
           provinceWhere,
-          where('date', '>=', startDate.toJSDate()),
-          where('date', '<=', endDate.toJSDate()),
+          where('date', '>=', startDate.toDate()),
+          where('date', '<=', endDate.toDate()),
           orderBy('date', 'asc')
         );
 
@@ -55,36 +55,36 @@ export const useFinancialData = (range: [DateTime, DateTime]) => {
         ]);
 
         const incomeData = incomeSnapshot.docs.map(doc => ({
-          date: DateTime.fromJSDate(doc.data().date.toDate()),
+          date: dayjs(doc.data().date.toDate()),
           amount: doc.data().amount
         }));
 
         const expenseData = expenseSnapshot.docs.map(doc => ({
-          date: DateTime.fromJSDate(doc.data().date.toDate()),
+          date: dayjs(doc.data().date.toDate()),
           amount: doc.data().amount
         }));
 
         // Combine and process data
         const combinedData: FinancialDataPoint[] = [];
-        let currentDate = startDate;
+        let currentDate = startDate.clone();
 
-        while (currentDate <= endDate) {
+        while (currentDate.isSame(endDate) || currentDate.isBefore(endDate)) {
           const dayIncome = incomeData
-            .filter(item => item.date.hasSame(currentDate, 'day'))
+            .filter(item => item.date.isSame(currentDate, 'day'))
             .reduce((sum, item) => sum + item.amount, 0);
 
           const dayExpense = expenseData
-            .filter(item => item.date.hasSame(currentDate, 'day'))
+            .filter(item => item.date.isSame(currentDate, 'day'))
             .reduce((sum, item) => sum + item.amount, 0);
 
           combinedData.push({
-            date: currentDate,
+            date: currentDate.clone(),
             income: dayIncome,
             expense: dayExpense,
             balance: dayIncome - dayExpense
           });
 
-          currentDate = currentDate.plus({ days: 1 });
+          currentDate = currentDate.add(1, 'day');
         }
 
         const totalIncome = incomeData.reduce((sum, item) => sum + item.amount, 0);
