@@ -108,7 +108,8 @@ export const getDocById = async <T extends FirestoreDocument>(
   id: string
 ): Promise<T | null> => {
   try {
-    const docRef = doc(firestore, collectionPath, id);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const docRef = doc(firestore, ...segments, id);
     const snapshot = await getDoc(docRef);
 
     if (!snapshot.exists()) {
@@ -136,16 +137,14 @@ export const createDocument = async <T extends Omit<FirestoreDocument, 'id'>>(
   customId?: string
 ): Promise<string> => {
   try {
-    // Create a reference with optional custom ID or auto-generated ID
-    const docRef = customId ? doc(firestore, collectionPath, customId) : doc(collection(firestore, collectionPath));
-
-    // Add timestamps
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const colRef = collection(firestore, ...segments);
+    const docRef = customId ? doc(firestore, ...segments, customId) : doc(colRef);
     const docData = {
       ...data,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
-
     await setDoc(docRef, docData);
     return docRef.id;
   } catch (error) {
@@ -168,15 +167,13 @@ export const updateDocument = async <T extends Partial<FirestoreDocument>>(
   data: T
 ): Promise<void> => {
   try {
-    const docRef = doc(firestore, collectionPath, id);
-
-    // Add updatedAt timestamp and ensure no id field is included
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const docRef = doc(firestore, ...segments, id);
     const { id: _, ...updateData } = data;
     const timestampedData = {
       ...updateData,
       updatedAt: serverTimestamp()
     };
-
     await updateDoc(docRef, timestampedData);
   } catch (error) {
     console.error(`Error updating document ${id} in ${collectionPath}:`, error);
@@ -193,7 +190,8 @@ export const updateDocument = async <T extends Partial<FirestoreDocument>>(
  */
 export const deleteDocument = async (collectionPath: string, id: string): Promise<void> => {
   try {
-    const docRef = doc(firestore, collectionPath, id);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const docRef = doc(firestore, ...segments, id);
     await deleteDoc(docRef);
   } catch (error) {
     console.error(`Error deleting document ${id} from ${collectionPath}:`, error);
@@ -226,45 +224,28 @@ export const getPaginatedDocuments = async <T extends FirestoreDocument>(
       limitCount = 20,
       startAfterDoc = null
     } = options;
-
-    // Build the query
-    const q = collection(firestore, collectionPath);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const q = collection(firestore, ...segments);
     let queryObj = query(q);
-
-    // Add where conditions
     whereConditions.forEach(([field, operator, value]) => {
       queryObj = query(queryObj, where(field, operator, value));
     });
-
-    // Add ordering
     queryObj = query(queryObj, orderBy(orderByField, orderDirection));
-
-    // Add pagination
-    queryObj = query(queryObj, limit(limitCount + 1)); // +1 to check if there are more results
-
+    queryObj = query(queryObj, limit(limitCount + 1));
     if (startAfterDoc) {
       queryObj = query(queryObj, startAfter(startAfterDoc));
     }
-
     const querySnapshot = await getDocs(queryObj);
-
-    // Process results
     const items: T[] = [];
     let lastVisible: DocumentSnapshot | null = null;
-
-    // Fix the forEach callback to include proper types
     querySnapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
       const index = items.length;
-      // Only add documents up to the limit
       if (index < limitCount) {
         items.push(convertDoc<T>(doc));
         lastVisible = doc;
       }
     });
-
-    // Check if there are more results
     const hasMore = querySnapshot.size > limitCount;
-
     return {
       items,
       lastDoc: lastVisible,
@@ -298,7 +279,8 @@ export const batchOperation = async (
     const batch = writeBatch(firestore);
 
     operations.forEach(({ type, collectionPath, id, data }) => {
-      const docRef = doc(firestore, collectionPath, id);
+      const segments = collectionPath.split('/') as [string, ...string[]];
+      const docRef = doc(firestore, ...segments, id);
 
       switch (type) {
         case 'create':
@@ -340,7 +322,8 @@ export const subscribeToDocument = <T extends FirestoreDocument>(
   id: string,
   callback: (doc: T | null) => void
 ): (() => void) => {
-  const docRef = doc(firestore, collectionPath, id);
+  const segments = collectionPath.split('/') as [string, ...string[]];
+  const docRef = doc(firestore, ...segments, id);
 
   return onSnapshot(
     docRef,
@@ -377,20 +360,16 @@ export const subscribeToQuery = <T extends FirestoreDocument>(
   } = {}
 ): (() => void) => {
   const { whereConditions = [], orderByField = 'createdAt', orderDirection = 'desc', limitCount = 20 } = options;
-
-  // Build the query
-  const q = collection(firestore, collectionPath);
+  const segments = collectionPath.split('/') as [string, ...string[]];
+  const q = collection(firestore, ...segments);
   let queryObj = query(q);
 
-  // Add where conditions
   whereConditions.forEach(([field, operator, value]) => {
     queryObj = query(queryObj, where(field, operator, value));
   });
 
-  // Add ordering
   queryObj = query(queryObj, orderBy(orderByField, orderDirection));
 
-  // Add limit
   queryObj = query(queryObj, limit(limitCount));
 
   return onSnapshot(
@@ -422,7 +401,8 @@ export const incrementField = async (
   value = 1
 ): Promise<void> => {
   try {
-    const docRef = doc(firestore, collectionPath, id);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const docRef = doc(firestore, ...segments, id);
 
     await updateDoc(docRef, {
       [field]: increment(value),
@@ -476,7 +456,8 @@ export const addErrorLogs = (error: any): void => {
  */
 export const documentExists = async (collectionPath: string, id: string): Promise<boolean> => {
   try {
-    const docRef = doc(firestore, collectionPath, id);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const docRef = doc(firestore, ...segments, id);
     const snapshot = await getDoc(docRef);
     return snapshot.exists();
   } catch (error) {
@@ -519,7 +500,8 @@ export const upsertDocument = async <T extends Omit<FirestoreDocument, 'id'>>(
   data: T
 ): Promise<string> => {
   try {
-    const docRef = doc(firestore, collectionPath, id);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const docRef = doc(firestore, ...segments, id);
     const exists = await documentExists(collectionPath, id);
 
     const docData = {
@@ -546,7 +528,8 @@ export const softDeleteDocument = async (
   id: string
 ): Promise<void> => {
   try {
-    const docRef = doc(firestore, collectionPath, id);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const docRef = doc(firestore, ...segments, id);
     await updateDoc(docRef, {
       deleted: true,
       deletedAt: serverTimestamp(),
@@ -569,7 +552,8 @@ export const restoreDocument = async (
   id: string
 ): Promise<void> => {
   try {
-    const docRef = doc(firestore, collectionPath, id);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const docRef = doc(firestore, ...segments, id);
     await updateDoc(docRef, {
       deleted: false,
       deletedAt: null,
@@ -594,8 +578,9 @@ export const getDocumentsWithArrayContains = async <T extends FirestoreDocument>
   value: any
 ): Promise<T[]> => {
   try {
+    const segments = collectionPath.split('/') as [string, ...string[]];
     const q = query(
-      collection(firestore, collectionPath),
+      collection(firestore, ...segments),
       where(field, 'array-contains', value)
     );
     const querySnapshot = await getDocs(q);
@@ -621,7 +606,8 @@ export const addToArray = async (
   value: any
 ): Promise<void> => {
   try {
-    const docRef = doc(firestore, collectionPath, id);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const docRef = doc(firestore, ...segments, id);
     await updateDoc(docRef, {
       [field]: arrayUnion(value),
       updatedAt: serverTimestamp()
@@ -647,7 +633,8 @@ export const removeFromArray = async (
   value: any
 ): Promise<void> => {
   try {
-    const docRef = doc(firestore, collectionPath, id);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const docRef = doc(firestore, ...segments, id);
     await updateDoc(docRef, {
       [field]: arrayRemove(value),
       updatedAt: serverTimestamp()
@@ -680,20 +667,18 @@ export const getDocumentsWithCompoundQuery = async <T extends FirestoreDocument>
 ): Promise<T[]> => {
   try {
     const { orderByField, orderDirection = 'desc', limitCount } = options;
-    const collectionRef = collection(firestore, collectionPath);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const collectionRef = collection(firestore, ...segments);
     let queryRef: Query<DocumentData> = collectionRef;
 
-    // Add where conditions
     conditions.forEach(({ field, operator, value }) => {
       queryRef = query(queryRef, where(field, operator, value));
     });
 
-    // Add ordering if specified
     if (orderByField) {
       queryRef = query(queryRef, orderBy(orderByField, orderDirection));
     }
 
-    // Add limit if specified
     if (limitCount) {
       queryRef = query(queryRef, limit(limitCount));
     }
@@ -721,10 +706,10 @@ export const getDocumentCount = async (
   }> = []
 ): Promise<number> => {
   try {
-    const collectionRef = collection(firestore, collectionPath);
+    const segments = collectionPath.split('/') as [string, ...string[]];
+    const collectionRef = collection(firestore, ...segments);
     let queryRef: Query<DocumentData> = collectionRef;
 
-    // Add where conditions
     conditions.forEach(({ field, operator, value }) => {
       queryRef = query(queryRef, where(field, operator, value));
     });

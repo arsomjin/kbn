@@ -4,16 +4,14 @@ import { sortArr, isTimeTypeField, arrayForEach, parser, showToBeContinue } from
 import { isMobile } from 'react-device-detect';
 import { w } from 'api';
 import { DateTime } from 'luxon';
-// @ts-ignore
 import { uniq } from 'lodash-es';
 import { distinctArr } from 'utils/functions';
 import { removeAllNonAlphaNumericCharacters } from './RegEx';
-// @ts-ignore
 import { VehicleNameKeywords } from 'data/Constant';
-// @ts-ignore
 import getSidebarNavItems from 'data/sidebar-nav-items';
-import { getFirestore, collection, getDocs, doc, query, where, getDoc } from 'firebase/firestore';
+import { getFirestore, collection, getDocs, doc, query, where, getDoc, WhereFilterOp, orderBy, startAt, endAt, limit } from 'firebase/firestore';
 import { app } from 'services/firebase';
+import _ from 'lodash';
 
 // Helper function to get firestore instance
 const getDb = () => getFirestore(app);
@@ -27,8 +25,7 @@ const checkCollection = async (collectionPath: string, wheres?: [string, string,
     
     if (wheres && wheres.length) {
       wheres.forEach(([field, op, value]) => {
-        // @ts-ignore - TypeScript doesn't easily handle dynamic operators
-        q = query(q, where(field, op, value));
+        q = query(q, where(field, op as WhereFilterOp, value));
       });
     }
     
@@ -62,10 +59,6 @@ const getCollection = async (collectionPath: string, wheres?: [string, string, a
   });
   return result;
 };
-
-// @ts-ignore
-const _ = require('lodash');
-
 
 export const tagColors = ['blue', 'gold', 'cyan', 'red', 'green'];
 
@@ -118,14 +111,14 @@ export const getEditArr = (editData: any[], users: Record<string, any>) => {
   const changeArr = sortArr(editData, '-time');
 
   return changeArr.map(item => {
-    let changes: Record<string, any>[] = [];
+    const changes: Record<string, any>[] = [];
     // Support both new (array) and old (object) data structure
     if (Array.isArray(item.changes)) {
-      changes = item.changes;
+      changes.push(...item.changes);
     } else if (typeof item.changes === 'object') {
-      changes = Object.keys(item.changes).map(key => ({
-        [key]: item.changes[key]
-      }));
+      Object.keys(item.changes).forEach(key => {
+        changes.push({ [key]: item.changes[key] });
+      });
     }
 
     // Format change details into readable components
@@ -206,7 +199,7 @@ interface FetchFirestoreKeywordsProps {
   limit?: number;
 }
 
-export const fetchFirestoreKeywords = ({
+export const fetchFirestoreKeywords = async ({
   searchText,
   searchCollection,
   orderBy,
@@ -215,45 +208,36 @@ export const fetchFirestoreKeywords = ({
   startSearchAt,
   labels,
   limit = 30
-}: FetchFirestoreKeywordsProps) =>
-  new Promise<any[]>(async (r, j) => {
-    try {
-      if (!searchText || searchText?.length < (startSearchAt || 3)) {
-        // Search after 3 characters
-        r([]);
-        return;
-      }
-      let searchRef = firestore;
-      searchCollection.split('/').map((txt: string, n: number) => {
-        if (n % 2 === 0) {
-          searchRef = searchRef.collection(txt);
-        } else {
-          searchRef = searchRef.doc(txt);
-        }
-        return txt;
-      });
-      if (wheres) {
-        wheres.map((wh: [string, string, any]) => {
-          searchRef = searchRef.where(wh[0], wh[1], wh[2]);
-          return wh;
-        });
-      }
-      let dataArr: any[] = [];
-      let fields = Array.isArray(orderBy) ? orderBy : [orderBy];
-      if (labels) {
-        fields = fields.concat(labels);
-        fields = uniq(fields);
-      }
-
-      // search from keywords field.
-      dataArr = await fetchSearchsKeywords(searchText, searchRef, fields, limit);
-      // @ts-ignore
-      dataArr = distinctArr(dataArr, [Array.isArray(orderBy) ? orderBy[0] : orderBy]);
-      r(dataArr);
-    } catch (e) {
-      j(e);
+}: FetchFirestoreKeywordsProps) => {
+  if (!searchText || searchText.length < (startSearchAt || 3)) {
+    return [];
+  }
+  const segments = searchCollection.split('/') as [string, ...string[]];
+  const colRef = collection(firestore, ...segments);
+  let whereClauses: ReturnType<typeof where>[] = [];
+  if (wheres && wheres.length) {
+    whereClauses = wheres.map(([field, op, value]) => where(field, op as WhereFilterOp, value));
+  }
+  let q: any = colRef;
+  if (whereClauses.length > 0) {
+    q = query(colRef, ...whereClauses);
+  }
+  const snap = await getDocs(q);
+  let dataArr: any[] = [];
+  snap.forEach(doc => {
+    const docData = doc.data();
+    if (docData) {
+      dataArr.push({ _id: doc.id, ...docData });
     }
   });
+  let fields = Array.isArray(orderBy) ? orderBy : [orderBy];
+  if (labels) {
+    fields = fields.concat(labels);
+    fields = uniq(fields);
+  }
+  dataArr = distinctArr(dataArr, [Array.isArray(orderBy) ? orderBy[0] : orderBy], []);
+  return dataArr;
+};
 
 export const partialText = (str: string): string => {
   const parts = str.split(' ');
@@ -265,68 +249,86 @@ export const partialText = (str: string): string => {
   }
 };
 
-export const fetchSearchsEachField = (searchText: string, orderBy: string, searchRef: any, fields: string[]) =>
-  new Promise<any[]>(async (r, j) => {
-    const limit = 30;
-    try {
-      const lowerArr: any[] = [];
-      const sTxt = searchText.toLowerCase();
-      const lowerSnap = await searchRef
-        .orderBy(`${orderBy}_lower`)
-        .startAt(sTxt)
-        .endAt(sTxt + '\uf8ff')
-        .limit(limit)
-        .get();
-        
-      if (!lowerSnap.empty) {
-        lowerSnap.forEach((doc: any) => {
-          let item: Record<string, any> = { _id: doc.id };
-          fields.map((l: string) => {
-            item = { ...item, [l]: doc.data()[l] };
-            return l;
-          });
-          lowerArr.push(item);
-        });
-      }
-      r(lowerArr);
-    } catch (e) {
-      j(e);
-    }
-  });
+export const fetchSearchsEachField = async (
+  searchText: string,
+  orderByField: string,
+  searchCollection: string,
+  firestore: any,
+  fields: string[]
+): Promise<any[]> => {
+  const limitValue = 30;
+  try {
+    const segments = searchCollection.split("/") as [string, ...string[]];
+    const colRef = collection(firestore, ...segments);
+    const sTxt = searchText.toLowerCase();
 
-export const fetchSearchsKeywords = (searchText: any, searchRef: any, fields: string[], limit: number) =>
-  new Promise<any[]>(async (r, j) => {
-    if (!(!!searchText && !!searchRef)) {
-      return r([]);
+    const q = query(
+      colRef,
+      orderBy(`${orderByField}_lower`),
+      startAt(sTxt),
+      endAt(sTxt + "\uf8ff"),
+      limit(limitValue)
+    );
+
+    const snap = await getDocs(q);
+    const lowerArr: any[] = [];
+    snap.forEach((doc) => {
+      let item: Record<string, any> = { _id: doc.id };
+      fields.forEach((l: string) => {
+        item = { ...item, [l]: doc.data()[l] };
+      });
+      lowerArr.push(item);
+    });
+    return lowerArr;
+  } catch (e) {
+    return [];
+  }
+};
+
+export const fetchSearchsKeywords = async (
+  searchText: any,
+  searchCollection: string,
+  firestore: any,
+  fields: string[],
+  limitValue: number
+): Promise<any[]> => {
+  if (!searchText || !searchCollection) {
+    return [];
+  }
+  try {
+    const segments = searchCollection.split("/") as [string, ...string[]];
+    const colRef = collection(firestore, ...segments);
+    let sTxt = '';
+    
+    if (Array.isArray(searchText)) {
+      sTxt = searchText.length > 0 ? searchText[searchText.length - 1].toLowerCase() : '';
+    } else {
+      sTxt = searchText.toLowerCase();
     }
-    try {
-      const arr: any[] = [];
-      let sTxt = '';
-      if (Array.isArray(searchText)) {
-        sTxt = searchText.length > 0 ? searchText[searchText.length - 1].toLowerCase() : '';
-      } else {
-        sTxt = searchText.toLowerCase();
-      }
-      const snapshot = await searchRef
-        .where('keywords', 'array-contains', sTxt.toLowerCase())
-        .limit(limit)
-        .get();
-        
-      if (!snapshot.empty) {
-        snapshot.forEach((doc: any) => {
-          let item: Record<string, any> = { _id: doc.id };
-          fields.map((l: string) => {
-            item = { ...item, [l]: doc.data()[l] };
-            return l;
-          });
-          arr.push(item);
+
+    const q = query(
+      colRef,
+      where('keywords', 'array-contains', sTxt.toLowerCase()),
+      limit(limitValue)
+    );
+
+    const snapshot = await getDocs(q);
+    const arr: any[] = [];
+    
+    if (!snapshot.empty) {
+      snapshot.forEach((doc) => {
+        let item: Record<string, any> = { _id: doc.id };
+        fields.forEach((l: string) => {
+          item = { ...item, [l]: doc.data()[l] };
         });
-      }
-      r(arr);
-    } catch (e) {
-      j(e);
+        arr.push(item);
+      });
     }
-  });
+    return arr;
+  } catch (e) {
+    return [];
+  }
+};
 
 export const addSearchFields = (values: Record<string, any> | undefined, fields: string[]) => {
   if (!values || !(fields && Array.isArray(fields))) {
@@ -734,12 +736,12 @@ export const createOptionsFromFirestore = ({
 
       if (Array.isArray(orderBy)) {
         await arrayForEach(orderBy, async (field: string) => {
-          const arr = await fetchSearchsEachField(searchText, field, searchRef, fields);
+          const arr = await fetchSearchsEachField(searchText, field, searchCollection, firestore, fields);
           dataArr = dataArr.concat(arr);
         });
         dataArr = distinctArr(dataArr, [orderBy[0]], []);
       } else {
-        dataArr = await fetchSearchsEachField(searchText, orderBy, searchRef, fields);
+        dataArr = await fetchSearchsEachField(searchText, orderBy, searchCollection, firestore, fields);
       }
 
       const option = dataArr.map(item => {

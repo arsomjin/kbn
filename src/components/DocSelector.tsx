@@ -127,11 +127,12 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
       }
     };
 
-    const handleChange = (val: string | string[]) => {
-      if (Array.isArray(val) ? val[val.length - 1] === 'addNew' : val === 'addNew') {
-        return showAddNew?.();
+    const handleChange = (value: { key?: string; label: React.ReactNode; value: string | number } | { key?: string; label: React.ReactNode; value: string | number }[]) => {
+      if (Array.isArray(value)) {
+        onChange?.(value.map(v => v.value as string));
+      } else {
+        onChange?.(value.value as string);
       }
-      onChange?.(val);
     };
 
     const _fetchSearchList = async (search: string): Promise<Option[]> => {
@@ -209,9 +210,8 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
 
     return (
       <DebounceSelect
-        ref={selectRef}
+        showSearch
         mode={mode}
-        hasAll={hasAll}
         value={controlledValue}
         placeholder={placeholder || 'พิมพ์เพื่อค้นหา...'}
         fetchOptions={_fetchSearchList}

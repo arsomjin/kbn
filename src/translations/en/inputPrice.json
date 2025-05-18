@@ -1,10 +1,11 @@
 {
   "title": "Input Price",
-  "subtitle": "Account",
+  "subtitle": "Vehicles and Equipment",
   "pleaseEnterPrice": "Please enter product price",
   "save": "Save",
   "saveSuccess": "Data saved successfully",
   "searchByReceipt": "Search by Receipt No.",
+  "searchByReceiptNumber": "Search by Receipt No.",
   "taxInvoiceNo": "Tax Invoice No.",
   "taxInvoiceDate": "Tax Invoice Date",
   "priceType": "Price Type",
@@ -18,5 +19,23 @@
   "grandTotal": "Grand Total",
   "unit": "THB",
   "days": "days",
-  "enterNumber": "Please enter a number"
+  "enterNumber": "Please enter a number",
+  "inputPrice": {
+    "step": {
+      "record": "Record",
+      "review": "Review",
+      "approve": "Approve"
+    }
+  },
+  "receiptNumber": "Receipt No.",
+  "inputDate": "Input Date",
+  "productCode": "Product Code",
+  "vehicleNumber": "Vehicle No.",
+  "peripheralNumber": "Peripheral No.",
+  "branchReceived": "Branch Received",
+  "order": "No.",
+  "productName": "Product Name",
+  "warehouse": "Warehouse",
+  "quantity": "Quantity",
+  "unitPrice": "Price / Unit"
 } 

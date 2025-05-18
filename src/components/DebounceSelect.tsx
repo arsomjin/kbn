@@ -1,101 +1,55 @@
-import React, { forwardRef, useRef, useImperativeHandle, useEffect } from "react";
-import { Select, Spin } from "antd";
-import type { SelectProps, RefSelectProps } from "antd/es/select";
-// @ts-ignore
-import debounce from "lodash/debounce";
+import React, { useState, useRef, useEffect } from 'react';
+import { Select, Spin } from 'antd';
+import type { SelectProps } from 'antd/es/select';
+import debounce from 'lodash/debounce';
 
-export interface OptionType {
-  label: string;
-  value: string;
-  [key: string]: any;
-}
-
-export interface DebounceSelectProps extends Omit<SelectProps<any>, "options" | "onSearch"> {
-  value?: any;
-  fetchOptions: (value: string) => Promise<OptionType[]>;
+export interface DebounceSelectProps<ValueType = any>
+  extends Omit<SelectProps<ValueType>, 'options' | 'children'> {
+  fetchOptions: (search: string) => Promise<ValueType[]>;
   debounceTimeout?: number;
-  mode?: "multiple" | "tags";
-  hasAll?: boolean;
 }
 
-const DebounceSelect = forwardRef<RefSelectProps, DebounceSelectProps>(
-  (
-    { value, fetchOptions, debounceTimeout = 800, mode, hasAll, ...props },
-    ref
-  ) => {
-    const [fetching, setFetching] = React.useState(false);
-    const [options, setOptions] = React.useState<OptionType[]>([]);
-    const selectRef = useRef<RefSelectProps>(null);
-    const isMounted = useRef(true);
+function DebounceSelect<
+  ValueType extends { key?: string; label: React.ReactNode; value: string | number } = any
+>({ fetchOptions, debounceTimeout = 800, ...props }: DebounceSelectProps<ValueType>) {
+  const [fetching, setFetching] = useState(false);
+  const [options, setOptions] = useState<ValueType[]>([]);
+  const fetchRef = useRef(0);
 
-    useEffect(() => {
-      return () => {
-        isMounted.current = false;
-      };
-    }, []);
+  const debounceFetcher = React.useMemo(() => {
+    const loadOptions = (value: string) => {
+      fetchRef.current += 1;
+      const fetchId = fetchRef.current;
+      setOptions([]);
+      setFetching(true);
 
-    useImperativeHandle(ref, () => ({
-      focus: () => {
-        selectRef.current?.focus();
-      },
-      blur: () => {
-        selectRef.current?.blur();
-      },
-      scrollTo: (...args: any[]) => {
-        // @ts-ignore
-        selectRef.current?.scrollTo?.(...args);
-      },
-      get nativeElement() {
-        // @ts-ignore
-        return selectRef.current?.nativeElement ?? document.createElement('div');
-      }
-    }), []);
+      fetchOptions(value).then(newOptions => {
+        if (fetchId !== fetchRef.current) {
+          // for fetch callback order
+          return;
+        }
 
-    useEffect(() => {
-      if (value) debounceFetcher(value);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [value]);
+        setOptions(newOptions);
+        setFetching(false);
+      });
+    };
 
-    const debounceFetcher = React.useMemo(() => {
-      return debounce((search: string) => {
-        if (!isMounted.current) return;
-        setOptions([]);
-        setFetching(true);
-        fetchOptions(search).then(newOptions => {
-          if (!isMounted.current) return;
-          if (!newOptions) {
-            setFetching(false);
-            return;
-          }
-          setOptions(hasAll ? [{ label: "ทั้งหมด", value: "all" }, ...newOptions] : newOptions);
-          setFetching(false);
-        });
-      }, debounceTimeout);
-    }, [debounceTimeout, fetchOptions, hasAll]);
+    return debounce(loadOptions, debounceTimeout);
+  }, [fetchOptions, debounceTimeout]);
 
-    useEffect(() => {
-      return () => {
-        debounceFetcher.cancel();
-      };
-    }, [debounceFetcher]);
-
-    return (
-      <Select
-        ref={selectRef}
-        showSearch
-        mode={mode}
-        filterOption={false}
-        onSearch={debounceFetcher}
-        notFoundContent={fetching ? <Spin size="small" /> : null}
-        options={options}
-        disabled={props?.disabled}
-        value={value || undefined}
-        {...props}
-      />
-    );
-  }
-);
-
-DebounceSelect.displayName = "DebounceSelect";
+  return (
+    <Select<ValueType>
+      showSearch
+      mode={props.mode || undefined}
+      labelInValue
+      filterOption={false}
+      onSearch={debounceFetcher}
+      notFoundContent={fetching ? <Spin size="small" /> : null}
+      {...props}
+      options={options}
+      value={props.value as ValueType}
+    />
+  );
+}
 
 export default DebounceSelect; 

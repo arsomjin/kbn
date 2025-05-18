@@ -1150,7 +1150,7 @@ export const GetColumns = (props: GetColumnsProps): TableColumnConfig<any>[] => 
     const deleteCol = {
       title: 'ลบ',
       dataIndex: 'operation',
-      align: 'center' as 'center',
+      align: 'center' as const,
       width: 80,
       render: (_: any, record: any) => {
         const alreadyGone = record?.deleted || record?.rejected || record?.completed;
@@ -1187,7 +1187,7 @@ export const GetColumns = (props: GetColumnsProps): TableColumnConfig<any>[] => 
     mColumns.push({
       title: '→',
       dataIndex: 'selectRecord',
-      align: 'center' as 'center',
+      align: 'center' as const,
       render: (_: any, record: any) => (
         <Button
           type="link"
@@ -1206,7 +1206,7 @@ export const GetColumns = (props: GetColumnsProps): TableColumnConfig<any>[] => 
     const editCol = {
       title: '🖊',
       dataIndex: 'editRecord',
-      align: 'center' as 'center',
+      align: 'center' as const,
       render: (_: any, record: any) => (
         <Button
           type="link"

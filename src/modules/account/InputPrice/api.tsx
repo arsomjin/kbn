@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Form, Input, Row, Col, InputNumber } from 'antd';
+import { Form, Input, Row, Col, InputNumber, Card, Descriptions } from 'antd';
 import { DateTime } from 'luxon';
 import { sortArr, showWarn } from '../../../utils/functions';
-import PriceTypeSelector from '../../../components/PriceTypeSelector';
+import PriceTypeSelector from 'components/PriceTypeSelector';
 import { SearchOutlined } from '@ant-design/icons';
 import numeral from 'numeral';
 import DocSelector from '../../../components/DocSelector';
@@ -12,24 +12,29 @@ import { collection, doc, getDocs, query, where } from 'firebase/firestore';
 import type { Firestore } from 'firebase/firestore';
 import { getRules } from '../../../utils/form';
 import type { FormInstance } from 'antd/lib/form';
+import { isMobile } from 'react-device-detect';
+import { useTranslation } from 'react-i18next';
 
-export const expandedRowRender = (record: InputPriceItem): React.ReactElement => (
+export const ExpandedRowRender = (record: InputPriceItem): React.ReactElement => {
+  const { t } = useTranslation('inputPrice');
+  return (
   <div className="ml-4 bg-light bordered pb-1">
     <Row>
       <Col md={4}>
-        {record?.receiveNo && <ListItem label="เลขที่ใบรับสินค้า" info={record.receiveNo} />}
-        {record?.billNoSKC && <ListItem label="เลขที่ใบรับสินค้า" info={record.billNoSKC} />}
-        {record?.branch && <ListItem label="สาขาที่รับสินค้า" info={record.branch} />}
-        <ListItem label="วันที่คีย์" info={DateTime.fromFormat(record.inputDate || '', 'yyyy-MM-dd').toFormat('dd/MM/yyyy')} />
+        {record?.receiveNo && <ListItem label={t('receiptNumber')} info={record.receiveNo} />}
+        {record?.billNoSKC && <ListItem label={t('receiptNumber')} info={record.billNoSKC} />}
+        {record?.branch && <ListItem label={t('branchReceived')} info={record.branch} />}
+        <ListItem label={t('inputDate')} info={DateTime.fromFormat(record.inputDate || '', 'yyyy-MM-dd').toFormat('dd/MM/yyyy')} />
       </Col>
       <Col md={4}>
-        {record?.productCode && <ListItem label="รหัสสินค้า" info={record.productCode} />}
-        {record?.vehicleNo && <ListItem label="เลขรถ" info={record.vehicleNo.join(', ')} />}
-        {record?.peripheralNo && <ListItem label="เลขอุปกรณ์ต่อพ่วง" info={Array.isArray(record.peripheralNo) ? record.peripheralNo.join(', ') : record.peripheralNo} />}
+        {record?.productCode && <ListItem label={t('productCode')} info={record.productCode} />}
+        {record?.vehicleNo && <ListItem label={t('vehicleNumber')} info={record.vehicleNo.join(', ')} />}
+        {record?.peripheralNo && <ListItem label={t('peripheralNumber')} info={Array.isArray(record.peripheralNo) ? record.peripheralNo.join(', ') : record.peripheralNo} />}
       </Col>
     </Row>
   </div>
-);
+  );
+};
 
 export const initialValues: InputPriceFormValues = {
   billNoSKC: null,
@@ -52,63 +57,56 @@ interface RenderHeaderProps {
 }
 
 export const renderHeader = ({ form, onPriceTypeChange }: RenderHeaderProps): React.ReactElement => (
-  <div className="border-bottom bg-white px-3 pt-3">
-    <Row>
-      <Col md={4} className="form-group">
+  <div className="header-form-block" style={{ borderRadius: 8, padding: '24px 24px 0 24px', marginBottom: 0 }}>
+    <Row gutter={24} align="middle" style={{ marginBottom: 0 }}>
+      <Col span={10} style={{ minWidth: 320 }}>
         <Form.Item
           name="billNoSKC"
-          label={
-            <label>
-              <SearchOutlined className="text-primary" /> ค้นหาจาก เลขที่ใบรับสินค้า
-            </label>
-          }
+          label={<span><SearchOutlined /> ค้นหาจาก เลขที่ใบรับสินค้า</span>}
         >
           <DocSelector
             collection="sections/stocks/importVehicles"
             orderBy={['billNoSKC']}
-            wheres={[
-              ['warehouseChecked', '!=', null],
-              ['total', '==', null]
-            ]}
+            wheres={[["warehouseChecked", "!=", null], ["total", "==", null]]}
             size="small"
-            dropdownStyle={{ minWidth: 420 }}
+            dropdownStyle={{ minWidth: isMobile ? 420 : 600 }}
             hasKeywords
             placeholder="เลขที่ใบรับสินค้า"
           />
         </Form.Item>
       </Col>
     </Row>
-    <Row>
-      <Col md={4}>
+    <Row gutter={24} style={{ marginBottom: 0 }}>
+      <Col span={6} style={{ minWidth: 220 }}>
         <Form.Item
           name="taxInvoiceNo"
-          label="เลขที่ใบกำกับภาษี"
+          label={<span style={{ fontWeight: 500 }}>* เลขที่ใบกำกับภาษี</span>}
           rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
         >
           <Input placeholder="เลขที่ใบกำกับภาษี" />
         </Form.Item>
       </Col>
-      <Col md={4}>
-        <Form.Item name="taxInvoiceDate" label="วันที่ใบกำกับภาษี" rules={getRules(['required'])}>
+      <Col span={6} style={{ minWidth: 220 }}>
+        <Form.Item name="taxInvoiceDate" label={<span style={{ fontWeight: 500 }}>* วันที่ใบกำกับภาษี</span>} rules={getRules(['required'])}>
           <DatePicker placeholder="วันที่ใบกำกับภาษี" />
         </Form.Item>
       </Col>
-      <Col md={4}>
-        <Form.Item name="priceType" label="ประเภทราคา" rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}>
+      <Col span={6} style={{ minWidth: 220 }}>
+        <Form.Item name="priceType" label={<span style={{ fontWeight: 500 }}>* ประเภทราคา</span>} rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}> 
           <PriceTypeSelector onChange={onPriceTypeChange} />
         </Form.Item>
       </Col>
     </Row>
-    <Row>
-      <Col md={4}>
-        <Form.Item name="taxFiledPeriod" label="ยื่นภาษีในงวด" rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}>
+    <Row gutter={24} style={{ marginBottom: 0 }}>
+      <Col span={6} style={{ minWidth: 220 }}>
+        <Form.Item name="taxFiledPeriod" label={<span style={{ fontWeight: 500 }}>* ยื่นภาษีในงวด</span>} rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}> 
           <Input placeholder="ยื่นภาษีในงวด" />
         </Form.Item>
       </Col>
-      <Col md={4}>
+      <Col span={6} style={{ minWidth: 220 }}>
         <Form.Item
           name="creditDays"
-          label="เครดิต"
+          label={<span style={{ fontWeight: 500 }}>* เครดิต</span>}
           rules={[
             { required: true, message: 'กรุณาป้อนข้อมูล' },
             ({ getFieldValue }) => ({
@@ -124,8 +122,8 @@ export const renderHeader = ({ form, onPriceTypeChange }: RenderHeaderProps): Re
           <InputNumber placeholder="เครดิต" addonAfter="วัน" style={{ width: '100%' }} />
         </Form.Item>
       </Col>
-      <Col md={4}>
-        <Form.Item name="dueDate" label="วันครบกำหนด" rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}>
+      <Col span={6} style={{ minWidth: 220 }}>
+        <Form.Item name="dueDate" label={<span style={{ fontWeight: 500 }}>* วันครบกำหนด</span>} rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}> 
           <DatePicker placeholder="วันครบกำหนด" />
         </Form.Item>
       </Col>
@@ -178,70 +176,88 @@ export const RenderSummary: React.FC<RenderSummaryProps> = ({
   onBillDiscountChange,
   onDeductDepositChange
 }) => {
-  const [bdError, setBdError] = useState(false);
-  const [ddError, setDdError] = useState(false);
-
+  const { t } = useTranslation('inputPrice');
+  
   return (
-    <div className="d-flex flex-column align-items-end">
-      <div className="my-4" style={{ width: 450 }}>
-        <Row gutter={[8, 8]}>
-          <Col span={24}>
-            <Form.Item label="จำนวนเงิน" style={{ marginBottom: 0 }}>
-              <InputNumber
-                value={total}
-                style={{ width: '100%' }}
-                disabled
-                className="text-right text-secondary"
-                formatter={value => numeral(value).format('0,0.00')}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={24}>
-            <Form.Item label="หักส่วนลด" style={{ marginBottom: 0 }}>
-              <InputNumber
-                onChange={value => onBillDiscountChange(typeof value === 'number' ? value : null)}
-                className="text-right"
-                style={{ width: '100%' }}
-                formatter={value => `${value} บาท`}
-                parser={value => value!.replace(/[^\d.-]/g, '')}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={24}>
-            <Form.Item label="หักเงินมัดจำ" style={{ marginBottom: 0 }}>
-              <InputNumber
-                onChange={value => onDeductDepositChange(typeof value === 'number' ? value : null)}
-                className="text-right"
-                style={{ width: '100%' }}
-                formatter={value => `${value} บาท`}
-                parser={value => value!.replace(/[^\d.-]/g, '')}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={24}>
-            <Form.Item label="ภาษีมูลค่าเพิ่ม" style={{ marginBottom: 0 }}>
-              <InputNumber
-                value={billVAT}
-                style={{ width: '100%' }}
-                disabled
-                className="text-right text-secondary"
-                formatter={value => numeral(value).format('0,0.00')}
-              />
-            </Form.Item>
-          </Col>
-          <Col span={24}>
-            <Form.Item label="ยอดรวมทั้งสิ้น" style={{ marginBottom: 0 }}>
-              <InputNumber
-                value={billTotal}
-                style={{ width: '100%' }}
-                disabled
-                className="text-right text-secondary"
-                formatter={value => numeral(value).format('0,0.00')}
-              />
-            </Form.Item>
-          </Col>
-        </Row>
-      </div>
-    </div>
+      <Descriptions 
+        column={1} 
+        bordered
+        size="small"
+        contentStyle={{ textAlign: 'right', paddingRight: 12 }}
+        labelStyle={{ fontWeight: 'normal', paddingLeft: 12 }}
+        colon={false}
+        className="summary-descriptions"
+      >
+        <Descriptions.Item label={t('total')}>
+          <span style={{ fontWeight: 500, marginRight: 8 }}>
+            {total.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </span>
+          <span>{t('unit')}</span>
+        </Descriptions.Item>
+        
+        <Descriptions.Item label={t('discount')}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <InputNumber
+              value={isNaN(Number(total - afterDiscount)) ? undefined : (total - afterDiscount)}
+              placeholder="0"
+              onChange={onBillDiscountChange}
+              style={{ 
+                width: 80, 
+                textAlign: 'right', 
+                fontWeight: 600,
+                border: 'none',
+                background: 'transparent'
+              }}
+              bordered={false}
+              controls={false}
+            />
+            <span style={{ marginLeft: 8, fontWeight: 600 }}>{t('unit')}</span>
+            <span style={{ minWidth: 80, marginLeft: 16, fontWeight: 500 }}>
+              {(afterDiscount - total).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </span>
+            <span style={{ marginLeft: 4 }}>{t('unit')}</span>
+          </div>
+        </Descriptions.Item>
+        
+        <Descriptions.Item label={t('deposit')}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+            <InputNumber
+              value={isNaN(Number(afterDepositDeduct - afterDiscount)) ? undefined : Math.abs(afterDepositDeduct - afterDiscount)}
+              placeholder="0"
+              onChange={value => onDeductDepositChange(Number(value) || 0)}
+              style={{ 
+                width: 80, 
+                textAlign: 'right', 
+                fontWeight: 600,
+                border: 'none',
+                background: 'transparent' 
+              }}
+              bordered={false}
+              controls={false}
+            />
+            <span style={{ marginLeft: 8, fontWeight: 600 }}>{t('unit')}</span>
+            <span style={{ minWidth: 80, marginLeft: 16, fontWeight: 500 }}>
+              {(afterDepositDeduct - afterDiscount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            </span>
+            <span style={{ marginLeft: 4 }}>{t('unit')}</span>
+          </div>
+        </Descriptions.Item>
+        
+        <Descriptions.Item label={t('vat', 'ภาษีมูลค่าเพิ่ม 7%')}>
+          <span style={{ fontWeight: 500, marginRight: 8 }}>
+            {billVAT.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </span>
+          <span>{t('unit')}</span>
+        </Descriptions.Item>
+        
+        <Descriptions.Item 
+          label={<span style={{ fontWeight: 600 }}>{t('grandTotal')}</span>}
+        >
+          <span style={{ fontWeight: 700, marginRight: 8 }}>
+            {billTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+          </span>
+          <span style={{ fontWeight: 600 }}>{t('unit')}</span>
+        </Descriptions.Item>
+      </Descriptions>
   );
 }; 

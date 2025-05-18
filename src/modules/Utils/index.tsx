@@ -155,8 +155,8 @@ const checkDoc = async (collectionPath: string, docId: string): Promise<Document
 };
 
 const getMonths = ([startDate, stopDate]: [string, string]): string[] => {
-  var monthArray: string[] = [];
-  var currentDate = startDate;
+  const monthArray: string[] = [];
+  let currentDate = startDate;
   while (DateTime.fromFormat(currentDate, 'yyyy-MM-dd').toMillis() <= 
          DateTime.fromFormat(stopDate, 'yyyy-MM-dd').toMillis()) {
     monthArray.push(DateTime.fromFormat(currentDate, 'yyyy-MM-dd').toFormat('yyyy-MM'));
@@ -209,7 +209,7 @@ export const getWhenToBuyRange = (wtb: string, TS?: string): WhenToBuyRange => {
     default:
       break;
   }
-  let months = getMonths(range);
+  const months = getMonths(range);
   return { range, months };
 };
 

@@ -5,12 +5,19 @@ import { PriceType, PriceTypeKey } from 'data/Constant';
 
 const { Option } = Select;
 
-interface PriceTypeSelectorProps extends Omit<SelectProps<string>, 'children'> {
+interface PriceTypeOption {
+  label: string;
+  value: string;
+}
+
+interface PriceTypeSelectorProps extends Omit<SelectProps, 'options'> {
   placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
 }
 
 const PriceTypeSelector = forwardRef<RefSelectProps, PriceTypeSelectorProps>(
-  ({ placeholder, ...props }, ref) => {
+  ({ placeholder, value, onChange, ...props }, ref) => {
     const selectRef = useRef<RefSelectProps>(null);
 
     useImperativeHandle(
@@ -22,26 +29,31 @@ const PriceTypeSelector = forwardRef<RefSelectProps, PriceTypeSelectorProps>(
         blur: () => {
           selectRef.current?.blur();
         },
-        scrollTo: (...args: any[]) => {
-          // @ts-ignore
-          selectRef.current?.scrollTo?.(...args);
+        scrollTo: (arg: any) => {
+          selectRef.current?.scrollTo?.(arg);
         },
         get nativeElement() {
-          // @ts-ignore
           return selectRef.current?.nativeElement ?? document.createElement('div');
         }
       }),
       []
     );
 
+    const options: PriceTypeOption[] = (Object.keys(PriceType) as PriceTypeKey[]).map(k => ({
+      label: PriceType[k],
+      value: k,
+    }));
+
     return (
-      <Select ref={selectRef} placeholder={placeholder || 'ประเภทราคา'} {...props} style={{ ...props.style }}>
-        {(Object.keys(PriceType) as PriceTypeKey[]).map(k => (
-          <Option value={k} key={k}>
-            {PriceType[k]}
-          </Option>
-        ))}
-      </Select>
+     <Select
+      ref={selectRef}
+      placeholder={placeholder || 'ประเภทราคา'}
+      value={value}
+      onChange={onChange}
+      options={options}
+      {...props}
+      style={{ ...props.style }}
+    />
     );
   }
 );

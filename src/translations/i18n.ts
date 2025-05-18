@@ -51,6 +51,8 @@ import enEmployees from './en/employees.json';
 import thEmployees from './th/employees.json';
 import enAccount from './en/account.json';
 import thAccount from './th/account.json';
+import enInputPrice from './en/inputPrice.json';
+import thInputPrice from './th/inputPrice.json';
 
 // Resources object containing translations
 const resources = {
@@ -78,7 +80,8 @@ const resources = {
     userRoleManager: enUserRoleManager,
     branches: enBranches,
     employees: enEmployees,
-    account: enAccount
+    account: enAccount,
+    inputPrice: enInputPrice
   },
   th: {
     app: thApp,
@@ -104,7 +107,8 @@ const resources = {
     permissions: thPermissions,
     userRoleManager: thUserRoleManager,
     employees: thEmployees,
-    account: thAccount
+    account: thAccount,
+    inputPrice: thInputPrice
   }
 };
 

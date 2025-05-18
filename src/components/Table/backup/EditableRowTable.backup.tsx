@@ -1,5 +1,5 @@
 import React from 'react';
-import MTable from '../Table/MTable';
+import MTable from '../Table';
 import type { TableProps } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { TableData, CustomColumnsType } from '../Table/types';

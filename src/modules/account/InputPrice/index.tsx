@@ -1,27 +1,43 @@
 import React, { useCallback } from 'react';
-import { Form } from 'antd';
+import { Form, Card, Row, Col } from 'antd';
 import { getFirestore, collection, doc, getDocs, query, where, setDoc } from 'firebase/firestore';
-import { useMergeState } from '../../../hooks/useMergeState';
+import { useMergeState } from 'hooks/useMergeState';
 
-import { CheckOutlined } from '@ant-design/icons';
+import { CheckOutlined, SearchOutlined } from '@ant-design/icons';
 import { DateTime } from 'luxon';
 import { useSelector } from 'react-redux';
-import { showWarn, arrayForEach, showSuccess, firstKey, sortArr } from '../../../utils/functions';
-import { Button } from '../../../elements';
-import PageTitle from '../../../components/common/PageTitle';
-import { createNewId } from '../../../utils';
-import { removeAllNonAlphaNumericCharacters } from '../../../utils/RegEx';
+import { showWarn, arrayForEach, showSuccess, firstKey, sortArr } from 'utils/functions';
+import PageTitle from 'components/common/PageTitle';
+import { createNewId } from 'utils';
+import { removeAllNonAlphaNumericCharacters } from 'utils/RegEx';
 import InputItems from './InputItems';
-import { cleanValuesBeforeSave } from '../../../utils/functions';
-import { Numb } from '../../../utils/number';
+import { cleanValuesBeforeSave } from 'utils/functions';
+import { Numb } from 'utils/number';
 import { renderHeader, checkItemsUpdated, RenderSummary, initialValues } from './api';
 import { InputPriceState, InputPriceFormValues, InputPriceProps, InputPriceItem } from './types';
 import { useTranslation } from 'react-i18next';
+import { Button, Stepper } from 'elements';
+import DocSelector from 'components/DocSelector';
+import { DatePicker, Input, InputNumber } from 'antd';
+import PriceTypeSelector from 'components/PriceTypeSelector';
 
+// Add custom styles for the summary component
+import './inputPrice.css';
+import { isMobile } from 'react-device-detect';
+
+/**
+ * InputPrice screen component for account module
+ */
 const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
   const { t } = useTranslation('inputPrice');
   const firestore = getFirestore();
   
+  const defaultSteps = [
+    t('inputPrice.step.record', 'บันทึกรายการ'),
+    t('inputPrice.step.review', 'ตรวจสอบ'),
+    t('inputPrice.step.approve', 'อนุมัติ')
+  ];
+
   const initMergeState: InputPriceState = {
     mReceiveNo: null,
     noItemUpdated: false,
@@ -48,14 +64,14 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
     try {
       const changeKey = firstKey(val);
       if (changeKey === 'billNoSKC' && val[changeKey]) {
-        const importVehiclesRef = collection(firestore, 'sections/stocks/importVehicles');
+        const importVehiclesRef = collection(firestore, 'sections', 'stocks', 'importVehicles');
         const q = query(importVehiclesRef, where('billNoSKC', '==', val[changeKey]));
         const snap = await getDocs(q);
         
         if (!snap.empty) {
           const arr: InputPriceItem[] = [];
-          snap.forEach(doc => {
-            const data = doc.data() as Partial<InputPriceItem>;
+          snap.forEach(docSnap => {
+            const data = docSnap.data() as Partial<InputPriceItem>;
             const item: InputPriceItem = {
               ...data,
               id: arr.length,
@@ -71,7 +87,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
               unitPrice: data?.unitPrice || 0,
               total: data?.total || 0,
               status: data?.status || 'pending',
-              _key: doc.id
+              _key: docSnap.id
             };
             arr.push(item);
           });
@@ -82,7 +98,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
               arr.filter(l => !l.deleted),
               async (it: InputPriceItem) => {
                 const productPCode = removeAllNonAlphaNumericCharacters(it.productCode);
-                const vehicleListRef = collection(firestore, 'data/products/vehicleList');
+                const vehicleListRef = collection(firestore, 'data', 'products', 'vehicleList');
                 const lpQuery = query(vehicleListRef, where('productPCode', '==', productPCode));
                 const lpSnap = await getDocs(lpQuery);
                 let lp: any = null;
@@ -143,7 +159,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
     }
   };
 
-  const footer = cState.noItemUpdated ? <h6 className="text-danger">{t('pleaseEnterPrice')}</h6> : undefined;
+  const footer = cState.noItemUpdated ? <h6>{t('pleaseEnterPrice')}</h6> : undefined;
 
   const onBillDiscountChange = (value: number | null) => {
     if (value === null || isNaN(value)) {
@@ -213,7 +229,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
           _key: expenseId
         });
         
-        const expensesRef = collection(firestore, 'sections/account/expenses');
+        const expensesRef = collection(firestore, 'sections', 'account', 'expenses');
         await setDoc(doc(expensesRef, expenseId), expenseItem);
         
         if (mValues?.items) {
@@ -231,20 +247,102 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
   );
 
   return (
-    <div className="main-content-container px-4">
-      <div className="page-header py-4">
-        <PageTitle title={t('title')} subtitle={t('subtitle')} className="text-sm-left mb-3" />
-      </div>
-      <div className="card">
-        <div className="card-body">
-          <Form
-            form={form}
-            onValuesChange={_onValuesChange}
-            onFinish={onConfirm}
-            initialValues={initialValues}
-            layout="vertical"
+    <div className="space-y-6">
+      <PageTitle 
+        title={t('title')}
+        subtitle={t('subtitle', 'รถและอุปกรณ์')}
+        steps={defaultSteps}
+        activeStep={0}
+        showStepper={true}
+      />
+
+      <Card size="default">
+        <Form
+          id="input-price-form"
+          form={form}
+          onValuesChange={_onValuesChange}
+          onFinish={onConfirm}
+          initialValues={initialValues}
+          layout="vertical"
+        >
+          {/* Search Field */}
+          <Form.Item 
+            label={<span><SearchOutlined /> {t('searchByReceiptNumber')}</span>}
+            name="billNoSKC"
           >
-            {renderHeader({ form, onPriceTypeChange })}
+            <DocSelector
+              collection="sections/stocks/importVehicles"
+              orderBy={['billNoSKC']}
+              wheres={[["warehouseChecked", "!=", null], ["total", "==", null]]}
+              size="middle"
+              placeholder={t('receiptNumber')}
+              hasKeywords
+            />
+          </Form.Item>
+
+          {/* Form Fields in 2 Column Grid */}
+          <Row gutter={16}>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name="taxInvoiceNo"
+                label={<span className="font-medium">* {t('taxInvoiceNo')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <Input placeholder={t('taxInvoiceNo')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item 
+                name="taxInvoiceDate" 
+                label={<span className="font-medium">* {t('taxInvoiceDate')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <DatePicker placeholder={t('taxInvoiceDate')} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item 
+                name="priceType" 
+                label={<span className="font-medium">* {t('priceType')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <PriceTypeSelector onChange={onPriceTypeChange} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name="taxFiledPeriod"
+                label={<span className="font-medium">* {t('taxFiledPeriod')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <Input placeholder={t('taxFiledPeriod')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name="creditDays"
+                label={<span className="font-medium">* {t('credit')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <InputNumber placeholder={t('credit')} addonAfter={t('days')} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name="dueDate"
+                label={<span className="font-medium">* {t('dueDate')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <DatePicker placeholder={t('dueDate')} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Table */}
+          <div className="mt-4">
             <InputItems
               items={form.getFieldValue('items') || []}
               onChange={items => form.setFieldsValue({ items: items as any })}
@@ -253,23 +351,41 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
               footer={footer}
               noItemUpdated={cState.noItemUpdated}
             />
-            <RenderSummary
-              total={total || 0}
-              afterDiscount={afterDiscount}
-              afterDepositDeduct={afterDepositDeduct}
-              billVAT={billVAT}
-              billTotal={billTotal}
-              onBillDiscountChange={onBillDiscountChange}
-              onDeductDepositChange={onDeductDepositChange}
-            />
-            <div className="d-flex justify-content-end mt-4">
-              <Button type="primary" htmlType="submit" icon={<CheckOutlined />}>
-                {t('save')}
-              </Button>
-            </div>
-          </Form>
+          </div>
+        </Form>
+      </Card>
+      
+      <Card className="sticky top-4">
+        <div className="flex flex-col justify-between h-full">
+          <RenderSummary
+            total={total || 0}
+            afterDiscount={afterDiscount}
+            afterDepositDeduct={afterDepositDeduct}
+            billVAT={billVAT}
+            billTotal={billTotal}
+            onBillDiscountChange={onBillDiscountChange}
+            onDeductDepositChange={onDeductDepositChange}
+          />
+
+          {/* Save Button */}
+          <div className="flex justify-end mt-6">
+            <Button 
+              type="primary" 
+              htmlType="submit" 
+              icon={<CheckOutlined />} 
+              form="input-price-form" 
+              className="save-button"
+              style={{ 
+                minWidth: 160, 
+                fontSize: 16,
+                height: 40
+              }}
+            >
+              {t('save')}
+            </Button>
+          </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 };

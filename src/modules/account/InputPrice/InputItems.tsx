@@ -3,11 +3,12 @@ import { DateTime } from 'luxon';
 import EditableRowTable from '../../../components/EditableRowTable';
 import { showWarn } from '../../../utils/functions';
 import { TableSummary as ApiTableSummary } from '../../../api/Table';
-import { expandedRowRender } from './api';
+import { ExpandedRowRender } from './api';
 import { Numb } from '../../../utils/number';
 import { InputPriceItem } from './types';
 import { StatusMap } from '../../../data/Constant';
 import { TableData } from '../../../components/Table/types';
+import { useTranslation } from 'react-i18next';
 
 interface InputItemsProps {
   items: InputPriceItem[];
@@ -46,6 +47,7 @@ const initItem: InputPriceItem = {
 };
 
 const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, readOnly, footer, noItemUpdated }) => {
+  const { t } = useTranslation('inputPrice');
   const [loading, setLoading] = useState(false);
   
   // Convert number keys to string keys for TableData compatibility
@@ -64,7 +66,7 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
       const padLastNo = ('0'.repeat(3) + lastNo).slice(-5);
       const itemId = `RES-VH-ITEM${DateTime.now().toFormat('yyyyMMdd')}${padLastNo}`;
 
-      let newItem: InputPriceItem = {
+      const newItem: InputPriceItem = {
         ...initItem,
         itemId,
         docId,
@@ -80,10 +82,10 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
 
   const onDeleteItem = async (dKey: string | number) => {
     try {
-      let nData = [...data];
-      nData = nData.filter(l => l.key !== dKey.toString());
-      nData = nData.map((l, n) => ({ ...l, key: n.toString(), id: n }));
-      onUpdateItem(nData);
+      const nData = [...data];
+      const filtered = nData.filter(l => l.key !== dKey.toString());
+      const mapped = filtered.map((l, n) => ({ ...l, key: n.toString(), id: n }));
+      onUpdateItem(mapped);
     } catch (e) {
       showWarn(e instanceof Error ? e.message : String(e));
     }
@@ -92,8 +94,8 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
   const _formatItem = (arr: InputPriceItem[], dataIndex: string, rowIndex: number): Promise<InputPriceItem[]> =>
     new Promise(async (r, j) => {
       try {
-        let newData = [...arr];
-        let mItem = { ...arr[rowIndex] };
+        const newData = [...arr];
+        const mItem = { ...arr[rowIndex] };
         if (['unitPrice', 'qty', 'discount'].includes(dataIndex)) {
           mItem.total = Number((Numb(mItem.unitPrice) * Numb(mItem.qty) - Numb(mItem.discount || 0)).toFixed(2));
         }
@@ -108,7 +110,7 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
     try {
       if (dataIndex && ['unitPrice', 'qty', 'discount'].includes(dataIndex) && rowIndex !== undefined) {
         setLoading(true);
-        let formatArr = await _formatItem(arr, dataIndex, rowIndex);
+        const formatArr = await _formatItem(arr, dataIndex, rowIndex);
         setLoading(false);
         onChange && onChange(formatArr);
       } else {
@@ -122,37 +124,37 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
 
   const columns = [
     {
-      title: 'ลำดับ',
+      title: t('order', 'ลำดับ'),
       dataIndex: 'id',
       ellipsis: true,
       align: 'center' as const
     },
     {
-      title: 'รหัส',
+      title: t('productCode', 'รหัส'),
       dataIndex: 'productCode'
     },
     {
-      title: 'ชื่อสินค้า',
+      title: t('productName', 'ชื่อสินค้า'),
       dataIndex: 'productName',
       ellipsis: true
     },
     {
-      title: 'คลัง',
+      title: t('warehouse', 'คลัง'),
       dataIndex: 'storeLocationCode',
       align: 'center' as const
     },
     {
-      title: 'จำนวน',
+      title: t('quantity', 'จำนวน'),
       dataIndex: 'qty',
       align: 'center' as const
     },
     {
-      title: 'หน่วย',
+      title: t('unit', 'หน่วย'),
       dataIndex: 'unit',
       align: 'center' as const
     },
     {
-      title: 'ราคา / หน่วย',
+      title: t('unitPrice', 'ราคา / หน่วย'),
       dataIndex: 'unitPrice',
       editable: true,
       required: true,
@@ -160,18 +162,18 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
       width: 160
     },
     {
-      title: 'ส่วนลด',
+      title: t('discount', 'ส่วนลด'),
       dataIndex: 'discount',
       editable: true,
       number: true
     },
     {
-      title: 'จำนวนเงิน',
+      title: t('total', 'จำนวนเงิน'),
       dataIndex: 'total'
     }
   ];
 
-  let startAt = columns.findIndex(l => l.dataIndex === 'qty');
+  const startAt = columns.findIndex(l => l.dataIndex === 'qty');
 
   return (
     <EditableRowTable
@@ -203,7 +205,7 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
       rowClassName={undefined}
       deletedButtonAtEnd={undefined}
       expandable={{
-        expandedRowRender: (record: TableData) => expandedRowRender(record as unknown as InputPriceItem),
+        expandedRowRender: (record: TableData) => ExpandedRowRender(record as unknown as InputPriceItem),
         rowExpandable: () => true
       }}
     />

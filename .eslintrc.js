@@ -33,7 +33,8 @@ module.exports = {
     'no-mixed-spaces-and-tabs': 'warn', // Downgraded from error to warning
     '@typescript-eslint/explicit-function-return-type': 'off',
     '@typescript-eslint/no-explicit-any': 'warn',
-    'react/react-in-jsx-scope': 'off'
+    'react/react-in-jsx-scope': 'off',
+    'prefer-const': 'warn' // Downgraded from error to warning
   },
   settings: {
     react: {

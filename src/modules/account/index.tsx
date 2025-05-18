@@ -13,6 +13,8 @@ import Overview from "./Overview";
 import Income from "./Income/index";
 import Expense from "./Expense/index";
 import InputPrice from "./InputPrice/index";
+import { isMobile } from "react-device-detect";
+import PageTitle from "components/common/PageTitle";
 
 const { Content } = Layout;
 const { Title } = Typography;
@@ -87,9 +89,8 @@ const Account: React.FC = () => {
   }
 
   return (
-    <Layout className="h-full">
-      <Content className="p-6">
-        <Title level={2} >{t('account:title', 'Accounting')}</Title>
+    <div className={`${isMobile ? 'p-0' : 'p-2'} h-full`}>
+        {/* <Title level={3}>{t('account:title', 'Accounting')}</Title> */}
         <Routes>
           <Route
             path="/"
@@ -172,8 +173,7 @@ const Account: React.FC = () => {
             }
           />
         </Routes>
-      </Content>
-    </Layout>
+    </div>
   );
 };
 

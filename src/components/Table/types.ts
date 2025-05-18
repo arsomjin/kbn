@@ -1,5 +1,5 @@
 import { FormInstance } from 'antd';
-import { ColumnsType } from 'antd/es/table';
+import { ColumnsType, ColumnType as AntColumnType, ColumnGroupType as AntColumnGroupType } from 'antd/es/table';
 import { ReactNode } from 'react';
 
 export interface TableData {
@@ -10,6 +10,7 @@ export interface TableData {
   rejected?: boolean;
   completed?: boolean;
   provinceId?: string;
+  transferCompleted?: boolean;
   [key: string]: unknown;
 }
 
@@ -18,10 +19,29 @@ export interface EditingCell {
   dataIndex: string;
 }
 
+// Extended column types with our custom properties
+export interface CustomColumnType<T> extends AntColumnType<T> {
+  editable?: boolean;
+  dataIndex?: string | number;
+  children?: CustomColumnType<T>[];
+}
+
+export interface CustomColumnGroupType<T> extends AntColumnGroupType<T> {
+  editable?: boolean;
+  children: CustomColumnType<T>[];
+}
+
+export type CustomColumnsType<T> = (CustomColumnType<T> | CustomColumnGroupType<T>)[];
+
+// Type assertion helper
+export function asReactChild(value: any): ReactNode {
+  return value as ReactNode;
+}
+
 export interface EditableCellProps {
   record: TableData;
   dataIndex: string;
-  title: string;
+  title: any;
   children: ReactNode;
   editable?: boolean;
   handleSave: (record: TableData, dataIndex: string, rowIndex: number) => void;
@@ -39,8 +59,8 @@ export interface EditableRowProps {
   [key: string]: unknown;
 }
 
-export interface ReusableEditableTableProps {
-  columns: ColumnsType<TableData>;
+export interface MTableProps {
+  columns: CustomColumnsType<TableData>;
   dataSource: TableData[];
   onChange?: (data: TableData[], dataIndex: string | null, rowIndex: number) => void;
   defaultRowItem?: Partial<TableData>;
@@ -52,6 +72,20 @@ export interface ReusableEditableTableProps {
   disabled?: boolean;
   tableProps?: Record<string, unknown>;
   provinceId?: string;
+  
+  // Extended props from EditableCellTable and EditableRowTable
+  editMode?: 'cell' | 'row' | 'inline'; // Table editing mode
+  forceValidate?: boolean | number;     // Force validation on save
+  scroll?: { x?: number | string; y?: number | string }; // Table scroll configuration
+  size?: 'small' | 'middle' | 'large';  // Table size
+  locale?: Record<string, any>;         // Table locale configuration
+  footer?: (() => ReactNode) | undefined; // Table footer
+  noScroll?: boolean;                   // Disable automatic scroll calculation
+  miniAddButton?: boolean;              // Use smaller add button
+  rowClassName?: string | ((record: TableData, index: number) => string); // Row class name
+  pagination?: any;                     // Pagination configuration
+  initialItemValues?: Record<string, any>; // Initial values for new rows
+  onAdd?: () => void;                   // Legacy support for onAdd function
 }
 
 export interface TableContext {

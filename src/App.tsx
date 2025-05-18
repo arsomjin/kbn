@@ -21,11 +21,15 @@ import { BranchProvider } from './contexts/BranchContext';
 import { ProvinceProvider } from './contexts/ProvinceContext';
 import { LoadingProvider } from './contexts/LoadingContext';
 
+// Enter Key Navigation Provider
+import EnterKeyNavigationProvider from './components/EnterKeyNavigationProvider';
+
 // Initialize i18n
 import './translations/i18n';
 
 // Styles
 import './App.css';
+import './styles/inputNumber.css';
 
 // Import navigation
 import AppRouter from './navigation/AppRouter';
@@ -76,9 +80,11 @@ const ThemeAppContent: React.FC = () => {
           <PermissionProvider userProfile={userProfile}>
             <ProvinceProvider>
               <BranchProvider>
-                <BrowserRouter>
-                  <AppRouter />
-                </BrowserRouter>
+                <EnterKeyNavigationProvider>
+                  <BrowserRouter>
+                    <AppRouter />
+                  </BrowserRouter>
+                </EnterKeyNavigationProvider>
               </BranchProvider>
             </ProvinceProvider>
           </PermissionProvider>
