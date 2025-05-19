@@ -4,7 +4,7 @@ import { ConfigProvider, App as AntdApp, Spin } from 'antd';
 import { BrowserRouter } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useAuth } from './hooks/useAuth';
-import { ModalProvider } from "./contexts/ModalContext";
+import { ModalProvider } from './contexts/ModalContext';
 
 // Redux store
 import { store } from './store';
@@ -42,6 +42,7 @@ import { initializeMessaging } from './services/firebase';
 
 import ErrorBoundary from './components/common/ErrorBoundary';
 import AnimatedGradientBackground from './components/common/AnimatedGradientBackground';
+import PageDoc from './components/PageDoc';
 
 // Theme-aware App Content component
 const ThemeAppContent: React.FC = () => {
@@ -89,6 +90,7 @@ const ThemeAppContent: React.FC = () => {
                       <EnterKeyNavigationProvider>
                         <BrowserRouter>
                           <AppRouter />
+                          {/* <PageDoc /> */}
                         </BrowserRouter>
                       </EnterKeyNavigationProvider>
                     </DepartmentProvider>

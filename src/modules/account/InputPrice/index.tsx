@@ -28,6 +28,7 @@ import { usePermissions } from '../../../hooks/usePermissions';
 import { RootState } from '../../../store';
 import EmployeeSelector from 'components/EmployeeSelector';
 import DocumentAuditTrail, { DocumentAuditTrailValue } from 'components/DocumentAuditTrail';
+import AuditHistory from '../../../components/AuditHistory';
 
 // Add custom styles for the summary component
 import './inputPrice.css';
@@ -154,7 +155,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
             // --- Audit Trail Logic ---
             let auditTrailArr = (prevDoc?.auditTrail as any[]) || [];
             // Compute changes
-            const getChangesFn = (await import('utils/functions')).getChanges;
+            const getChangesFn = (await import('utils/functions')).getChangesDeep;
             const changes = getChangesFn(prevDoc || {}, expense);
             if (Object.keys(changes).length > 0) {
               const auditEntry = {
@@ -490,131 +491,6 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
   const canEditReviewedBy = hasPermission(PERMISSIONS.DOCUMENT_REVIEW);
   const canEditApprovedBy = hasPermission(PERMISSIONS.DOCUMENT_APPROVE);
 
-  const renderAuditHistory = () => {
-    const auditTrail = form.getFieldValue('auditTrail') || [];
-    const statusHistory = form.getFieldValue('statusHistory') || [];
-
-    return (
-      <div className='space-y-4'>
-        <Collapse
-          className='bg-transparent border-none'
-          items={[
-            {
-              key: '1',
-              label: (
-                <div className='flex items-center'>
-                  <span className='font-medium'>{t('changeHistory', 'Change History')}</span>
-                  {auditTrail.length > 0 && (
-                    <span className='ml-2 text-sm text-gray-500'>
-                      ({auditTrail.length} {t('changes', 'changes')})
-                    </span>
-                  )}
-                </div>
-              ),
-              children:
-                auditTrail.length > 0 ? (
-                  <Card className='bg-gray-50 dark:bg-gray-800'>
-                    <Timeline>
-                      {auditTrail.map((entry: any, index: number) => (
-                        <Timeline.Item key={index} color={entry.action === 'create' ? 'green' : 'blue'}>
-                          <div className='flex flex-col space-y-1'>
-                            <div className='font-medium'>
-                              {entry.userInfo?.displayName ||
-                                entry.userInfo?.fullName ||
-                                entry.userInfo?.name ||
-                                t('unknownUser', 'Unknown User')}
-                            </div>
-                            <div className='text-sm text-gray-600 dark:text-gray-400'>
-                              {dayjs(entry.time).format('YYYY-MM-DD HH:mm:ss')}
-                            </div>
-                            <div className='text-sm'>
-                              {entry.action === 'create'
-                                ? t('createdDocument', 'Created document')
-                                : t('updatedDocument', 'Updated document')}
-                            </div>
-                            {Object.entries(entry.changes || {}).map(([key, value]: [string, any]) => (
-                              <div key={key} className='text-sm text-gray-600 dark:text-gray-400'>
-                                {t('history.changedField', {
-                                  field: t(`fields.${key}`, key),
-                                  value: typeof value === 'object' ? JSON.stringify(value) : value
-                                })}
-                              </div>
-                            ))}
-                          </div>
-                        </Timeline.Item>
-                      ))}
-                    </Timeline>
-                  </Card>
-                ) : (
-                  <div className='text-center py-4 text-gray-500'>{t('noChanges', 'No changes recorded')}</div>
-                )
-            },
-            {
-              key: '2',
-              label: (
-                <div className='flex items-center'>
-                  <span className='font-medium'>{t('statusHistory', 'Status History')}</span>
-                  {statusHistory.length > 0 && (
-                    <span className='ml-2 text-sm text-gray-500'>
-                      ({statusHistory.length} {t('statusChanges', 'status changes')})
-                    </span>
-                  )}
-                </div>
-              ),
-              children:
-                statusHistory.length > 0 ? (
-                  <Card className='bg-gray-50 dark:bg-gray-800'>
-                    <Timeline>
-                      {statusHistory.map((entry: any, index: number) => (
-                        <Timeline.Item
-                          key={index}
-                          color={
-                            entry.status === 'approved'
-                              ? 'green'
-                              : entry.status === 'reviewed'
-                                ? 'blue'
-                                : entry.status === 'draft'
-                                  ? 'gray'
-                                  : 'orange'
-                          }
-                        >
-                          <div className='flex flex-col space-y-1'>
-                            <div className='font-medium'>
-                              {entry.userInfo?.displayName ||
-                                entry.userInfo?.fullName ||
-                                entry.userInfo?.name ||
-                                t('unknownUser', 'Unknown User')}
-                            </div>
-                            <div className='text-sm text-gray-600 dark:text-gray-400'>
-                              {dayjs(entry.time).format('YYYY-MM-DD HH:mm:ss')}
-                            </div>
-                            <div className='text-sm'>
-                              {t('history.statusChanged', {
-                                status: t(`status.${entry.status}`, entry.status),
-                                user:
-                                  entry.userInfo?.displayName ||
-                                  entry.userInfo?.fullName ||
-                                  entry.userInfo?.name ||
-                                  t('unknownUser', 'Unknown User')
-                              })}
-                            </div>
-                          </div>
-                        </Timeline.Item>
-                      ))}
-                    </Timeline>
-                  </Card>
-                ) : (
-                  <div className='text-center py-4 text-gray-500'>
-                    {t('noStatusChanges', 'No status changes recorded')}
-                  </div>
-                )
-            }
-          ]}
-        />
-      </div>
-    );
-  };
-
   return (
     <div className='space-y-6'>
       <PageTitle
@@ -650,8 +526,8 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
               collection='sections/stocks/importVehicles'
               orderBy={['billNoSKC']}
               wheres={[
-                ['warehouseChecked', '!=', null],
-                ['total', '==', null]
+                ['warehouseChecked', '!=', null]
+                // ['total', '==', null]
               ]}
               size='middle'
               placeholder={t('receiptNumber')}
@@ -792,7 +668,10 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
             </Col>
           </Row>
           {/* Change History and Status History (outside Form.Item, so errors don't overlap) */}
-          {renderAuditHistory()}
+          <AuditHistory
+            auditTrail={form.getFieldValue('auditTrail') || []}
+            statusHistory={form.getFieldValue('statusHistory') || []}
+          />
 
           {/* Save Button at Bottom Center */}
           <div className='flex justify-center mt-10'>

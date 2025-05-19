@@ -127,29 +127,33 @@ export const useAuth = () => {
                 createdAt: convertTimestamp(profile.createdAt),
                 inputBy: profile.inputBy || '',
                 // Nested auth fields
-                ...((profile.auth && typeof profile.auth === 'object') ? {
-                  displayName: profile.auth.displayName || '',
-                  email: profile.auth.email || '',
-                  emailVerified: profile.auth.emailVerified || false,
-                  firstName: profile.auth.firstName || '',
-                  lastName: profile.auth.lastName || '',
-                  isAnonymous: profile.auth.isAnonymous || false,
-                  lastLogin: profile.auth.lastLogin || null,
-                  phoneNumber: profile.auth.phoneNumber || '',
-                  photoURL: profile.auth.photoURL || '',
-                } : {}),
+                ...(profile.auth && typeof profile.auth === 'object'
+                  ? {
+                      displayName: profile.auth.displayName || '',
+                      email: profile.auth.email || '',
+                      emailVerified: profile.auth.emailVerified || false,
+                      firstName: profile.auth.firstName || '',
+                      lastName: profile.auth.lastName || '',
+                      isAnonymous: profile.auth.isAnonymous || false,
+                      lastLogin: profile.auth.lastLogin || null,
+                      phoneNumber: profile.auth.phoneNumber || '',
+                      photoURL: profile.auth.photoURL || ''
+                    }
+                  : {}),
                 // Nested employeeInfo fields
-                ...((profile.employeeInfo && typeof profile.employeeInfo === 'object') ? {
-                  branch: profile.employeeInfo.branch || '',
-                  department: profile.employeeInfo.department || '',
-                  employeeCode: profile.employeeInfo.employeeCode || '',
-                  employeeId: profile.employeeInfo.employeeId || '',
-                  workBegin: profile.employeeInfo.workBegin || null,
-                } : {}),
+                ...(profile.employeeInfo && typeof profile.employeeInfo === 'object'
+                  ? {
+                      branch: profile.employeeInfo.branch || '',
+                      department: profile.employeeInfo.department || '',
+                      employeeCode: profile.employeeInfo.employeeCode || '',
+                      employeeId: profile.employeeInfo.employeeId || '',
+                      workBegin: profile.employeeInfo.workBegin || null
+                    }
+                  : {}),
                 // Other fields
                 requestedType: profile.requestedType || 'employee',
                 company: profile.company || '',
-                purpose: profile.purpose || '',
+                purpose: profile.purpose || ''
               };
             } else if (authUser) {
               // No profile exists for this user, add to missing profiles

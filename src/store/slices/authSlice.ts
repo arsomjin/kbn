@@ -62,7 +62,7 @@ const initialState: AuthState = {
   profileFetchAttempted: false,
   hydrated: false, // <-- add this
   isProfileTransitioning: false, // <--- NEW
-  profileListenerActive: false, // <--- NEW
+  profileListenerActive: false // <--- NEW
 };
 
 // Async thunks
@@ -118,24 +118,27 @@ export const fetchUserProfile = createAsyncThunk('auth/fetchUserProfile', async 
 });
 
 // Google Sign-in thunk
-export const loginWithGoogleThunk = createAsyncThunk('auth/loginWithGoogle', async (_, { dispatch, rejectWithValue }) => {
-  try {
-    console.log('[Auth Slice] Starting Google sign-in thunk');
-    const userCredential = await signInWithGoogle();
-    // After Google sign in, check for profile
-    const profile = await getCurrentUserProfile(true); // Skip cache
-    console.log('[Auth Slice] Profile check after Google sign-in:', profile ? 'Found' : 'Not found');
-    
-    if (!profile && userCredential.user) {
-      console.log('[Auth Slice] Adding user to missingProfileUsers:', userCredential.user.uid);
-      dispatch(addMissingProfileUser(userCredential.user.uid));
+export const loginWithGoogleThunk = createAsyncThunk(
+  'auth/loginWithGoogle',
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      console.log('[Auth Slice] Starting Google sign-in thunk');
+      const userCredential = await signInWithGoogle();
+      // After Google sign in, check for profile
+      const profile = await getCurrentUserProfile(true); // Skip cache
+      console.log('[Auth Slice] Profile check after Google sign-in:', profile ? 'Found' : 'Not found');
+
+      if (!profile && userCredential.user) {
+        console.log('[Auth Slice] Adding user to missingProfileUsers:', userCredential.user.uid);
+        dispatch(addMissingProfileUser(userCredential.user.uid));
+      }
+      return convertUserToSerializable(userCredential.user);
+    } catch (error: any) {
+      console.error('[Auth Slice] Google sign-in thunk error:', error);
+      return rejectWithValue(error.message || 'Failed to login with Google');
     }
-    return convertUserToSerializable(userCredential.user);
-  } catch (error: any) {
-    console.error('[Auth Slice] Google sign-in thunk error:', error);
-    return rejectWithValue(error.message || 'Failed to login with Google');
   }
-});
+);
 
 // Slice
 const authSlice = createSlice({
@@ -196,7 +199,7 @@ const authSlice = createSlice({
     setProfileListenerActive(state, action: PayloadAction<boolean>) {
       console.log('[Auth Slice] Profile listener active:', action.payload);
       state.profileListenerActive = action.payload;
-    },
+    }
   },
   extraReducers: builder => {
     builder
@@ -297,7 +300,7 @@ export const {
   setProfileFetchAttempted,
   resetLoadingState,
   setHydrated,
-  setProfileListenerActive, // <--- NEW
+  setProfileListenerActive // <--- NEW
 } = authSlice.actions;
 
 // Selector to check if user has a specific role

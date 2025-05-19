@@ -1158,3 +1158,33 @@ export const addErrorLogs = async (error: Record<string, unknown>) => {
     console.error('Failed to log error to Firestore:', e, error);
   }
 };
+
+/**
+ * Recursively compares two objects and returns a nested diff object.
+ * For changed primitive values, returns { old, new }.
+ * For changed objects, recurses and returns only changed fields.
+ * If no changes, returns an empty object.
+ */
+export const getChangesDeep = (
+  oldObject: Record<string, any> = {},
+  newObject: Record<string, any> = {}
+): Record<string, any> => {
+  const changes: Record<string, any> = {};
+  const keys = new Set([...Object.keys(oldObject || {}), ...Object.keys(newObject || {})]);
+
+  keys.forEach(key => {
+    const oldVal = oldObject[key];
+    const newVal = newObject[key];
+    if (typeof oldVal === 'object' && oldVal !== null && typeof newVal === 'object' && newVal !== null) {
+      // Both are objects, recurse
+      const nested = getChangesDeep(oldVal, newVal);
+      if (Object.keys(nested).length > 0) {
+        changes[key] = nested;
+      }
+    } else if (oldVal !== newVal) {
+      changes[key] = { old: oldVal, new: newVal };
+    }
+  });
+
+  return changes;
+};

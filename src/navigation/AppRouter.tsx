@@ -47,7 +47,7 @@ const Expense = lazy(() => import('../modules/account/Expense'));
 
 // Loading spinner component
 const LoadingSpinner = () => (
-  <div className="flex items-center justify-center h-screen">
+  <div className='flex items-center justify-center h-screen'>
     <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
   </div>
 );
@@ -66,11 +66,13 @@ const AppRouter: React.FC = () => {
   console.log('[AppRouter] State:', {
     isAuthenticated,
     isLoading,
-    userProfile: userProfile ? {
-      role: userProfile.role,
-      firstName: userProfile.firstName,
-      lastName: userProfile.lastName
-    } : null
+    userProfile: userProfile
+      ? {
+          role: userProfile.role,
+          firstName: userProfile.firstName,
+          lastName: userProfile.lastName
+        }
+      : null
   });
 
   // Lazy load components
@@ -128,55 +130,54 @@ const AppRouter: React.FC = () => {
         />
 
         {/* Protected routes */}
-        <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>
+        <Route
+          element={
+            <ProtectedRoute>
+              <MainLayout />
+            </ProtectedRoute>
+          }
+        >
           {/* Landing page based on role */}
           <Route
             index
             element={
-              userProfile ? (
-                userProfile.role === ROLES.PENDING ? (
-                  (() => {
-                    console.log('[AppRouter] Redirecting to /pending - User has PENDING role');
-                    return <Navigate to="/pending" replace />;
+              userProfile
+                ? userProfile.role === ROLES.PENDING
+                  ? (() => {
+                      console.log('[AppRouter] Redirecting to /pending - User has PENDING role');
+                      return <Navigate to='/pending' replace />;
+                    })()
+                  : !userProfile.firstName || !userProfile.lastName
+                    ? (() => {
+                        console.log('[AppRouter] Redirecting to /complete-profile - Profile incomplete:', {
+                          firstName: userProfile.firstName,
+                          lastName: userProfile.lastName
+                        });
+                        return <Navigate to='/complete-profile' replace />;
+                      })()
+                    : (() => {
+                        const landingPage = getLandingPage(userProfile);
+                        console.log('[AppRouter] Redirecting to landing page:', {
+                          landingPage,
+                          role: userProfile.role
+                        });
+                        return <Navigate to={landingPage} replace />;
+                      })()
+                : (() => {
+                    console.log('[AppRouter] Showing loading spinner - No userProfile yet');
+                    return <LoadingSpinner />;
                   })()
-                ) : !userProfile.firstName || !userProfile.lastName ? (
-                  (() => {
-                    console.log('[AppRouter] Redirecting to /complete-profile - Profile incomplete:', {
-                      firstName: userProfile.firstName,
-                      lastName: userProfile.lastName
-                    });
-                    return <Navigate to="/complete-profile" replace />;
-                  })()
-                ) : (
-                  (() => {
-                    const landingPage = getLandingPage(userProfile);
-                    console.log('[AppRouter] Redirecting to landing page:', {
-                      landingPage,
-                      role: userProfile.role
-                    });
-                    return <Navigate to={landingPage} replace />;
-                  })()
-                )
-              ) : (
-                (() => {
-                  console.log('[AppRouter] Showing loading spinner - No userProfile yet');
-                  return <LoadingSpinner />;
-                })()
-              )
             }
           />
 
           {/* Common routes */}
-          <Route path="/profile" element={<Profile />} />
+          <Route path='/profile' element={<Profile />} />
 
           {/* Overview route for privileged users */}
           <Route
-            path="/overview"
+            path='/overview'
             element={
-              <PermissionProtectedRoute
-                requiredPermission={PERMISSIONS.SYSTEM_SETTINGS_VIEW}
-                fallbackPath="/dashboard"
-              >
+              <PermissionProtectedRoute requiredPermission={PERMISSIONS.SYSTEM_SETTINGS_VIEW} fallbackPath='/dashboard'>
                 <Overview />
               </PermissionProtectedRoute>
             }
@@ -184,12 +185,9 @@ const AppRouter: React.FC = () => {
 
           {/* Account routes */}
           <Route
-            path="/account/*"
+            path='/account/*'
             element={
-              <PermissionProtectedRoute
-                requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
-                fallbackPath="/dashboard"
-              >
+              <PermissionProtectedRoute requiredPermission={PERMISSIONS.VIEW_ACCOUNTS} fallbackPath='/dashboard'>
                 <Account />
               </PermissionProtectedRoute>
             }
@@ -197,32 +195,23 @@ const AppRouter: React.FC = () => {
             <Route
               index
               element={
-                <PermissionProtectedRoute
-                  requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
-                  fallbackPath="/dashboard"
-                >
+                <PermissionProtectedRoute requiredPermission={PERMISSIONS.VIEW_ACCOUNTS} fallbackPath='/dashboard'>
                   <Overview />
                 </PermissionProtectedRoute>
               }
             />
             <Route
-              path="income/*"
+              path='income/*'
               element={
-                <PermissionProtectedRoute
-                  requiredPermission={PERMISSIONS.VIEW_INCOME}
-                  fallbackPath="/account"
-                >
+                <PermissionProtectedRoute requiredPermission={PERMISSIONS.VIEW_INCOME} fallbackPath='/account'>
                   <Income />
                 </PermissionProtectedRoute>
               }
             />
             <Route
-              path="expense/*"
+              path='expense/*'
               element={
-                <PermissionProtectedRoute
-                  requiredPermission={PERMISSIONS.VIEW_EXPENSE}
-                  fallbackPath="/account"
-                >
+                <PermissionProtectedRoute requiredPermission={PERMISSIONS.VIEW_EXPENSE} fallbackPath='/account'>
                   <Expense />
                 </PermissionProtectedRoute>
               }
@@ -230,35 +219,35 @@ const AppRouter: React.FC = () => {
           </Route>
 
           {/* Province routes */}
-          <Route path="/province" element={<ProvinceLayout />}>
+          <Route path='/province' element={<ProvinceLayout />}>
             <Route
               index
               element={
                 <PermissionProtectedRoute
                   requiredPermission={PERMISSIONS.PROVINCE_ANALYTICS_VIEW}
-                  fallbackPath="/dashboard"
+                  fallbackPath='/dashboard'
                 >
                   <ProvinceDashboard />
                 </PermissionProtectedRoute>
               }
             />
             <Route
-              path="settings"
+              path='settings'
               element={
                 <PermissionProtectedRoute
                   requiredPermission={PERMISSIONS.SYSTEM_SETTINGS_VIEW}
-                  fallbackPath="/dashboard"
+                  fallbackPath='/dashboard'
                 >
                   <ProvinceSettings />
                 </PermissionProtectedRoute>
               }
             />
             <Route
-              path="reports"
+              path='reports'
               element={
                 <PermissionProtectedRoute
                   requiredPermission={PERMISSIONS.PROVINCE_REPORTS_VIEW}
-                  fallbackPath="/dashboard"
+                  fallbackPath='/dashboard'
                 >
                   <ProvinceReports />
                 </PermissionProtectedRoute>
@@ -267,18 +256,14 @@ const AppRouter: React.FC = () => {
           </Route>
 
           {/* Admin routes */}
-          <Route path="/admin">
-            {AdminRoutes}
-          </Route>
+          <Route path='/admin'>{AdminRoutes}</Route>
 
           {/* Private routes */}
-          <Route path="/">
-            {PrivateRoutes}
-          </Route>
+          <Route path='/'>{PrivateRoutes}</Route>
         </Route>
 
         {/* Catch all route */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path='*' element={<Navigate to='/' replace />} />
       </Routes>
     </Suspense>
   );
