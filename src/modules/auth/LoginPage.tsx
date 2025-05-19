@@ -223,7 +223,7 @@ const LoginPage: React.FC = () => {
             </Form.Item>
             <Form.Item>
               <div className='flex justify-between items-center mb-2'>
-                <Link to='/forgot-password' className='text-accent hover:underline text-sm'>
+                <Link to='/auth/reset-password' className='text-accent hover:underline text-sm'>
                   {t('auth:forgotPassword')}
                 </Link>
               </div>
@@ -260,7 +260,7 @@ const LoginPage: React.FC = () => {
             <div className='text-center mt-4'>
               <p className={`text-textSecondary ${isMobile ? 'text-xs' : 'text-sm'}`}>
                 {t('auth:dontHaveAccount')}{' '}
-                <Link to='/register' className='text-accent hover:underline font-medium'>
+                <Link to='/auth/signup' className='text-accent hover:underline font-medium'>
                   {t('auth:register')}
                 </Link>
               </p>

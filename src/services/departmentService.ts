@@ -15,6 +15,7 @@ import {
 import { firestore } from './firebase';
 
 export interface Department {
+  department: string;
   id: string;
   name: string;
   description?: string;

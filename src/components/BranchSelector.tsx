@@ -3,7 +3,7 @@ import { Select, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useBranchesForProvince } from 'hooks/useBranchesForProvince';
 import { useAuth } from 'contexts/AuthContext';
-import { ROLES, RoleType } from '../../constants/roles';
+import { ROLES, RoleType } from 'constants/roles';
 
 interface BranchSelectorProps {
   value?: string;
@@ -39,9 +39,17 @@ const BranchSelector: React.FC<BranchSelectorProps> = ({
 
   // Use includeAll if user has admin access or if it's forced
   const { branches, loading } = useBranchesForProvince({
-    provinceId: hasAdminAccess || forceIncludeAll ? undefined : provinceId,
-    skipCache,
+    provinceId: provinceId, // Always use the provided provinceId
+    skipCache: true, // Force refresh when province changes
     includeAll: hasAdminAccess || forceIncludeAll
+  });
+
+  // Log for debugging
+  console.log('[BranchSelector]', {
+    provinceId,
+    branchesCount: branches.length,
+    loading,
+    hasAdminAccess
   });
 
   return (
@@ -50,7 +58,7 @@ const BranchSelector: React.FC<BranchSelectorProps> = ({
       value={value}
       onChange={onChange}
       placeholder={t('selectBranch', { ns: 'branches' })}
-      disabled={disabled || loading}
+      disabled={disabled || loading || !provinceId}
       loading={loading}
       optionFilterProp='children'
       filterOption={(input, option) => {
@@ -61,14 +69,11 @@ const BranchSelector: React.FC<BranchSelectorProps> = ({
       size={size}
       notFoundContent={loading ? <Spin size='small' /> : t('noBranchFound', { ns: 'branches' })}
     >
-      {branches.map(branch => {
-        // console.log('BranchSelector branch:', branch);
-        return (
-          <Select.Option key={branch.branchCode} value={branch.branchCode}>
-            {branch.branchName}
-          </Select.Option>
-        );
-      })}
+      {branches.map(branch => (
+        <Select.Option key={branch.branchCode} value={branch.branchCode}>
+          {branch.branchName}
+        </Select.Option>
+      ))}
     </Select>
   );
 };

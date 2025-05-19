@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { collection, onSnapshot, query, where } from "firebase/firestore";
-import { useDispatch } from "react-redux";
-import { firestore } from "services/firebase";
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
+import { useDispatch } from 'react-redux';
+import { firestore } from 'services/firebase';
 // TODO: Use 'any' as fallback if Department type import fails
 // import type { Department as DepartmentType } from "services/departmentService";
-import { setDepartments, setLoading, setError } from "store/slices/departmentSlice";
-import { useProvince } from "hooks/useProvince";
+import { setDepartments, setLoading, setError } from 'store/slices/departmentSlice';
+import { useProvince } from 'hooks/useProvince';
 type DepartmentType = any;
 
 interface DepartmentContextType {
@@ -28,31 +28,31 @@ export const DepartmentProvider: React.FC<{ children: ReactNode }> = ({ children
     dispatch(setLoading(true));
     setLoadingState(true);
     setErrorState(null);
-    const departmentsRef = collection(firestore, "data", "company", "departments");
+    const departmentsRef = collection(firestore, 'data', 'company', 'departments');
     const q = query(departmentsRef);
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data: Record<string, DepartmentType> = {};
-      snapshot.forEach((doc) => {
-        data[doc.id] = { id: doc.id, ...doc.data() } as DepartmentType;
-      });
-      setDepartmentsState(data);
-      dispatch(setDepartments(data));
-      dispatch(setLoading(false));
-      setLoadingState(false);
-    }, (err) => {
-      setErrorState(err.message);
-      dispatch(setError(err.message));
-      setLoadingState(false);
-      dispatch(setLoading(false));
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      snapshot => {
+        const data: Record<string, DepartmentType> = {};
+        snapshot.forEach(doc => {
+          data[doc.id] = { id: doc.id, ...doc.data() } as DepartmentType;
+        });
+        setDepartmentsState(data);
+        dispatch(setDepartments(data));
+        dispatch(setLoading(false));
+        setLoadingState(false);
+      },
+      err => {
+        setErrorState(err.message);
+        dispatch(setError(err.message));
+        setLoadingState(false);
+        dispatch(setLoading(false));
+      }
+    );
     return () => unsubscribe();
   }, [currentProvince?.id, dispatch]);
 
-  return (
-    <DepartmentContext.Provider value={{ departments, loading, error }}>
-      {children}
-    </DepartmentContext.Provider>
-  );
+  return <DepartmentContext.Provider value={{ departments, loading, error }}>{children}</DepartmentContext.Provider>;
 };
 
-export const useDepartmentContext = () => useContext(DepartmentContext); 
+export const useDepartmentContext = () => useContext(DepartmentContext);

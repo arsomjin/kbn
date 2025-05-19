@@ -1,30 +1,37 @@
-import React, { useState } from "react";
-import { Form, Popconfirm, Tooltip, Select, Table, Typography, Tag, message } from "antd";
-import type { FormInstance } from "antd/es/form";
-import type { Rule } from "antd/es/form";
-import type { ColumnType } from "antd/es/table";
-import type { ArgsProps } from "antd/es/message";
-import numeral from "numeral";
-import dayjs from "dayjs";
-import { CheckOutlined, DeleteOutlined, InfoCircleOutlined, EditOutlined, RightOutlined, CloseOutlined } from "@ant-design/icons";
-import DealerSelector from "components/DealerSelector/DealerSelector";
-import BranchSelector from "components/BranchSelector";
-import ExpenseCategorySelector from "components/ExpenseCategorySelector";
-import DepartmentSelector from "components/DepartmentSelector";
-import ExpenseNameSelector from "components/ExpenseNameSelector";
-import EmployeeSelector from "components/EmployeeSelector";
-import WithHoldingTaxDocSelector from "components/WithHoldingTaxDocSelector";
-import BankSelector from "components/BankSelector";
-import VehicleSelector from "components/VehicleSelector";
-import DocSelector from "components/DocSelector";
-import StoreLocationSelector from "components/StoreLocationSelector";
-import PriceTypeSelector from "components/PriceTypeSelector";
-import { useSelector } from "react-redux";
-import WithHoldingTaxSelector from "components/WithHoldingTaxSelector";
-import SelfBankSelector from "components/SelfBankSelector";
-import VehicleItemTypeSelector from "components/VehicleItemTypeSelector";
-import { DatePicker, Input, Button } from "elements";
-import CommonSelector from "components/CommonSelector";
+import React, { useState } from 'react';
+import { Form, Popconfirm, Tooltip, Select, Table, Typography, Tag, message } from 'antd';
+import type { FormInstance } from 'antd/es/form';
+import type { Rule } from 'antd/es/form';
+import type { ColumnType } from 'antd/es/table';
+import type { ArgsProps } from 'antd/es/message';
+import numeral from 'numeral';
+import dayjs from 'dayjs';
+import {
+  CheckOutlined,
+  DeleteOutlined,
+  InfoCircleOutlined,
+  EditOutlined,
+  RightOutlined,
+  CloseOutlined
+} from '@ant-design/icons';
+import DealerSelector from 'components/DealerSelector/DealerSelector';
+import BranchSelector from 'components/BranchSelector';
+import ExpenseCategorySelector from 'components/ExpenseCategorySelector';
+import DepartmentSelector from 'components/DepartmentSelector';
+import ExpenseNameSelector from 'components/ExpenseNameSelector';
+import EmployeeSelector from 'components/EmployeeSelector';
+import WithHoldingTaxDocSelector from 'components/WithHoldingTaxDocSelector';
+import BankSelector from 'components/BankSelector';
+import VehicleSelector from 'components/VehicleSelector';
+import DocSelector from 'components/DocSelector';
+import StoreLocationSelector from 'components/StoreLocationSelector';
+import PriceTypeSelector from 'components/PriceTypeSelector';
+import { useSelector } from 'react-redux';
+import WithHoldingTaxSelector from 'components/WithHoldingTaxSelector';
+import SelfBankSelector from 'components/SelfBankSelector';
+import VehicleItemTypeSelector from 'components/VehicleItemTypeSelector';
+import { DatePicker, Input, Button } from 'elements';
+import CommonSelector from 'components/CommonSelector';
 import {
   Seller,
   PriceType,
@@ -41,19 +48,19 @@ import {
   PaymentType,
   PaymentMethod,
   BuyType
-} from "data/Constant";
-import PaymentTypeSelector from "components/PaymentTypeSelector";
-import PaymentMethodSelector from "components/PaymentMethodSelector";
-import CustomerSelector from "components/CustomerSelector";
-import { removeAllNonAlphaNumericCharacters } from "utils/RegEx";
-import { showLog, isDateTypeField, validateMobileNumber, Numb, parser, showWarning } from "utils/functions";
-import BooleanSelector from "components/BooleanSelector";
-import { createArrOfLength } from "utils/functions";
-import ServiceSelector from "components/ServiceSelector/";
-import { getNameFromEmployeeCode } from "modules/Utils";
-import BuyTypeSelector from "components/BuyTypeSelector";
-import ExecutiveSelector from "components/ExecutiveSelector";
-import { TableBaseRecord, TableContext, EditableRowProps, GetInputNodeProps } from "types/table";
+} from 'data/Constant';
+import PaymentTypeSelector from 'components/PaymentTypeSelector';
+import PaymentMethodSelector from 'components/PaymentMethodSelector';
+import CustomerSelector from 'components/CustomerSelector';
+import { removeAllNonAlphaNumericCharacters } from 'utils/RegEx';
+import { showLog, isDateTypeField, validateMobileNumber, Numb, parser, showWarning } from 'utils/functions';
+import BooleanSelector from 'components/BooleanSelector';
+import { createArrOfLength } from 'utils/functions';
+import ServiceSelector from 'components/ServiceSelector/';
+import { getNameFromEmployeeCode } from 'modules/Utils';
+import BuyTypeSelector from 'components/BuyTypeSelector';
+import ExecutiveSelector from 'components/ExecutiveSelector';
+import { TableBaseRecord, TableContext, EditableRowProps, GetInputNodeProps } from 'types/table';
 
 // Update TableColumnConfig type to match Ant Design's requirements
 interface TableColumnConfig<T> extends Omit<ColumnType<T>, 'title'> {
@@ -312,10 +319,10 @@ const handleEnterKey = (
   ref: React.RefObject<HTMLInputElement>,
   save: (value?: any) => void
 ): void => {
-  if (event.key === "Enter") {
+  if (event.key === 'Enter') {
     const input = event.target as HTMLInputElement;
-    const currentValue = input?.value?.trim() || "";
-    showLog("handleEnterKey_value", currentValue);
+    const currentValue = input?.value?.trim() || '';
+    showLog('handleEnterKey_value', currentValue);
     if (!currentValue) {
       if (ref?.current?.blur) {
         ref.current.blur();
@@ -339,69 +346,77 @@ export const getInputNode = ({
 }: GetInputNodeProps): React.ReactNode => {
   const mProps = {
     ref,
-    ...(typeof onBlur === "function" && { onBlur: (e: React.FocusEvent<HTMLInputElement>) => { if (typeof save === 'function') save(e); } }),
+    ...(typeof onBlur === 'function' && {
+      onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
+        if (typeof save === 'function') save(e);
+      }
+    }),
     ...(number && { number: true })
   };
   const selectProps = {
     ref,
-    onSelect: (value: any) => { if (typeof save === 'function') save(value); }
+    onSelect: (value: any) => {
+      if (typeof save === 'function') save(value);
+    }
   };
   const dateProps = {
     ref,
-    onChange: (value: any) => { if (typeof save === 'function') save(value); }
+    onChange: (value: any) => {
+      if (typeof save === 'function') save(value);
+    }
   };
 
-  const isBoolean = ["isDecal", "isTakeOut", "WR", "FOC"].includes(dataIndex);
-  const isSale = ["/sale-machines", "/sale-booking"].includes(path || "");
-  const isWarehouse = ["/warehouse/export-by-transfer"].includes(path || "");
+  const isBoolean = ['isDecal', 'isTakeOut', 'WR', 'FOC'].includes(dataIndex);
+  const isSale = ['/sale-machines', '/sale-booking'].includes(path || '');
+  const isWarehouse = ['/warehouse/export-by-transfer'].includes(path || '');
 
-  let inputNode = <Input {...mProps} size={size || "small"} />;
+  let inputNode = <Input {...mProps} size={size || 'small'} />;
 
   if (isBoolean) {
-    inputNode = <BooleanSelector {...mProps} size={size || "small"} />;
+    inputNode = <BooleanSelector {...mProps} size={size || 'small'} />;
   } else {
     switch (dataIndex) {
-      case "payer":
-      case "senderEmployee":
-      case "picker":
-      case "receiverEmployee":
-      case "sender":
-      case "recordedBy":
-      case "verifiedBy":
-      case "deliveredBy":
-      case "receivedBy":
-      case "person":
-      case "employeeId":
-      case "employeeCode":
-      case "depositor":
+      case 'payer':
+      case 'senderEmployee':
+      case 'picker':
+      case 'receiverEmployee':
+      case 'sender':
+      case 'recordedBy':
+      case 'verifiedBy':
+      case 'deliveredBy':
+      case 'receivedBy':
+      case 'person':
+      case 'employeeId':
+      case 'employeeCode':
+      case 'depositor':
         inputNode = (
-          <EmployeeSelector placeholder="ชื่อ (ชื่อเล่น)" size={size || "small"} allowNotInList {...selectProps} />
+          <EmployeeSelector placeholder='ชื่อ (ชื่อเล่น)' size={size || 'small'} allowNotInList {...selectProps} />
         );
         break;
 
       case 'executiveId':
         inputNode = (
-          <ExecutiveSelector placeholder="ผู้บริหาร" size={size || 'small'} allowNotInList {...selectProps} />
+          <ExecutiveSelector placeholder='ผู้บริหาร' size={size || 'small'} allowNotInList {...selectProps} />
         );
         break;
 
       case 'expenseBranch':
-        inputNode = <BranchSelector placeholder="ค่าใช้จ่ายประจำสาขา" size={size || 'small'} {...selectProps} />;
+        inputNode = <BranchSelector placeholder='ค่าใช้จ่ายประจำสาขา' size={size || 'small'} {...selectProps} />;
         break;
 
       case 'department':
-        inputNode = <DepartmentSelector placeholder="แผนก" size={size || 'small'} {...selectProps} />;
+        inputNode = <DepartmentSelector placeholder='แผนก' size={size || 'small'} {...selectProps} />;
         break;
 
       case 'expenseCategoryId':
-        inputNode = <ExpenseCategorySelector placeholder="หมวดรายจ่าย" size={size || 'small'} {...selectProps} />;
+        inputNode = <ExpenseCategorySelector placeholder='หมวดรายจ่าย' size={size || 'small'} {...selectProps} />;
         break;
 
       case 'expenseAccountNameId':
       case 'expenseAccountName':
         inputNode = (
           <ExpenseNameSelector
-            placeholder="ชื่อรายการ"
+            placeholder='ชื่อรายการ'
             size={size || 'small'}
             value={record?.expenseName}
             onSelect={value => selectProps.onSelect && selectProps.onSelect(value)}
@@ -412,12 +427,12 @@ export const getInputNode = ({
 
       case 'dealer':
       case 'receiver':
-        inputNode = <DealerSelector placeholder="ชื่อผู้จำหน่าย" size={size || 'small'} {...selectProps} />;
+        inputNode = <DealerSelector placeholder='ชื่อผู้จำหน่าย' size={size || 'small'} {...selectProps} />;
         break;
 
       case 'seller':
         inputNode = (
-          <Select placeholder="ผู้จำหน่าย" size={size || 'small'} {...selectProps}>
+          <Select placeholder='ผู้จำหน่าย' size={size || 'small'} {...selectProps}>
             {Object.entries(Seller).map(([key, value]) => (
               <Option key={key} value={key}>
                 {value}
@@ -430,7 +445,7 @@ export const getInputNode = ({
       case 'productCode':
         inputNode = (
           <VehicleSelector
-            placeholder="รุ่น/ รหัส / ชื่อสินค้า"
+            placeholder='รุ่น/ รหัส / ชื่อสินค้า'
             size={size || 'small'}
             record={record || {}}
             {...selectProps}
@@ -440,7 +455,7 @@ export const getInputNode = ({
 
       case 'isUsed':
         inputNode = (
-          <Select className="text-primary" {...selectProps} size={size || 'small'}>
+          <Select className='text-primary' {...selectProps} size={size || 'small'}>
             <Select.Option value={false}>ใหม่</Select.Option>
             <Select.Option value={true}>มือสอง</Select.Option>
           </Select>
@@ -450,13 +465,15 @@ export const getInputNode = ({
       case 'pCode':
         inputNode = (
           <DocSelector
-            collection="data/products/partList"
+            collection='data/products/partList'
             orderBy={['pCode', 'name', 'model']}
             labels={['pCode', 'name', 'model']}
             size={size || 'small'}
             dropdownStyle={{ minWidth: 420 }}
             dropdownAlign={{ offset: [-80, 4] }}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+              handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))
+            }
             {...selectProps}
           />
         );
@@ -475,11 +492,13 @@ export const getInputNode = ({
             size={size || 'small'}
             dropdownStyle={{ minWidth: 300 }}
             dropdownAlign={{ offset: [-80, 4] }}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+              handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))
+            }
             {...selectProps}
           />
         ) : (
-          <ServiceSelector placeholder="พิมพ์ รหัส/ชื่อบริการ" size={size || 'small'} {...selectProps} />
+          <ServiceSelector placeholder='พิมพ์ รหัส/ชื่อบริการ' size={size || 'small'} {...selectProps} />
         );
         break;
       }
@@ -488,7 +507,11 @@ export const getInputNode = ({
       case 'vehicleNo': {
         const nextProps = {
           ...selectProps,
-          ...(typeof onBlur === 'function' && { onBlur: (e: React.FocusEvent<HTMLInputElement>) => { if (typeof save === 'function') save(e); } })
+          ...(typeof onBlur === 'function' && {
+            onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
+              if (typeof save === 'function') save(e);
+            }
+          })
         };
         let vNoQueries = [];
         if (record?.productCode && record.productCode !== 'undefined') {
@@ -503,15 +526,17 @@ export const getInputNode = ({
 
         inputNode = (
           <DocSelector
-            collection="sections/stocks/vehicles"
+            collection='sections/stocks/vehicles'
             orderBy={['vehicleNo']}
             labels={['vehicleNo', 'model']}
             wheres={vNoQueries}
             size={size || 'small'}
-            mode="tags"
+            mode='tags'
             hasKeywords
             startSearchAt={2}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+              handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))
+            }
             {...nextProps}
           />
         );
@@ -521,7 +546,11 @@ export const getInputNode = ({
       case 'peripheralNo': {
         const nextProps2 = {
           ...selectProps,
-          ...(typeof onBlur === 'function' && { onBlur: (e: React.FocusEvent<HTMLInputElement>) => { if (typeof save === 'function') save(e); } })
+          ...(typeof onBlur === 'function' && {
+            onBlur: (e: React.FocusEvent<HTMLInputElement>) => {
+              if (typeof save === 'function') save(e);
+            }
+          })
         };
         let peripheralQueries = [];
         if (record?.branchCode) {
@@ -533,15 +562,17 @@ export const getInputNode = ({
 
         inputNode = (
           <DocSelector
-            collection="sections/stocks/vehicles"
+            collection='sections/stocks/vehicles'
             orderBy={['peripheralNo']}
             labels={['peripheralNo', 'model']}
             wheres={peripheralQueries}
             size={size || 'small'}
-            mode="tags"
+            mode='tags'
             hasKeywords
             startSearchAt={2}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+              handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))
+            }
             {...nextProps2}
           />
         );
@@ -551,14 +582,14 @@ export const getInputNode = ({
       case 'peripheralNo_bak':
         inputNode = (
           <DocSelector
-            collection="sections/stocks/peripherals"
-            orderBy="peripheralNo"
+            collection='sections/stocks/peripherals'
+            orderBy='peripheralNo'
             wheres={[
               ['reserved', '==', null],
               ['sold', '==', null]
             ]}
             size={size || 'small'}
-            mode="tags"
+            mode='tags'
             allowNotInList
             {...selectProps}
           />
@@ -574,10 +605,12 @@ export const getInputNode = ({
       case 'turnOverEngineNo':
         inputNode = (
           <Select
-            mode="tags"
+            mode='tags'
             notFoundContent={null}
             size={size || 'small'}
-            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))}
+            onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) =>
+              handleEnterKey(e, ref as React.RefObject<HTMLInputElement>, save || (() => undefined))
+            }
             {...selectProps}
           />
         );
@@ -586,7 +619,7 @@ export const getInputNode = ({
       case 'customer':
         inputNode = (
           <CustomerSelector
-            placeholder="พิมพ์ ชื่อ/นามสกุล/เบอร์โทร/รหัสลูกค้า"
+            placeholder='พิมพ์ ชื่อ/นามสกุล/เบอร์โทร/รหัสลูกค้า'
             size={size || 'small'}
             {...selectProps}
           />
@@ -613,11 +646,11 @@ export const getInputNode = ({
         break;
 
       case 'inputDate':
-        inputNode = <DatePicker placeholder="วันที่คีย์" size={size || 'small'} {...dateProps} />;
+        inputNode = <DatePicker placeholder='วันที่คีย์' size={size || 'small'} {...dateProps} />;
         break;
 
       case 'year':
-        inputNode = <DatePicker picker="year" size={size || 'small'} {...dateProps} />;
+        inputNode = <DatePicker picker='year' size={size || 'small'} {...dateProps} />;
         break;
 
       case 'bank':
@@ -636,7 +669,7 @@ export const getInputNode = ({
 
       case 'branchCode':
       case 'payToBranch':
-        inputNode = <BranchSelector branchCode="true" size={size || 'small'} {...selectProps} />;
+        inputNode = <BranchSelector size={size || 'small'} {...selectProps} />;
         break;
 
       case 'storeLocationCode': {
@@ -657,7 +690,7 @@ export const getInputNode = ({
         inputNode = (
           <CommonSelector
             size={size || 'small'}
-            placeholder="ประเภท"
+            placeholder='ประเภท'
             optionData={ProductType}
             dropdownStyle={{ minWidth: 220 }}
             {...selectProps}
@@ -669,7 +702,7 @@ export const getInputNode = ({
         inputNode = (
           <CommonSelector
             size={size || 'small'}
-            placeholder="ประเภท"
+            placeholder='ประเภท'
             optionData={['SKC', 'KBN']}
             dropdownStyle={{ minWidth: 120 }}
             {...selectProps}
@@ -681,7 +714,7 @@ export const getInputNode = ({
         inputNode = (
           <CommonSelector
             size={size || 'small'}
-            placeholder="ประเภท"
+            placeholder='ประเภท'
             dropdownStyle={{ minWidth: 220 }}
             optionData={isWarehouse ? WVehicleType : VehicleType}
             {...selectProps}
@@ -694,7 +727,7 @@ export const getInputNode = ({
           <CommonSelector
             optionData={['อะไหล่', 'บริการ']}
             size={size || 'small'}
-            placeholder="ประเภท"
+            placeholder='ประเภท'
             dropdownStyle={{ minWidth: 100 }}
             {...selectProps}
           />
@@ -707,7 +740,7 @@ export const getInputNode = ({
           <CommonSelector
             optionData={returnOption}
             size={size || 'small'}
-            placeholder="จำนวน"
+            placeholder='จำนวน'
             dropdownStyle={{ minWidth: 80 }}
             {...selectProps}
           />
@@ -742,7 +775,7 @@ export const getInputNode = ({
 
       case 'isVatIncluded':
         inputNode = (
-          <Select placeholder="VAT" size={size || 'small'} {...selectProps}>
+          <Select placeholder='VAT' size={size || 'small'} {...selectProps}>
             <Option value={true}>{'รวม VAT'}</Option>
             <Option value={false}>{'ไม่รวม VAT'}</Option>
           </Select>
@@ -751,7 +784,7 @@ export const getInputNode = ({
 
       case 'total':
       case 'amount':
-        inputNode = <Input {...mProps} size={size || 'small'} suffix="บาท" placeholder="จำนวนเงิน" />;
+        inputNode = <Input {...mProps} size={size || 'small'} suffix='บาท' placeholder='จำนวนเงิน' />;
         break;
 
       default:
@@ -785,11 +818,11 @@ export const getRenderColumns = (
   } = db;
   return columns.map((col, n) => {
     if (col.children || col.render) {
-      return { ...col, title: <div className="text-center">{col.title}</div> };
+      return { ...col, title: <div className='text-center'>{col.title}</div> };
     }
     let mCol = {
       ...col,
-      title: <div className="text-center">{col.title}</div>
+      title: <div className='text-center'>{col.title}</div>
     };
     if ('titleAlign' in col && (col as any).titleAlign) {
       switch ((col as any).titleAlign) {
@@ -802,7 +835,7 @@ export const getRenderColumns = (
         case 'right':
           mCol = {
             ...mCol,
-            title: <div className="text-right">{col.title}</div>
+            title: <div className='text-right'>{col.title}</div>
           };
           break;
         default:
@@ -837,7 +870,7 @@ export const getRenderColumns = (
       mCol = {
         ...mCol,
         render: text => (
-          <Tooltip placement="topLeft" title={text}>
+          <Tooltip placement='topLeft' title={text}>
             {text}
           </Tooltip>
         )
@@ -877,7 +910,13 @@ export const getRenderColumns = (
         ...mCol,
         align: 'center',
         render: txt => (
-          <div className={`text-center ${txt ? 'text-success' : 'text-warning'}`}>{txt ? <CheckOutlined className="text-success" twoToneColor="#52c41a" /> : <CloseOutlined className="text-warning" />}</div>
+          <div className={`text-center ${txt ? 'text-success' : 'text-warning'}`}>
+            {txt ? (
+              <CheckOutlined className='text-success' twoToneColor='#52c41a' />
+            ) : (
+              <CloseOutlined className='text-warning' />
+            )}
+          </div>
         )
       };
     } else {
@@ -1059,7 +1098,9 @@ export const getRenderColumns = (
         case 'priceType':
           mCol = {
             ...mCol,
-            render: text => <div className={!text ? 'transparent' : ''}>{text ? PriceType[text as keyof typeof PriceType] : '-'}</div>
+            render: text => (
+              <div className={!text ? 'transparent' : ''}>{text ? PriceType[text as keyof typeof PriceType] : '-'}</div>
+            )
           };
           break;
         case 'hasWHTax':
@@ -1067,7 +1108,9 @@ export const getRenderColumns = (
             ...mCol,
             render: text => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && WitholdingTax[text as keyof typeof WitholdingTax] ? WitholdingTax[text as keyof typeof WitholdingTax] : text || '-'}
+                {text && WitholdingTax[text as keyof typeof WitholdingTax]
+                  ? WitholdingTax[text as keyof typeof WitholdingTax]
+                  : text || '-'}
               </div>
             )
           };
@@ -1077,7 +1120,9 @@ export const getRenderColumns = (
             ...mCol,
             render: text => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && WitholdingTaxDoc[text as keyof typeof WitholdingTaxDoc] ? WitholdingTaxDoc[text as keyof typeof WitholdingTaxDoc] : text || '-'}
+                {text && WitholdingTaxDoc[text as keyof typeof WitholdingTaxDoc]
+                  ? WitholdingTaxDoc[text as keyof typeof WitholdingTaxDoc]
+                  : text || '-'}
               </div>
             )
           };
@@ -1087,7 +1132,9 @@ export const getRenderColumns = (
             ...mCol,
             render: text => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && PaymentType[text as keyof typeof PaymentType] ? PaymentType[text as keyof typeof PaymentType] : text || '-'}
+                {text && PaymentType[text as keyof typeof PaymentType]
+                  ? PaymentType[text as keyof typeof PaymentType]
+                  : text || '-'}
               </div>
             )
           };
@@ -1097,7 +1144,9 @@ export const getRenderColumns = (
             ...mCol,
             render: text => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && PaymentMethod[text as keyof typeof PaymentMethod] ? PaymentMethod[text as keyof typeof PaymentMethod] : text || '-'}
+                {text && PaymentMethod[text as keyof typeof PaymentMethod]
+                  ? PaymentMethod[text as keyof typeof PaymentMethod]
+                  : text || '-'}
               </div>
             )
           };
@@ -1116,7 +1165,9 @@ export const getRenderColumns = (
           mCol = {
             ...mCol,
             render: text => (
-              <div className={!text && text !== 0 ? 'transparent' : ''}>{text ? VehicleItemType[text as keyof typeof VehicleItemType] : '-'}</div>
+              <div className={!text && text !== 0 ? 'transparent' : ''}>
+                {text ? VehicleItemType[text as keyof typeof VehicleItemType] : '-'}
+              </div>
             )
           };
           break;
@@ -1134,11 +1185,11 @@ export const getRenderColumns = (
           mCol = {
             ...mCol,
             render: txt => (
-              <div className="d-flex align-items-center justify-content-center">
+              <div className='d-flex align-items-center justify-content-center'>
                 {txt ? (
-                  <CheckOutlined className="text-success" twoToneColor="#52c41a" />
+                  <CheckOutlined className='text-success' twoToneColor='#52c41a' />
                 ) : (
-                  <InfoCircleOutlined className="text-warning" spin />
+                  <InfoCircleOutlined className='text-warning' spin />
                 )}
               </div>
             )
@@ -1148,11 +1199,11 @@ export const getRenderColumns = (
           mCol = {
             ...mCol,
             render: txt => (
-              <div className="d-flex align-items-center justify-content-center">
+              <div className='d-flex align-items-center justify-content-center'>
                 {txt ? (
-                  <CheckOutlined className="text-success" twoToneColor="#52c41a" />
+                  <CheckOutlined className='text-success' twoToneColor='#52c41a' />
                 ) : (
-                  <InfoCircleOutlined className="text-warning" spin />
+                  <InfoCircleOutlined className='text-warning' spin />
                 )}
               </div>
             )
@@ -1196,7 +1247,9 @@ export const getRenderColumns = (
           mCol = {
             ...mCol,
             render: (arr: GiveawayTag[]) => (
-              <span>{arr ? arr.map((tag: GiveawayTag, i: number) => <Tag key={i}>{`${tag.name} x${tag.total}`}</Tag>) : '-'}</span>
+              <span>
+                {arr ? arr.map((tag: GiveawayTag, i: number) => <Tag key={i}>{`${tag.name} x${tag.total}`}</Tag>) : '-'}
+              </span>
             )
           };
           break;
@@ -1268,7 +1321,7 @@ export const getRenderColumns = (
         number: col.number,
         editable: col.editable,
         dataIndex: col.dataIndex,
-        title: <div className="text-center">{col.title}</div>,
+        title: <div className='text-center'>{col.title}</div>,
         required: col.required,
         ...(typeof handleSave !== 'undefined' && { handleSave }),
         ...(typeof onKeyDown !== 'undefined' && { onKeyDown }),
@@ -1354,12 +1407,12 @@ export const GetColumns = ({
 
   // Generate base columns
   let mColumns = getRenderColumns(
-    columns, 
-    handleSave || (() => undefined), 
-    db, 
-    isEditing || (() => false), 
-    onKeyDown || (() => undefined), 
-    onBlur || (() => undefined), 
+    columns,
+    handleSave || (() => undefined),
+    db,
+    isEditing || (() => false),
+    onKeyDown || (() => undefined),
+    onBlur || (() => undefined),
     size
   );
 
@@ -1378,21 +1431,23 @@ export const GetColumns = ({
         if (!alreadyGone) {
           return (
             <Popconfirm
-              title="แน่ใจหรือไม่ ?"
+              title='แน่ใจหรือไม่ ?'
               onConfirm={() => handleDelete?.(record.key)}
-              okText="ลบ"
-              cancelText="ยกเลิก"
+              okText='ลบ'
+              cancelText='ยกเลิก'
             >
-              <DeleteOutlined className="text-danger mb-2" />
+              <DeleteOutlined className='text-danger mb-2' />
             </Popconfirm>
           );
         }
         return (
           <Button
-            type="link"
-            icon={<DeleteOutlined className="text-danger" />}
+            type='link'
+            icon={<DeleteOutlined className='text-danger' />}
             onClick={() =>
-              message.warning(`ไม่สามารถลบได้ ${record.deleted ? 'รายการถูกลบแล้ว' : record.completed ? 'ทำรายการสำเร็จแล้ว' : ''}`)
+              message.warning(
+                `ไม่สามารถลบได้ ${record.deleted ? 'รายการถูกลบแล้ว' : record.completed ? 'ทำรายการสำเร็จแล้ว' : ''}`
+              )
             }
           />
         );
@@ -1418,7 +1473,7 @@ export const GetColumns = ({
       key: 'selectColumn' as string,
       render: (_: any, record: any) => (
         <Button
-          type="link"
+          type='link'
           icon={<RightOutlined />}
           onClick={() => {
             // If it's not deleted and handleSelect is present, call it.
@@ -1441,7 +1496,7 @@ export const GetColumns = ({
       key: 'editColumn',
       render: (_: any, record: any) => (
         <Button
-          type="link"
+          type='link'
           icon={<EditOutlined />}
           onClick={() => {
             const cannotEdit = record?.deleted || record?.rejected || record?.completed;
@@ -1550,13 +1605,13 @@ export const TableSummary = ({
   }
 
   return (
-    <Table.Summary.Row className="bg-gray-100 dark:bg-gray-800">
+    <Table.Summary.Row className='bg-gray-100 dark:bg-gray-800'>
       {Array.from(new Array(startAt), (_, i) => (
         <Table.Summary.Cell key={i} index={i} />
       ))}
       <Table.Summary.Cell index={startAt}>
         <div style={{ textAlign: labelAlign || 'right' }}>
-          <Text className="text-gray-700 dark:text-gray-200">{label || 'ยอดรวม'}</Text>
+          <Text className='text-gray-700 dark:text-gray-200'>{label || 'ยอดรวม'}</Text>
         </div>
       </Table.Summary.Cell>
       {sumKeys && Array.isArray(sumKeys) ? (
@@ -1569,7 +1624,9 @@ export const TableSummary = ({
                 return (
                   <Table.Summary.Cell key={colDataIndex} index={idx + startAt + 1}>
                     <div style={{ textAlign: align || 'right' }}>
-                      <Text className={`${sumClassName && sumClassName[idx] ? sumClassName[idx] : 'text-primary dark:text-primary-light'}`}>
+                      <Text
+                        className={`${sumClassName && sumClassName[idx] ? sumClassName[idx] : 'text-primary dark:text-primary-light'}`}
+                      >
                         {numeral(sumObj[colDataIndex]).format(noDecimal ? '0,0' : '0,0.00')}
                       </Text>
                     </div>
@@ -1583,7 +1640,9 @@ export const TableSummary = ({
           Object.keys(sumObj).map((k, i) => (
             <Table.Summary.Cell key={k} index={i + startAt + 1}>
               <div style={{ textAlign: align || 'right' }}>
-                <Text className={`${sumClassName && sumClassName[i] ? sumClassName[i] : 'text-primary dark:text-primary-light'}`}>
+                <Text
+                  className={`${sumClassName && sumClassName[i] ? sumClassName[i] : 'text-primary dark:text-primary-light'}`}
+                >
                   {numeral(sumObj[k]).format(noDecimal ? '0,0' : '0,0.00')}
                 </Text>
               </div>
@@ -1594,7 +1653,9 @@ export const TableSummary = ({
         // If no sumKeys, just show total
         <Table.Summary.Cell index={startAt + 1}>
           <div style={{ textAlign: align || 'right' }}>
-            <Text className="text-primary dark:text-primary-light">{numeral(total).format(noDecimal ? '0,0' : '0,0.00')}</Text>
+            <Text className='text-primary dark:text-primary-light'>
+              {numeral(total).format(noDecimal ? '0,0' : '0,0.00')}
+            </Text>
           </div>
         </Table.Summary.Cell>
       )}
@@ -1602,7 +1663,9 @@ export const TableSummary = ({
   );
 };
 
-export const getRules = (rules: (string | { pattern?: RegExp; message?: string; minLength?: number; minMessage?: string })[]) => {
+export const getRules = (
+  rules: (string | { pattern?: RegExp; message?: string; minLength?: number; minMessage?: string })[]
+) => {
   const requiredRule = [{ required: true, message: 'กรุณาป้อนข้อมูล' }];
   const numberRule = [
     () => ({

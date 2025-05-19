@@ -1,4 +1,14 @@
-import { User, UserProfile, RoleType, UserStatus, UserType, EmployeeInfo, VisitorInfo, UserAuth, UserRequestType } from "../types/user";
+import {
+  User,
+  UserProfile,
+  RoleType,
+  UserStatus,
+  UserType,
+  EmployeeInfo,
+  VisitorInfo,
+  UserAuth,
+  UserRequestType
+} from '../types/user';
 
 /**
  * Form data interface for user registration/update
@@ -10,10 +20,10 @@ export interface UserFormData {
   email: string;
   phoneNumber?: string;
   photoURL?: string | null;
-  
+
   // Province info
   province?: string;
-  
+
   // Employee info
   branch?: string;
   department?: string;
@@ -22,7 +32,7 @@ export interface UserFormData {
   employeeCode?: string;
   workBegin?: string;
   workEnd?: string | null;
-  
+
   // Visitor info
   purpose?: string;
   organization?: string;
@@ -37,7 +47,7 @@ export const transformUserData = (
   formData: UserFormData,
   uid: string,
   userType: UserType,
-  currentUser?: User,
+  currentUser?: User
 ): Partial<User> => {
   const timestamp = Date.now();
   const displayName = `${formData.firstName} ${formData.lastName}`.trim();
@@ -60,26 +70,26 @@ export const transformUserData = (
   // Base fields
   const baseFields: Partial<User> = {
     auth,
-    status: (currentUser?.status || "pending") as UserStatus,
-    role: (currentUser?.role || "pending") as RoleType,
+    status: (currentUser?.status || 'pending') as UserStatus,
+    role: (currentUser?.role || 'pending') as RoleType,
     type: userType,
     deleted: false,
     created: currentUser?.created || timestamp,
     updated: timestamp,
     inputBy: uid,
-    provinceId: formData.province || ""
+    provinceId: formData.province || ''
   };
 
   // Type-specific information
-  if (userType === "employee") {
+  if (userType === 'employee') {
     const employeeInfo: EmployeeInfo = {
-      employeeCode: formData.employeeId || "",
+      employeeCode: formData.employeeId || '',
       department: formData.department,
       position: formData.position,
       branch: formData.branch,
       workBegin: formData.workBegin || null,
       workEnd: formData.workEnd,
-      employeeId: ""
+      employeeId: ''
     };
 
     return {
@@ -88,7 +98,7 @@ export const transformUserData = (
     };
   } else {
     const visitorInfo: VisitorInfo = {
-      purpose: formData.purpose || "",
+      purpose: formData.purpose || '',
       organization: formData.organization,
       startDate: formData.startDate || new Date().toISOString(),
       endDate: formData.endDate
@@ -114,8 +124,8 @@ export const transformToUserProfile = (user: User): UserProfile => {
     type: user.type,
     provinceId: user.provinceId,
     role: user.role,
-    created: user.created.toString(),
-    updated: user.updated.toString(),
+    created: user.created ? new Date(user.created).toISOString() : '',
+    updated: user.updated ? new Date(user.updated).toISOString() : '',
     inputBy: user.inputBy,
     auth: {
       displayName: user.auth.displayName,
@@ -124,9 +134,9 @@ export const transformToUserProfile = (user: User): UserProfile => {
       firstName: user.auth.firstName || '',
       lastName: user.auth.lastName || '',
       isAnonymous: user.auth.isAnonymous || false,
-      lastLogin: user.auth.lastLogin?.toString() || null,
+      lastLogin: user.auth.lastLogin ? new Date(user.auth.lastLogin).toISOString() : null,
       phoneNumber: user.auth.phoneNumber || '',
-      photoURL: user.auth.photoURL || '',
+      photoURL: user.auth.photoURL || ''
     },
     company: '',
     purpose: ''
@@ -140,7 +150,7 @@ export const transformToUserProfile = (user: User): UserProfile => {
         department: user.employeeInfo.department || '',
         employeeCode: user.employeeInfo.employeeCode || '',
         employeeId: user.employeeInfo.employeeId,
-        workBegin: user.employeeInfo.workBegin || null,
+        workBegin: user.employeeInfo.workBegin || null
       },
       requestedType: 'employee' as UserRequestType
     } as UserProfile;
@@ -159,18 +169,32 @@ export const transformToUserProfile = (user: User): UserProfile => {
 };
 
 /**
- * Remove all keys with undefined values from an object (shallow)
+ * Removes undefined fields and converts Date objects to ISO strings
+ * @param obj Object to clean
+ * @returns Cleaned object with no undefined fields and serialized dates
  */
-// In userTransform.ts
-export function removeUndefinedFields<T>(obj: T): T {
-  if (Array.isArray(obj)) {
-    return obj.map(removeUndefinedFields) as any;
-  } else if (obj && typeof obj === 'object') {
-    return Object.fromEntries(
-      Object.entries(obj)
-        .filter(([_, v]) => v !== undefined)
-        .map(([k, v]) => [k, removeUndefinedFields(v)])
-    ) as T;
+export const removeUndefinedFields = (obj: any): any => {
+  if (obj === null || obj === undefined) {
+    return obj;
   }
+
+  if (obj instanceof Date) {
+    return obj.toISOString();
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(item => removeUndefinedFields(item));
+  }
+
+  if (typeof obj === 'object') {
+    const cleaned: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (value !== undefined) {
+        cleaned[key] = removeUndefinedFields(value);
+      }
+    }
+    return cleaned;
+  }
+
   return obj;
-}
+};

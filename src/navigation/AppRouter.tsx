@@ -60,20 +60,32 @@ const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 export const AppRouter: React.FC = () => {
-  const { user, userProfile, loading } = useAuth();
+  const { userProfile, isLoading, isAuthenticated, hasRole } = useAuth();
   const { t } = useTranslation();
+  const isProfileComplete = userProfile?.firstName && userProfile?.lastName;
 
-  if (loading) {
+  console.log('[AppRouter] State:', {
+    userProfile,
+    isLoading,
+    isAuthenticated,
+    isProfileComplete
+  });
+
+  // Show loading spinner only during initial loading
+  if (isLoading) {
+    console.log('[AppRouter] Showing loading spinner due to initial loading');
     return <LoadingSpinner />;
   }
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        {/* Role Check route - implements post-authentication check */}
-        <Route path='/role-check' element={<RoleCheck />} />
+        {/* Redirect /login to /auth/login */}
+        <Route path='/login' element={<Navigate to='/auth/login' replace />} />
+        <Route path='/signup' element={<Navigate to='/auth/signup' replace />} />
+        <Route path='/reset-password' element={<Navigate to='/auth/reset-password' replace />} />
 
-        {/* Auth routes - public, block if already authenticated */}
+        {/* Public routes */}
         <Route
           path='/auth'
           element={
@@ -84,13 +96,17 @@ export const AppRouter: React.FC = () => {
             </PublicOnlyRoute>
           }
         >
+          <Route index element={<Navigate to='/auth/login' replace />} />
           <Route path='login' element={<LoginPage />} />
           <Route path='signup' element={<RegisterPage />} />
           <Route path='reset-password' element={<ForgotPasswordPage />} />
           <Route path='verification' element={<div>{t('auth.verificationPage')}</div>} />
         </Route>
 
-        {/* Pending page for users awaiting approval */}
+        {/* Role check route */}
+        <Route path='/role-check' element={<RoleCheck />} />
+
+        {/* Pending page */}
         <Route
           path='/pending'
           element={
@@ -118,14 +134,14 @@ export const AppRouter: React.FC = () => {
             </ProtectedRoute>
           }
         >
-          {/* Landing page based on role */}
+          {/* Root route - redirects based on user profile */}
           <Route
             index
             element={
               userProfile ? (
-                userProfile.role === ROLES.PENDING ? (
+                hasRole(ROLES.PENDING) ? (
                   <Navigate to='/pending' replace />
-                ) : !userProfile.isProfileComplete ? (
+                ) : !isProfileComplete ? (
                   <Navigate to='/complete-profile' replace />
                 ) : (
                   <Navigate to={getLandingPage(userProfile)} replace />
@@ -158,33 +174,12 @@ export const AppRouter: React.FC = () => {
               </PermissionProtectedRoute>
             }
           >
-            <Route
-              index
-              element={
-                <PermissionProtectedRoute requiredPermission={PERMISSIONS.VIEW_ACCOUNTS} fallbackPath='/dashboard'>
-                  <Overview />
-                </PermissionProtectedRoute>
-              }
-            />
-            <Route
-              path='income/*'
-              element={
-                <PermissionProtectedRoute requiredPermission={PERMISSIONS.VIEW_INCOME} fallbackPath='/account'>
-                  <Income />
-                </PermissionProtectedRoute>
-              }
-            />
-            <Route
-              path='expense/*'
-              element={
-                <PermissionProtectedRoute requiredPermission={PERMISSIONS.VIEW_EXPENSE} fallbackPath='/account'>
-                  <Expense />
-                </PermissionProtectedRoute>
-              }
-            />
+            <Route index element={<Overview />} />
+            <Route path='income/*' element={<Income />} />
+            <Route path='expense/*' element={<Expense />} />
           </Route>
 
-          {/* Province routes (multi-province: always require provinceId param) */}
+          {/* Province routes */}
           <Route
             path='/province/:provinceId'
             element={
@@ -199,11 +194,7 @@ export const AppRouter: React.FC = () => {
                 <PermissionProtectedRoute
                   requiredPermission={PERMISSIONS.PROVINCE_ANALYTICS_VIEW}
                   fallbackPath='/dashboard'
-                  provinceCheck={() => {
-                    // provinceCheck must be a zero-arg function
-                    // The PermissionProtectedRoute will use useParams internally
-                    return true;
-                  }}
+                  provinceCheck={() => true}
                 >
                   <ProvinceDashboard />
                 </PermissionProtectedRoute>
@@ -236,13 +227,13 @@ export const AppRouter: React.FC = () => {
           </Route>
 
           {/* Admin routes */}
-          <Route path='/admin'>{AdminRoutes}</Route>
+          <Route path='/admin/*'>{AdminRoutes}</Route>
 
           {/* Private routes */}
-          <Route path='/'>{PrivateRoutes}</Route>
+          <Route path='/*'>{PrivateRoutes}</Route>
         </Route>
 
-        {/* Not found route (avoid infinite redirect loop) */}
+        {/* Not found route */}
         <Route path='/not-found' element={<NotFound />} />
         <Route path='*' element={<Navigate to='/not-found' replace />} />
       </Routes>

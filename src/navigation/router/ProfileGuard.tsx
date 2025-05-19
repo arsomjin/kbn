@@ -5,11 +5,12 @@ import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 
 const ProfileGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { userProfile, isLoading } = useAuth();
+  const { userProfile, isLoading, isAuthenticated } = useAuth();
   const location = useLocation();
 
   console.log('[ProfileGuard] State:', {
     isLoading,
+    isAuthenticated,
     userProfile: userProfile
       ? {
           role: userProfile.role,
@@ -29,12 +30,19 @@ const ProfileGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => 
     );
   }
 
-  // If user is not authenticated or profile is complete, redirect to appropriate page
-  if (!userProfile) {
-    console.log('[ProfileGuard] No user profile - redirecting to login');
+  // If user is not authenticated, redirect to login
+  if (!isAuthenticated) {
+    console.log('[ProfileGuard] Not authenticated - redirecting to login');
     return <Navigate to='/auth/login' state={{ from: location }} replace />;
   }
 
+  // If user is authenticated but has no profile, show profile completion
+  if (!userProfile) {
+    console.log('[ProfileGuard] No user profile - showing profile completion');
+    return <>{children}</>;
+  }
+
+  // If profile is complete, redirect to landing page
   if (userProfile.firstName && userProfile.lastName) {
     console.log('[ProfileGuard] Profile complete - redirecting to landing page');
     return <Navigate to='/' replace />;

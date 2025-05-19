@@ -28,6 +28,8 @@ const RoleCheck: React.FC = () => {
 
   const isMobile = windowWidth < 480;
 
+  const isProfileComplete = userProfile?.firstName && userProfile?.lastName;
+
   // Use hasPrivilegedAccess utility for privilege check
   const isPrivileged = hasPrivilegedAccess(userProfile);
 
@@ -44,7 +46,7 @@ const RoleCheck: React.FC = () => {
     return <Navigate to='/auth/login' replace />;
   }
 
-  if (!userProfile) {
+  if (!isProfileComplete) {
     return <Navigate to='/complete-profile' replace />;
   }
 

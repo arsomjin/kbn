@@ -21,7 +21,7 @@ import { createNotification, NotificationType } from '../../services/notificatio
 import { motion } from 'framer-motion';
 import ProvinceSelector from '../../components/common/ProvinceSelector';
 import InternalProvinceSelector from '../../components/common/InternalProvinceSelector';
-import BranchSelector from '../../components/common/BranchSelector';
+import BranchSelector from '../../components/BranchSelector';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAntdModal } from 'hooks/useAntModal';

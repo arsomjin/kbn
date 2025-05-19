@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import { auth, db } from 'config/firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
 import { UserProfile } from '@/types/auth';
 import { LoadingSpinner } from 'components/common/LoadingSpinner';
 import { ROLES } from 'constants/roles';
+import { transformUserData, transformToUserProfile, removeUndefinedFields } from 'utils/userTransform';
 
 interface AuthContextType {
   user: User | null;
@@ -44,30 +45,83 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [error, setError] = useState<Error | null>(null);
   const [currentProvinceId, setCurrentProvinceId] = useState<string | null>(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(false);
 
+  // Separate effect for handling auth state changes
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(async user => {
+    console.log('[AuthContext] Setting up auth state listener');
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      console.log('[AuthContext] Auth state changed:', user?.uid);
       setUser(user);
-      if (user) {
-        try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          if (userDoc.exists()) {
-            const profileData = userDoc.data() as UserProfile;
-            setUserProfile(profileData);
-            setCurrentProvinceId(profileData.defaultProvinceId || null);
-          }
-        } catch (err) {
-          setError(err instanceof Error ? err : new Error('Failed to fetch user profile'));
-        }
-      } else {
+      if (!user) {
+        console.log('[AuthContext] No user, clearing profile');
         setUserProfile(null);
         setCurrentProvinceId(null);
+        setLoading(false);
       }
-      setLoading(false);
     });
 
-    return () => unsubscribe();
+    return () => {
+      console.log('[AuthContext] Cleaning up auth state listener');
+      unsubscribe();
+    };
   }, []);
+
+  // Add separate listener for user profile changes
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    console.log('[AuthContext] Setting up user profile listener for:', user.uid);
+    const userRef = doc(db, 'users', user.uid);
+    const unsubscribe = onSnapshot(
+      userRef,
+      doc => {
+        console.log('[AuthContext] User profile updated:', doc.data());
+        if (doc.exists()) {
+          const profileData = doc.data();
+          setUserProfile(profileData as UserProfile);
+          // Update current province if available
+          if (profileData?.provinceId) {
+            setCurrentProvinceId(profileData.provinceId);
+          }
+        } else {
+          console.log('[AuthContext] No profile found for user, creating initial profile');
+          const initialUserData: UserProfile = {
+            uid: user.uid,
+            firstName: '',
+            lastName: '',
+            email: user.email,
+            role: 'guest',
+            requestedType: 'employee',
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            photoURL: user.photoURL,
+            phoneNumber: user.phoneNumber,
+            isProfileComplete: false,
+            provinceAccess: [],
+            permissions: [],
+            accessibleProvinceIds: [],
+            displayName: user.displayName,
+            isEmailVerified: user.emailVerified,
+            lastLogin: Date.now()
+          };
+
+          setUserProfile(removeUndefinedFields(initialUserData));
+          setCurrentProvinceId(null);
+        }
+        setLoading(false);
+      },
+      error => {
+        console.error('[AuthContext] Error listening to profile changes:', error);
+        setLoading(false);
+      }
+    );
+
+    return () => {
+      console.log('[AuthContext] Cleaning up user profile listener');
+      unsubscribe();
+    };
+  }, [user?.uid]); // Only re-run if user ID changes
 
   const login = async (email: string, password: string) => {
     try {
@@ -124,6 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshUserData = async () => {
     if (!user) return;
+    setIsProfileLoading(true);
     try {
       const userDoc = await getDoc(doc(db, 'users', user.uid));
       if (userDoc.exists()) {
@@ -132,11 +187,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to refresh user data'));
+    } finally {
+      setIsProfileLoading(false);
     }
   };
 
   const hasPermission = (permission: string): boolean => {
-    return userProfile?.permissions.includes(permission) ?? false;
+    return userProfile?.permissions?.includes(permission) ?? false;
   };
 
   const hasRole = (role: string | string[]): boolean => {
@@ -150,20 +207,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setError(null);
   };
 
+  // Consider authenticated if we have a user, even if profile is still loading
+  const isAuthenticated = !!user;
+
   const value: AuthContextType = {
     // State
     user,
     userProfile,
-    loading,
+    loading: loading || isProfileLoading,
     error,
     currentProvinceId,
 
     // Computed values
-    isAuthenticated: !!user,
+    isAuthenticated,
     isProfileComplete: userProfile?.isProfileComplete ?? false,
     hasProvinceAccess: (provinceId: string) => !!userProfile?.provinceAccess?.includes(provinceId),
     hasNoProfile: !userProfile,
-    isLoading: loading,
+    isLoading: loading || isProfileLoading,
 
     // Methods
     login,
@@ -177,7 +237,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     resetAuthError
   };
 
-  if (loading) {
+  console.log('[AuthContext] Render state:', {
+    user: !!user,
+    userProfile: !!userProfile,
+    loading,
+    isProfileLoading,
+    isAuthenticated
+  });
+
+  if (loading || isProfileLoading) {
     return <LoadingSpinner />;
   }
 

@@ -1,83 +1,85 @@
-import React, { forwardRef, useImperativeHandle, useRef } from "react";
-import { Select } from "antd";
-import type { SelectProps } from "antd";
-import { useSelector } from "react-redux";
+import React, { useMemo } from 'react';
+import { Select, Spin } from 'antd';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { RootState } from 'store';
+import { Department } from 'services/departmentService';
 
-const { Option } = Select;
-
-interface Department {
-  department: string;
-  deleted?: boolean;
-  [key: string]: any;
+interface DepartmentSelectorProps {
+  value?: string;
+  onChange?: (value: string) => void;
+  provinceId?: string;
+  label?: string;
+  required?: boolean;
+  size?: 'large' | 'middle' | 'small';
+  placeholder?: string;
+  disabled?: boolean;
 }
 
-interface DepartmentSelectorProps extends Omit<SelectProps, "ref"> {
-  hasAll?: boolean;
-}
+const DepartmentSelector: React.FC<DepartmentSelectorProps> = ({
+  value,
+  onChange,
+  provinceId,
+  label = 'Department',
+  required = false,
+  size = 'large',
+  placeholder = 'Select department',
+  disabled = false
+}) => {
+  const { t } = useTranslation(['departments', 'common']);
 
-export interface DepartmentSelectorRef {
-  focus: () => void;
-  blur: () => void;
-  clear: () => void;
-  isFocused: () => boolean;
-  setNativeProps: (nativeProps: any) => void;
-}
+  // Use memoized selector to prevent unnecessary rerenders
+  const { departments, loading } = useSelector(
+    (state: RootState) => ({
+      departments: state.departments.departments,
+      loading: state.departments.loading
+    }),
+    (prev, next) => {
+      // Only rerender if departments or loading state changes
+      return prev.departments === next.departments && prev.loading === next.loading;
+    }
+  );
 
-const DepartmentSelector = forwardRef<DepartmentSelectorRef, DepartmentSelectorProps>(
-  ({ hasAll, ...props }, ref) => {
-    // Use departments from Redux store (populated by DepartmentProvider)
-    const departments = useSelector((state: any) => state.departments?.departments || {});
-    const selectRef = useRef<any>(null);
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        focus: () => {
-          selectRef.current?.focus();
-        },
-        blur: () => {
-          selectRef.current?.blur();
-        },
-        clear: () => {
-          selectRef.current?.clear();
-        },
-        isFocused: () => {
-          return selectRef.current?.isFocused() ?? false;
-        },
-        setNativeProps: (nativeProps: any) => {
-          selectRef.current?.setNativeProps?.(nativeProps);
+  // Filter departments by province if provinceId is provided
+  const filteredDepartments = useMemo(() => {
+    if (!provinceId) return departments;
+    return Object.entries(departments).reduce(
+      (acc, [id, dept]) => {
+        if (dept.provinceId === provinceId) {
+          acc[id] = dept;
         }
-      }),
-      []
+        return acc;
+      },
+      {} as Record<string, Department>
     );
+  }, [departments, provinceId]);
 
-    const Options = Object.keys(departments).map((it) =>
-      departments[it].department ? (
-        <Option key={it} value={it}>
-          {departments[it].department}
-        </Option>
-      ) : null
-    );
+  return (
+    <Select
+      showSearch
+      value={value}
+      onChange={onChange}
+      placeholder={t('selectDepartment', { ns: 'departments' })}
+      disabled={disabled || loading}
+      loading={loading}
+      optionFilterProp='children'
+      filterOption={(input, option) => {
+        const optionText = typeof option?.children === 'string' ? option.children : '';
+        return optionText.toLowerCase().includes(input.toLowerCase());
+      }}
+      style={{ width: '100%' }}
+      size={size}
+      notFoundContent={loading ? <Spin size='small' /> : t('noDepartmentFound', { ns: 'departments' })}
+    >
+      {Object.entries(filteredDepartments).map(([id, dept]) => {
+        return (
+          <Select.Option key={id} value={id}>
+            {dept.department}
+          </Select.Option>
+        );
+      })}
+    </Select>
+  );
+};
 
-    return (
-      <Select
-        ref={selectRef}
-        placeholder="แผนก"
-        {...props}
-      >
-        {hasAll
-          ? [
-              <Option key="all" value="all">
-                ทุกแผนก
-              </Option>,
-              ...Options
-            ]
-          : Options}
-      </Select>
-    );
-  }
-);
-
-DepartmentSelector.displayName = "DepartmentSelector";
-
-export default DepartmentSelector; 
+export default DepartmentSelector;

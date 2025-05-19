@@ -44,7 +44,7 @@ export const PermissionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Get provinces that the user has access to
   const userProvinces: Province[] =
-    userProfile?.provinceAccess.map(id => ({
+    userProfile?.provinceAccess?.map(id => ({
       id,
       name: `Province ${id.substring(0, 4)}`,
       nameEn: `Province ${id.substring(0, 4)}`,

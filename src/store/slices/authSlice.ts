@@ -3,6 +3,7 @@ import { User } from 'firebase/auth';
 import { Timestamp, FieldValue } from 'firebase/firestore';
 import { UserProfile } from '@/types/auth';
 import { getUserProfile } from 'services/authService';
+import { removeUndefinedFields } from 'utils/userTransform';
 
 interface AuthState {
   user: User | null;
@@ -49,7 +50,7 @@ export const fetchUserProfile = createAsyncThunk('auth/fetchUserProfile', async 
     createdAt: convertTimestampToDate(profile.createdAt),
     updatedAt: convertTimestampToDate(profile.updatedAt)
   };
-  return userProfile;
+  return removeUndefinedFields(userProfile);
 });
 
 const authSlice = createSlice({

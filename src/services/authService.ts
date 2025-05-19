@@ -140,7 +140,7 @@ export const registerUser = async (
       requestedType,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-      displayName,
+      displayName
     };
 
     // Only add optional fields if they're defined
@@ -151,11 +151,15 @@ export const registerUser = async (
     if (phoneNumber) userProfile.phoneNumber = phoneNumber;
     if (purpose) userProfile.purpose = purpose;
     // 1. Transform to User object
-    const userObj = transformUserData({
-      ...userProfile,
-      email: userProfile.email || '',
-      phoneNumber: userProfile.phoneNumber || undefined
-    }, user.uid, requestedType);
+    const userObj = transformUserData(
+      {
+        ...userProfile,
+        email: userProfile.email || '',
+        phoneNumber: userProfile.phoneNumber || undefined
+      },
+      user.uid,
+      requestedType
+    );
     // 2. Transform to UserProfile
     const cleanedProfileData = removeUndefinedFields(userObj);
     await updateUserProfile(user.uid, cleanedProfileData);
@@ -409,8 +413,32 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
     console.log('[Auth Service] Google sign-in successful, user:', result.user.uid);
 
     // Check if this is a new user and create a profile if needed
-    const profileCheckResult = await createUserProfileIfNeeded(result.user);
-    console.log('[Auth Service] Profile check result:', profileCheckResult ? 'Profile exists' : 'No profile found');
+    const existingProfile = await getUserProfile(result.user.uid, true); // Skip cache
+
+    if (!existingProfile) {
+      console.log('[Auth Service] Creating new profile for user:', result.user.uid);
+      // Create a new profile with basic information from Google
+      const userProfile: UserProfile = {
+        uid: result.user.uid,
+        firstName: result.user.displayName?.split(' ')[0] || '',
+        lastName: result.user.displayName?.split(' ').slice(1).join(' ') || '',
+        email: result.user.email,
+        role: UserRole.PENDING,
+        requestedType: 'employee', // Default to employee
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+        photoURL: result.user.photoURL,
+        isEmailVerified: result.user.emailVerified,
+        isActive: true,
+        lastLogin: Date.now(),
+        // Add default province access if needed
+        accessibleProvinceIds: ['nakhon-ratchasima'] // Default province
+      };
+
+      // Save the profile to Firestore
+      await setDoc(doc(firestore, 'users', result.user.uid), userProfile);
+      console.log('[Auth Service] Created new profile for user:', result.user.uid);
+    }
 
     return result;
   } catch (error: any) {

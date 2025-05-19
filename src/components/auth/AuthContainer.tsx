@@ -69,10 +69,10 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
   return (
     <div
       className='min-h-screen flex flex-col items-center justify-center px-2 sm:px-4 py-4 sm:py-6 md:py-8 relative w-full'
-      style={{ 
+      style={{
         backgroundColor: 'var(--color-bg)',
         overflow: 'auto',
-        paddingTop: isMobile ? 64 : 88, // Add top padding to prevent overlap (logo/toggles height + margin)
+        paddingTop: isMobile ? 64 : 88 // Add top padding to prevent overlap (logo/toggles height + margin)
       }}
     >
       {/* Blurred background image overlay (fixed) */}
@@ -84,25 +84,26 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
           width: '100vw',
           height: '100vh',
           zIndex: 0,
-          backgroundImage: `url(${require('../../assets/images/office.jpg')})`,
+          backgroundColor: 'var(--color-bg)',
+          backgroundImage: showAnimatedBackground ? 'none' : `url(${require('../../assets/images/office.jpg')})`,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
           filter: 'blur(4px)',
           opacity: 0.5,
-          pointerEvents: 'none',
+          pointerEvents: 'none'
         }}
-        aria-hidden="true"
+        aria-hidden='true'
       />
       {/* App Logo at top left - fixed for desktop and mobile */}
       <div
-        className="z-20 flex items-center justify-center transition-all duration-200"
+        className='z-20 flex items-center justify-center transition-all duration-200'
         style={{
           position: 'fixed',
           top: 8,
           left: 8,
-          width: isMobile ? 44 : (window.innerWidth < 1024 ? 56 : 72),
-          height: isMobile ? 44 : (window.innerWidth < 1024 ? 56 : 72),
+          width: isMobile ? 44 : window.innerWidth < 1024 ? 56 : 72,
+          height: isMobile ? 44 : window.innerWidth < 1024 ? 56 : 72,
           borderRadius: isMobile ? 14 : 16,
           boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
           background: 'rgba(32, 32, 32, 0.25)',
@@ -112,18 +113,27 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
           cursor: 'pointer',
           transition: 'box-shadow 0.2s, transform 0.2s, opacity 0.2s',
           opacity: isMobile ? fade : 1,
-          pointerEvents: isMobile && fade < 0.1 ? 'none' : 'auto',
+          pointerEvents: isMobile && fade < 0.1 ? 'none' : 'auto'
         }}
         tabIndex={0}
-        aria-label="KBN Home"
-        onClick={() => window.location.href = '/'}
-        onKeyDown={e => { if (e.key === 'Enter') window.location.href = '/'; }}
+        aria-label='KBN Home'
+        onClick={() => (window.location.href = '/')}
+        onKeyDown={e => {
+          if (e.key === 'Enter') window.location.href = '/';
+        }}
       >
         <img
           src={require('../../assets/logo/kbn_pwa_assets/android-chrome-192x192.png')}
-          alt="KBN Logo"
-          style={{ height: '70%', width: '70%', borderRadius: '50%', objectFit: 'cover', boxShadow: '0 2px 8px rgba(0,0,0,0.10)', transition: 'transform 0.2s' }}
-          className="hover:scale-110 focus:scale-110"
+          alt='KBN Logo'
+          style={{
+            height: '70%',
+            width: '70%',
+            borderRadius: '50%',
+            objectFit: 'cover',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.10)',
+            transition: 'transform 0.2s'
+          }}
+          className='hover:scale-110 focus:scale-110'
         />
       </div>
       {/* Animated background */}
@@ -132,7 +142,7 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
       {/* Theme and language switchers - fixed for desktop and mobile */}
       {(showThemeSwitch || showLanguageSwitcher) && (
         <div
-          className="z-20 flex items-center gap-2 sm:gap-4 transition-all duration-200"
+          className='z-20 flex items-center gap-2 sm:gap-4 transition-all duration-200'
           style={{
             position: 'fixed',
             top: 8,
@@ -149,9 +159,9 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
             alignItems: 'center',
             opacity: isMobile ? fade : 1,
             pointerEvents: isMobile && fade < 0.1 ? 'none' : 'auto',
-            transition: 'opacity 0.2s',
+            transition: 'opacity 0.2s'
           }}
-          aria-label="Theme and Language Switchers"
+          aria-label='Theme and Language Switchers'
         >
           {showThemeSwitch && <ThemeSwitch />}
           {showLanguageSwitcher && <LanguageSwitcher />}
@@ -173,7 +183,7 @@ const AuthContainer: React.FC<AuthContainerProps> = ({
           className='w-full max-w-[98vw] sm:max-w-[95vw] md:max-w-lg lg:max-w-xl xl:max-w-2xl'
           style={{ minWidth: 0 }}
         >
-          <Card className='w-full p-2 sm:p-4 md:p-8' >
+          <Card className='w-full p-2 sm:p-4 md:p-8'>
             <div className='text-center mb-4 sm:mb-6 md:mb-8'>
               <Title level={isMobile ? 4 : window.innerWidth < 1024 ? 3 : 2} className='mb-0 text-primary font-heading'>
                 {title}

@@ -40,9 +40,10 @@ import { useSelector } from 'react-redux';
 import { useAntdModal } from 'hooks/useAntModal';
 import { createNotification, NotificationType } from '../../services/notificationService';
 import ProvinceSelector from '../../components/common/ProvinceSelector';
-import BranchSelector from '../../components/common/BranchSelector';
+import BranchSelector from '../../components/BranchSelector';
 import { transformUserData, transformToUserProfile, removeUndefinedFields } from '../../utils/userTransform';
 import { useLoading } from 'hooks/useLoading';
+import DepartmentSelector from 'components/DepartmentSelector';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -71,8 +72,14 @@ const CompleteProfilePage: React.FC = () => {
         firstName: userProfile.firstName || '',
         lastName: userProfile.lastName || ''
       });
+    } else if (user) {
+      // If no profile but we have user info, initialize with that
+      form.setFieldsValue({
+        firstName: user.displayName?.split(' ')[0] || '',
+        lastName: user.displayName?.split(' ').slice(1).join(' ') || ''
+      });
     }
-  }, [userProfile, form]);
+  }, [userProfile, user, form]);
 
   // Add effect to handle province changes
   const [currentProvince, setCurrentProvince] = useState<string | undefined>();
@@ -87,8 +94,6 @@ const CompleteProfilePage: React.FC = () => {
       }
     }
   }, [form, currentProvince]);
-
-  console.log('user', user);
 
   const onUserTypeChange = (type: UserType) => {
     setUserType(type);
@@ -124,8 +129,6 @@ const CompleteProfilePage: React.FC = () => {
       setError('Not authenticated');
       return;
     }
-    console.log('[CompleteProfile] Starting profile completion for user:', user.uid);
-    console.log('[CompleteProfile] User type:', userType);
     setLoading(true);
     try {
       await withLoading(
@@ -140,13 +143,16 @@ const CompleteProfilePage: React.FC = () => {
             branch: values.branch,
             department: values.department,
             employeeId: values.employeeId,
-            purpose: values.purpose
+            purpose: values.purpose,
+            accessibleProvinceIds: [values.province]
           };
           // 1. Transform to User object
           const userObj = transformUserData(formData, user.uid, userType);
           const userProfileData = transformToUserProfile(userObj as any);
           const cleanedProfileData = removeUndefinedFields(userProfileData);
-          await updateUserProfile(user.uid, cleanedProfileData);
+
+          // Update profile in Firestore
+          await updateUserProfile(user.uid, { ...cleanedProfileData, ...cleanedProfileData?.auth });
           console.log('[CompleteProfile] Profile saved successfully');
 
           // Send notification to admins about new pending user
@@ -158,14 +164,18 @@ const CompleteProfilePage: React.FC = () => {
               type: userType
             }),
             type: NotificationType.INFO,
-            targetRoles: ['province_admin', 'super_admin', 'general_manager'],
-            link: '/review-users'
+            targetRoles: ['province_admin', 'super_admin', 'general_manager']
           });
 
-          console.log('[CompleteProfile] Refreshing profile in Redux store');
-          await dispatch(fetchUserProfile(user.uid));
+          // Refresh profile in Redux store and wait for it to complete
+          // console.log('[CompleteProfile] Refreshing profile in Redux store');
+          await dispatch(fetchUserProfile(user.uid)).unwrap();
+
+          // Add a small delay to ensure the store is updated
+          await new Promise(resolve => setTimeout(resolve, 500));
+
           console.log('[CompleteProfile] Navigating to pending page');
-          navigate('/pending', { replace: true });
+          navigate('/pending', { replace: true, state: { params: cleanedProfileData } });
         })()
       );
     } catch (err: any) {
@@ -219,121 +229,126 @@ const CompleteProfilePage: React.FC = () => {
   ];
 
   return (
-    <>
-      <AuthContainer
-        title={
-          !user?.displayName && !user?.photoURL
-            ? t('profile:completeProfileTitle', 'Before we proceed, we would like to know you more')
-            : ''
-        }
-        subtitle={
-          !user?.displayName && !user?.photoURL
-            ? t('profile:completeProfileSubtitle', 'Please complete your profile information below.')
-            : ''
-        }
-        animationKey='complete-profile'
-      >
-        {/* Greeting with user photo and displayName, only if either exists */}
-        {(user?.displayName || user?.photoURL) && (
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: window.innerWidth < 480 ? 'column' : 'row',
-              alignItems: 'center',
-              gap: window.innerWidth < 480 ? 8 : 16,
-              marginBottom: 24,
-              background: isDarkMode
-                ? 'linear-gradient(90deg, #232526 0%, #414345 100%)'
-                : 'linear-gradient(90deg, #f5f7fa 0%, #c3cfe2 100%)',
-              borderRadius: 16,
-              padding: window.innerWidth < 480 ? '12px' : '16px',
-              boxShadow: '0 2px 8px rgba(75, 96, 67, 0.08)'
-            }}
-          >
-            <Avatar
-              src={user.photoURL}
-              size={window.innerWidth < 480 ? 48 : 64}
-              style={{ border: '3px solid #4B6043', background: '#fff' }}
-              alt={user.displayName || undefined}
-            >
-              {user.displayName?.[0]}
-            </Avatar>
-            <div style={{ textAlign: window.innerWidth < 480 ? 'center' : 'left' }}>
-              <span
-                style={{
-                  fontSize: window.innerWidth < 480 ? 18 : 24,
-                  fontWeight: 700,
-                  color: '#4B6043',
-                  display: 'block'
-                }}
-              >
-                {t('profile:greeting', { name: user.displayName })}
-              </span>
-              <div style={{ fontSize: window.innerWidth < 480 ? 12 : 14, color: '#888' }}>
-                {t('profile:greetingWelcome')}
-              </div>
-            </div>
-          </div>
-        )}
-        {error && (
+    <AuthContainer
+      title={t('profile:completeProfileTitle', 'Complete Your Profile')}
+      subtitle={t('profile:completeProfileSubtitle', 'Please provide your information to continue')}
+      showAnimatedBackground={true}
+      animationKey='complete-profile'
+    >
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className='mb-4'
+        >
           <Alert
-            message={t('common:error')}
+            message={t('common:error', 'Error')}
             description={error}
             type='error'
             showIcon
             closable
             onClose={() => setError(null)}
-            className='mb-6'
           />
-        )}
-
-        <Content>
-          <motion.div initial='hidden' animate='visible' variants={containerVariants}>
-            <motion.div variants={itemVariants}>
-              <Title level={5} className='mb-4'>
-                {t('profile:selectUserType', 'Please select your user type:')}
-              </Title>
-              <div style={{ marginBottom: 8 }}>
-                <Radio.Group
-                  optionType='button'
-                  style={{ width: '100%' }}
-                  buttonStyle='solid'
-                  value={userType}
-                  onChange={e => onUserTypeChange(e.target.value)}
+        </motion.div>
+      )}
+      <motion.div variants={containerVariants} initial='hidden' animate='visible' exit='exit'>
+        <Form
+          form={form}
+          name='complete_profile'
+          onFinish={onFinish}
+          layout='vertical'
+          requiredMark={false}
+          className='space-y-4'
+        >
+          {/* Greeting with user photo and displayName, only if either exists */}
+          {(user?.displayName || user?.photoURL) && (
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: window.innerWidth < 480 ? 'column' : 'row',
+                alignItems: 'center',
+                gap: window.innerWidth < 480 ? 8 : 16,
+                marginBottom: 24,
+                background: isDarkMode
+                  ? 'linear-gradient(90deg, #232526 0%, #414345 100%)'
+                  : 'linear-gradient(90deg, #f5f7fa 0%, #c3cfe2 100%)',
+                borderRadius: 16,
+                padding: window.innerWidth < 480 ? '12px' : '16px',
+                boxShadow: '0 2px 8px rgba(75, 96, 67, 0.08)'
+              }}
+            >
+              <Avatar
+                src={user.photoURL}
+                size={window.innerWidth < 480 ? 48 : 64}
+                style={{ border: '3px solid #4B6043', background: '#fff' }}
+                alt={user.displayName || undefined}
+              >
+                {user.displayName?.[0]?.toUpperCase()}
+              </Avatar>
+              <div style={{ textAlign: window.innerWidth < 480 ? 'center' : 'left' }}>
+                <span
+                  style={{
+                    fontSize: window.innerWidth < 480 ? 18 : 24,
+                    fontWeight: 700,
+                    color: '#4B6043',
+                    display: 'block'
+                  }}
                 >
-                  {options.map(option => (
-                    <Radio
-                      key={option.value}
-                      value={option.value}
-                      style={{
-                        width: '50%',
-                        textAlign: 'center',
-                        padding: window.innerWidth < 480 ? '0 4px' : undefined
-                      }}
-                    >
-                      {option.value === 'employee' ? (
-                        <UserOutlined style={{ marginRight: 8 }} />
-                      ) : (
-                        <GlobalOutlined style={{ marginRight: 8 }} />
-                      )}
-                      {option.label}
-                    </Radio>
-                  ))}
-                </Radio.Group>
+                  {t('profile:greeting', { name: user.displayName })}
+                </span>
+                <div style={{ fontSize: window.innerWidth < 480 ? 12 : 14, color: '#888' }}>
+                  {t('profile:greetingWelcome')}
+                </div>
               </div>
-            </motion.div>
+            </div>
+          )}
 
-            <motion.div variants={itemVariants}>
-              <Divider className='my-6 border-gray-700' />
-            </motion.div>
+          <Content>
+            <motion.div initial='hidden' animate='visible' variants={containerVariants}>
+              <motion.div variants={itemVariants}>
+                <Title level={5} className='mb-4'>
+                  {t('profile:selectUserType', 'Please select your user type:')}
+                </Title>
+                <div style={{ marginBottom: 8 }}>
+                  <Radio.Group
+                    optionType='button'
+                    style={{ width: '100%' }}
+                    buttonStyle='solid'
+                    value={userType}
+                    onChange={e => onUserTypeChange(e.target.value)}
+                  >
+                    {options.map(option => (
+                      <Radio
+                        key={option.value}
+                        value={option.value}
+                        style={{
+                          width: '50%',
+                          textAlign: 'center',
+                          padding: window.innerWidth < 480 ? '0 4px' : undefined
+                        }}
+                      >
+                        {option.value === 'employee' ? (
+                          <UserOutlined style={{ marginRight: 8 }} />
+                        ) : (
+                          <GlobalOutlined style={{ marginRight: 8 }} />
+                        )}
+                        {option.label}
+                      </Radio>
+                    ))}
+                  </Radio.Group>
+                </div>
+              </motion.div>
 
-            <motion.div variants={itemVariants}>
-              <Form form={form} name='completeProfile' onFinish={onFinish} layout='vertical' requiredMark={false}>
-                {/* Log form values for debugging */}
+              <motion.div variants={itemVariants}>
+                <Divider className='my-6' />
+              </motion.div>
+
+              <motion.div variants={itemVariants}>
                 <Form.Item shouldUpdate>
                   {() => {
-                    const values = form.getFieldsValue(true);
-                    console.log('[CompleteProfile] Current form values:', values);
+                    // const values = form.getFieldsValue(true);
+                    // console.log('[CompleteProfile] Current form values:', values);
                     return null;
                   }}
                 </Form.Item>
@@ -343,7 +358,7 @@ const CompleteProfilePage: React.FC = () => {
                       name='firstName'
                       label={t('profile:firstName')}
                       rules={[{ required: true, message: t('validation:required') }]}
-                      initialValue={userProfile?.firstName || ''}
+                      initialValue={userProfile?.firstName || user?.displayName?.split(' ')[0] || ''}
                     >
                       <Input
                         prefix={<UserOutlined className='text-primary mr-2' />}
@@ -357,7 +372,7 @@ const CompleteProfilePage: React.FC = () => {
                       name='lastName'
                       label={t('profile:lastName')}
                       rules={[{ required: true, message: t('validation:required') }]}
-                      initialValue={userProfile?.lastName || ''}
+                      initialValue={userProfile?.lastName || user?.displayName?.split(' ').slice(1).join(' ') || ''}
                     >
                       <Input
                         prefix={<UserOutlined className='text-primary mr-2' />}
@@ -406,16 +421,16 @@ const CompleteProfilePage: React.FC = () => {
                         </Form.Item>
                       </Col>
                       <Col xs={24} sm={12}>
-                        <Form.Item
-                          name='department'
-                          label={t('profile:department')}
-                          rules={[{ required: true, message: t('validation:required') }]}
-                        >
-                          <Input
-                            prefix={<TeamOutlined className='text-primary mr-2' />}
-                            placeholder={t('profile:department')}
-                            size='large'
-                          />
+                        <Form.Item noStyle dependencies={['province']}>
+                          {({ getFieldValue }) => (
+                            <Form.Item
+                              name='department'
+                              label={t('profile:department')}
+                              rules={[{ required: true, message: t('validation:required') }]}
+                            >
+                              <DepartmentSelector size='large' />
+                            </Form.Item>
+                          )}
                         </Form.Item>
                       </Col>
                     </Row>
@@ -476,23 +491,16 @@ const CompleteProfilePage: React.FC = () => {
                 )}
 
                 <Form.Item className='mt-6'>
-                  <Button
-                    type='primary'
-                    htmlType='submit'
-                    // className='h-12 rounded-lg text-base font-medium shadow-lg bg-gradient-to-r from-primary to-primary/90 border-none'
-                    size='large'
-                    loading={loading}
-                    block
-                  >
+                  <Button type='primary' htmlType='submit' size='large' loading={loading} block>
                     {t('profile:completeProfile', 'Complete Profile')}
                   </Button>
                 </Form.Item>
-              </Form>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        </Content>
-      </AuthContainer>
-    </>
+          </Content>
+        </Form>
+      </motion.div>
+    </AuthContainer>
   );
 };
 

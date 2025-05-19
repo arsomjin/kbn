@@ -4,6 +4,7 @@ import themeReducer from './slices/themeSlice';
 import employeesReducer from './slices/employeesSlice';
 import dataReducer from './slices/dataSlice';
 import notificationsReducer from './slices/notificationsSlice';
+import departmentsReducer from './slices/departmentSlice';
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     theme: themeReducer,
     employees: employeesReducer,
     data: dataReducer,
-    notifications: notificationsReducer
+    notifications: notificationsReducer,
+    departments: departmentsReducer
   }
 });
 

@@ -1,4 +1,4 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
 import { ROLES } from '../../constants/roles';
 import { useSelector } from 'react-redux';
@@ -7,14 +7,6 @@ import { Spin } from 'antd';
 const PendingGuard = ({ children }: { children: React.ReactNode }) => {
   const { userProfile, isLoading } = useAuth();
   const isProfileTransitioning = useSelector((state: any) => state.auth.isProfileTransitioning);
-  console.log(
-    '[PendingGuard] userProfile:',
-    userProfile,
-    'isLoading:',
-    isLoading,
-    'isProfileTransitioning:',
-    isProfileTransitioning
-  );
 
   if (isLoading || isProfileTransitioning) {
     console.log('[PendingGuard] Loading spinner');
