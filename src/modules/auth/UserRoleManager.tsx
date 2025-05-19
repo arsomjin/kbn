@@ -32,7 +32,7 @@ import {
 } from '@ant-design/icons';
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { firestore } from '../../services/firebase';
-import { usePermissions } from '../../hooks/usePermissions';
+import { usePermissions } from 'hooks/usePermissions';
 import { PERMISSIONS } from '../../constants/Permissions';
 import { ROLES, RoleType, ROLE_PERMISSIONS, ROLE_HIERARCHY } from '../../constants/roles';
 import { notificationController } from '../../controllers/notificationController';
@@ -73,10 +73,7 @@ const UserRoleManager: React.FC = () => {
 
   // Memoize permission checks to prevent unnecessary useEffect reruns
   const canViewUsers = hasPermission(PERMISSIONS.USER_VIEW);
-  const checkProvinceAccess = useCallback(
-    (provinceId: string) => hasProvinceAccess(provinceId),
-    []
-  );
+  const checkProvinceAccess = useCallback((provinceId: string) => hasProvinceAccess(provinceId), []);
 
   // State for users data
   const [users, setUsers] = useState<UserTableItem[]>([]);
@@ -181,7 +178,10 @@ const UserRoleManager: React.FC = () => {
           usersList.push({
             uid: doc.id,
             email: userData.auth.email || '',
-            displayName: userData.auth.displayName || `${userData.auth.firstName || ''} ${userData.auth.lastName || ''}`.trim() || '',
+            displayName:
+              userData.auth.displayName ||
+              `${userData.auth.firstName || ''} ${userData.auth.lastName || ''}`.trim() ||
+              '',
             firstName: userData.auth.firstName,
             lastName: userData.auth.lastName,
             photoURL: userData.auth.photoURL,
@@ -718,9 +718,7 @@ const UserRoleManager: React.FC = () => {
             <Title level={isMobile ? 3 : 2} className='mb-1'>
               {t('title')}
             </Title>
-            <Paragraph>
-              {t('description')}
-            </Paragraph>
+            <Paragraph>{t('description')}</Paragraph>
           </div>
           <Tooltip title={t('tooltip')}>
             <Button type='text' icon={<QuestionCircleOutlined className='text-xl' />} />

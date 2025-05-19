@@ -1,13 +1,13 @@
-import React, { forwardRef, useRef, useImperativeHandle, useState, useEffect } from "react";
-import { Select } from "antd";
-import { useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
-import { showSuccess, showWarn } from "utils/functions";
-import { getDocumentsWithCompoundQuery, createDocument } from "utils/firestoreUtils";
-import { useProvince } from "hooks/useProvince";
-import { usePermission } from "hooks/usePermission";
-import ExpenseCategoryDetails from "./ExpenseCategoryDetails";
-import { ExpenseCategorySelectorProps, ExpenseCategorySelectorRef, ExpenseCategory } from "./types";
+import React, { forwardRef, useRef, useImperativeHandle, useState, useEffect } from 'react';
+import { Select } from 'antd';
+import { useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
+import { showSuccess, showWarn } from 'utils/functions';
+import { getDocumentsWithCompoundQuery, createDocument } from 'utils/firestoreUtils';
+import { useProvince } from 'hooks/useProvince';
+import { usePermission } from 'hooks/usePermission';
+import ExpenseCategoryDetails from './ExpenseCategoryDetails';
+import { ExpenseCategorySelectorProps, ExpenseCategorySelectorRef, ExpenseCategory } from './types';
 
 const { Option } = Select;
 
@@ -24,22 +24,22 @@ const ExpenseCategorySelector = forwardRef<ExpenseCategorySelectorRef, ExpenseCa
 
     const _getData = async () => {
       try {
-        const categories = await getDocumentsWithCompoundQuery<ExpenseCategory>(
-          "data/account/expenseCategory",
-          [
-            { field: "deleted", operator: "==", value: false },
-            { field: "provinceId", operator: "==", value: currentProvince?.id }
-          ]
+        const categories = await getDocumentsWithCompoundQuery<ExpenseCategory>('data/account/expenseCategory', [
+          { field: 'deleted', operator: '==', value: false },
+          { field: 'provinceId', operator: '==', value: currentProvince?.id }
+        ]);
+
+        const categoryMap = categories.reduce(
+          (acc, category) => {
+            acc[category.expenseCategoryId] = category;
+            return acc;
+          },
+          {} as Record<string, ExpenseCategory>
         );
-        
-        const categoryMap = categories.reduce((acc, category) => {
-          acc[category.expenseCategoryId] = category;
-          return acc;
-        }, {} as Record<string, ExpenseCategory>);
-        
+
         setData(categoryMap);
       } catch (error) {
-        showWarn(error instanceof Error ? error.message : "Failed to fetch categories");
+        showWarn(error instanceof Error ? error.message : 'Failed to fetch categories');
       }
     };
 
@@ -50,20 +50,20 @@ const ExpenseCategorySelector = forwardRef<ExpenseCategorySelectorRef, ExpenseCa
     useImperativeHandle(ref, () => selectRef.current!, []);
 
     const handleChange = (value: string) => {
-      if (value === "addNew") {
+      if (value === 'addNew') {
         return showModal();
       }
       onChange?.(value);
     };
 
     const showModal = () => {
-      if (!hasPermission("CREATE")) return;
+      if (!hasPermission('CREATE')) return;
       setShowAddNew(true);
     };
 
     const handleOk = async (values: ExpenseCategory) => {
       try {
-        if (!hasPermission("CREATE")) return;
+        if (!hasPermission('CREATE')) return;
 
         const categoryData = {
           ...values,
@@ -73,17 +73,13 @@ const ExpenseCategorySelector = forwardRef<ExpenseCategorySelectorRef, ExpenseCa
           deleted: false
         };
 
-        await createDocument(
-          "data/account/expenseCategory",
-          categoryData,
-          values.expenseCategoryId
-        );
+        await createDocument('data/account/expenseCategory', categoryData, values.expenseCategoryId);
 
         await _getData();
-        showSuccess(t("common.saveSuccess"));
+        showSuccess(t('common.saveSuccess'));
         setShowAddNew(false);
       } catch (error) {
-        showWarn(error instanceof Error ? error.message : "Failed to save category");
+        showWarn(error instanceof Error ? error.message : 'Failed to save category');
       }
     };
 
@@ -107,10 +103,10 @@ const ExpenseCategorySelector = forwardRef<ExpenseCategorySelectorRef, ExpenseCa
       <>
         <Select
           ref={selectRef}
-          placeholder={placeholder || t("expenseCategory.placeholder")}
-          optionFilterProp="children"
+          placeholder={placeholder || t('expenseCategory.placeholder')}
+          optionFilterProp='children'
           filterOption={(input, option) => {
-            const optionText = option?.children?.toString() || "";
+            const optionText = option?.children?.toString() || '';
             return optionText.toLowerCase().indexOf(input.toLowerCase()) >= 0;
           }}
           onChange={handleChange}
@@ -119,9 +115,9 @@ const ExpenseCategorySelector = forwardRef<ExpenseCategorySelectorRef, ExpenseCa
           {...props}
         >
           {Options}
-          {!noAddable && hasPermission("CREATE") && (
-            <Option key="addNew" value="addNew" className="text-light">
-              {t("expenseCategory.addNew")}
+          {!noAddable && hasPermission('CREATE') && (
+            <Option key='addNew' value='addNew' className='text-light'>
+              {t('expenseCategory.addNew')}
             </Option>
           )}
         </Select>
@@ -131,6 +127,6 @@ const ExpenseCategorySelector = forwardRef<ExpenseCategorySelectorRef, ExpenseCa
   }
 );
 
-ExpenseCategorySelector.displayName = "ExpenseCategorySelector";
+ExpenseCategorySelector.displayName = 'ExpenseCategorySelector';
 
-export default ExpenseCategorySelector; 
+export default ExpenseCategorySelector;

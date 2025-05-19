@@ -45,7 +45,7 @@ const ToastContainer: React.FC = () => {
 
   useEffect(() => {
     // Display new toast notifications
-    toasts.forEach((toast: Toast) => {
+    toasts.forEach(toast => {
       // Skip if already displayed
       if (toast.displayed) return;
 
@@ -63,7 +63,10 @@ const ToastContainer: React.FC = () => {
         duration,
         className: 'kbn-toast-notification',
         onClose: () => {
-          dispatch(removeToast(toast.id));
+          // Ensure toast.id is not undefined before dispatching
+          if (toast.id) {
+            dispatch(removeToast(toast.id));
+          }
         }
       });
     });

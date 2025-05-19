@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getProvinces } from '../services/provinceService';
 import { Province } from '../types/province';
-import { useAuth } from './useAuth';
+import { useAuth } from 'contexts/AuthContext';
 
 interface UseProvincesOptions {
   status?: 'active' | 'inactive';
@@ -20,9 +20,7 @@ interface UseProvincesReturn {
 const provincesCache = new Map<string, { data: Province[]; timestamp: number }>();
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-export const useProvinces = (
-  options?: UseProvincesOptions & { skipCache?: boolean }
-): UseProvincesReturn => {
+export const useProvinces = (options?: UseProvincesOptions & { skipCache?: boolean }): UseProvincesReturn => {
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -45,7 +43,7 @@ export const useProvinces = (
       const cacheKey = JSON.stringify(options || {});
       const cached = provincesCache.get(cacheKey);
 
-      if (!options?.skipCache && cached && (now - cached.timestamp) < CACHE_TTL) {
+      if (!options?.skipCache && cached && now - cached.timestamp < CACHE_TTL) {
         setProvinces(cached.data);
         setLoading(false);
         return;
@@ -77,16 +75,22 @@ export const useProvinces = (
     fetchProvinces();
   }, [fetchProvinces]);
 
-  const getProvinceName = useCallback((provinceId: string, lang: 'th' | 'en' = 'th'): string => {
-    const province = provinces.find(p => p.id === provinceId);
-    if (!province) return '';
-    return lang === 'th' ? province.name : province.nameEn;
-  }, [provinces]);
+  const getProvinceName = useCallback(
+    (provinceId: string, lang: 'th' | 'en' = 'th'): string => {
+      const province = provinces.find(p => p.id === provinceId);
+      if (!province) return '';
+      return lang === 'th' ? province.name : province.nameEn;
+    },
+    [provinces]
+  );
 
-  const validateProvinceId = useCallback((provinceId: string): boolean => {
-    if (!provinceId) return false;
-    return provinces.some(p => p.id === provinceId && p.status === 'active');
-  }, [provinces]);
+  const validateProvinceId = useCallback(
+    (provinceId: string): boolean => {
+      if (!provinceId) return false;
+      return provinces.some(p => p.id === provinceId && p.status === 'active');
+    },
+    [provinces]
+  );
 
   return {
     provinces,

@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2015",
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "esnext"
-    ],
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -21,14 +17,20 @@
     "jsx": "react-jsx",
     "baseUrl": "src",
     "paths": {
-      "*": ["*"]
+      "@/*": ["*"],
+      "@components/*": ["components/*"],
+      "@contexts/*": ["contexts/*"],
+      "@hooks/*": ["hooks/*"],
+      "@utils/*": ["utils/*"],
+      "@constants/*": ["constants/*"],
+      "@modules/*": ["modules/*"],
+      "@services/*": ["services/*"],
+      "@types/*": ["types/*"],
+      "@styles/*": ["styles/*"],
+      "@assets/*": ["assets/*"]
     },
     "downlevelIteration": true
   },
-  "include": [
-    "src"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }

@@ -26,7 +26,7 @@ import {
   CheckOutlined
 } from '@ant-design/icons';
 import { RootState } from '../../store';
-import { useNotifications } from '../../hooks/useNotifications';
+import { useNotifications } from 'hooks/useNotifications';
 import { Notification, NotificationType } from '../../services/notificationService';
 import { notificationController } from '../../controllers/notificationController';
 import './NotificationList.css';
@@ -44,7 +44,8 @@ const { RangePicker } = DatePicker;
 const NotificationList: React.FC = () => {
   const navigate = useNavigate();
   const userProfile = useSelector((state: RootState) => state.auth.userProfile);
-  const { notifications, unreadCount, isLoading, hasMore, loadMoreNotifications, markAsRead, markAllAsRead } =
+  const notifications = useSelector((state: RootState) => state.notifications.notifications) as Notification[];
+  const { unreadCount, isLoading, hasMore, loadMoreNotifications, markAsRead, markAllAsRead } =
     useNotifications(userProfile);
 
   const [filteredNotifications, setFilteredNotifications] = useState<Notification[]>([]);
@@ -57,13 +58,18 @@ const NotificationList: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
 
+  function isTimestamp(obj: any): obj is Timestamp {
+    return obj && typeof obj === 'object' && typeof obj.seconds === 'number' && typeof obj.nanoseconds === 'number';
+  }
+
   // Apply filters whenever filters or notifications change
   useEffect(() => {
     const filtered = notifications.filter(notification => {
+      const desc = (notification as any).description ?? notification.title ?? '';
       const matchesSearch =
         !filters.search ||
         notification.title.toLowerCase().includes(filters.search.toLowerCase()) ||
-        notification.description.toLowerCase().includes(filters.search.toLowerCase());
+        desc.toLowerCase().includes(filters.search.toLowerCase());
 
       const matchesType = filters.type === 'all' || notification.type === filters.type;
 
@@ -74,13 +80,18 @@ const NotificationList: React.FC = () => {
 
       let matchesDate = true;
       if (filters.dateRange) {
-        const notificationMillis = getTimestampMillis(notification.createdAt);
-        const notificationDate = new Date(notificationMillis);
+        let createdAtDate: Date;
+        if (isTimestamp(notification.createdAt)) {
+          createdAtDate = new Date(notification.createdAt.seconds * 1000);
+        } else if (typeof notification.createdAt === 'string') {
+          createdAtDate = new Date(notification.createdAt);
+        } else {
+          createdAtDate = new Date();
+        }
         const startDate = filters.dateRange[0].toDate();
         const endDate = filters.dateRange[1].toDate();
-        // Set end date to end of day
         endDate.setHours(23, 59, 59, 999);
-        matchesDate = notificationDate >= startDate && notificationDate <= endDate;
+        matchesDate = createdAtDate >= startDate && createdAtDate <= endDate;
       }
 
       return matchesSearch && matchesType && matchesStatus && matchesDate;

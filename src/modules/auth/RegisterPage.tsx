@@ -1,33 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Form, 
-  Input, 
-  Button, 
-  Alert, 
-  Select, 
-  Divider, 
-  Typography, 
-  Radio, 
-  Card, 
-  Layout,
-  Row,
-  Col
-} from 'antd';
-import { 
-  UserOutlined, 
-  LockOutlined, 
-  MailOutlined, 
-  BankOutlined, 
+import { Form, Input, Button, Alert, Select, Divider, Typography, Radio, Card, Layout, Row, Col } from 'antd';
+import {
+  UserOutlined,
+  LockOutlined,
+  MailOutlined,
+  BankOutlined,
   GoogleOutlined,
   TeamOutlined,
   HomeOutlined,
   GlobalOutlined,
-  IdcardOutlined 
+  IdcardOutlined
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { registerUser, signInUser } from '../../services/authService';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from 'contexts/AuthContext';
 import AuthContainer from '../../components/auth/AuthContainer';
 import { getAuthErrorMessage } from '../../utils/firebaseErrorMessages';
 import { createNotification, NotificationType } from '../../services/notificationService';
@@ -37,7 +24,7 @@ import InternalProvinceSelector from '../../components/common/InternalProvinceSe
 import BranchSelector from '../../components/common/BranchSelector';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { useAntdModal } from '../../hooks/useAntModal';
+import { useAntdModal } from 'hooks/useAntModal';
 import { transformUserData, transformToUserProfile } from '../../utils/userTransform';
 
 const { Option } = Select;
@@ -150,10 +137,9 @@ const RegisterPage: React.FC = () => {
         setError(null);
 
         try {
-
           // Create display name from first and last name
           const displayName = `${values.firstName} ${values.lastName}`;
-          
+
           // Register the user
           await registerUser(
             values.email,
@@ -200,7 +186,7 @@ const RegisterPage: React.FC = () => {
       },
       okText: t('common:confirm', 'Confirm'),
       cancelText: t('common:cancel', 'Cancel'),
-      centered: true,
+      centered: true
     });
   };
 
@@ -219,7 +205,7 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <AuthContainer title={t('auth:createAccount')} animationKey='register' >
+    <AuthContainer title={t('auth:createAccount')} animationKey='register'>
       {error && (
         <Alert
           message={t('auth:registerError')}
@@ -231,297 +217,285 @@ const RegisterPage: React.FC = () => {
           className='mb-6'
         />
       )}
-          <motion.div initial='hidden' animate='visible' variants={containerVariants}>
-            <motion.div variants={itemVariants}>
-                <Title level={5} className='mb-4 text-center'>
-                  {t('profile:selectUserType', 'กรุณาเลือกประเภทผู้ใช้:')}
-                </Title>
-                <div className='mt-4' >
-                  <Radio.Group
-                    optionType='button'
-                    style={{ width: '100%' }}
-                    buttonStyle='solid'
-                    value={userType}
-                    onChange={e => onUserTypeChange(e.target.value)}
-                  >
-                    <Radio 
-                      key='employee' 
-                      value='employee' 
-                      style={{ 
-                        width: '50%', 
-                        textAlign: 'center',
-                        padding: window.innerWidth < 480 ? '0 4px' : undefined
-                      }}
-                    >
-                      <UserOutlined style={{ marginRight: window.innerWidth < 480 ? 4 : 8 }} />
-                      {t('profile:employee', 'พนักงาน')}
-                    </Radio>
-                    <Radio 
-                      key='visitor' 
-                      value='visitor' 
-                      style={{ 
-                        width: '50%', 
-                        textAlign: 'center',
-                        padding: window.innerWidth < 480 ? '0 4px' : undefined
-                      }}
-                    >
-                      <GlobalOutlined style={{ marginRight: window.innerWidth < 480 ? 4 : 8 }} />
-                      {t('profile:visitor', 'ผู้เยี่ยมชม')}
-                    </Radio>
-                  </Radio.Group>
-                </div>
-            </motion.div>
+      <motion.div initial='hidden' animate='visible' variants={containerVariants}>
+        <motion.div variants={itemVariants}>
+          <Title level={5} className='mb-4 text-center'>
+            {t('profile:selectUserType', 'กรุณาเลือกประเภทผู้ใช้:')}
+          </Title>
+          <div className='mt-4'>
+            <Radio.Group
+              optionType='button'
+              style={{ width: '100%' }}
+              buttonStyle='solid'
+              value={userType}
+              onChange={e => onUserTypeChange(e.target.value)}
+            >
+              <Radio
+                key='employee'
+                value='employee'
+                style={{
+                  width: '50%',
+                  textAlign: 'center',
+                  padding: window.innerWidth < 480 ? '0 4px' : undefined
+                }}
+              >
+                <UserOutlined style={{ marginRight: window.innerWidth < 480 ? 4 : 8 }} />
+                {t('profile:employee', 'พนักงาน')}
+              </Radio>
+              <Radio
+                key='visitor'
+                value='visitor'
+                style={{
+                  width: '50%',
+                  textAlign: 'center',
+                  padding: window.innerWidth < 480 ? '0 4px' : undefined
+                }}
+              >
+                <GlobalOutlined style={{ marginRight: window.innerWidth < 480 ? 4 : 8 }} />
+                {t('profile:visitor', 'ผู้เยี่ยมชม')}
+              </Radio>
+            </Radio.Group>
+          </div>
+        </motion.div>
 
-            <motion.div variants={itemVariants}>
-              <Divider className='my-6 border-gray-700' />
-            </motion.div>
+        <motion.div variants={itemVariants}>
+          <Divider className='my-6 border-gray-700' />
+        </motion.div>
 
-            <motion.div variants={itemVariants}>
-                <Form
-                  form={form}
-                  name='register'
-                  onFinish={onFinish}
-                  layout='vertical'
-                  requiredMark={false}
+        <motion.div variants={itemVariants}>
+          <Form form={form} name='register' onFinish={onFinish} layout='vertical' requiredMark={false}>
+            {/* Debug: Log form values on change */}
+            <Form.Item shouldUpdate>
+              {() => {
+                // Log form values to console for debugging
+                // Remove or comment out in production
+                // eslint-disable-next-line no-console
+                console.log('Register form values:', form.getFieldsValue());
+                return null;
+              }}
+            </Form.Item>
+            <Form.Item
+              name='email'
+              label={t('auth:email')}
+              rules={[
+                { required: true, message: t('validation:required') },
+                { type: 'email', message: t('validation:email') }
+              ]}
+            >
+              <Input
+                prefix={<MailOutlined className='text-primary mr-2' />}
+                placeholder={t('auth:email')}
+                size='large'
+                className='text-primay'
+                autoComplete='email'
+              />
+            </Form.Item>
+
+            <Row gutter={[16, 0]}>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name='firstName'
+                  label={t('profile:firstName')}
+                  rules={[{ required: true, message: t('validation:required') }]}
                 >
-                  {/* Debug: Log form values on change */}
-                  <Form.Item shouldUpdate>
-                    {() => {
-                      // Log form values to console for debugging
-                      // Remove or comment out in production
-                      // eslint-disable-next-line no-console
-                      console.log("Register form values:", form.getFieldsValue());
-                      return null;
+                  <Input
+                    prefix={<UserOutlined className='text-primary mr-2' />}
+                    placeholder={t('profile:firstName')}
+                    size='large'
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name='lastName'
+                  label={t('profile:lastName')}
+                  rules={[{ required: true, message: t('validation:required') }]}
+                >
+                  <Input
+                    prefix={<UserOutlined className='text-primary mr-2' />}
+                    placeholder={t('profile:lastName')}
+                    size='large'
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            <Row gutter={[16, 0]}>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name='password'
+                  label={t('auth:password')}
+                  rules={[
+                    { required: true, message: t('validation:required') },
+                    { min: 6, message: t('validation:minLength', { length: 6 }) }
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined className='text-primary mr-2' />}
+                    placeholder={t('auth:password')}
+                    size='large'
+                    className='text-primay'
+                    autoComplete='new-password'
+                  />
+                </Form.Item>
+              </Col>
+              <Col xs={24} sm={12}>
+                <Form.Item
+                  name='confirmPassword'
+                  label={t('auth:confirmPassword')}
+                  rules={[
+                    { required: true, message: t('validation:required') },
+                    { min: 6, message: t('validation:minLength', { length: 6 }) }
+                  ]}
+                >
+                  <Input.Password
+                    prefix={<LockOutlined className='text-primary mr-2' />}
+                    placeholder={t('auth:confirmPassword')}
+                    size='large'
+                    className='text-primay'
+                    autoComplete='new-password'
+                  />
+                </Form.Item>
+              </Col>
+            </Row>
+
+            {/* Employee-specific fields */}
+            {userType === 'employee' && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                <Form.Item
+                  name='province'
+                  label={t('profile:province')}
+                  rules={[{ required: true, message: t('validation:required') }]}
+                >
+                  <InternalProvinceSelector
+                    onChange={() => {
+                      // Clear branch when province changes
+                      form.setFieldsValue({ branch: undefined });
                     }}
-                  </Form.Item>
-                  <Form.Item
-                    name='email'
-                    label={t('auth:email')}
-                    rules={[
-                      { required: true, message: t('validation:required') },
-                      { type: 'email', message: t('validation:email') }
-                    ]}
-                  >
-                    <Input
-                      prefix={<MailOutlined className='text-primary mr-2' />}
-                      placeholder={t('auth:email')}
-                      size='large'
-                      className='text-primay'
-                      autoComplete='email'
-                    />
-                  </Form.Item>
+                    size='large'
+                  />
+                </Form.Item>
 
-                  <Row gutter={[16, 0]}>
-                    <Col xs={24} sm={12}>
-                      <Form.Item
-                        name='firstName'
-                        label={t('profile:firstName')}
-                        rules={[{ required: true, message: t('validation:required') }]}
-                      >
-                        <Input
-                          prefix={<UserOutlined className='text-primary mr-2' />}
-                          placeholder={t('profile:firstName')}
-                          size='large'
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                      <Form.Item
-                        name='lastName'
-                        label={t('profile:lastName')}
-                        rules={[{ required: true, message: t('validation:required') }]}
-                      >
-                        <Input
-                          prefix={<UserOutlined className='text-primary mr-2' />}
-                          placeholder={t('profile:lastName')}
-                          size='large'
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-
-                  <Row gutter={[16, 0]}>
-                    <Col xs={24} sm={12}>
-                      <Form.Item
-                        name='password'
-                        label={t('auth:password')}
-                        rules={[
-                          { required: true, message: t('validation:required') },
-                          { min: 6, message: t('validation:minLength', { length: 6 }) }
-                        ]}
-                      >
-                        <Input.Password
-                          prefix={<LockOutlined className='text-primary mr-2' />}
-                          placeholder={t('auth:password')}
-                          size='large'
-                          className='text-primay'
-                          autoComplete='new-password'
-                        />
-                      </Form.Item>
-                    </Col>
-                    <Col xs={24} sm={12}>
-                      <Form.Item
-                        name='confirmPassword'
-                        label={t('auth:confirmPassword')}
-                        rules={[
-                          { required: true, message: t('validation:required') },
-                          { min: 6, message: t('validation:minLength', { length: 6 }) }
-                        ]}
-                      >
-                        <Input.Password
-                          prefix={<LockOutlined className='text-primary mr-2' />}
-                          placeholder={t('auth:confirmPassword')}
-                          size='large'
-                          className='text-primay'
-                          autoComplete='new-password'
-                        />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-
-                  {/* Employee-specific fields */}
-                  {userType === 'employee' && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                      <Form.Item
-                        name='province'
-                        label={t('profile:province')}
-                        rules={[{ required: true, message: t('validation:required') }]}
-                      >
-                        <InternalProvinceSelector
-                          onChange={() => {
-                            // Clear branch when province changes
-                            form.setFieldsValue({ branch: undefined });
-                          }}
-                          size='large'
-                        />
-                      </Form.Item>
-
-                      <Row gutter={[16, 0]}>
-                        <Col xs={24} sm={12}>
-                          <Form.Item noStyle dependencies={['province']}>
-                            {({ getFieldValue }) => (
-                              <Form.Item
-                                name='branch'
-                                label={t('profile:branch')}
-                                rules={[{ required: true, message: t('validation:required') }]}
-                              >
-                                <BranchSelector
-                                  provinceId={getFieldValue('province')}
-                                  size='large'
-                                  disabled={!getFieldValue('province')}
-                                />
-                              </Form.Item>
-                            )}
-                          </Form.Item>
-                        </Col>
-                        <Col xs={24} sm={12}>
-                          <Form.Item
-                            name='department'
-                            label={t('profile:department')}
-                            rules={[{ required: true, message: t('validation:required') }]}
-                          >
-                            <Input
-                              prefix={<TeamOutlined className='text-primary mr-2' />}
-                              placeholder={t('profile:department')}
-                              size='large'
-                            />
-                          </Form.Item>
-                        </Col>
-                      </Row>
-
-                      <Form.Item
-                        name='employeeId'
-                        label={t('profile:employeeId', 'Employee ID')}
-                        rules={[{ required: true, message: t('validation:required') }]}
-                      >
-                        <Input
-                          prefix={<IdcardOutlined className='text-primary mr-2' />}
-                          placeholder={t('profile:employeeId', 'Employee ID')}
-                          size='large'
-                        />
-                      </Form.Item>
-                    </motion.div>
-                  )}
-
-                  {/* Visitor-specific fields */}
-                  {userType === 'visitor' && (
-                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                      <Form.Item
-                        name='phoneNumber'
-                        label={t('profile:phoneNumber') || 'Phone Number'}
-                        rules={[
-                          { required: true, message: t('validation:required') },
-                          {
-                            pattern: /^[0-9]{9,15}$/,
-                            message: t('validation:phoneNumber') || 'Please enter a valid phone number'
-                          }
-                        ]}
-                      >
-                        <Input
-                          type='tel'
-                          placeholder={t('profile:phoneNumber') || 'Phone Number'}
-                          size='large'
-                          className='text-primay'
-                          autoComplete='tel'
-                        />
-                      </Form.Item>
-
-                      <Form.Item
-                        name='purpose'
-                        label={t('profile:purpose', 'Purpose of Visit')}
-                        rules={[{ required: true, message: t('validation:required') }]}
-                      >
-                        <Input
-                          prefix={<GlobalOutlined className='text-primary mr-2' />}
-                          placeholder={t('profile:purpose', 'Purpose of Visit')}
-                          size='large'
-                        />
-                      </Form.Item>
-                    </motion.div>
-                  )}
-
-                  <Form.Item className='mt-6'>
-                    <Button 
-                      type='primary' 
-                      htmlType='submit'
-                      size='large' 
-                      loading={loading}
-                      block
+                <Row gutter={[16, 0]}>
+                  <Col xs={24} sm={12}>
+                    <Form.Item noStyle dependencies={['province']}>
+                      {({ getFieldValue }) => (
+                        <Form.Item
+                          name='branch'
+                          label={t('profile:branch')}
+                          rules={[{ required: true, message: t('validation:required') }]}
+                        >
+                          <BranchSelector
+                            provinceId={getFieldValue('province')}
+                            size='large'
+                            disabled={!getFieldValue('province')}
+                          />
+                        </Form.Item>
+                      )}
+                    </Form.Item>
+                  </Col>
+                  <Col xs={24} sm={12}>
+                    <Form.Item
+                      name='department'
+                      label={t('profile:department')}
+                      rules={[{ required: true, message: t('validation:required') }]}
                     >
-                      {t('auth:register')}
-                    </Button>
-                  </Form.Item>
+                      <Input
+                        prefix={<TeamOutlined className='text-primary mr-2' />}
+                        placeholder={t('profile:department')}
+                        size='large'
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
 
-                  <Divider>{t('auth:or')}</Divider>
+                <Form.Item
+                  name='employeeId'
+                  label={t('profile:employeeId', 'Employee ID')}
+                  rules={[{ required: true, message: t('validation:required') }]}
+                >
+                  <Input
+                    prefix={<IdcardOutlined className='text-primary mr-2' />}
+                    placeholder={t('profile:employeeId', 'Employee ID')}
+                    size='large'
+                  />
+                </Form.Item>
+              </motion.div>
+            )}
 
-                  <Form.Item>
-                    <Button
-                      type='default'
-                      icon={<GoogleOutlined />}
-                      className='w-full text-base h-12 rounded-lg shadow-sm flex items-center justify-center'
-                      size='large'
-                      onClick={handleGoogleLogin}
-                      loading={googleLoading}
-                      style={{
-                        fontWeight: 600,
-                        letterSpacing: 0.5,
-                      }}
-                    >
-                      {googleLoading ? t('app:loading') : t('auth:loginWithGoogle')}
-                    </Button>
-                  </Form.Item>
+            {/* Visitor-specific fields */}
+            {userType === 'visitor' && (
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                <Form.Item
+                  name='phoneNumber'
+                  label={t('profile:phoneNumber') || 'Phone Number'}
+                  rules={[
+                    { required: true, message: t('validation:required') },
+                    {
+                      pattern: /^[0-9]{9,15}$/,
+                      message: t('validation:phoneNumber') || 'Please enter a valid phone number'
+                    }
+                  ]}
+                >
+                  <Input
+                    type='tel'
+                    placeholder={t('profile:phoneNumber') || 'Phone Number'}
+                    size='large'
+                    className='text-primay'
+                    autoComplete='tel'
+                  />
+                </Form.Item>
 
-                  <div className='text-center mt-4'>
-                    <p>
-                      {t('auth:alreadyHaveAccount')}{' '}
-                      <Link to='/login' className='text-primary hover:text-primary-dark'>
-                        {t('auth:login')}
-                      </Link>
-                    </p>
-                  </div>
-                </Form>
-            </motion.div>
-          </motion.div>
+                <Form.Item
+                  name='purpose'
+                  label={t('profile:purpose', 'Purpose of Visit')}
+                  rules={[{ required: true, message: t('validation:required') }]}
+                >
+                  <Input
+                    prefix={<GlobalOutlined className='text-primary mr-2' />}
+                    placeholder={t('profile:purpose', 'Purpose of Visit')}
+                    size='large'
+                  />
+                </Form.Item>
+              </motion.div>
+            )}
+
+            <Form.Item className='mt-6'>
+              <Button type='primary' htmlType='submit' size='large' loading={loading} block>
+                {t('auth:register')}
+              </Button>
+            </Form.Item>
+
+            <Divider>{t('auth:or')}</Divider>
+
+            <Form.Item>
+              <Button
+                type='default'
+                icon={<GoogleOutlined />}
+                className='w-full text-base h-12 rounded-lg shadow-sm flex items-center justify-center'
+                size='large'
+                onClick={handleGoogleLogin}
+                loading={googleLoading}
+                style={{
+                  fontWeight: 600,
+                  letterSpacing: 0.5
+                }}
+              >
+                {googleLoading ? t('app:loading') : t('auth:loginWithGoogle')}
+              </Button>
+            </Form.Item>
+
+            <div className='text-center mt-4'>
+              <p>
+                {t('auth:alreadyHaveAccount')}{' '}
+                <Link to='/login' className='text-primary hover:text-primary-dark'>
+                  {t('auth:login')}
+                </Link>
+              </p>
+            </div>
+          </Form>
+        </motion.div>
+      </motion.div>
     </AuthContainer>
   );
 };

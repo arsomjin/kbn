@@ -1,8 +1,8 @@
 import React from 'react';
 import { Select, Spin } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useBranchesForProvince } from '../../hooks/useBranchesForProvince';
-import { useAuth } from '../../hooks/useAuth';
+import { useBranchesForProvince } from 'hooks/useBranchesForProvince';
+import { useAuth } from 'contexts/AuthContext';
 import { ROLES, RoleType } from '../../constants/roles';
 
 interface BranchSelectorProps {
@@ -30,20 +30,15 @@ const BranchSelector: React.FC<BranchSelectorProps> = ({
   skipCache = false,
   forceIncludeAll = false
 }) => {
-  const { t, i18n } = useTranslation(["branches", "common"]);
+  const { t, i18n } = useTranslation(['branches', 'common']);
   const { userProfile } = useAuth();
-  
+
   // Check if user has administrative access
-  const adminRoles: RoleType[] = [
-    ROLES.SUPER_ADMIN,
-    ROLES.DEVELOPER,
-    ROLES.PRIVILEGE,
-    ROLES.GENERAL_MANAGER
-  ];
+  const adminRoles: RoleType[] = [ROLES.SUPER_ADMIN, ROLES.DEVELOPER, ROLES.PRIVILEGE, ROLES.GENERAL_MANAGER];
   const hasAdminAccess = userProfile?.role && adminRoles.includes(userProfile.role as RoleType);
-  
+
   // Use includeAll if user has admin access or if it's forced
-  const { branches, loading } = useBranchesForProvince({ 
+  const { branches, loading } = useBranchesForProvince({
     provinceId: hasAdminAccess || forceIncludeAll ? undefined : provinceId,
     skipCache,
     includeAll: hasAdminAccess || forceIncludeAll
@@ -54,19 +49,19 @@ const BranchSelector: React.FC<BranchSelectorProps> = ({
       showSearch
       value={value}
       onChange={onChange}
-      placeholder={t("selectBranch", { ns: "branches" })}
+      placeholder={t('selectBranch', { ns: 'branches' })}
       disabled={disabled || loading}
       loading={loading}
-      optionFilterProp="children"
+      optionFilterProp='children'
       filterOption={(input, option) => {
         const optionText = typeof option?.children === 'string' ? option.children : '';
         return optionText.toLowerCase().includes(input.toLowerCase());
       }}
       style={{ width: '100%' }}
       size={size}
-      notFoundContent={loading ? <Spin size="small" /> : t("noBranchFound", { ns: "branches" })}
+      notFoundContent={loading ? <Spin size='small' /> : t('noBranchFound', { ns: 'branches' })}
     >
-      {branches.map((branch) => {
+      {branches.map(branch => {
         // console.log('BranchSelector branch:', branch);
         return (
           <Select.Option key={branch.branchCode} value={branch.branchCode}>

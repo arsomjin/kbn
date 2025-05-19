@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Statistic, Typography } from 'antd';
 import { UserOutlined, BankOutlined, FileTextOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from 'contexts/AuthContext';
 
 const { Title } = Typography;
 
 /**
  * Branch Dashboard Component
- * 
+ *
  * Targeted for Branch Managers to view branch-specific statistics and operations
  */
 const BranchDashboard: React.FC = () => {

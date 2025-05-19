@@ -3,11 +3,11 @@ import { Form, Input, Button, Alert, Divider, Row, Col, Card } from 'antd';
 import { UserOutlined, LockOutlined, GoogleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from 'contexts/AuthContext';
 import AuthContainer from '../../components/auth/AuthContainer';
 import { getFirebaseErrorMessage, getFirebaseErrorDetails } from '../../utils/firebaseErrorMessages';
 import { motion } from 'framer-motion';
-import { useAntdModal } from '../../hooks/useAntModal';
+import { useAntdModal } from 'hooks/useAntModal';
 
 const LoginPage: React.FC = () => {
   const { t } = useTranslation();
@@ -94,7 +94,7 @@ const LoginPage: React.FC = () => {
         },
         okText: t('common:confirm', 'Confirm'),
         cancelText: t('common:cancel', 'Cancel'),
-        centered: true,
+        centered: true
       });
     },
     [login, modal, t]
@@ -148,7 +148,7 @@ const LoginPage: React.FC = () => {
 
   const isMobile = window.innerWidth < 480;
 
-  console.log({ errorDetails, "getFirebaseError": getFirebaseErrorMessage(error, t) });
+  console.log({ errorDetails, getFirebaseError: getFirebaseErrorMessage(error, t) });
 
   return (
     <AuthContainer
@@ -157,113 +157,115 @@ const LoginPage: React.FC = () => {
       showAnimatedBackground={true}
       backgroundIntensity='low'
     >
-      <motion.div 
-        initial="hidden" 
-        animate="visible" 
+      <motion.div
+        initial='hidden'
+        animate='visible'
         variants={containerVariants}
         className={`max-w-md w-full mx-auto `}
       >
         <motion.div variants={itemVariants}>
           {/* <Card className='rounded-xl shadow-card'> */}
-            {error && errorVisible && errorDetails && (
-              <Alert
-                message={ getFirebaseErrorMessage(error, t) || errorDetails.message }
-                type={errorDetails.severity === 'warning' ? 'warning' : errorDetails.severity === 'info' ? 'info' : 'error'}
-                showIcon
-                closable
-                onClose={() => {
-                  setErrorVisible(false);
-                  resetAuthError();
-                }}
-                className='mb-6'
-              />
-            )}
-            <Form
-              form={form}
-              name='login'
-              initialValues={{ remember: true }}
-              onFinish={onFinish}
-              layout='vertical'
-              requiredMark={false}
-              disabled={showSpinner}
+          {error && errorVisible && errorDetails && (
+            <Alert
+              message={getFirebaseErrorMessage(error, t) || errorDetails.message}
+              type={
+                errorDetails.severity === 'warning' ? 'warning' : errorDetails.severity === 'info' ? 'info' : 'error'
+              }
+              showIcon
+              closable
+              onClose={() => {
+                setErrorVisible(false);
+                resetAuthError();
+              }}
+              className='mb-6'
+            />
+          )}
+          <Form
+            form={form}
+            name='login'
+            initialValues={{ remember: true }}
+            onFinish={onFinish}
+            layout='vertical'
+            requiredMark={false}
+            disabled={showSpinner}
+          >
+            <Form.Item
+              name='email'
+              rules={[
+                { required: true, message: t('validation:required') },
+                { type: 'email', message: t('validation:email') }
+              ]}
             >
-              <Form.Item
-                name='email'
-                rules={[
-                  { required: true, message: t('validation:required') },
-                  { type: 'email', message: t('validation:email') }
-                ]}
-              >
-                <Input
-                  prefix={<UserOutlined className={`text-disable ${isMobile ? 'mr-1' : 'mr-2'}`} />}
-                  placeholder={t('auth:email')}
-                  size='large'
-                  className='text-primay'
-                  autoComplete='username'
-                  onChange={handleInputChange}
-                />
-              </Form.Item>
-              <Form.Item
-                name='password'
-                rules={[
-                  { required: true, message: t('validation:required') },
-                  { min: 6, message: t('validation:minLength', { length: 6 }) }
-                ]}
-              >
-                <Input.Password
-                  prefix={<LockOutlined className={`text-disable ${isMobile ? 'mr-1' : 'mr-2'}`} />}
-                  placeholder={t('auth:password')}
-                  size='large'
-                  className='text-primay'
-                  autoComplete='current-password'
-                  onChange={handleInputChange}
-                />
-              </Form.Item>
-              <Form.Item>
-                <div className='flex justify-between items-center mb-2'>
-                  <Link to='/forgot-password' className='text-accent hover:underline text-sm'>
-                    {t('auth:forgotPassword')}
-                  </Link>
-                </div>
-              </Form.Item>
-              <Form.Item>
-                <Button
-                  type='primary'
-                  htmlType='submit'
-                  className='btn btn-primary w-full text-base h-12 rounded-lg shadow-sm'
-                  size='large'
-                  loading={showSpinner}
-                  style={{ fontWeight: 600, letterSpacing: 1 }}
-                >
-                  {showSpinner ? t('app:loading') : t('auth:login')}
-                </Button>
-              </Form.Item>
-              <Divider>{t('auth:or')}</Divider>
-              <Form.Item>
-                <Button
-                  type='default'
-                  icon={<GoogleOutlined />}
-                  className='w-full text-base h-12 rounded-lg shadow-sm flex items-center justify-center'
-                  size='large'
-                  onClick={handleGoogleLogin}
-                  loading={googleLoading}
-                  style={{
-                    fontWeight: 600,
-                    letterSpacing: 0.5,
-                  }}
-                >
-                  {googleLoading ? t('app:loading') : t('auth:loginWithGoogle')}
-                </Button>
-              </Form.Item>
-              <div className='text-center mt-4'>
-                <p className={`text-textSecondary ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                  {t('auth:dontHaveAccount')}{' '}
-                  <Link to='/register' className='text-accent hover:underline font-medium'>
-                    {t('auth:register')}
-                  </Link>
-                </p>
+              <Input
+                prefix={<UserOutlined className={`text-disable ${isMobile ? 'mr-1' : 'mr-2'}`} />}
+                placeholder={t('auth:email')}
+                size='large'
+                className='text-primay'
+                autoComplete='username'
+                onChange={handleInputChange}
+              />
+            </Form.Item>
+            <Form.Item
+              name='password'
+              rules={[
+                { required: true, message: t('validation:required') },
+                { min: 6, message: t('validation:minLength', { length: 6 }) }
+              ]}
+            >
+              <Input.Password
+                prefix={<LockOutlined className={`text-disable ${isMobile ? 'mr-1' : 'mr-2'}`} />}
+                placeholder={t('auth:password')}
+                size='large'
+                className='text-primay'
+                autoComplete='current-password'
+                onChange={handleInputChange}
+              />
+            </Form.Item>
+            <Form.Item>
+              <div className='flex justify-between items-center mb-2'>
+                <Link to='/forgot-password' className='text-accent hover:underline text-sm'>
+                  {t('auth:forgotPassword')}
+                </Link>
               </div>
-            </Form>
+            </Form.Item>
+            <Form.Item>
+              <Button
+                type='primary'
+                htmlType='submit'
+                className='btn btn-primary w-full text-base h-12 rounded-lg shadow-sm'
+                size='large'
+                loading={showSpinner}
+                style={{ fontWeight: 600, letterSpacing: 1 }}
+              >
+                {showSpinner ? t('app:loading') : t('auth:login')}
+              </Button>
+            </Form.Item>
+            <Divider>{t('auth:or')}</Divider>
+            <Form.Item>
+              <Button
+                type='default'
+                icon={<GoogleOutlined />}
+                className='w-full text-base h-12 rounded-lg shadow-sm flex items-center justify-center'
+                size='large'
+                onClick={handleGoogleLogin}
+                loading={googleLoading}
+                style={{
+                  fontWeight: 600,
+                  letterSpacing: 0.5
+                }}
+              >
+                {googleLoading ? t('app:loading') : t('auth:loginWithGoogle')}
+              </Button>
+            </Form.Item>
+            <div className='text-center mt-4'>
+              <p className={`text-textSecondary ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                {t('auth:dontHaveAccount')}{' '}
+                <Link to='/register' className='text-accent hover:underline font-medium'>
+                  {t('auth:register')}
+                </Link>
+              </p>
+            </div>
+          </Form>
           {/* </Card> */}
         </motion.div>
       </motion.div>

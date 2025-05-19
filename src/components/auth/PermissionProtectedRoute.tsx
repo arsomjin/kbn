@@ -1,7 +1,7 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
-import { usePermissions } from '../../hooks/usePermissions';
+import { useAuth } from 'contexts/AuthContext';
+import { usePermissions } from 'hooks/usePermissions';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Permission } from '../../constants/Permissions';

@@ -13,4 +13,4 @@ alwaysApply: true
 - Use arrow functions and functional components.
 - Add explicit return types to all functions.
 - Avoid `any`; use `TODO` for unknown types with explanation.
-- Convert all relative imports (`../../utils`) to `@/utils` absolute paths.
+- Convert all relative imports (`../../utils`) to `utils` absolute paths.

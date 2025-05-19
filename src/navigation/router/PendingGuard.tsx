@@ -1,24 +1,22 @@
 import { Navigate } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from 'contexts/AuthContext';
 import { ROLES } from '../../constants/roles';
 import { useSelector } from 'react-redux';
 import { Spin } from 'antd';
 
 const PendingGuard = ({ children }: { children: React.ReactNode }) => {
-  const { userProfile, isLoading, hydrated } = useAuth();
+  const { userProfile, isLoading } = useAuth();
   const isProfileTransitioning = useSelector((state: any) => state.auth.isProfileTransitioning);
   console.log(
     '[PendingGuard] userProfile:',
     userProfile,
     'isLoading:',
     isLoading,
-    'hydrated:',
-    hydrated,
     'isProfileTransitioning:',
     isProfileTransitioning
   );
 
-  if (isLoading || isProfileTransitioning || !hydrated) {
+  if (isLoading || isProfileTransitioning) {
     console.log('[PendingGuard] Loading spinner');
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from './useAuth';
+import { useAuth } from 'contexts/AuthContext';
 import { ROLES } from '../constants/roles';
 import { getPrivilegeLevel } from '../utils/roleUtils';
 

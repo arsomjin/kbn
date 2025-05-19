@@ -16,9 +16,11 @@ import { PERMISSIONS } from '../constants/Permissions';
  */
 export const hasAdminAccess = (role?: string): boolean => {
   if (!role) return false;
-  return isInRoleCategory(role as RoleType, RoleCategory.PRIVILEGE) || 
-         isInRoleCategory(role as RoleType, RoleCategory.SUPER_ADMIN) ||
-         isInRoleCategory(role as RoleType, RoleCategory.DEVELOPER);
+  return (
+    isInRoleCategory(role as RoleType, RoleCategory.PRIVILEGE) ||
+    isInRoleCategory(role as RoleType, RoleCategory.SUPER_ADMIN) ||
+    isInRoleCategory(role as RoleType, RoleCategory.DEVELOPER)
+  );
 };
 
 export const hasPrivilegedAccess = (userProfile: UserProfile | null, userPermissions: string[] = []): boolean => {
@@ -49,32 +51,24 @@ export const hasPrivilegedAccess = (userProfile: UserProfile | null, userPermiss
  * @param userPermissions Array of permission strings assigned to the user
  * @returns string path to the appropriate landing page
  */
-export const getLandingPage = (userProfile: UserProfile | null, userPermissions: string[] = []): string => {
-  if (!userProfile) {
-    return '/login';
-  }
+export const getLandingPage = (userProfile: UserProfile): string => {
+  if (!userProfile) return '/';
 
-  if (userProfile.role === ROLES.PENDING) {
-    return '/pending';
+  switch (userProfile.role) {
+    case ROLES.SUPER_ADMIN:
+    case ROLES.PROVINCE_ADMIN:
+      return '/overview';
+    case ROLES.PROVINCE_MANAGER:
+    case ROLES.GENERAL_MANAGER:
+      return '/province/dashboard';
+    case ROLES.BRANCH_MANAGER:
+      return '/branch-dashboard';
+    case ROLES.USER:
+    case ROLES.BRANCH:
+      return '/dashboard';
+    default:
+      return '/';
   }
-
-  // Privileged users go to the overview page
-  if (hasPrivilegedAccess(userProfile, userPermissions)) {
-    return '/overview';
-  }
-
-  // GENERAL_MANAGER and PROVINCE_MANAGER go to dashboard
-  if (userProfile.role === ROLES.GENERAL_MANAGER || userProfile.role === ROLES.PROVINCE_MANAGER) {
-    return '/dashboard';
-  }
-
-  // BRANCH_MANAGER goes to branch-dashboard
-  if (userProfile.role === ROLES.BRANCH_MANAGER) {
-    return '/branch-dashboard';
-  }
-
-  // All other authenticated users go to landing
-  return '/landing';
 };
 
 /**

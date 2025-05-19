@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { v4 as uuidv4 } from 'uuid';
 import {
   Notification,
+  Toast,
   getNotifications,
   markNotificationAsRead,
   markNotificationAsUnread,
@@ -11,15 +12,6 @@ import {
 import { UserProfile } from '../../services/authService';
 import { DocumentSnapshot } from 'firebase/firestore';
 import { serializeTimestampArray } from '../../utils/timestampUtils';
-
-export interface Toast {
-  id: string;
-  type: NotificationType;
-  title: string;
-  message: string;
-  duration?: number;
-  displayed?: boolean;
-}
 
 // Types
 interface NotificationState {
@@ -137,10 +129,12 @@ const notificationSlice = createSlice({
   initialState,
   reducers: {
     addNotification(state, action: PayloadAction<Notification>) {
-      const newNotification = action.payload;
+      const newNotification = {
+        ...action.payload,
+        description: action.payload.description ?? action.payload.title ?? ''
+      };
       // Check if notification already exists
       const exists = state.notifications.some(n => n.id === newNotification.id);
-
       if (!exists) {
         state.notifications.unshift(newNotification);
         if (!newNotification.isRead) {
@@ -149,7 +143,10 @@ const notificationSlice = createSlice({
       }
     },
     updateNotifications(state, action: PayloadAction<Notification[]>) {
-      const newNotifications = action.payload;
+      const newNotifications = action.payload.map(n => ({
+        ...n,
+        description: n.description ?? n.title ?? ''
+      }));
       let unreadAdded = 0;
 
       // Add only notifications that don't already exist
@@ -181,22 +178,24 @@ const notificationSlice = createSlice({
       state.unreadCount = Math.max(0, state.unreadCount + unreadAdded);
 
       // Process timestamps and sort notifications by createdAt (newest first)
-      state.notifications = state.notifications.map(notification => {
-        const processTimestamp = (ts: any): string => {
-          if (!ts) return new Date().toISOString();
-          if (typeof ts === 'string') return ts;
-          if (typeof ts.toDate === 'function') return ts.toDate().toISOString();
-          if (ts instanceof Date) return ts.toISOString();
-          return new Date().toISOString();
-        };
+      state.notifications = state.notifications
+        .map(notification => {
+          const processTimestamp = (ts: any): string => {
+            if (!ts) return new Date().toISOString();
+            if (typeof ts === 'string') return ts;
+            if (typeof ts.toDate === 'function') return ts.toDate().toISOString();
+            if (ts instanceof Date) return ts.toISOString();
+            return new Date().toISOString();
+          };
 
-        return {
-          ...notification,
-          createdAt: processTimestamp(notification.createdAt),
-          updatedAt: notification.updatedAt ? processTimestamp(notification.updatedAt) : undefined,
-          expiresAt: notification.expiresAt ? processTimestamp(notification.expiresAt) : undefined
-        };
-      }).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+          return {
+            ...notification,
+            createdAt: processTimestamp(notification.createdAt),
+            updatedAt: notification.updatedAt ? processTimestamp(notification.updatedAt) : undefined,
+            expiresAt: notification.expiresAt ? processTimestamp(notification.expiresAt) : undefined
+          };
+        })
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
     },
     setNotificationDrawer(state, action: PayloadAction<boolean>) {
       state.isNotificationDrawerOpen = action.payload;

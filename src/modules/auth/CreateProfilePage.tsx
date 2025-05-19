@@ -4,11 +4,11 @@ import { UserOutlined, BankOutlined, TeamOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from 'contexts/AuthContext';
 import { UserProfile } from '../../services/authService';
 import { UserRole } from '../../constants/roles';
 import { updateUserProfile } from '../../services/authService';
-import { fetchUserProfile } from '../../store/slices/authSlice';
+import { fetchUserProfile } from 'store/slices/authSlice';
 import { AppDispatch } from '../../store';
 import AuthContainer from '../../components/auth/AuthContainer';
 import { getAuthErrorMessage } from '../../utils/firebaseErrorMessages';
@@ -27,7 +27,7 @@ const CreateProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
-  const { user, refreshUserProfile } = useAuth();
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [form] = Form.useForm();
@@ -92,10 +92,7 @@ const CreateProfilePage: React.FC = () => {
       await updateUserProfile(user.uid, profileData);
 
       // Refresh user profile in Redux store
-      await dispatch(fetchUserProfile());
-
-      // Refresh the auth hook state
-      refreshUserProfile();
+      await dispatch(fetchUserProfile(user.uid));
 
       // Navigate to the original destination or dashboard
       navigate(from, { replace: true });

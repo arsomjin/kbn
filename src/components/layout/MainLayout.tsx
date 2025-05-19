@@ -22,10 +22,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 // Custom hooks
-import { useAuth } from '../../hooks/useAuth';
-import { useTheme } from '../../hooks/useTheme';
-import { useNotifications } from '../../hooks/useNotifications';
-import { usePermissions } from '../../hooks/usePermissions';
+import { useAuth } from 'contexts/AuthContext';
+import { useTheme } from 'hooks/useTheme';
+import { useNotifications } from 'hooks/useNotifications';
+import { usePermissions } from 'hooks/usePermissions';
 
 // Components
 import NotificationCenter from '../notifications/NotificationCenter';
@@ -65,7 +65,7 @@ interface NavItemType {
 }
 
 interface ValidMenuNavItem {
-  key: string; 
+  key: string;
   icon: ReactElement;
   label: string;
   onClick?: () => void | Promise<void>;
@@ -178,7 +178,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   // Determine landing page and label for the main sidebar item
   let homeKey = 'home';
   let homeLabel = t('common:home') || 'Home';
-  let homePath = getLandingPage(userProfile);
+  let homePath = userProfile ? getLandingPage(userProfile) : '/';
   const homeIcon = <DashboardOutlined />;
 
   if (userProfile?.role === ROLES.PROVINCE_MANAGER || userProfile?.role === ROLES.GENERAL_MANAGER) {
@@ -222,7 +222,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       hasRole(ROLES.BRANCH_MANAGER) && {
         key: 'branch-dashboard',
         icon: <DashboardOutlined />,
-        label: t('dashboard:branchDashboard') || 'Branch Dashboard',        
+        label: t('dashboard:branchDashboard') || 'Branch Dashboard',
         onClick: () => navigate('/branch-dashboard')
       },
     // Add Account Management menu item
@@ -291,8 +291,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       onClick: () => navigate('/admin/content')
     },
     // Settings submenu
-    (hasPermission(PERMISSIONS.USER_VIEW) ||
-     hasPermission(PERMISSIONS.SYSTEM_SETTINGS_VIEW)) && {
+    (hasPermission(PERMISSIONS.USER_VIEW) || hasPermission(PERMISSIONS.SYSTEM_SETTINGS_VIEW)) && {
       key: 'settings',
       icon: <SettingOutlined />,
       label: t('common:settings') || 'Settings',
@@ -312,14 +311,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           onClick: () => navigate('/admin/settings')
         },
         // Branch settings (only SUPER_ADMIN and PRIVILEGE)
-        (hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE])) && {
+        hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE]) && {
           key: 'branches',
           icon: <BankOutlined />,
           label: t('branches:title') || 'Branches',
           onClick: () => navigate('/admin/branches')
         },
         // Province settings (only SUPER_ADMIN and PRIVILEGE)
-        (hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE])) && {
+        hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE]) && {
           key: 'provinces',
           icon: <SettingOutlined />,
           label: t('provinces:title') || 'Provinces',
@@ -345,7 +344,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   // Type-safe nav items
   type MenuNavItem = {
-    key: string; 
+    key: string;
     icon: React.ReactElement;
     label: string;
     onClick?: () => void | Promise<void>;
@@ -353,20 +352,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   };
 
   // Clean up nav items and ensure type safety
-  const validNavItems = (navItemsRaw.filter(Boolean) as ValidMenuNavItem[])
-    .map(item => ({
-      ...item, 
-      key: item.key || String(item.label || '').toLowerCase()
-    }));
+  const validNavItems = (navItemsRaw.filter(Boolean) as ValidMenuNavItem[]).map(item => ({
+    ...item,
+    key: item.key || String(item.label || '').toLowerCase()
+  }));
 
   // When collapsed, remove children to prevent popover
-  const navItems = (collapsed
-    ? validNavItems.map(item => ({ ...item, children: undefined }))
-    : validNavItems) as MenuProps['items'];
+  const navItems = (
+    collapsed ? validNavItems.map(item => ({ ...item, children: undefined })) : validNavItems
+  ) as MenuProps['items'];
 
   // Map pathname to menu key and determine open menu keys
   const [openKeys, setOpenKeys] = useState<string[]>(['settings']);
-  
+
   const getSelectedKey = () => {
     if (location.pathname === '/' || location.pathname.startsWith('/landing')) return 'home';
     if (location.pathname.startsWith('/overview')) return 'overview';
@@ -484,7 +482,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           openKeys={openKeys}
           onOpenChange={setOpenKeys}
           items={navItems}
-          onClick={(info) => {
+          onClick={info => {
             // Only close drawer when clicking a menu item without children
             if (!info.keyPath.includes('settings')) {
               setDrawerVisible(false);

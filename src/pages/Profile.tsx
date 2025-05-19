@@ -1,12 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Card, Typography, Avatar, Tabs, Form, Input, Button, Space, Divider, Tag, Skeleton, Modal, message } from 'antd';
-import { UserOutlined, MailOutlined, PhoneOutlined, BankOutlined, TeamOutlined, EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
-import { useAuth } from '../hooks/useAuth';
+import {
+  Card,
+  Typography,
+  Avatar,
+  Tabs,
+  Form,
+  Input,
+  Button,
+  Space,
+  Divider,
+  Tag,
+  Skeleton,
+  Modal,
+  message
+} from 'antd';
+import {
+  UserOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  BankOutlined,
+  TeamOutlined,
+  EyeInvisibleOutlined,
+  EyeTwoTone
+} from '@ant-design/icons';
+import { useAuth } from 'contexts/AuthContext';
 import { useTheme } from '../hooks/useTheme';
 import { ROLES } from '../constants/roles';
 import BranchName from '../components/common/BranchName';
-import { getAuth, updatePassword, EmailAuthProvider, reauthenticateWithCredential, sendPasswordResetEmail } from 'firebase/auth';
+import {
+  getAuth,
+  updatePassword,
+  EmailAuthProvider,
+  reauthenticateWithCredential,
+  sendPasswordResetEmail
+} from 'firebase/auth';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -36,7 +64,7 @@ const Profile: React.FC = () => {
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [lastPasswordChanged, setLastPasswordChanged] = useState(
-    (userProfile && 'passwordLastChanged' in userProfile ? (userProfile as any).passwordLastChanged : null)
+    userProfile && 'passwordLastChanged' in userProfile ? (userProfile as any).passwordLastChanged : null
   );
 
   useEffect(() => {
@@ -49,7 +77,7 @@ const Profile: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className='p-6'>
         <Skeleton active avatar paragraph={{ rows: 4 }} />
       </div>
     );
@@ -57,7 +85,7 @@ const Profile: React.FC = () => {
 
   const userData: UserData = {
     ...userProfile,
-    ...user,
+    ...user
   };
 
   console.log(userData);
@@ -100,50 +128,47 @@ const Profile: React.FC = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="mb-6">
-        <Title level={2} className="text-gray-800 dark:text-gray-200">
+    <div className='p-6 max-w-4xl mx-auto'>
+      <div className='mb-6'>
+        <Title level={2} className='text-gray-800 dark:text-gray-200'>
           {t('title', 'User Profile')}
         </Title>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>
         {/* Left Column - User Info Card */}
-        <Card className="md:col-span-1 bg-white dark:bg-gray-800 shadow-sm">
-          <div className="flex flex-col items-center">
-            <Avatar
-              size={120}
-              src={userData.photoURL}
-              icon={<UserOutlined />}
-              className="mb-4 bg-primary"
-            />
-            <Title level={4} className="text-center text-gray-800 dark:text-gray-200">
+        <Card className='md:col-span-1 bg-white dark:bg-gray-800 shadow-sm'>
+          <div className='flex flex-col items-center'>
+            <Avatar size={120} src={userData.photoURL} icon={<UserOutlined />} className='mb-4 bg-primary' />
+            <Title level={4} className='text-center text-gray-800 dark:text-gray-200'>
               {userData.displayName || t('noName', 'No Name')}
             </Title>
-            <Tag color="blue" className="mb-4">
+            <Tag color='blue' className='mb-4'>
               {t(`${userData.role?.toLowerCase()}.label`, { ns: 'roles' })}
             </Tag>
-            <Divider className="w-full" />
-            <Space direction="vertical" className="w-full">
-              <div className="flex items-center text-gray-600 dark:text-gray-400">
-                <MailOutlined className="mr-2" />
+            <Divider className='w-full' />
+            <Space direction='vertical' className='w-full'>
+              <div className='flex items-center text-gray-600 dark:text-gray-400'>
+                <MailOutlined className='mr-2' />
                 <Text>{userData.email || t('noEmail', 'No Email')}</Text>
               </div>
               {userData.phoneNumber && (
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <PhoneOutlined className="mr-2" />
+                <div className='flex items-center text-gray-600 dark:text-gray-400'>
+                  <PhoneOutlined className='mr-2' />
                   <Text>{userData.phoneNumber}</Text>
                 </div>
               )}
               {userData.branch && (
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <BankOutlined className="mr-2" />
-                  <Text><BranchName code={userData.branch} /></Text>
+                <div className='flex items-center text-gray-600 dark:text-gray-400'>
+                  <BankOutlined className='mr-2' />
+                  <Text>
+                    <BranchName code={userData.branch} />
+                  </Text>
                 </div>
               )}
               {userData.department && (
-                <div className="flex items-center text-gray-600 dark:text-gray-400">
-                  <TeamOutlined className="mr-2" />
+                <div className='flex items-center text-gray-600 dark:text-gray-400'>
+                  <TeamOutlined className='mr-2' />
                   <Text>{userData.department}</Text>
                 </div>
               )}
@@ -152,11 +177,11 @@ const Profile: React.FC = () => {
         </Card>
 
         {/* Right Column - Tabs */}
-        <Card className="md:col-span-2 bg-white dark:bg-gray-800 shadow-sm">
-          <Tabs defaultActiveKey="personal">
-            <TabPane tab={t('tabs.personal', 'Personal Information')} key="personal">
-              <Form layout="vertical" className="mt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card className='md:col-span-2 bg-white dark:bg-gray-800 shadow-sm'>
+          <Tabs defaultActiveKey='personal'>
+            <TabPane tab={t('tabs.personal', 'Personal Information')} key='personal'>
+              <Form layout='vertical' className='mt-4'>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <Form.Item label={t('fields.firstName', 'First Name')}>
                     <Input value={userData.firstName} disabled />
                   </Form.Item>
@@ -173,11 +198,11 @@ const Profile: React.FC = () => {
               </Form>
             </TabPane>
 
-            <TabPane tab={t('tabs.work', 'Work Information')} key="work">
-              <Form layout="vertical" className="mt-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <TabPane tab={t('tabs.work', 'Work Information')} key='work'>
+              <Form layout='vertical' className='mt-4'>
+                <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                   <Form.Item label={t('fields.branch', 'Branch')}>
-                    <div className="p-1 text-gray-600 dark:text-gray-400">
+                    <div className='p-1 text-gray-600 dark:text-gray-400'>
                       {userData.branch ? <BranchName code={userData.branch} /> : '-'}
                     </div>
                   </Form.Item>
@@ -185,10 +210,7 @@ const Profile: React.FC = () => {
                     <Input value={userData.department} disabled />
                   </Form.Item>
                   <Form.Item label={t('fields.role', 'Role')}>
-                    <Input 
-                      value={t(`${userData.role?.toLowerCase()}.label`, { ns: 'roles' })} 
-                      disabled 
-                    />
+                    <Input value={t(`${userData.role?.toLowerCase()}.label`, { ns: 'roles' })} disabled />
                   </Form.Item>
                   <Form.Item label={t('fields.status', 'Status')}>
                     <Input value={userData.status || t('fields.noStatus', 'No Status')} disabled />
@@ -197,25 +219,21 @@ const Profile: React.FC = () => {
               </Form>
             </TabPane>
 
-            <TabPane tab={t('tabs.security', 'Security')} key="security">
-              <div className="mt-4">
-                <Space direction="vertical" className="w-full">
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <TabPane tab={t('tabs.security', 'Security')} key='security'>
+              <div className='mt-4'>
+                <Space direction='vertical' className='w-full'>
+                  <div className='flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg'>
                     <div>
-                      <Text strong className="block text-gray-800 dark:text-gray-200">
+                      <Text strong className='block text-gray-800 dark:text-gray-200'>
                         {t('security.emailVerification', 'Email Verification')}
                       </Text>
-                      <Text className="text-gray-600 dark:text-gray-400">
-                        {userData.emailVerified 
+                      <Text className='text-gray-600 dark:text-gray-400'>
+                        {userData.emailVerified
                           ? t('security.verified', 'Verified')
                           : t('security.notVerified', 'Not Verified')}
                       </Text>
                     </div>
-                    {!userData.emailVerified && (
-                      <Button type="primary">
-                        {t('security.verify', 'Verify Email')}
-                      </Button>
-                    )}
+                    {!userData.emailVerified && <Button type='primary'>{t('security.verify', 'Verify Email')}</Button>}
                   </div>
                   {/* <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                     <div>
@@ -245,39 +263,49 @@ const Profile: React.FC = () => {
         confirmLoading={passwordLoading}
         okText={t('actions.save', 'Save Changes')}
         cancelText={t('actions.cancel', 'Cancel')}
-        okButtonProps={{ disabled: passwordLoading || !form.isFieldsTouched(true) || !!form.getFieldsError().filter(({ errors }) => errors.length).length }}
+        okButtonProps={{
+          disabled:
+            passwordLoading ||
+            !form.isFieldsTouched(true) ||
+            !!form.getFieldsError().filter(({ errors }) => errors.length).length
+        }}
       >
-        <Form form={form} layout="vertical">
+        <Form form={form} layout='vertical'>
           <Form.Item
-            name="currentPassword"
+            name='currentPassword'
             label={t('security.password', 'Current Password')}
             rules={[{ required: true, message: t('security.password', 'Current Password') + ' is required' }]}
           >
             <Input.Password
               autoFocus
-              iconRender={visible => visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />}
+              iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
               disabled={passwordLoading}
             />
           </Form.Item>
           <Form.Item
-            name="newPassword"
+            name='newPassword'
             label={t('security.newPassword', 'New Password')}
             rules={[
               { required: true, message: t('security.newPassword', 'New Password') + ' is required' },
               { min: 8, message: t('security.newPassword', 'New Password') + ' must be at least 8 characters' },
-              { pattern: /^(?=.*[A-Z])(?=.*\d).+$/, message: t('security.newPassword', 'New Password') + ' must contain an uppercase letter and a number' },
+              {
+                pattern: /^(?=.*[A-Z])(?=.*\d).+$/,
+                message: t('security.newPassword', 'New Password') + ' must contain an uppercase letter and a number'
+              },
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (!value || getFieldValue('currentPassword') !== value) {
                     return Promise.resolve();
                   }
-                  return Promise.reject(new Error(t('security.newPassword', 'New Password') + ' must be different from current password'));
-                },
-              }),
+                  return Promise.reject(
+                    new Error(t('security.newPassword', 'New Password') + ' must be different from current password')
+                  );
+                }
+              })
             ]}
           >
             <Input.Password
-              iconRender={visible => visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />}
+              iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
               disabled={passwordLoading}
             />
           </Form.Item>

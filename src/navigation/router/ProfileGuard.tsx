@@ -1,6 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from 'contexts/AuthContext';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 
@@ -10,11 +10,13 @@ const ProfileGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => 
 
   console.log('[ProfileGuard] State:', {
     isLoading,
-    userProfile: userProfile ? {
-      role: userProfile.role,
-      firstName: userProfile.firstName,
-      lastName: userProfile.lastName
-    } : null,
+    userProfile: userProfile
+      ? {
+          role: userProfile.role,
+          firstName: userProfile.firstName,
+          lastName: userProfile.lastName
+        }
+      : null,
     currentPath: location.pathname
   });
 

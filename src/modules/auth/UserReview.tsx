@@ -35,13 +35,13 @@ import { PERMISSIONS } from '../../constants/Permissions';
 import { notificationController } from '../../controllers/notificationController';
 import { NotificationType } from '../../services/notificationService';
 import { ColumnsType } from 'antd/es/table';
-import { usePermissions } from '../../hooks/usePermissions';
+import { usePermissions } from 'hooks/usePermissions';
 import UserRoleEditor, { EditableUser } from '../../components/auth/UserRoleEditor';
 import { Province } from '../../types/province';
 import styles from './UserReview.module.css';
-import { useAntdModal } from '../../hooks/useAntModal';
+import { useAntdModal } from 'hooks/useAntModal';
 import { getPrivilegeLevel } from '../../utils/roleUtils';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from 'hooks/useTheme';
 
 const { Option } = Select;
 const { Title, Paragraph, Text } = Typography;
@@ -250,7 +250,7 @@ const UserReview: React.FC = () => {
           nameEn: doc.data().nameEn || doc.data().name || '',
           status: doc.data().status || 'active',
           createdAt: doc.data().createdAt || Date.now(),
-          updatedAt: doc.data().updatedAt || Date.now(),
+          updatedAt: doc.data().updatedAt || Date.now()
         }));
         setAvailableProvinces(provinces);
       } catch (error) {
@@ -924,7 +924,7 @@ const UserReview: React.FC = () => {
         isSaving={false}
         allPermissions={allPermissions}
         modalTitle={t('editModal.title')}
-        namespace="userReview"
+        namespace='userReview'
       />
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Card, Statistic, Typography } from 'antd';
 import { UserOutlined, BellOutlined, CheckCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from 'contexts/AuthContext';
 import { UserRole } from '../../constants/roles';
 
 const { Title } = Typography;
@@ -98,8 +98,8 @@ const Dashboard: React.FC = () => {
       </Row>
 
       {/* Recent activity section - placeholder */}
-      <Card 
-        title={t('dashboard:recentActivity')} 
+      <Card
+        title={t('dashboard:recentActivity')}
         className='mb-6'
         size={isMobile ? 'small' : 'default'}
         headStyle={{ fontSize: isMobile ? '14px' : '16px' }}
@@ -109,7 +109,7 @@ const Dashboard: React.FC = () => {
 
       {/* Additional admin section */}
       {isAdmin && (
-        <Card 
+        <Card
           title={t('dashboard:adminSection')}
           size={isMobile ? 'small' : 'default'}
           headStyle={{ fontSize: isMobile ? '14px' : '16px' }}

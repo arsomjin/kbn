@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom';
 import NotFound from '../../components/common/NotFound';
 import UserReview from '../../modules/auth/UserReview';
 import UserRoleManager from '../../modules/auth/UserRoleManager';
-import ProtectedRoute from '../../components/auth/ProtectedRoute';
+import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import PermissionProtectedRoute from '../../components/auth/PermissionProtectedRoute';
 import { UserRole } from '../../constants/roles';
 import { ComposeNotification } from '../../components/notifications';
@@ -53,7 +53,7 @@ export const AdminRoutes = [
     element={
       <PermissionProtectedRoute
         requiredPermission={PERMISSIONS.BRANCH_MANAGE}
-        fallbackPath="/dashboard"
+        fallbackPath='/dashboard'
         // Note that SUPER_ADMIN and PRIVILEGE automatically get BRANCH_MANAGE permission
         // through their role hierarchy, so we don't need separate role check
       >
@@ -66,10 +66,7 @@ export const AdminRoutes = [
     key='employees'
     path='employees'
     element={
-      <PermissionProtectedRoute
-        requiredPermission={PERMISSIONS.USER_VIEW}
-        fallbackPath="/dashboard"
-      >
+      <PermissionProtectedRoute requiredPermission={PERMISSIONS.USER_VIEW} fallbackPath='/dashboard'>
         <EmployeeList />
       </PermissionProtectedRoute>
     }
@@ -78,10 +75,7 @@ export const AdminRoutes = [
     key='employees-new'
     path='employees/new'
     element={
-      <PermissionProtectedRoute
-        requiredPermission={PERMISSIONS.USER_VIEW}
-        fallbackPath="/dashboard"
-      >
+      <PermissionProtectedRoute requiredPermission={PERMISSIONS.USER_VIEW} fallbackPath='/dashboard'>
         <EmployeeForm />
       </PermissionProtectedRoute>
     }
@@ -90,10 +84,7 @@ export const AdminRoutes = [
     key='employees-edit'
     path='employees/:id/edit'
     element={
-      <PermissionProtectedRoute
-        requiredPermission={PERMISSIONS.USER_VIEW}
-        fallbackPath="/dashboard"
-      >
+      <PermissionProtectedRoute requiredPermission={PERMISSIONS.USER_VIEW} fallbackPath='/dashboard'>
         <EmployeeForm />
       </PermissionProtectedRoute>
     }
@@ -102,10 +93,7 @@ export const AdminRoutes = [
     key='employees-details'
     path='employees/:id'
     element={
-      <PermissionProtectedRoute
-        requiredPermission={PERMISSIONS.USER_VIEW}
-        fallbackPath="/dashboard"
-      >
+      <PermissionProtectedRoute requiredPermission={PERMISSIONS.USER_VIEW} fallbackPath='/dashboard'>
         <EmployeeDetails />
       </PermissionProtectedRoute>
     }

@@ -1,8 +1,8 @@
-import React, { createContext, useState, useEffect, useCallback, useMemo } from "react";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
-import { firestore } from "../services/firebase";
-import { useAuth } from "../hooks/useAuth";
-import { message } from "antd";
+import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { firestore } from '../services/firebase';
+import { useAuth } from 'contexts/AuthContext';
+import { message } from 'antd';
 
 export interface Province {
   id: string;
@@ -43,110 +43,124 @@ export const ProvinceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   // Create a memoized byId map for efficient province lookups
   const byId = useMemo(() => {
-    return provinces.reduce((acc, province) => {
-      acc[province.id] = province;
-      return acc;
-    }, {} as Record<string, Province>);
+    return provinces.reduce(
+      (acc, province) => {
+        acc[province.id] = province;
+        return acc;
+      },
+      {} as Record<string, Province>
+    );
   }, [provinces]);
 
-  const fetchProvinces = useCallback(async (forceRefresh = false) => {
-    if (!user) {
-      setProvinces([]);
-      setCurrentProvince(null);
-      setLoading(false);
-      return;
-    }
-
-    const now = Date.now();
-    if (!forceRefresh && now - lastFetched < CACHE_DURATION && provinces.length > 0) {
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-
-      const provincesRef = collection(firestore, "data/company/provinces");
-      const q = query(
-        provincesRef,
-        where("status", "==", "active"),
-        orderBy("name", "asc")
-      );
-      
-      const snapshot = await getDocs(q);
-      const provincesData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as Province[];
-
-      setProvinces(provincesData);
-      setLastFetched(now);
-
-      // Set first province as current if none selected
-      if (!currentProvince && provincesData.length > 0) {
-        setCurrentProvince(provincesData[0]);
+  const fetchProvinces = useCallback(
+    async (forceRefresh = false) => {
+      if (!user) {
+        setProvinces([]);
+        setCurrentProvince(null);
+        setLoading(false);
+        return;
       }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to fetch provinces";
-      setError(new Error(errorMessage));
-      message.error("Failed to load provinces");
-      console.error("Error loading provinces:", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [user, lastFetched, provinces.length, currentProvince]);
+
+      const now = Date.now();
+      if (!forceRefresh && now - lastFetched < CACHE_DURATION && provinces.length > 0) {
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const provincesRef = collection(firestore, 'data/company/provinces');
+        const q = query(provincesRef, where('status', '==', 'active'), orderBy('name', 'asc'));
+
+        const snapshot = await getDocs(q);
+        const provincesData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Province[];
+
+        setProvinces(provincesData);
+        setLastFetched(now);
+
+        // Set first province as current if none selected
+        if (!currentProvince && provincesData.length > 0) {
+          setCurrentProvince(provincesData[0]);
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to fetch provinces';
+        setError(new Error(errorMessage));
+        message.error('Failed to load provinces');
+        console.error('Error loading provinces:', error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user, lastFetched, provinces.length, currentProvince]
+  );
 
   useEffect(() => {
     fetchProvinces();
   }, [fetchProvinces]);
 
   useEffect(() => {
-    console.log("[ProvinceProvider] user:", user);
+    console.log('[ProvinceProvider] user:', user);
   }, [user]);
 
   useEffect(() => {
-    console.log("[ProvinceProvider] provinces:", provinces);
+    console.log('[ProvinceProvider] provinces:', provinces);
   }, [provinces]);
 
   useEffect(() => {
-    console.log("[ProvinceProvider] currentProvince:", currentProvince);
+    console.log('[ProvinceProvider] currentProvince:', currentProvince);
   }, [currentProvince]);
 
-  const getProvinceById = useCallback((id: string): Province | undefined => {
-    return provinces.find(province => province.id === id);
-  }, [provinces]);
+  const getProvinceById = useCallback(
+    (id: string): Province | undefined => {
+      return provinces.find(province => province.id === id);
+    },
+    [provinces]
+  );
 
-  const hasProvinceAccess = useCallback((provinceId: string): boolean => {
-    if (!user) return false;
-    // Add your province access logic here
-    // For example, check if user has access to the province based on their role/permissions
-    return true;
-  }, [user]);
+  const hasProvinceAccess = useCallback(
+    (provinceId: string): boolean => {
+      if (!user) return false;
+      // Add your province access logic here
+      // For example, check if user has access to the province based on their role/permissions
+      return true;
+    },
+    [user]
+  );
 
   const refreshProvinces = useCallback(async () => {
     await fetchProvinces(true);
   }, [fetchProvinces]);
 
-  const switchProvince = useCallback((provinceId: string): boolean => {
-    const province = getProvinceById(provinceId);
-    if (!province) {
-      message.error("Province not found");
-      return false;
-    }
+  const switchProvince = useCallback(
+    (provinceId: string): boolean => {
+      const province = getProvinceById(provinceId);
+      if (!province) {
+        message.error('Province not found');
+        return false;
+      }
 
-    if (!hasProvinceAccess(provinceId)) {
-      message.error("You don't have access to this province");
-      return false;
-    }
+      if (!hasProvinceAccess(provinceId)) {
+        message.error("You don't have access to this province");
+        return false;
+      }
 
-    setCurrentProvince(province);
-    return true;
-  }, [getProvinceById, hasProvinceAccess]);
+      setCurrentProvince(province);
+      return true;
+    },
+    [getProvinceById, hasProvinceAccess]
+  );
 
-  const getProvinceName = useCallback((provinceId: string): string => {
-    const province = getProvinceById(provinceId);
-    return province?.name || "Unknown Province";
-  }, [getProvinceById]);
+  const getProvinceName = useCallback(
+    (provinceId: string): string => {
+      const province = getProvinceById(provinceId);
+      return province?.name || 'Unknown Province';
+    },
+    [getProvinceById]
+  );
 
   const value: ProvinceContextType = {
     provinces,
@@ -159,12 +173,8 @@ export const ProvinceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     hasProvinceAccess,
     switchProvince,
     getProvinceName,
-    byId,
+    byId
   };
 
-  return (
-    <ProvinceContext.Provider value={value}>
-      {children}
-    </ProvinceContext.Provider>
-  );
+  return <ProvinceContext.Provider value={value}>{children}</ProvinceContext.Provider>;
 };

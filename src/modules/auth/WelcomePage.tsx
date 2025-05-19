@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch } from '../../store';
 import { notification } from 'antd';
 import gsap from 'gsap';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from 'contexts/AuthContext';
 import { getCurrentUserProfile } from '../../services/authService';
 import welcomeImage from '../../assets/images/welcome.png';
 
@@ -86,7 +86,9 @@ const PendingPage: React.FC = () => {
       ></div>
       <div className='absolute bg-gradient-to-b from-background2/90 to-black/95 opacity-80 inset-0 z-0'></div>
       <section className='w-[90vw] max-w-2xl h-full mx-auto flex items-center justify-center relative z-10'>
-        <div className={`backdrop-blur-lg bg-white/70 dark:bg-black/60 rounded-3xl shadow-2xl ${isMobile ? 'px-5 py-8' : 'px-10 py-16'} flex flex-col items-center gap-8 border border-background2/60 transition-all duration-300`}>
+        <div
+          className={`backdrop-blur-lg bg-white/70 dark:bg-black/60 rounded-3xl shadow-2xl ${isMobile ? 'px-5 py-8' : 'px-10 py-16'} flex flex-col items-center gap-8 border border-background2/60 transition-all duration-300`}
+        >
           <div className='text-center drop-shadow-xl'>
             <h3
               className={`${isMobile ? 'text-xl' : isTablet ? 'text-2xl' : 'text-3xl'} font-bold tracking-wide opacity-0 -translate-x-20 lg:text-4xl text-secondary dark:text-secondary mb-2 drop-shadow-md`}

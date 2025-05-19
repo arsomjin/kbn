@@ -1,7 +1,7 @@
 import React from 'react';
 import { Layout } from 'antd';
 import { Outlet, useParams } from 'react-router-dom';
-import { usePermissions } from '../../hooks/usePermissions';
+import { usePermissions } from 'hooks/usePermissions';
 
 const { Header, Content } = Layout;
 
@@ -27,4 +27,4 @@ const ProvinceLayout: React.FC<ProvinceLayoutProps> = ({ children }) => {
   );
 };
 
-export default ProvinceLayout; 
+export default ProvinceLayout;

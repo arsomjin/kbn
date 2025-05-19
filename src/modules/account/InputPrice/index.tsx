@@ -24,7 +24,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import { isString, isNumber, isDayjs } from '../../../utils/validation';
 import { useModal } from '../../../contexts/ModalContext';
 import { PERMISSIONS } from '../../../constants/Permissions';
-import { usePermissions } from '../../../hooks/usePermissions';
+import { usePermissions } from 'hooks/usePermissions';
 import { RootState } from '../../../store';
 import EmployeeSelector from 'components/EmployeeSelector';
 import DocumentAuditTrail, { DocumentAuditTrailValue } from 'components/DocumentAuditTrail';

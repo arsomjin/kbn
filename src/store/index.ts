@@ -1,38 +1,17 @@
-import { configureStore, combineReducers } from '@reduxjs/toolkit';
-import logger from 'redux-logger';
+import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './slices/authSlice';
 import themeReducer from './slices/themeSlice';
-import notificationReducer from './slices/notificationSlice';
-import branchesReducer from './slices/branchesSlice';
+import employeesReducer from './slices/employeesSlice';
 import dataReducer from './slices/dataSlice';
-import departmentReducer from './slices/departmentSlice';
-import employeeReducer from './slices/employeeSlice';
-
-const rootReducer = combineReducers({
-  auth: authReducer,
-  theme: themeReducer,
-  notifications: notificationReducer,
-  branches: branchesReducer,
-  data: dataReducer,
-  departments: departmentReducer,
-  employees: employeeReducer
-});
+import notificationsReducer from './slices/notificationsSlice';
 
 export const store = configureStore({
-  reducer: rootReducer,
-  middleware: getDefaultMiddleware => {
-    const middleware = getDefaultMiddleware({
-      serializableCheck: {
-        // Ignore these action types as they contain non-serializable data
-        ignoredActions: ['auth/fetchUserProfile/fulfilled', 'auth/setUser'],
-        // Ignore these paths in the state as they contain non-serializable data
-        ignoredPaths: ['auth.userProfile.createdAt', 'auth.userProfile.updatedAt']
-      }
-    });
-    if (process.env.NODE_ENV === 'development') {
-      return middleware.concat(logger);
-    }
-    return middleware;
+  reducer: {
+    auth: authReducer,
+    theme: themeReducer,
+    employees: employeesReducer,
+    data: dataReducer,
+    notifications: notificationsReducer
   }
 });
 

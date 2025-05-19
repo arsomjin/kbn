@@ -50,6 +50,16 @@ export interface Notification {
   provinceId?: string | null; // Province-specific notification or null for system-wide
 }
 
+// Toast interface
+export interface Toast {
+  id?: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  duration?: number;
+  displayed?: boolean;
+}
+
 /**
  * Request and save FCM token for push notifications
  * @param userId Current user ID

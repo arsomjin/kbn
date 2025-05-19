@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useBranches } from '../../hooks/useBranches';
+import { useBranches } from 'hooks/useBranches';
 import { Spin } from 'antd';
 
 interface BranchNameProps {
@@ -13,7 +13,7 @@ const BranchName: React.FC<BranchNameProps> = ({ code }) => {
   const lang = i18n.language.startsWith('th') ? 'th' : 'en';
 
   if (loading) {
-    return <Spin size="small" />;
+    return <Spin size='small' />;
   }
   // console.log(branches);
   const branch = branches.find(b => b.branchCode === code);
@@ -22,4 +22,4 @@ const BranchName: React.FC<BranchNameProps> = ({ code }) => {
   return <span>{lang === 'th' ? branch.name : branch.nameEn}</span>;
 };
 
-export default BranchName; 
+export default BranchName;

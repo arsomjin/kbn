@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '../../hooks/useTheme';
+import { useTheme } from 'hooks/useTheme';
 import '../../styles/AnimatedGradient.css';
 
 interface AnimatedGradientBackgroundProps {

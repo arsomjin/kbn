@@ -1,12 +1,12 @@
-import React, { createContext, useState, useEffect, ReactNode } from "react";
-import { collection, query, where, getDocs, doc, setDoc, deleteDoc, orderBy } from "firebase/firestore";
-import { firestore as db } from "../services/firebase";
-import { Branch, BranchFormData } from "../types/branch";
-import { useProvinces } from "../hooks/useProvinces";
-import { useTranslation } from "react-i18next";
-import { notification } from "antd";
-import { useLoading } from "../hooks/useLoading";
-import { useAuth } from "../hooks/useAuth";
+import React, { createContext, useState, useEffect, ReactNode } from 'react';
+import { collection, query, where, getDocs, doc, setDoc, deleteDoc, orderBy } from 'firebase/firestore';
+import { firestore as db } from '../services/firebase';
+import { Branch, BranchFormData } from '../types/branch';
+import { useProvinces } from '../hooks/useProvinces';
+import { useTranslation } from 'react-i18next';
+import { notification } from 'antd';
+import { useLoading } from '../hooks/useLoading';
+import { useAuth } from 'contexts/AuthContext';
 
 interface BranchContextType {
   branches: Branch[];
@@ -45,25 +45,22 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
       try {
         showLoading();
         setError(null);
-        const branchesRef = collection(db, "data", "company", "branches");
-        const q = query(
-          branchesRef,
-          orderBy("branchId", "asc")
-        );
+        const branchesRef = collection(db, 'data', 'company', 'branches');
+        const q = query(branchesRef, orderBy('branchId', 'asc'));
         const snapshot = await getDocs(q);
-        const branchData = snapshot.docs.map((doc) => ({
+        const branchData = snapshot.docs.map(doc => ({
           id: doc.id,
-          ...doc.data(),
+          ...doc.data()
         })) as Branch[];
         setBranches(branchData);
         setInitialized(true);
       } catch (err) {
-        console.error("Error fetching branches:", err);
-        const message = err instanceof Error ? err.message : "Unexpected error";
+        console.error('Error fetching branches:', err);
+        const message = err instanceof Error ? err.message : 'Unexpected error';
         setError(message);
         notification.error({
-          message: t("common.error"),
-          description: t("branches.fetchError"),
+          message: t('common.error'),
+          description: t('branches.fetchError')
         });
       } finally {
         hideLoading();
@@ -72,23 +69,23 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
     }
     const targetProvinceId = options?.provinceId || selectedProvinceId;
     if (!targetProvinceId || !validateProvinceId(targetProvinceId)) {
-      setError(t("branches.noProvinceSelected"));
+      setError(t('branches.noProvinceSelected'));
       return;
     }
     try {
       showLoading();
       setError(null);
-      const branchesRef = collection(db, "data", "company", "branches");
+      const branchesRef = collection(db, 'data', 'company', 'branches');
       const q = query(
         branchesRef,
-        where("provinceId", "==", targetProvinceId),
-        where("status", "==", "active"),
-        orderBy("branchId", "asc")
+        where('provinceId', '==', targetProvinceId),
+        where('status', '==', 'active'),
+        orderBy('branchId', 'asc')
       );
       const snapshot = await getDocs(q);
-      const branchData = snapshot.docs.map((doc) => ({
+      const branchData = snapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data(),
+        ...doc.data()
       })) as Branch[];
       setBranches(branchData);
       // Update branchesByProvince
@@ -98,17 +95,17 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
       }));
       setInitialized(true);
     } catch (err) {
-      console.error("Error fetching branches:", err);
-      const message = err instanceof Error ? err.message : "Unexpected error";
+      console.error('Error fetching branches:', err);
+      const message = err instanceof Error ? err.message : 'Unexpected error';
       setError(message);
       notification.error({
-        message: t("common.error"),
-        description: t("branches.fetchError"),
+        message: t('common.error'),
+        description: t('branches.fetchError')
       });
     } finally {
       hideLoading();
     }
-  }
+  };
 
   useEffect(() => {
     if (selectedProvinceId && validateProvinceId(selectedProvinceId)) {
@@ -118,36 +115,36 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
 
   const createBranch = async (data: BranchFormData) => {
     if (!selectedProvinceId || !validateProvinceId(selectedProvinceId)) {
-      throw new Error(t("branches.noProvinceSelected"));
+      throw new Error(t('branches.noProvinceSelected'));
     }
 
     try {
       showLoading();
-      const branchRef = doc(collection(db, "data", "company", "branches"));
+      const branchRef = doc(collection(db, 'data', 'company', 'branches'));
       const timestamp = Date.now();
-      
+
       const branch: Branch = {
         id: branchRef.id,
         ...data,
         provinceId: selectedProvinceId,
         created: timestamp,
         updated: timestamp,
-        inputBy: userProfile?.uid || "system",
-        deleted: false,
+        inputBy: userProfile?.uid || 'system',
+        deleted: false
       };
 
       await setDoc(branchRef, branch);
       await refreshBranches();
       notification.success({
-        message: t("common.success"),
-        description: t("branches.createSuccess"),
+        message: t('common.success'),
+        description: t('branches.createSuccess')
       });
     } catch (err) {
-      console.error("Error creating branch:", err);
-      const message = err instanceof Error ? err.message : "Unexpected error";
+      console.error('Error creating branch:', err);
+      const message = err instanceof Error ? err.message : 'Unexpected error';
       notification.error({
-        message: t("common.error"),
-        description: t("branches.createError"),
+        message: t('common.error'),
+        description: t('branches.createError')
       });
       throw new Error(message);
     } finally {
@@ -157,31 +154,31 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
 
   const updateBranch = async (id: string, data: BranchFormData) => {
     if (!selectedProvinceId || !validateProvinceId(selectedProvinceId)) {
-      throw new Error(t("branches.noProvinceSelected"));
+      throw new Error(t('branches.noProvinceSelected'));
     }
 
     try {
       showLoading();
-      const branchRef = doc(db, "data", "company", "branches", id);
+      const branchRef = doc(db, 'data', 'company', 'branches', id);
       const timestamp = Date.now();
 
       const branch: Partial<Branch> = {
         ...data,
-        updated: timestamp,
+        updated: timestamp
       };
 
       await setDoc(branchRef, branch, { merge: true });
       await refreshBranches();
       notification.success({
-        message: t("common.success"),
-        description: t("branches.updateSuccess"),
+        message: t('common.success'),
+        description: t('branches.updateSuccess')
       });
     } catch (err) {
-      console.error("Error updating branch:", err);
-      const message = err instanceof Error ? err.message : "Unexpected error";
+      console.error('Error updating branch:', err);
+      const message = err instanceof Error ? err.message : 'Unexpected error';
       notification.error({
-        message: t("common.error"),
-        description: t("branches.updateError"),
+        message: t('common.error'),
+        description: t('branches.updateError')
       });
       throw new Error(message);
     } finally {
@@ -192,27 +189,31 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
   const deleteBranch = async (id: string) => {
     try {
       showLoading();
-      const branchRef = doc(db, "data", "company", "branches", id);
+      const branchRef = doc(db, 'data', 'company', 'branches', id);
       const timestamp = Date.now();
 
       // Soft delete
-      await setDoc(branchRef, {
-        deleted: true,
-        status: "inactive",
-        updated: timestamp,
-      }, { merge: true });
+      await setDoc(
+        branchRef,
+        {
+          deleted: true,
+          status: 'inactive',
+          updated: timestamp
+        },
+        { merge: true }
+      );
 
       await refreshBranches();
       notification.success({
-        message: t("common.success"),
-        description: t("branches.deleteSuccess"),
+        message: t('common.success'),
+        description: t('branches.deleteSuccess')
       });
     } catch (err) {
-      console.error("Error deleting branch:", err);
-      const message = err instanceof Error ? err.message : "Unexpected error";
+      console.error('Error deleting branch:', err);
+      const message = err instanceof Error ? err.message : 'Unexpected error';
       notification.error({
-        message: t("common.error"),
-        description: t("branches.deleteError"),
+        message: t('common.error'),
+        description: t('branches.deleteError')
       });
       throw new Error(message);
     } finally {
@@ -221,7 +222,7 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
   };
 
   const getBranchById = (id: string) => {
-    return branches.find((branch) => branch.id === id);
+    return branches.find(branch => branch.id === id);
   };
 
   return (
@@ -236,7 +237,7 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
         updateBranch,
         deleteBranch,
         getBranchById,
-        refreshBranches,
+        refreshBranches
       }}
     >
       {children}

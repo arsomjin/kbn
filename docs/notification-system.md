@@ -85,7 +85,7 @@ export const notificationController = {
       // Get user's province information
       const userDoc = await getDoc(doc(db, 'users', userId));
       const userData = userDoc.data();
-      
+
       // Prepare notification data with province ID
       const notificationData = {
         ...notification,
@@ -128,9 +128,7 @@ export const notificationController = {
   async sendPushNotification(userId: string, notification: any): Promise<boolean | void> {
     try {
       // Get user's FCM tokens
-      const userTokensSnapshot = await getDocs(
-        query(collection(db, 'fcmTokens'), where('userId', '==', userId))
-      );
+      const userTokensSnapshot = await getDocs(query(collection(db, 'fcmTokens'), where('userId', '==', userId)));
 
       const tokens = userTokensSnapshot.docs.map(doc => doc.data().token);
 
@@ -145,7 +143,7 @@ export const notificationController = {
         title: notification.title,
         body: notification.body,
         data: {
-          ...notification.data || {},
+          ...(notification.data || {}),
           provinceId: notification.provinceId || null
         }
       });
@@ -168,10 +166,7 @@ export const notificationController = {
 
       // If province ID is specified, filter by it
       if (provinceId) {
-        notificationsQuery = query(
-          notificationsQuery,
-          where('provinceId', 'in', [provinceId, null])
-        );
+        notificationsQuery = query(notificationsQuery, where('provinceId', 'in', [provinceId, null]));
       }
 
       const snapshot = await getDocs(notificationsQuery);
@@ -182,7 +177,7 @@ export const notificationController = {
 
       // Update store
       store.dispatch(setNotifications(notifications));
-      
+
       return notifications;
     } catch (error) {
       console.error('Error fetching notifications:', error);
@@ -210,17 +205,10 @@ export const notificationController = {
   },
 
   // Send notification to users by role and province
-  async notifyByRoleAndProvince(
-    role: string,
-    provinceId: string | null,
-    notification: any
-  ): Promise<void> {
+  async notifyByRoleAndProvince(role: string, provinceId: string | null, notification: any): Promise<void> {
     try {
-      let usersQuery = query(
-        collection(db, 'users'),
-        where('role', '==', role)
-      );
-      
+      let usersQuery = query(collection(db, 'users'), where('role', '==', role));
+
       // If province is specified, find users with access to this province
       if (provinceId) {
         usersQuery = query(
@@ -229,16 +217,16 @@ export const notificationController = {
           where(`accessibleProvinces.${provinceId}`, '==', true)
         );
       }
-      
+
       const usersSnapshot = await getDocs(usersQuery);
-      
+
       // Create batch to add notifications for all users
       const batch = writeBatch(db);
-      
+
       usersSnapshot.forEach(userDoc => {
         const userData = userDoc.data();
         const notificationRef = doc(collection(db, 'notifications'));
-        
+
         batch.set(notificationRef, {
           ...notification,
           userId: userDoc.id,
@@ -247,9 +235,9 @@ export const notificationController = {
           read: false
         });
       });
-      
+
       await batch.commit();
-      
+
       // Queue push notifications in background
       for (const userDoc of usersSnapshot.docs) {
         this.sendPushNotification(userDoc.id, {
@@ -257,7 +245,6 @@ export const notificationController = {
           provinceId: provinceId || userDoc.data().provinceId || null
         }).catch(err => console.error(`Push notification error for user ${userDoc.id}:`, err));
       }
-      
     } catch (error) {
       console.error('Error sending notifications by role and province:', error);
       throw error;
@@ -349,24 +336,24 @@ const NotificationCenter = () => {
   };
 
   return (
-    <div className="notification-center">
-      <button className="notification-bell" onClick={handleToggle}>
+    <div className='notification-center'>
+      <button className='notification-bell' onClick={handleToggle}>
         <BellIcon />
-        {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+        {unreadCount > 0 && <span className='notification-badge'>{unreadCount}</span>}
       </button>
 
       {isOpen && (
-        <div className="notification-dropdown">
-          <div className="notification-header">
+        <div className='notification-dropdown'>
+          <div className='notification-header'>
             <h3>Notifications</h3>
             {unreadCount > 0 && <button onClick={handleMarkAllAsRead}>Mark all as read</button>}
           </div>
 
-          <div className="notification-list">
+          <div className='notification-list'>
             {loading ? (
               <LoadingSpinner />
             ) : items.length === 0 ? (
-              <p className="no-notifications">No notifications</p>
+              <p className='no-notifications'>No notifications</p>
             ) : (
               items.map(notification => (
                 <NotificationItem
@@ -397,7 +384,7 @@ export const ToastContainer = () => {
   };
 
   return (
-    <div className="toast-container">
+    <div className='toast-container'>
       {toasts.map(toast => (
         <Toast key={toast.id} {...toast} onDismiss={() => handleDismiss(toast.id)} />
       ))}
@@ -416,11 +403,11 @@ const Toast = ({ id, type, title, message, duration = 5000, onDismiss }) => {
 
   return (
     <div className={`toast toast-${type}`}>
-      <div className="toast-content">
+      <div className='toast-content'>
         {title && <h4>{title}</h4>}
         <p>{message}</p>
       </div>
-      <button className="toast-close" onClick={() => onDismiss(id)}>
+      <button className='toast-close' onClick={() => onDismiss(id)}>
         <CloseIcon />
       </button>
     </div>
@@ -759,21 +746,28 @@ describe('NotificationCenter', () => {
 ## 🛡️ Roles & Permissions in Notifications
 
 Notification targeting and delivery leverage the canonical roles and permissions defined in:
+
 - `src/constants/roles.ts` (see `ROLES`, `UserRole`, `RoleCategory`)
 - `src/constants/Permissions.ts` (see `PERMISSIONS`)
 
 **Role-based targeting:**
+
 - When sending notifications to roles (e.g., admins, managers), always use the canonical role keys (e.g., `ROLES.PROVINCE_ADMIN`, `ROLES.SUPER_ADMIN`, `ROLES.PROVINCE_MANAGER`, `ROLES.GENERAL_MANAGER`).
 - Do not use legacy or non-canonical role names (e.g., `system-admin`, `owner`, `executive`).
 - See `UserReview.tsx` and `ComposeNotification.tsx` for examples of correct usage.
 
 **Permission-based UI:**
+
 - Use the `PermissionContext` and `usePermissions` hook to conditionally render notification UI/actions based on user permissions.
 - Example:
   ```tsx
   const { hasPermission, hasRole } = usePermissions();
-  if (hasRole(ROLES.PROVINCE_ADMIN)) { /* show province_admin notification actions */ }
-  if (hasPermission(PERMISSIONS.CONTENT_EDIT)) { /* show edit button */ }
+  if (hasRole(ROLES.PROVINCE_ADMIN)) {
+    /* show province_admin notification actions */
+  }
+  if (hasPermission(PERMISSIONS.CONTENT_EDIT)) {
+    /* show edit button */
+  }
   ```
 
 ---
@@ -785,19 +779,19 @@ The multi-province migration requires notification components that are province-
 ### ProvinceFilteredNotificationCenter
 
 ```tsx
-import React, { useEffect, useState } from "react";
-import { Select, Badge, Dropdown, Menu, Empty, Spin } from "antd";
-import { BellOutlined } from "@ant-design/icons";
-import { useAuth } from "../../hooks/useAuth";
-import { usePermissions } from "../../hooks/usePermissions";
-import { notificationController } from "../../controllers/notificationController";
+import React, { useEffect, useState } from 'react';
+import { Select, Badge, Dropdown, Menu, Empty, Spin } from 'antd';
+import { BellOutlined } from '@ant-design/icons';
+import { useAuth } from 'hooks/useAuth';
+import { usePermissions } from 'hooks/usePermissions';
+import { notificationController } from '../../controllers/notificationController';
 
 interface ProvinceFilteredNotificationCenterProps {
   maxItems?: number;
 }
 
-export const ProvinceFilteredNotificationCenter: React.FC<ProvinceFilteredNotificationCenterProps> = ({ 
-  maxItems = 10 
+export const ProvinceFilteredNotificationCenter: React.FC<ProvinceFilteredNotificationCenterProps> = ({
+  maxItems = 10
 }) => {
   const { user, currentProvinceId } = useAuth();
   const { hasProvinceAccess, accessibleProvinces } = usePermissions();
@@ -814,16 +808,13 @@ export const ProvinceFilteredNotificationCenter: React.FC<ProvinceFilteredNotifi
       try {
         // Only fetch notifications for the current province if user has access
         if (hasProvinceAccess(currentProvinceId)) {
-          const results = await notificationController.fetchNotifications(
-            user.uid, 
-            currentProvinceId
-          );
-          
+          const results = await notificationController.fetchNotifications(user.uid, currentProvinceId);
+
           setNotifications(results.slice(0, maxItems));
           setUnreadCount(results.filter(n => !n.read).length);
         }
       } catch (error) {
-        console.error("Error fetching notifications:", error);
+        console.error('Error fetching notifications:', error);
       } finally {
         setLoading(false);
       }
@@ -837,11 +828,9 @@ export const ProvinceFilteredNotificationCenter: React.FC<ProvinceFilteredNotifi
     // Mark as read
     if (!notification.read) {
       await notificationController.markAsRead(notification.id);
-      
+
       // Update local state
-      setNotifications(prev => 
-        prev.map(n => n.id === notification.id ? { ...n, read: true } : n)
-      );
+      setNotifications(prev => prev.map(n => (n.id === notification.id ? { ...n, read: true } : n)));
       setUnreadCount(prev => Math.max(0, prev - 1));
     }
 
@@ -852,44 +841,35 @@ export const ProvinceFilteredNotificationCenter: React.FC<ProvinceFilteredNotifi
   };
 
   const menu = (
-    <Menu className="notification-menu">
-      <div className="notification-header">
+    <Menu className='notification-menu'>
+      <div className='notification-header'>
         <h4>Notifications</h4>
         {unreadCount > 0 && (
-          <a onClick={() => notificationController.markAllAsRead(user?.uid, currentProvinceId)}>
-            Mark all as read
-          </a>
+          <a onClick={() => notificationController.markAllAsRead(user?.uid, currentProvinceId)}>Mark all as read</a>
         )}
       </div>
-      
-      <div className="notification-content">
+
+      <div className='notification-content'>
         {loading ? (
-          <div className="notification-loading">
-            <Spin size="small" />
+          <div className='notification-loading'>
+            <Spin size='small' />
           </div>
         ) : notifications.length === 0 ? (
-          <Empty 
-            description="No notifications" 
-            image={Empty.PRESENTED_IMAGE_SIMPLE} 
-            className="notification-empty" 
-          />
+          <Empty description='No notifications' image={Empty.PRESENTED_IMAGE_SIMPLE} className='notification-empty' />
         ) : (
-          notifications.map((notification) => (
-            <Menu.Item 
-              key={notification.id} 
+          notifications.map(notification => (
+            <Menu.Item
+              key={notification.id}
               onClick={() => handleNotificationClick(notification)}
-              className={notification.read ? "notification-read" : "notification-unread"}
+              className={notification.read ? 'notification-read' : 'notification-unread'}
             >
-              <div className="notification-item">
-                <div className="notification-title">{notification.title}</div>
-                <div className="notification-body">{notification.body}</div>
-                <div className="notification-time">
-                  {new Date(notification.createdAt).toLocaleTimeString()}
-                </div>
+              <div className='notification-item'>
+                <div className='notification-title'>{notification.title}</div>
+                <div className='notification-body'>{notification.body}</div>
+                <div className='notification-time'>{new Date(notification.createdAt).toLocaleTimeString()}</div>
                 {notification.provinceId && (
-                  <div className="notification-province-tag">
-                    {accessibleProvinces.find(p => p.provinceId === notification.provinceId)?.name || 
-                     "System"}
+                  <div className='notification-province-tag'>
+                    {accessibleProvinces.find(p => p.provinceId === notification.provinceId)?.name || 'System'}
                   </div>
                 )}
               </div>
@@ -897,18 +877,18 @@ export const ProvinceFilteredNotificationCenter: React.FC<ProvinceFilteredNotifi
           ))
         )}
       </div>
-      
-      <div className="notification-footer">
-        <a href="/notifications">View all notifications</a>
+
+      <div className='notification-footer'>
+        <a href='/notifications'>View all notifications</a>
       </div>
     </Menu>
   );
 
   return (
-    <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight" arrow>
-      <Badge count={unreadCount} size="small">
-        <div className="notification-bell-container">
-          <BellOutlined className="notification-bell-icon" />
+    <Dropdown overlay={menu} trigger={['click']} placement='bottomRight' arrow>
+      <Badge count={unreadCount} size='small'>
+        <div className='notification-bell-container'>
+          <BellOutlined className='notification-bell-icon' />
         </div>
       </Badge>
     </Dropdown>
@@ -921,9 +901,9 @@ export const ProvinceFilteredNotificationCenter: React.FC<ProvinceFilteredNotifi
 This component allows users to view notifications from different provinces they have access to:
 
 ```tsx
-import React from "react";
-import { Select, Space, Typography } from "antd";
-import { usePermissions } from "../../hooks/usePermissions";
+import React from 'react';
+import { Select, Space, Typography } from 'antd';
+import { usePermissions } from 'hooks/usePermissions';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -940,29 +920,20 @@ export const NotificationProvinceSwitcherProps: React.FC<NotificationProvinceSwi
   showAllOption = true
 }) => {
   const { accessibleProvinces, hasProvinceAccess, hasRole } = usePermissions();
-  const { ROLES } = require("../../constants/roles");
-  
+  const { ROLES } = require('../../constants/roles');
+
   // Only show provinces the user has access to
-  const availableProvinces = accessibleProvinces.filter(province => 
-    hasProvinceAccess(province.provinceId)
-  );
-  
+  const availableProvinces = accessibleProvinces.filter(province => hasProvinceAccess(province.provinceId));
+
   // Check if user has access to see all provinces
   const canViewAllProvinces = isInRoleCategory(user.role as RoleType, RoleCategory.GENERAL_MANAGER);
-  
+
   return (
-    <Space direction="vertical" size="small">
-      <Text type="secondary">Filter notifications by province:</Text>
-      <Select
-        value={value}
-        onChange={onChange}
-        style={{ width: 200 }}
-        placeholder="Select province"
-      >
-        {showAllOption && canViewAllProvinces && (
-          <Option value={null}>All Provinces</Option>
-        )}
-        
+    <Space direction='vertical' size='small'>
+      <Text type='secondary'>Filter notifications by province:</Text>
+      <Select value={value} onChange={onChange} style={{ width: 200 }} placeholder='Select province'>
+        {showAllOption && canViewAllProvinces && <Option value={null}>All Provinces</Option>}
+
         {availableProvinces.map(province => (
           <Option key={province.provinceId} value={province.provinceId}>
             {province.name}
@@ -997,12 +968,12 @@ interface Notification {
   createdAt: string; // ISO date string
   readAt?: string; // ISO date string
   expiresAt?: string; // ISO date string
-  
+
   // Tracking fields
   deliveredToClient?: boolean;
   deliveredPush?: boolean;
   deliveredEmail?: boolean;
-  
+
   // Province migration fields
   migratedFromLegacy?: boolean; // Flag for migrated notifications
   legacyId?: string; // Reference to pre-migration ID if applicable
@@ -1071,20 +1042,20 @@ Example queries for fetching notifications with province filtering:
 const fetchAllProvinceNotifications = async (userId: string): Promise<Notification[]> => {
   const { accessibleProvinces } = usePermissions();
   const provinceIds = accessibleProvinces.map(p => p.provinceId);
-  
+
   // Include null for system-wide notifications
   const validProvinceIds = [...provinceIds, null];
-  
+
   const notificationsQuery = query(
-    collection(db, "notifications"),
-    where("userId", "==", userId),
-    where("provinceId", "in", validProvinceIds),
-    orderBy("createdAt", "desc"),
+    collection(db, 'notifications'),
+    where('userId', '==', userId),
+    where('provinceId', 'in', validProvinceIds),
+    orderBy('createdAt', 'desc'),
     limit(100)
   );
-  
+
   const snapshot = await getDocs(notificationsQuery);
-  
+
   return snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
@@ -1092,27 +1063,24 @@ const fetchAllProvinceNotifications = async (userId: string): Promise<Notificati
 };
 
 // Get user notifications for a specific province
-const fetchProvinceNotifications = async (
-  userId: string, 
-  provinceId: string
-): Promise<Notification[]> => {
+const fetchProvinceNotifications = async (userId: string, provinceId: string): Promise<Notification[]> => {
   const { hasProvinceAccess } = usePermissions();
-  
+
   // Security check
   if (!hasProvinceAccess(provinceId)) {
-    throw new Error("User does not have access to this province");
+    throw new Error('User does not have access to this province');
   }
-  
+
   const notificationsQuery = query(
-    collection(db, "notifications"),
-    where("userId", "==", userId),
-    where("provinceId", "in", [provinceId, null]), // Include system-wide notifications
-    orderBy("createdAt", "desc"),
+    collection(db, 'notifications'),
+    where('userId', '==', userId),
+    where('provinceId', 'in', [provinceId, null]), // Include system-wide notifications
+    orderBy('createdAt', 'desc'),
     limit(100)
   );
-  
+
   const snapshot = await getDocs(notificationsQuery);
-  
+
   return snapshot.docs.map(doc => ({
     id: doc.id,
     ...doc.data()
@@ -1143,18 +1111,16 @@ const subscribeToProvinceNotifications = async (
   categories: string[]
 ): Promise<void> => {
   const { hasProvinceAccess } = usePermissions();
-  
+
   // Filter to only include provinces the user can access
   const accessibleProvinceIds = provinceIds.filter(id => hasProvinceAccess(id));
-  
+
   await setDoc(
-    doc(db, "notificationPreferences", userId),
+    doc(db, 'notificationPreferences', userId),
     {
       userId,
       categories,
-      provinceFilters: Object.fromEntries(
-        accessibleProvinceIds.map(id => [id, true])
-      ),
+      provinceFilters: Object.fromEntries(accessibleProvinceIds.map(id => [id, true])),
       updatedAt: serverTimestamp()
     },
     { merge: true }
@@ -1174,20 +1140,20 @@ const NotificationManager: React.FC = () => {
   const { user, currentProvinceId } = useAuth();
   const { hasPermission, hasProvinceAccess } = usePermissions();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  
+
   // Example permission check - only users with specific permissions can view/manage notifications
   const canViewAllNotifications = hasPermission(PERMISSIONS.NOTIFICATION_VIEW_ALL);
-  const canManageNotifications = hasPermission(PERMISSIONS.NOTIFICATION_MANAGE) && 
+  const canManageNotifications = hasPermission(PERMISSIONS.NOTIFICATION_MANAGE) &&
                                  hasProvinceAccess(currentProvinceId);
-  
+
   // Different notification sources based on permissions
   useEffect(() => {
     if (!user) return;
-    
+
     const fetchNotifications = async () => {
       try {
         let results: Notification[] = [];
-        
+
         if (canViewAllNotifications) {
           // Admin view - can see all notifications across provinces they have access to
           results = await notificationController.fetchAllNotifications(user.accessibleProvinces);
@@ -1198,16 +1164,16 @@ const NotificationManager: React.FC = () => {
           // Fallback - only personal notifications
           results = await notificationController.fetchPersonalNotifications(user.uid);
         }
-        
+
         setNotifications(results);
       } catch (error) {
         console.error("Error fetching notifications:", error);
       }
     };
-    
+
     fetchNotifications();
   }, [user, currentProvinceId, canViewAllNotifications, hasProvinceAccess]);
-  
+
   return (
     <div className="notification-manager">
       {canManageNotifications && (
@@ -1216,8 +1182,8 @@ const NotificationManager: React.FC = () => {
           <Button onClick={handleBulkOperations}>Bulk Operations</Button>
         </div>
       )}
-      
-      <NotificationList 
+
+      <NotificationList
         notifications={notifications}
         canManage={canManageNotifications}
         currentProvinceId={currentProvinceId}
@@ -1240,59 +1206,59 @@ service cloud.firestore {
     function isAuthenticated() {
       return request.auth != null;
     }
-    
+
     function getUserData() {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
     }
-    
+
     function hasRole(roles) {
       return isAuthenticated() && (getUserData().role in roles);
     }
-    
+
     function hasProvinceAccess(provinceId) {
       let userData = getUserData();
-      
+
       // Admins have access to all provinces
       if (userData.role in ['SUPER_ADMIN', 'ADMIN', 'DEVELOPER']) {
         return true;
       }
-      
+
       // General managers can access provinces they're assigned to
       if (userData.role == 'GENERAL_MANAGER' && userData.accessibleProvinces != null) {
         return userData.accessibleProvinces[provinceId] == true;
       }
-      
+
       // Other roles can only access their assigned province
       return userData.provinceId == provinceId;
     }
-    
+
     // Notification collection rules
     match /notifications/{notificationId} {
       // Users can read notifications addressed to them
-      allow read: if isAuthenticated() && 
+      allow read: if isAuthenticated() &&
                      (resource.data.userId == request.auth.uid);
-      
+
       // Users with management permission can read notifications for provinces they have access to
-      allow read: if isAuthenticated() && 
-                     hasRole(['ADMIN', 'SUPER_ADMIN', 'DEVELOPER', 'GENERAL_MANAGER', 'PROVINCE_MANAGER']) && 
+      allow read: if isAuthenticated() &&
+                     hasRole(['ADMIN', 'SUPER_ADMIN', 'DEVELOPER', 'GENERAL_MANAGER', 'PROVINCE_MANAGER']) &&
                      (resource.data.provinceId == null || hasProvinceAccess(resource.data.provinceId));
-      
+
       // Only authorized roles can create notifications
-      allow create: if isAuthenticated() && 
+      allow create: if isAuthenticated() &&
                      hasRole(['ADMIN', 'SUPER_ADMIN', 'DEVELOPER', 'GENERAL_MANAGER', 'PROVINCE_MANAGER', 'BRANCH_MANAGER']) &&
                      (request.resource.data.provinceId == null || hasProvinceAccess(request.resource.data.provinceId));
-      
+
       // Users can mark their own notifications as read
-      allow update: if isAuthenticated() && 
+      allow update: if isAuthenticated() &&
                      resource.data.userId == request.auth.uid &&
                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read', 'readAt']);
-      
+
       // Only admins and notification creators can delete notifications
-      allow delete: if isAuthenticated() && 
-                     (hasRole(['ADMIN', 'SUPER_ADMIN', 'DEVELOPER']) || 
+      allow delete: if isAuthenticated() &&
+                     (hasRole(['ADMIN', 'SUPER_ADMIN', 'DEVELOPER']) ||
                      resource.data.createdBy == request.auth.uid);
     }
-    
+
     // Notification preferences
     match /notificationPreferences/{userId} {
       allow read: if isAuthenticated() && request.auth.uid == userId;
@@ -1321,7 +1287,7 @@ const storeToken = async (token: string): Promise<void> => {
     // Get user's province information
     const userDoc = await getDoc(doc(db, 'users', user.uid));
     const userData = userDoc.data();
-    
+
     const tokenRef = doc(db, 'fcmTokens', token);
 
     await setDoc(tokenRef, {
@@ -1342,10 +1308,8 @@ const storeToken = async (token: string): Promise<void> => {
 // Get tokens for a specific province
 const getTokensForProvince = async (provinceId: string): Promise<string[]> => {
   try {
-    const snapshot = await getDocs(
-      query(collection(db, 'fcmTokens'), where('provinceId', '==', provinceId))
-    );
-    
+    const snapshot = await getDocs(query(collection(db, 'fcmTokens'), where('provinceId', '==', provinceId)));
+
     return snapshot.docs.map(doc => doc.data().token);
   } catch (error) {
     console.error('Error getting tokens for province:', error);

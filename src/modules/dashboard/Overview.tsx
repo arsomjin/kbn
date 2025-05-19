@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Row, Col, Statistic, Button, Typography } from 'antd';
-import { useAuth } from '../../hooks/useAuth';
-import { usePermissions } from '../../hooks/usePermissions';
+import { useAuth } from 'contexts/AuthContext';
+import { usePermissions } from 'hooks/usePermissions';
 import { PERMISSIONS } from '../../constants/Permissions';
 
 const { Title } = Typography;
@@ -25,7 +25,7 @@ const Overview: React.FC = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
-  
+
   const isMobile = windowWidth < 480;
   const isTablet = windowWidth >= 480 && windowWidth < 768;
 
@@ -40,38 +40,22 @@ const Overview: React.FC = () => {
       <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]} className='mb-6'>
         <Col xs={24} sm={12} lg={6}>
           <Card size={isMobile ? 'small' : 'default'}>
-            <Statistic 
-              title='Active Users' 
-              value={245} 
-              valueStyle={{ fontSize: isMobile ? '1.5rem' : '2rem' }}
-            />
+            <Statistic title='Active Users' value={245} valueStyle={{ fontSize: isMobile ? '1.5rem' : '2rem' }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card size={isMobile ? 'small' : 'default'}>
-            <Statistic 
-              title='Pending Approvals' 
-              value={8} 
-              valueStyle={{ fontSize: isMobile ? '1.5rem' : '2rem' }}
-            />
+            <Statistic title='Pending Approvals' value={8} valueStyle={{ fontSize: isMobile ? '1.5rem' : '2rem' }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card size={isMobile ? 'small' : 'default'}>
-            <Statistic 
-              title='New Reports' 
-              value={12} 
-              valueStyle={{ fontSize: isMobile ? '1.5rem' : '2rem' }}
-            />
+            <Statistic title='New Reports' value={12} valueStyle={{ fontSize: isMobile ? '1.5rem' : '2rem' }} />
           </Card>
         </Col>
         <Col xs={24} sm={12} lg={6}>
           <Card size={isMobile ? 'small' : 'default'}>
-            <Statistic 
-              title='System Status' 
-              value='Healthy' 
-              valueStyle={{ fontSize: isMobile ? '1.5rem' : '2rem' }}
-            />
+            <Statistic title='System Status' value='Healthy' valueStyle={{ fontSize: isMobile ? '1.5rem' : '2rem' }} />
           </Card>
         </Col>
       </Row>
@@ -83,8 +67,8 @@ const Overview: React.FC = () => {
       <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]}>
         {hasPermission(PERMISSIONS.USER_VIEW) && (
           <Col xs={24} sm={12} lg={8}>
-            <Card 
-              title='User Management' 
+            <Card
+              title='User Management'
               size={isMobile ? 'small' : 'default'}
               headStyle={{ fontSize: isMobile ? '14px' : '16px' }}
             >
@@ -100,8 +84,8 @@ const Overview: React.FC = () => {
 
         {hasPermission(PERMISSIONS.CONTENT_EDIT) && (
           <Col xs={24} sm={12} lg={8}>
-            <Card 
-              title='Content Management' 
+            <Card
+              title='Content Management'
               size={isMobile ? 'small' : 'default'}
               headStyle={{ fontSize: isMobile ? '14px' : '16px' }}
             >
@@ -117,8 +101,8 @@ const Overview: React.FC = () => {
 
         {hasPermission(PERMISSIONS.SYSTEM_SETTINGS_VIEW) && (
           <Col xs={24} sm={12} lg={8}>
-            <Card 
-              title='System Settings' 
+            <Card
+              title='System Settings'
               size={isMobile ? 'small' : 'default'}
               headStyle={{ fontSize: isMobile ? '14px' : '16px' }}
             >
@@ -134,8 +118,8 @@ const Overview: React.FC = () => {
 
         {hasPermission(PERMISSIONS.DATA_EXPORT) && (
           <Col xs={24} sm={12} lg={8}>
-            <Card 
-              title='Reports & Analytics' 
+            <Card
+              title='Reports & Analytics'
               size={isMobile ? 'small' : 'default'}
               headStyle={{ fontSize: isMobile ? '14px' : '16px' }}
             >

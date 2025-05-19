@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import dayjs, { Dayjs } from 'dayjs';
 import { FinancialDataPoint, AccountOverviewData } from '../types';
-import { useAuth } from '../../../hooks/useAuth';
+import { useAuth } from 'contexts/AuthContext';
 import { firestore } from '../../../services/firebase';
 
 export const useFinancialData = (range: [Dayjs, Dayjs]) => {
@@ -27,9 +27,8 @@ export const useFinancialData = (range: [Dayjs, Dayjs]) => {
       try {
         setLoading(true);
         const [startDate, endDate] = range;
-        const provinceWhere = provinceIds.length === 1
-          ? where('provinceId', '==', provinceIds[0])
-          : where('provinceId', 'in', provinceIds);
+        const provinceWhere =
+          provinceIds.length === 1 ? where('provinceId', '==', provinceIds[0]) : where('provinceId', 'in', provinceIds);
 
         // Fetch income data
         const incomeQuery = query(
@@ -49,10 +48,7 @@ export const useFinancialData = (range: [Dayjs, Dayjs]) => {
           orderBy('date', 'asc')
         );
 
-        const [incomeSnapshot, expenseSnapshot] = await Promise.all([
-          getDocs(incomeQuery),
-          getDocs(expenseQuery)
-        ]);
+        const [incomeSnapshot, expenseSnapshot] = await Promise.all([getDocs(incomeQuery), getDocs(expenseQuery)]);
 
         const incomeData = incomeSnapshot.docs.map(doc => ({
           date: dayjs(doc.data().date.toDate()),
@@ -107,4 +103,4 @@ export const useFinancialData = (range: [Dayjs, Dayjs]) => {
   }, [range, userProfile?.accessibleProvinceIds]);
 
   return { data, loading, error };
-}; 
+};

@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Select, Tooltip } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useProvinces } from '../../hooks/useProvinces';
+import { useProvinces } from 'hooks/useProvinces';
 
 interface ProvinceSelectorProps {
   value?: string;
@@ -43,7 +43,7 @@ const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({
 
   const filteredProvinces = useMemo(() => {
     let filtered = provinces;
-    
+
     // Filter by allowed provinces if specified
     if (allowedProvinces?.length) {
       filtered = filtered.filter(p => allowedProvinces.includes(p.id));
@@ -68,20 +68,21 @@ const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({
     onSelect?.(selectedValue);
   };
 
-  const renderItem = (province: typeof provinces[0]) => {
-    const content = showRegion && province.region ? (
-      <div className="flex justify-between">
-        <span>{t(`${province.id}`, { defaultValue: province.name })}</span>
-        <span className="text-gray-400">{t(`regions.${province.region}`)}</span>
-      </div>
-    ) : (
-      t(`${province.id}`, { defaultValue: province.name })
-    );
+  const renderItem = (province: (typeof provinces)[0]) => {
+    const content =
+      showRegion && province.region ? (
+        <div className='flex justify-between'>
+          <span>{t(`${province.id}`, { defaultValue: province.name })}</span>
+          <span className='text-gray-400'>{t(`regions.${province.region}`)}</span>
+        </div>
+      ) : (
+        t(`${province.id}`, { defaultValue: province.name })
+      );
 
     if (province.status === 'inactive') {
       return (
         <Tooltip title={t('provinces:status.inactive')}>
-          <div className="text-gray-400">{content}</div>
+          <div className='text-gray-400'>{content}</div>
         </Tooltip>
       );
     }
@@ -100,7 +101,7 @@ const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({
       className={className}
       style={style}
       showSearch
-      optionFilterProp="children"
+      optionFilterProp='children'
       filterOption={(input, option) => {
         const val = option?.value?.toString().toLowerCase() || '';
         const label = option?.children?.toString().toLowerCase() || '';
@@ -110,11 +111,7 @@ const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({
       status={error ? 'error' : undefined}
     >
       {filteredProvinces.map(province => (
-        <Select.Option 
-          key={province.id} 
-          value={province.id}
-          disabled={province.status === 'inactive' && !showInactive}
-        >
+        <Select.Option key={province.id} value={province.id} disabled={province.status === 'inactive' && !showInactive}>
           {renderItem(province)}
         </Select.Option>
       ))}

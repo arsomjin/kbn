@@ -4,11 +4,11 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { getProvinces, createProvince, updateProvince, deleteProvince } from '../../services/provinceService';
 import { Province } from '../../types/province';
-import AccessDenied from "../../components/common/AccessDenied";
-import { usePermissions } from "hooks/usePermissions";
-import { ROLES } from "../../constants/roles";
+import AccessDenied from '../../components/common/AccessDenied';
+import { usePermissions } from 'hooks/usePermissions';
+import { ROLES } from '../../constants/roles';
 import { App as AntdApp } from 'antd';
-import { useAntdModal } from '../../hooks/useAntModal';
+import { useAntdModal } from 'hooks/useAntModal';
 
 const regions = [
   { value: 'central', label: 'Central' },
@@ -74,9 +74,7 @@ const ProvincesManagement: React.FC = () => {
     const confirmTitle = isEdit
       ? t('provinces:modal.editConfirmationTitle')
       : t('provinces:modal.createConfirmationTitle');
-    const confirmContent = isEdit
-      ? t('provinces:modal.editConfirmation')
-      : t('provinces:modal.createConfirmation');
+    const confirmContent = isEdit ? t('provinces:modal.editConfirmation') : t('provinces:modal.createConfirmation');
 
     modal.confirm({
       title: confirmTitle,
@@ -101,7 +99,7 @@ const ProvincesManagement: React.FC = () => {
             message.error(t('provinces:errors.saveFailed'));
           }
         });
-      },
+      }
     });
   };
 
@@ -123,7 +121,7 @@ const ProvincesManagement: React.FC = () => {
             message.error(t('provinces:errors.deleteFailed'));
           }
         });
-      },
+      }
     });
   };
 
@@ -132,36 +130,33 @@ const ProvincesManagement: React.FC = () => {
       title: t('provinces:fields.code'),
       dataIndex: 'code',
       key: 'code',
-      width: 100,
+      width: 100
     },
     {
       title: t('provinces:fields.name'),
       dataIndex: 'name',
       key: 'name',
-      sorter: (a: Province, b: Province) => a.name.localeCompare(b.name),
+      sorter: (a: Province, b: Province) => a.name.localeCompare(b.name)
     },
     {
       title: t('provinces:fields.nameEn'),
       dataIndex: 'nameEn',
       key: 'nameEn',
-      sorter: (a: Province, b: Province) => a.nameEn.localeCompare(b.nameEn),
+      sorter: (a: Province, b: Province) => a.nameEn.localeCompare(b.nameEn)
     },
     {
       title: t('provinces:fields.region'),
       dataIndex: 'region',
       key: 'region',
-      render: (region: string) => region ? t(`provinces:regions.${region}`) || region : '',
+      render: (region: string) => (region ? t(`provinces:regions.${region}`) || region : '')
     },
     {
       title: t('provinces:fields.status'),
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => (
-        <Badge 
-          status={status === 'active' ? 'success' : 'default'} 
-          text={t(`provinces:status.${status}`)}
-        />
-      ),
+        <Badge status={status === 'active' ? 'success' : 'default'} text={t(`provinces:status.${status}`)} />
+      )
     },
     {
       title: t('common:actions'),
@@ -169,7 +164,7 @@ const ProvincesManagement: React.FC = () => {
       render: (_: unknown, record: Province) => (
         <Space>
           <Button
-            type="text"
+            type='text'
             icon={<EditOutlined />}
             onClick={() => {
               setEditingProvince(record);
@@ -177,26 +172,21 @@ const ProvincesManagement: React.FC = () => {
               setModalVisible(true);
             }}
           />
-          <Button
-            type="text"
-            danger
-            icon={<DeleteOutlined />}
-            onClick={() => handleDelete(record.id)}
-          />
+          <Button type='text' danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
         </Space>
-      ),
-    },
+      )
+    }
   ];
 
   return (
-    <div className="p-2 sm:p-4 md:p-6 w-full max-w-7xl mx-auto">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <h1 className="text-xl sm:text-2xl font-semibold break-words">{t('provinces:title')}</h1>
-        <div className="sm:ml-auto flex justify-end">
+    <div className='p-2 sm:p-4 md:p-6 w-full max-w-7xl mx-auto'>
+      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6'>
+        <h1 className='text-xl sm:text-2xl font-semibold break-words'>{t('provinces:title')}</h1>
+        <div className='sm:ml-auto flex justify-end'>
           <Button
-            type="primary"
+            type='primary'
             icon={<PlusOutlined />}
-            className="sm:w-auto"
+            className='sm:w-auto'
             onClick={() => {
               setEditingProvince(null);
               form.resetFields();
@@ -208,15 +198,15 @@ const ProvincesManagement: React.FC = () => {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg shadow bg-white dark:bg-gray-800">
+      <div className='overflow-x-auto rounded-lg shadow bg-white dark:bg-gray-800'>
         <Table
           columns={columns}
           dataSource={provinces}
           loading={loading}
-          rowKey="id"
+          rowKey='id'
           pagination={{
             showSizeChanger: true,
-            showTotal: (total) => t('provinces:pagination.total', { total }),
+            showTotal: total => t('provinces:pagination.total', { total }),
             pageSizeOptions: [10, 20, 50, 100],
             responsive: true
           }}
@@ -232,23 +222,19 @@ const ProvincesManagement: React.FC = () => {
           form.resetFields();
         }}
         footer={null}
-        className="max-w-full"
+        className='max-w-full'
         style={{ top: 24 }}
         styles={{ body: { padding: 16 } }}
         destroyOnClose
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Form form={form} layout='vertical' onFinish={handleSubmit}>
+          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             <Form.Item
-              name="code"
+              name='code'
               label={t('provinces:fields.code')}
               rules={[
                 { required: true, message: t('common:validation.required') },
-                { 
+                {
                   pattern: /^[A-Z0-9-]{2,10}$/,
                   message: t('provinces:validation.codeFormat')
                 },
@@ -266,7 +252,7 @@ const ProvincesManagement: React.FC = () => {
             </Form.Item>
 
             <Form.Item
-              name="name"
+              name='name'
               label={t('provinces:fields.name')}
               rules={[
                 { required: true, message: t('common:validation.required') },
@@ -277,7 +263,7 @@ const ProvincesManagement: React.FC = () => {
             </Form.Item>
 
             <Form.Item
-              name="nameEn"
+              name='nameEn'
               label={t('provinces:fields.nameEn')}
               rules={[
                 { required: true, message: t('common:validation.required') },
@@ -287,10 +273,7 @@ const ProvincesManagement: React.FC = () => {
               <Input />
             </Form.Item>
 
-            <Form.Item
-              name="region"
-              label={t('provinces:fields.region')}
-            >
+            <Form.Item name='region' label={t('provinces:fields.region')}>
               <Select allowClear>
                 {regions.map(region => (
                   <Select.Option key={region.value} value={region.value}>
@@ -302,37 +285,37 @@ const ProvincesManagement: React.FC = () => {
 
             {editingProvince && (
               <Form.Item
-                name="status"
+                name='status'
                 label={t('provinces:fields.status')}
                 rules={[{ required: true, message: t('common:validation.required') }]}
               >
                 <Select>
-                  <Select.Option value="active">{t('provinces:status.active')}</Select.Option>
-                  <Select.Option value="inactive">{t('provinces:status.inactive')}</Select.Option>
+                  <Select.Option value='active'>{t('provinces:status.active')}</Select.Option>
+                  <Select.Option value='inactive'>{t('provinces:status.inactive')}</Select.Option>
                 </Select>
               </Form.Item>
             )}
 
             <Form.Item
-              name="description"
+              name='description'
               label={t('provinces:fields.description')}
-              rules={[
-                { max: 500, message: t('common:validation.maxLength', { max: 500 }) }
-              ]}
-              className="md:col-span-2"
+              rules={[{ max: 500, message: t('common:validation.maxLength', { max: 500 }) }]}
+              className='md:col-span-2'
             >
               <Input.TextArea rows={4} />
             </Form.Item>
           </div>
-          <Form.Item className="mb-0 text-right">
+          <Form.Item className='mb-0 text-right'>
             <Space>
-              <Button onClick={() => {
-                setModalVisible(false);
-                form.resetFields();
-              }}>
+              <Button
+                onClick={() => {
+                  setModalVisible(false);
+                  form.resetFields();
+                }}
+              >
                 {t('common:cancel')}
               </Button>
-              <Button type="primary" htmlType="submit">
+              <Button type='primary' htmlType='submit'>
                 {t('common:save')}
               </Button>
             </Space>

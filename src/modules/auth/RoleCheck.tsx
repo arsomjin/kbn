@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { useAuth } from '../../hooks/useAuth';
+import { useAuth } from 'contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { hasPrivilegedAccess } from '../../utils/roleUtils';
 import { ROLES } from '../../constants/roles';

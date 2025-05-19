@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppSelector } from '../../store/hooks';
 import { Notification } from '../../types/notification';
 import { markNotificationAsRead } from '../../services/notificationService';
-import { useUserProfile } from '../../hooks/useUserProfile';
+import { useUserProfile } from 'hooks/useUserProfile';
 import NotificationItem from './NotificationItem';
 import './NotificationCenter.css';
 
@@ -41,7 +41,9 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onNotificationC
   const content = (
     <div className='notification-popover'>
       <div className='notification-header'>
-        <Title className='mt-2 mr-10' level={5}>{t('notifications:title')}</Title>
+        <Title className='mt-2 mr-10' level={5}>
+          {t('notifications:title')}
+        </Title>
         {unreadCount > 0 && (
           <Button type='link' onClick={handleMarkAllAsRead}>
             {t('notifications:markAllAsRead')}
@@ -53,7 +55,13 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onNotificationC
         itemLayout='horizontal'
         dataSource={notifications}
         locale={{
-          emptyText: <Empty description={t('notifications:noNotifications')} image={Empty.PRESENTED_IMAGE_SIMPLE} className='notification-empty' />
+          emptyText: (
+            <Empty
+              description={t('notifications:noNotifications')}
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              className='notification-empty'
+            />
+          )
         }}
         renderItem={(notification: Notification) => (
           <NotificationItem
