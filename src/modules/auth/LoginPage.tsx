@@ -151,12 +151,7 @@ const LoginPage: React.FC = () => {
   console.log({ errorDetails, getFirebaseError: getFirebaseErrorMessage(error, t) });
 
   return (
-    <AuthContainer
-      title={t('app.title', 'KBN')}
-      animationKey='login'
-      showAnimatedBackground={true}
-      backgroundIntensity='low'
-    >
+    <AuthContainer title={t('app.title', 'KBN')} animationKey='login' backgroundIntensity='low'>
       <motion.div
         initial='hidden'
         animate='visible'

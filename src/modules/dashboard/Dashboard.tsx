@@ -4,25 +4,15 @@ import { UserOutlined, BellOutlined, CheckCircleOutlined, ClockCircleOutlined } 
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'contexts/AuthContext';
 import { UserRole } from '../../constants/roles';
+import { useWindowSize } from 'hooks/useWindowSize';
 
 const { Title } = Typography;
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation(['dashboard', 'common']);
   const { userProfile } = useAuth();
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const isMobile = windowWidth < 480;
-  const isTablet = windowWidth >= 480 && windowWidth < 768;
+  const { isMobile } = useWindowSize();
 
   // Placeholder stats for demonstration
   const stats = {

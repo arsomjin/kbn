@@ -126,7 +126,43 @@ export const getAntDesignConfig = (mode: ThemeMode) => {
       colorInfo: colors.info,
       colorTextBase: colors.text,
       colorBgBase: mode === 'dark' ? colors.paper : colors.bg,
-      borderRadius: 4
+      borderRadius: 8,
+      fontFamily: 'Inter, ui-sans-serif, system-ui'
+    },
+    components: {
+      Button: {
+        borderRadius: 8,
+        colorPrimary: colors.primary,
+        colorPrimaryHover: colors.primaryLight,
+        colorPrimaryActive: colors.primaryDark,
+        colorText: colors.text,
+        colorTextLightSolid: '#fff',
+        controlHeight: 40,
+        fontWeight: 600,
+        boxShadow: 'none'
+      },
+      Card: {
+        borderRadius: 12,
+        colorBgContainer: mode === 'dark' ? colors.paper : '#FFFFFF',
+        boxShadow: '0 2px 8px rgba(75, 96, 67, 0.04)'
+      },
+      Input: {
+        borderRadius: 8,
+        colorBgContainer: mode === 'dark' ? colors.surface : colors.bg,
+        colorBorder: colors.border,
+        colorText: colors.text
+      },
+      Modal: {
+        borderRadius: 16,
+        colorBgContainer: mode === 'dark' ? colors.paper : '#FFFFFF',
+        colorText: colors.text
+      },
+      Table: {
+        borderRadius: 8,
+        colorBgContainer: mode === 'dark' ? colors.paper : '#FFFFFF',
+        colorBorder: colors.border,
+        colorText: colors.text
+      }
     },
     algorithm: mode === 'dark' ? theme.darkAlgorithm : theme.defaultAlgorithm
   };
