@@ -9,7 +9,20 @@ import { distinctArr } from 'utils/functions';
 import { removeAllNonAlphaNumericCharacters } from './RegEx';
 import { VehicleNameKeywords } from 'data/Constant';
 import getSidebarNavItems from 'data/sidebar-nav-items';
-import { getFirestore, collection, getDocs, doc, query, where, getDoc, WhereFilterOp, orderBy, startAt, endAt, limit as limitFn } from 'firebase/firestore';
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  doc,
+  query,
+  where,
+  getDoc,
+  WhereFilterOp,
+  orderBy,
+  startAt,
+  endAt,
+  limit as limitFn
+} from 'firebase/firestore';
 import { app } from 'services/firebase';
 import _ from 'lodash';
 
@@ -22,13 +35,13 @@ const checkCollection = async (collectionPath: string, wheres?: [string, string,
     const db = getDb();
     const collRef = collection(db, collectionPath);
     let q = query(collRef);
-    
+
     if (wheres && wheres.length) {
       wheres.forEach(([field, op, value]) => {
         q = query(q, where(field, op as WhereFilterOp, value));
       });
     }
-    
+
     const snapshot = await getDocs(q);
     return !snapshot.empty ? snapshot : null;
   } catch (error) {
@@ -52,7 +65,7 @@ const checkDoc = async (collectionPath: string, docId: string) => {
 const getCollection = async (collectionPath: string, wheres?: [string, string, any][]) => {
   const snapshot = await checkCollection(collectionPath, wheres);
   if (!snapshot) return null;
-  
+
   const result: Record<string, any> = {};
   snapshot.forEach(doc => {
     result[doc.id] = { ...doc.data(), _id: doc.id };
@@ -123,14 +136,14 @@ export const getEditArr = (editData: any[], users: Record<string, any>) => {
 
     // Format change details into readable components
     const detail = changes.length ? (
-      <div className="d-flex my-2" style={{ flexWrap: 'wrap' }}>
+      <div className='d-flex my-2' style={{ flexWrap: 'wrap' }}>
         {changes.map((change, index) => {
           const formattedChange = formatChangeTimeFields(change);
 
           return (
             <Tag
               key={index}
-              className="mx-1"
+              className='mx-1'
               style={{
                 marginTop: 5,
                 maxWidth: isMobile ? 320 : w(60)
@@ -219,15 +232,24 @@ export const fetchFirestoreKeywords = async ({
   const segments = searchCollection.split('/') as [string, ...string[]];
   const colRef = collection(firestore, ...segments);
   let whereClauses: ReturnType<typeof where>[] = [];
+
+  console.log('searchText:', searchText);
+  console.log('wheres:', wheres);
+
+  // Use keywords array-contains as default
+  whereClauses.push(where('keywords', 'array-contains', searchText.toLowerCase()));
+
   if (wheres && wheres.length) {
-    whereClauses = wheres.map(([field, op, value]) => where(field, op as WhereFilterOp, value));
+    whereClauses = [...whereClauses, ...wheres.map(([field, op, value]) => where(field, op as WhereFilterOp, value))];
   }
+
   let q: any;
   if (whereClauses.length > 0) {
     q = query(colRef, ...whereClauses, limitFn(limit));
   } else {
     q = query(colRef, limitFn(limit));
   }
+
   const snap = await getDocs(q);
   let dataArr: any[] = [];
   snap.forEach(doc => {
@@ -267,7 +289,7 @@ export const fetchSearchsEachField = async (
   const limitValue = GLOBAL_SEARCH_LIMIT;
   try {
     console.log('fetchSearchsEachField input:', { searchText, orderByField, searchCollection, fields });
-    const segments = searchCollection.split("/") as [string, ...string[]];
+    const segments = searchCollection.split('/') as [string, ...string[]];
     const colRef = collection(firestore, ...segments);
     const sTxt = searchText.toLowerCase();
     console.log('Search text (lowercase):', sTxt);
@@ -276,15 +298,15 @@ export const fetchSearchsEachField = async (
       colRef,
       orderBy(`${orderByField}_lower`),
       startAt(sTxt),
-      endAt(sTxt + "\uf8ff"),
+      endAt(sTxt + '\uf8ff'),
       limitFn(limitValue)
     );
 
     const snap = await getDocs(q);
     console.log('Query snapshot size:', snap.size);
-    
+
     const lowerArr: any[] = [];
-    snap.forEach((doc) => {
+    snap.forEach(doc => {
       let item: Record<string, any> = { _id: doc.id };
       fields.forEach((l: string) => {
         item = { ...item, [l]: doc.data()[l] };
@@ -315,10 +337,10 @@ export const fetchSearchsKeywords = async (
   }
   try {
     console.log('fetchSearchsKeywords input:', { searchText, searchCollection, fields, limitValue });
-    const segments = searchCollection.split("/") as [string, ...string[]];
+    const segments = searchCollection.split('/') as [string, ...string[]];
     const colRef = collection(firestore, ...segments);
     let sTxt = '';
-    
+
     if (Array.isArray(searchText)) {
       sTxt = searchText.length > 0 ? searchText[searchText.length - 1].toLowerCase() : '';
     } else {
@@ -326,19 +348,15 @@ export const fetchSearchsKeywords = async (
     }
     console.log('Search text (lowercase):', sTxt);
 
-    const q = query(
-      colRef,
-      where('keywords', 'array-contains', sTxt.toLowerCase()),
-      limitFn(limitValue)
-    );
+    const q = query(colRef, where('keywords', 'array-contains', sTxt.toLowerCase()), limitFn(limitValue));
 
     const snapshot = await getDocs(q);
     console.log('Query snapshot size:', snapshot.size);
-    
+
     const arr: any[] = [];
-    
+
     if (!snapshot.empty) {
-      snapshot.forEach((doc) => {
+      snapshot.forEach(doc => {
         let item: Record<string, any> = { _id: doc.id };
         fields.forEach((l: string) => {
           item = { ...item, [l]: doc.data()[l] };
@@ -622,7 +640,12 @@ export const getEmployeeStatus = async (record: any) =>
     }
   });
 
-export async function queryFirestoreArrayContainAny(field: string, ids: string[], path: string, wheresArr: [string, string, any][] = []) {
+export async function queryFirestoreArrayContainAny(
+  field: string,
+  ids: string[],
+  path: string,
+  wheresArr: [string, string, any][] = []
+) {
   if (!ids || !ids.length || !path) return [];
 
   const batches: any[] = [];
@@ -658,7 +681,7 @@ export const createNewId = (prefix = ''): string => {
   const timestamp = Date.now().toString(36);
   const random = Math.random().toString(36).substring(2, 7);
   return `${prefix}${timestamp}${random}`.toUpperCase();
-}; 
+};
 
 interface CreateOptionsFromFirestoreKeywordsParams {
   searchText: string;
@@ -731,13 +754,13 @@ interface CreateOptionsFromFirestoreParams {
   labels?: string[];
 }
 
-export const createOptionsFromFirestore = ({ 
-  searchText, 
-  searchCollection, 
-  orderBy, 
-  wheres, 
-  firestore, 
-  labels 
+export const createOptionsFromFirestore = ({
+  searchText,
+  searchCollection,
+  orderBy,
+  wheres,
+  firestore,
+  labels
 }: CreateOptionsFromFirestoreParams) =>
   new Promise<any[]>(async (r, j) => {
     try {
@@ -749,13 +772,13 @@ export const createOptionsFromFirestore = ({
           searchRef = searchRef.doc(txt);
         }
       });
-      
+
       if (wheres) {
         wheres.forEach((wh: [string, string, any]) => {
           searchRef = searchRef.where(wh[0], wh[1], wh[2]);
         });
       }
-      
+
       let dataArr: any[] = [];
       let fields = Array.isArray(orderBy) ? orderBy : [orderBy];
       if (labels) {
@@ -802,4 +825,3 @@ export const createOptionsFromFirestore = ({
       j(e);
     }
   });
-  

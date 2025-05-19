@@ -20,13 +20,20 @@
   "unit": "บาท",
   "days": "วัน",
   "enterNumber": "กรุณาป้อนเป็นตัวเลข",
-  "inputPrice": {
-    "step": {
-      "record": "บันทึกรายการ",
-      "review": "ตรวจสอบ",
-      "approve": "อนุมัติ"
-    }
+  "step": {
+    "record": "บันทึกรายการ",
+    "review": "ตรวจสอบ",
+    "approve": "อนุมัติ"
   },
+  "editedBy": "ผู้แก้ไข",
+  "reviewedBy": "ผู้ตรวจสอบ",
+  "approvedBy": "ผู้อนุมัติ",
+  "selectEditor": "เลือกผู้แก้ไข",
+  "selectReviewer": "เลือกผู้ตรวจสอบ",
+  "selectApprover": "เลือกผู้อนุมัติ",
+  "editDate": "วันที่แก้ไข",
+  "reviewDate": "วันที่ตรวจสอบ",
+  "approveDate": "วันที่อนุมัติ",
   "receiptNumber": "เลขที่ใบรับสินค้า",
   "inputDate": "วันที่คีย์",
   "productCode": "รหัสสินค้า",
@@ -37,5 +44,48 @@
   "productName": "ชื่อสินค้า",
   "warehouse": "คลัง",
   "quantity": "จำนวน",
-  "unitPrice": "ราคา / หน่วย"
-} 
+  "unitPrice": "ราคา / หน่วย",
+  "receiptInfo": "ข้อมูลใบรับสินค้า",
+  "productInfo": "ข้อมูลสินค้า",
+  "confirmSubmit": "คุณแน่ใจหรือไม่ว่าต้องการบันทึก?",
+  "invalidDueDate": "วันครบกำหนดไม่ถูกต้อง กรุณาเลือกวันที่ที่ถูกต้อง",
+  "invalidTaxInvoiceDate": "วันที่ใบกำกับภาษีไม่ถูกต้อง กรุณาเลือกวันที่ที่ถูกต้อง",
+  "requiredField": "กรุณาป้อนข้อมูล",
+  "numberField": "กรุณาป้อนจำนวนวันเป็นตัวเลข",
+  "duplicateInvoice": "เลขที่ใบกำกับภาษีและวันที่นี้มีอยู่แล้วในระบบ",
+  "changeHistory": "ประวัติการเปลี่ยนแปลง",
+  "statusHistory": "ประวัติสถานะ",
+  "changes": "รายการ",
+  "statusChanges": "การเปลี่ยนสถานะ",
+  "createdDocument": "สร้างเอกสาร",
+  "updatedDocument": "แก้ไขเอกสาร",
+  "unknownUser": "ไม่ทราบชื่อผู้ใช้",
+  "noChanges": "ไม่มีการเปลี่ยนแปลงที่บันทึกไว้",
+  "noStatusChanges": "ไม่มีการเปลี่ยนสถานะที่บันทึกไว้",
+  "fields": {
+    "billNoSKC": "เลขที่ใบรับสินค้า",
+    "taxInvoiceNo": "เลขที่ใบกำกับภาษี",
+    "taxInvoiceDate": "วันที่ใบกำกับภาษี",
+    "taxFiledPeriod": "ยื่นภาษีในงวด",
+    "creditDays": "เครดิต (วัน)",
+    "dueDate": "วันครบกำหนด",
+    "priceType": "ประเภทราคา",
+    "remark": "หมายเหตุ",
+    "billDiscount": "ส่วนลด",
+    "deductDeposit": "หักเงินมัดจำ",
+    "transferCompleted": "โอนเสร็จสมบูรณ์",
+    "items": "รายการสินค้า",
+    "total": "จำนวนเงินรวม"
+  },
+  "status": {
+    "draft": "ร่าง",
+    "reviewed": "ตรวจสอบแล้ว",
+    "approved": "อนุมัติแล้ว"
+  },
+  "history": {
+    "changedField": "เปลี่ยน {{field}} เป็น {{value}}",
+    "createdDocument": "สร้างเอกสาร",
+    "updatedDocument": "แก้ไขเอกสาร",
+    "statusChanged": "เปลี่ยนสถานะเป็น {{status}} โดย {{user}}"
+  }
+}

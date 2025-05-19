@@ -5,13 +5,17 @@ import themeReducer from './slices/themeSlice';
 import notificationReducer from './slices/notificationSlice';
 import branchesReducer from './slices/branchesSlice';
 import dataReducer from './slices/dataSlice';
+import departmentReducer from './slices/departmentSlice';
+import employeeReducer from './slices/employeeSlice';
 
 const rootReducer = combineReducers({
   auth: authReducer,
   theme: themeReducer,
   notifications: notificationReducer,
   branches: branchesReducer,
-  data: dataReducer
+  data: dataReducer,
+  departments: departmentReducer,
+  employees: employeeReducer
 });
 
 export const store = configureStore({

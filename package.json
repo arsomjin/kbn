@@ -26,6 +26,7 @@
     "d3-path": "^3.1.0",
     "d3-shape": "^3.2.0",
     "firebase": "^11.7.3",
+    "firebase-admin": "^13.4.0",
     "framer-motion": "^12.9.4",
     "gsap": "^3.13.0",
     "i18next": "^25.0.2",

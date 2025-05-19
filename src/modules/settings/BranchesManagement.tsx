@@ -6,7 +6,7 @@ import { useLoading } from '../../hooks/useLoading';
 import { useProvinces } from '../../hooks/useProvinces';
 import { useBranchContext } from '../../hooks/useBranchContext';
 import AccessDenied from "../../components/common/AccessDenied";
-import { usePermissions } from "../../hooks/usePermissions";
+import { usePermissions } from "hooks/usePermissions";
 import { ROLES } from "../../constants/roles";
 import { App as AntdApp } from 'antd';
 import { useAntdModal } from '../../hooks/useAntModal';

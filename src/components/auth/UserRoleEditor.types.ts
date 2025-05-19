@@ -1,4 +1,4 @@
-import type { TranslationKeys } from "../../hooks/useTranslationKeys";
+import type { TranslationKeys } from "hooks/useTranslationKeys";
 
 export interface UserRoleEditorProps {
   userId: string;

@@ -2,8 +2,8 @@ import React from "react";
 import { Routes, Route, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Layout, Card, Alert, Typography } from "antd";
-import { useAuth } from "../../hooks/useAuth";
-import { usePermissions } from "../../hooks/usePermissions";
+import { useAuth } from "hooks/useAuth";
+import { usePermissions } from "hooks/usePermissions";
 import { hasProvinceAccess } from "../../utils/permissions";
 import { ROLES } from "../../constants/roles";
 import { PERMISSIONS } from '../../constants/Permissions';
@@ -157,7 +157,7 @@ const Account: React.FC = () => {
             element={
               hasPermission(PERMISSIONS.VIEW_ACCOUNTS) || 
               hasRole([ROLES.SUPER_ADMIN, ROLES.DEVELOPER, ROLES.PRIVILEGE]) ? (
-                <InputPrice />
+                <InputPrice provinceId={provinceId || ''} departmentId={userProfile?.department || ''} />
               ) : (
                 <Alert
                   message={t('account:inputPriceRestricted.title', 'Input Price Access Restricted')}

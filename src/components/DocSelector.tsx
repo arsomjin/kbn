@@ -54,6 +54,7 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
     },
     ref
   ) => {
+    console.log('DocSelector: props:', props);
     const firestore: Firestore = getFirestore(app);
     const isMounted = useRef(true);
     useEffect(() => {
@@ -114,43 +115,46 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
     };
 
     // Memoize _fetchSearchList to avoid debounce issues
-    const _fetchSearchList = React.useCallback(async (search: string): Promise<Option[]> => {
-      try {
-        console.log('DocSelector: _fetchSearchList called with search:', search);
-        if (!search || (search && search.length < (startSearchAt || 4))) {
-          console.log('DocSelector: Search text too short, returning empty array');
+    const _fetchSearchList = React.useCallback(
+      async (search: string): Promise<Option[]> => {
+        try {
+          console.log('DocSelector: _fetchSearchList called with search:', search);
+          if (!search || (search && search.length < (startSearchAt || 4))) {
+            console.log('DocSelector: Search text too short, returning empty array');
+            return [];
+          }
+          let list: Option[] = [];
+          const sameNameCase = ['data/sales/customers'].includes(collection) && hasNameAndSurnamePattern(search);
+          if (sameNameCase) {
+            let words = search.split(' ');
+            await arrayForEach(words, async (str: string) => {
+              if (!!str) {
+                let arr = await fetchSearchList(str);
+                list = list.concat(arr);
+              }
+            });
+            const distinctList = distinctArr(list, ['label', 'value'], []);
+            list = distinctList.map(item => ({
+              ...item,
+              label: String(item.label),
+              value: String(item.value)
+            }));
+          } else {
+            list = await fetchSearchList(search);
+          }
+          console.log('DocSelector: Returning list:', list);
+          return list;
+        } catch (error: unknown) {
+          const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+          const customError = new Error(errorMessage) as ErrorWithMessage;
+          customError.snap = { function: '_fetchSearchList' };
+          showWarn(errorMessage);
+          errorHandler(customError);
           return [];
         }
-        let list: Option[] = [];
-        const sameNameCase = ['data/sales/customers'].includes(collection) && hasNameAndSurnamePattern(search);
-        if (sameNameCase) {
-          let words = search.split(' ');
-          await arrayForEach(words, async (str: string) => {
-            if (!!str) {
-              let arr = await fetchSearchList(str);
-              list = list.concat(arr);
-            }
-          });
-          const distinctList = distinctArr(list, ['label', 'value'], []);
-          list = distinctList.map(item => ({
-            ...item,
-            label: String(item.label),
-            value: String(item.value)
-          }));
-        } else {
-          list = await fetchSearchList(search);
-        }
-        console.log('DocSelector: Returning list:', list);
-        return list;
-      } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        const customError = new Error(errorMessage) as ErrorWithMessage;
-        customError.snap = { function: '_fetchSearchList' };
-        showWarn(errorMessage);
-        errorHandler(customError);
-        return [];
-      }
-    }, [collection, orderBy, wheres, labels, startSearchAt, isUsed, showAddNew]);
+      },
+      [collection, orderBy, wheres, labels, startSearchAt, isUsed, showAddNew]
+    );
 
     const fetchSearchList = async (search: string): Promise<Option[]> => {
       try {
@@ -164,10 +168,11 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
           startSearchAt,
           isUsed
         };
+        console.log('fProps:', fProps);
         let options: Option[] = hasKeywords
           ? await createOptionsFromFirestoreKeywords(fProps)
           : await createOptionsFromFirestore(fProps);
-        
+
         if (showAddNew) {
           options = [
             ...options,
@@ -209,4 +214,4 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
 
 DocSelector.displayName = 'DocSelector';
 
-export default DocSelector; 
+export default DocSelector;

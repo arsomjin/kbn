@@ -104,9 +104,11 @@ const InputItems: React.FC<InputItemsProps> = ({ items, docId, onChange, grant, 
 
   const onUpdateItem = async (arr: InputPriceItem[], dataIndex?: string, rowIndex?: number) => {
     try {
+      console.log('[InputItems] onUpdateItem:', { arr, dataIndex, rowIndex });
       if (dataIndex && ['unitPrice', 'qty', 'discount'].includes(dataIndex) && rowIndex !== undefined) {
         setLoading(true);
         const formatArr = await _formatItem(arr, dataIndex, rowIndex);
+        console.log('[InputItems] formatArr:', formatArr);
         setLoading(false);
         onChange && onChange(formatArr);
       } else {

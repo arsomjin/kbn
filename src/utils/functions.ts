@@ -1,5 +1,5 @@
 import { uniqueNamesGenerator, Config, names } from 'unique-names-generator';
-import { Modal } from 'antd';
+import { useAntdModal, Modal } from '../hooks/useAntModal';
 import { FieldMapping, FieldMappingToThai } from '../data/fields-mapping';
 import { DateTime } from 'luxon';
 // import ProgressManager from 'api/Progress/Progress';
@@ -10,8 +10,42 @@ import { isVerySmallNumber } from './number';
 import type { ModalFuncProps } from 'antd/es/modal/interface';
 import { message } from 'antd';
 // import { useLoading } from 'hooks/useLoading';
-import { addErrorLogs } from './firestoreUtils';
-import { isMobile, isAndroid, isBrowser, isChrome, isChromium, isConsole, isEdge, isEdgeChromium, isElectron, isFirefox, isIE, isIOS, isIOS13, isIPad13, isIPhone13, isIPod13, isLegacyEdge, isMacOs, isMobileOnly, isMobileSafari, isOpera, isSafari, isSmartTV, isTablet, isWearable, isWinPhone, isWindows, isYandex, mobileModel, mobileVendor, osName, osVersion } from 'react-device-detect';
+import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import {
+  isMobile,
+  isAndroid,
+  isBrowser,
+  isChrome,
+  isChromium,
+  isConsole,
+  isEdge,
+  isEdgeChromium,
+  isElectron,
+  isFirefox,
+  isIE,
+  isIOS,
+  isIOS13,
+  isIPad13,
+  isIPhone13,
+  isIPod13,
+  isLegacyEdge,
+  isMacOs,
+  isMobileOnly,
+  isMobileSafari,
+  isOpera,
+  isSafari,
+  isSmartTV,
+  isTablet,
+  isWearable,
+  isWinPhone,
+  isWindows,
+  isYandex,
+  mobileModel,
+  mobileVendor,
+  osName,
+  osVersion
+} from 'react-device-detect';
+import { useModal } from '../contexts/ModalContext';
 
 // Types
 interface DeviceInfo {
@@ -82,7 +116,11 @@ interface ProgressManagerType {
 }
 
 interface PrinterManagerType {
-  showPrinter: (config: { ComponentToPrint: React.ComponentType; onAfterPrint?: () => void; fileName?: string }) => void;
+  showPrinter: (config: {
+    ComponentToPrint: React.ComponentType;
+    onAfterPrint?: () => void;
+    fileName?: string;
+  }) => void;
   hidePrinter: () => void;
 }
 
@@ -91,7 +129,7 @@ export const getCurrentDevice = (): DeviceInfo => {
   const screenWidth = window.innerWidth;
   const screenHeight = window.innerHeight;
   const orientation = screenWidth > screenHeight ? 'landscape' : 'portrait';
-  
+
   return {
     isAndroid,
     isBrowser,
@@ -202,14 +240,14 @@ export function chunkArray<T>(array: T[], chunkLength: number): T[][] {
     showWarn('Input Error at chunkArray function!', 'Invalid input');
     return [];
   }
-  
+
   const result: T[][] = [];
   const tempArray = [...array];
-  
+
   while (tempArray.length > 0) {
     result.push(tempArray.splice(0, chunkLength));
   }
-  
+
   return result;
 }
 
@@ -222,10 +260,7 @@ export const formatDate = (date: string | Date): string => {
 };
 
 export const dateToThai = (text: string): string => {
-  return DateTime.fromFormat(text, 'yyyy-MM-dd')
-    .plus({ years: 543 })
-    .setLocale('th')
-    .toFormat('d MMM yy');
+  return DateTime.fromFormat(text, 'yyyy-MM-dd').plus({ years: 543 }).setLocale('th').toFormat('d MMM yy');
 };
 
 // Number utilities
@@ -254,19 +289,25 @@ export const isObject = (object: unknown): boolean => {
 };
 
 export const deepEqual = (object1: Record<string, unknown>, object2: Record<string, unknown>): boolean => {
-  const keys1 = Object.keys(object1);
-  const keys2 = Object.keys(object2);
+  // Defensive: treat undefined/null as empty object
+  const a = object1 && typeof object1 === 'object' ? object1 : {};
+  const b = object2 && typeof object2 === 'object' ? object2 : {};
+
+  const keys1 = Object.keys(a);
+  const keys2 = Object.keys(b);
 
   if (keys1.length !== keys2.length) {
     return false;
   }
 
   for (const key of keys1) {
-    const val1 = object1[key];
-    const val2 = object2[key];
+    const val1 = a[key];
+    const val2 = b[key];
     const areObjects = isObject(val1) && isObject(val2);
-    if ((areObjects && !deepEqual(val1 as Record<string, unknown>, val2 as Record<string, unknown>)) || 
-        (!areObjects && val1 !== val2)) {
+    if (
+      (areObjects && !deepEqual(val1 as Record<string, unknown>, val2 as Record<string, unknown>)) ||
+      (!areObjects && val1 !== val2)
+    ) {
       return false;
     }
   }
@@ -275,37 +316,54 @@ export const deepEqual = (object1: Record<string, unknown>, object2: Record<stri
 };
 
 // Error handling
-export const errorHandler = (error: Error): void => {
+/**
+ * errorHandler - Universal error handler for both utility and React component usage.
+ * @param error - The error object
+ * @param showAlertFn - (optional) A context-aware alert function (e.g. from useModal)
+ */
+export const errorHandler = (error: Error, showAlertFn?: (config: { title: string; content: string }) => void) => {
   let msg = 'กรุณาทำรายการใหม่อีกครั้ง';
   if (error?.message) {
     msg = getErrorMessage(error.message);
   }
-  
-  showAlert({
-    title: 'ไม่สำเร็จ',
-    content: msg
-  });
-  
+  if (showAlertFn) {
+    showAlertFn({
+      title: 'ไม่สำเร็จ',
+      content: msg
+    });
+  } else {
+    // Fallback: static Modal (not theme/context-aware)
+    showAlert({
+      title: 'ไม่สำเร็จ',
+      content: msg
+    });
+  }
   showLog('Error', { error, msg });
   addErrorLogs({ ...error, msg });
 };
 
+/**
+ * useErrorHandler - React hook for context-aware error handling in components.
+ * Returns a handler that uses the ModalContext for user feedback.
+ * Usage: const errorHandler = useErrorHandler(); errorHandler(error);
+ */
+export const useErrorHandler = () => {
+  const { showWarning } = useModal();
+  return (error: Error) => errorHandler(error, ({ title, content }) => showWarning(`${title}: ${content}`));
+};
+
 export const getErrorMessage = (eMsg: string): string => {
   if (!eMsg) return 'กรุณาทำรายการใหม่อีกครั้ง';
-  
+
   if (eMsg.includes('Query.where')) {
     return 'กรุณาตรวจสอบพารามิเตอร์ที่ใช้ในการค้นหาข้อมูล';
   }
-  
+
   return 'กรุณาทำรายการใหม่อีกครั้ง';
 };
 
 // Success utilities
-export const showSuccess2 = (
-  onClick?: () => void,
-  info?: string,
-  unDismiss?: boolean
-): void => {
+export const showSuccess2 = (onClick?: () => void, info?: string, unDismiss?: boolean): void => {
   message.success({
     content: info || 'สำเร็จ',
     style: {
@@ -321,11 +379,7 @@ export const hideSuccess = (): void => {
 };
 
 // Action sheet utilities
-export const showActionSheet = (
-  onClick?: () => void,
-  title?: string,
-  info?: string
-): void => {
+export const showActionSheet = (onClick?: () => void, title?: string, info?: string): void => {
   Modal.confirm({
     title: title || 'ยืนยัน',
     content: info,
@@ -351,9 +405,7 @@ export const showMessageBar2 = (
 ): void => {
   const modalProps: ModalFuncProps = {
     title,
-    content: link 
-      ? `${info}\n\n${linkLabel || 'คลิกที่นี่'}: ${link}`
-      : info,
+    content: link ? `${info}\n\n${linkLabel || 'คลิกที่นี่'}: ${link}` : info,
     okText: 'ตกลง',
     centered: true,
     maskClosable: false
@@ -383,12 +435,7 @@ export const showMessageBar = (
 };
 
 // Alert utilities
-export const showAlert2 = (
-  title?: string,
-  info?: string,
-  theme?: string,
-  onOk?: () => void
-): void => {
+export const showAlert2 = (title?: string, info?: string, theme?: string, onOk?: () => void): void => {
   const modalProps: ModalFuncProps = {
     title,
     content: info,
@@ -412,21 +459,11 @@ export const hideAlert = (): void => {
 };
 
 // Confirm utilities
-export const showConfirm2 = (
-  title?: string,
-  info?: string,
-  onOk?: () => void,
-  onCancel?: () => void
-): void => {
+export const showConfirm = (onOk: () => void, message: string) => {
   Modal.confirm({
-    title: title || 'ยืนยัน',
-    content: info,
-    onOk,
-    onCancel,
-    okText: 'ตกลง',
-    cancelText: 'ยกเลิก',
-    centered: true,
-    maskClosable: false
+    title: 'ยืนยัน',
+    content: message,
+    onOk
   });
 };
 
@@ -472,18 +509,15 @@ export const validateMobileNumber = (mobile: string): boolean => {
   return mobileRegex.test(mobile);
 };
 
-export const getPermCatFromPermissions = (
-  permissions: string[],
-  permCats: Record<string, string[]>
-): string[] => {
+export const getPermCatFromPermissions = (permissions: string[], permCats: Record<string, string[]>): string[] => {
   const result: string[] = [];
-  
+
   Object.entries(permCats).forEach(([cat, perms]) => {
     if (permissions.some(perm => perms.includes(perm))) {
       result.push(cat);
     }
   });
-  
+
   return result;
 };
 
@@ -507,19 +541,7 @@ export const showToBeContinue = (): void => {
   });
 };
 
-export const showConfirm = (onOk: () => void, message: string) => {
-  Modal.confirm({
-    title: 'ยืนยัน',
-    content: message,
-    onOk
-  });
-};
-
-export const showConfirmDelete = (
-  deleteAction?: () => void,
-  itemName?: string,
-  unRecoverable?: boolean
-): void => {
+export const showConfirmDelete = (deleteAction?: () => void, itemName?: string, unRecoverable?: boolean): void => {
   showActionSheet(
     deleteAction,
     'ยืนยันการลบ',
@@ -567,17 +589,14 @@ export const distinctElement = <T>(arrayOfElements: T[]): Array<{ name: T; count
 };
 
 export const arrayMin = <T extends number>(arrayOfElements: T[]): T => {
-  return arrayOfElements.reduce((p, v) => p < v ? p : v);
+  return arrayOfElements.reduce((p, v) => (p < v ? p : v));
 };
 
 export const arrayMax = <T extends number>(arrayOfElements: T[]): T => {
-  return arrayOfElements.reduce((p, v) => p > v ? p : v);
+  return arrayOfElements.reduce((p, v) => (p > v ? p : v));
 };
 
-export function sortArr<T extends Record<string, unknown>>(
-  arrItems: T[],
-  sortKey: string
-): T[] {
+export function sortArr<T extends Record<string, unknown>>(arrItems: T[], sortKey: string): T[] {
   if (!Array.isArray(arrItems)) {
     return [];
   }
@@ -598,10 +617,7 @@ export function sortArr<T extends Record<string, unknown>>(
   });
 }
 
-export function sortArrByMultiKeys<T extends Record<string, unknown>>(
-  arrItems: T[],
-  sortKeys: string[]
-): T[] {
+export function sortArrByMultiKeys<T extends Record<string, unknown>>(arrItems: T[], sortKeys: string[]): T[] {
   if (!Array.isArray(arrItems)) {
     return [];
   }
@@ -626,11 +642,7 @@ export function sortArrByMultiKeys<T extends Record<string, unknown>>(
   });
 }
 
-export function searchArr<T extends Record<string, unknown>>(
-  arrItems: T[],
-  search: string,
-  keys: string[]
-): T[] {
+export function searchArr<T extends Record<string, unknown>>(arrItems: T[], search: string, keys: string[]): T[] {
   if (!Array.isArray(arrItems) || !search) {
     return arrItems;
   }
@@ -644,11 +656,7 @@ export function searchArr<T extends Record<string, unknown>>(
   );
 }
 
-export function insertArr<T>(
-  arr: T[],
-  index: number,
-  insertItems: T[]
-): T[] {
+export function insertArr<T>(arr: T[], index: number, insertItems: T[]): T[] {
   if (!Array.isArray(arr) || !Array.isArray(insertItems)) {
     return arr;
   }
@@ -672,7 +680,7 @@ export const newPerson = (): Record<string, unknown> => {
     dictionaries: [names],
     length: 1
   };
-  
+
   return {
     firstName: uniqueNamesGenerator(config),
     lastName: uniqueNamesGenerator(config),
@@ -697,35 +705,25 @@ export function makeData(...lens: number[]): Record<string, unknown>[] {
   return makeDataLevel();
 }
 
-export const maskCurrency = (
-  value: string | number,
-  maxLength = 12,
-  radix = ','
-): string => {
+export const maskCurrency = (value: string | number, maxLength = 12, radix = ','): string => {
   if (!value) return '';
   const str = value.toString().replace(/\D/g, '');
   return str.slice(0, maxLength).replace(/\B(?=(\d{3})+(?!\d))/g, radix);
 };
 
-export const cleanNumberFields = (
-  valObj: Record<string, unknown>,
-  fieldArr: string[]
-): Record<string, unknown> => {
+export const cleanNumberFields = (valObj: Record<string, unknown>, fieldArr: string[]): Record<string, unknown> => {
   const result = { ...valObj };
-  
+
   fieldArr.forEach(field => {
     if (result[field] !== undefined) {
       result[field] = Numb(result[field]);
     }
   });
-  
+
   return result;
 };
 
-export const cleanNumberFieldsInArray = <T extends Record<string, unknown>>(
-  valArr: T[],
-  fieldArr: string[]
-): T[] => {
+export const cleanNumberFieldsInArray = <T extends Record<string, unknown>>(valArr: T[], fieldArr: string[]): T[] => {
   if (!Array.isArray(valArr) || !Array.isArray(fieldArr)) {
     return valArr;
   }
@@ -737,11 +735,14 @@ export const getChanges = (
   oldObject: Record<string, unknown> = {},
   newObject: Record<string, unknown> = {}
 ): Record<string, unknown> => {
+  const a = oldObject && typeof oldObject === 'object' ? oldObject : {};
+  const b = newObject && typeof newObject === 'object' ? newObject : {};
+
   const changes: Record<string, unknown> = {};
 
-  Object.keys(newObject).forEach(key => {
-    if (!deepEqual(oldObject[key] as Record<string, unknown>, newObject[key] as Record<string, unknown>)) {
-      changes[key] = newObject[key];
+  Object.keys(b).forEach(key => {
+    if (!deepEqual(a[key] as Record<string, unknown>, b[key] as Record<string, unknown>)) {
+      changes[key] = b[key];
     }
   });
 
@@ -831,9 +832,9 @@ export const isValidDate = (d: unknown): boolean => {
 };
 
 export const isDateTypeField = (field: string): boolean => {
-  return field.toLowerCase().includes('date') || 
-         field.toLowerCase().includes('day') || 
-         field.toLowerCase().includes('time');
+  return (
+    field.toLowerCase().includes('date') || field.toLowerCase().includes('day') || field.toLowerCase().includes('time')
+  );
 };
 
 export const isTimeTypeField = (val: unknown): boolean => {
@@ -856,11 +857,7 @@ export const getBeforeVat = (total: number, priceType: string): number => {
   return priceType === 'include' ? total / (1 + vatRate) : total;
 };
 
-export const getWHTax = (
-  total: number,
-  priceType: string,
-  hasWHTax: boolean
-): number => {
+export const getWHTax = (total: number, priceType: string, hasWHTax: boolean): number => {
   if (!total || !priceType || !hasWHTax) return 0;
 
   const whtRate = 0.03;
@@ -919,56 +916,48 @@ const hasToParse = (fieldName: string): boolean => {
   ].includes(fieldName);
 };
 
-export const cleanValuesBeforeSave = (
-  values: Record<string, unknown>,
-  skipDate = false
-): Record<string, unknown> => {
-  if (!values) return {};
+export const cleanValuesBeforeSave = (values: Record<string, unknown>, skipDate = false): Record<string, unknown> => {
+  if (!values || typeof values !== 'object' || Array.isArray(values)) return {};
 
-  const result = { ...values };
-  Object.keys(result).forEach(key => {
-    const value = result[key];
+  const result: Record<string, unknown> = {};
 
-    if (value === null || value === undefined || value === '') {
-      delete result[key];
-    } else if (Array.isArray(value)) {
-      result[key] = cleanArrayOfObject(value as Record<string, unknown>[], skipDate);
-    } else if (typeof value === 'object') {
-      result[key] = cleanObject(value as Record<string, unknown>, skipDate);
+  Object.entries(values).forEach(([key, value]) => {
+    // Remove undefined, null, or empty string
+    if (value === undefined || value === null || value === '') return;
+
+    // Recursively clean arrays
+    if (Array.isArray(value)) {
+      const cleanedArr = value
+        .filter(item => item !== undefined && item !== null)
+        .map(item =>
+          typeof item === 'object' && item !== null
+            ? cleanValuesBeforeSave(item as Record<string, unknown>, skipDate)
+            : item
+        );
+      if (cleanedArr.length > 0) result[key] = cleanedArr;
+      return;
     }
-  });
 
-  return result;
-};
-
-const cleanArrayOfObject = (
-  arr: Record<string, unknown>[],
-  skipDate: boolean
-): Record<string, unknown>[] => {
-  if (!Array.isArray(arr)) return [];
-
-  return arr.map(item => cleanObject(item, skipDate));
-};
-
-const cleanObject = (
-  obj: Record<string, unknown>,
-  skipDate: boolean
-): Record<string, unknown> => {
-  if (!obj || typeof obj !== 'object') return {};
-
-  const result = { ...obj };
-  Object.keys(result).forEach(key => {
-    const value = result[key];
-
-    if (value === null || value === undefined || value === '') {
-      delete result[key];
-    } else if (Array.isArray(value)) {
-      result[key] = cleanArrayOfObject(value as Record<string, unknown>[], skipDate);
-    } else if (typeof value === 'object') {
-      result[key] = cleanObject(value as Record<string, unknown>, skipDate);
-    } else if (!skipDate && typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-      result[key] = new Date(value).toISOString();
+    // Recursively clean objects
+    if (typeof value === 'object') {
+      const cleanedObj = cleanValuesBeforeSave(value as Record<string, unknown>, skipDate);
+      if (Object.keys(cleanedObj).length > 0) result[key] = cleanedObj;
+      return;
     }
+
+    // Optionally format date fields
+    if (
+      !skipDate &&
+      typeof value === 'string' &&
+      (key.toLowerCase().endsWith('date') || key.toLowerCase() === 'date')
+    ) {
+      // Use dayjs or Date for formatting if needed
+      result[key] = value; // or format as needed
+      return;
+    }
+
+    // Otherwise, keep the value
+    result[key] = value;
   });
 
   return result;
@@ -991,7 +980,12 @@ export const formatValuesBeforeLoad = (values: Record<string, unknown>): Record<
       mValues[k] = null;
     }
     if (hasToParse(k)) {
-      mValues[k] = typeof values[k] === 'string' ? parser(values[k] as string) : typeof values[k] === 'number' ? parser(String(values[k])) : parser('');
+      mValues[k] =
+        typeof values[k] === 'string'
+          ? parser(values[k] as string)
+          : typeof values[k] === 'number'
+            ? parser(String(values[k]))
+            : parser('');
     }
   });
   return mValues;
@@ -1054,11 +1048,7 @@ export const toPhone = (txt: string | number): string => {
   return `${text.slice(0, 3)}-${text.slice(3, 6)}-${text.slice(-4)}`;
 };
 
-export const getDates = (
-  startDate: string,
-  stopDate: string,
-  format = 'yyyy-MM-dd'
-): string[] => {
+export const getDates = (startDate: string, stopDate: string, format = 'yyyy-MM-dd'): string[] => {
   const dates: string[] = [];
   let currentDate = DateTime.fromFormat(startDate, format);
   const endDate = DateTime.fromFormat(stopDate, format);
@@ -1100,14 +1090,14 @@ export const getFields = (
   current = ''
 ): Record<string, unknown> => {
   const result: Record<string, unknown> = {};
-  
+
   fields.forEach(field => {
     const key = prefix ? `${prefix}.${field}` : field;
     if (obj[field] !== undefined) {
       result[key] = obj[field];
     }
   });
-  
+
   return result;
 };
 
@@ -1133,21 +1123,38 @@ export const stripHtml = (str: string): string => {
 export const getDaysInMonth = (year: number, month: number): number[] => {
   const days: number[] = [];
   const date = new Date(year, month, 1);
-  
+
   while (date.getMonth() === month) {
     days.push(date.getDate());
     date.setDate(date.getDate() + 1);
   }
-  
+
   return days;
 };
 
 export const getMonthNames = (): string[] => {
   const monthArray = Array.from({ length: 12 }, (_, i) => ({
-    name: DateTime.fromObject({ month: i + 1 }).setLocale('th').toFormat('MMMM')
+    name: DateTime.fromObject({ month: i + 1 })
+      .setLocale('th')
+      .toFormat('MMMM')
   }));
-  
+
   return monthArray.map(m => m.name);
 };
 
-
+// Modular Firestore error logging
+export const addErrorLogs = async (error: Record<string, unknown>) => {
+  try {
+    const db = getFirestore();
+    const errorLog = {
+      ...error,
+      createdAt: serverTimestamp(),
+      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
+      url: typeof window !== 'undefined' ? window.location.href : ''
+    };
+    await addDoc(collection(db, 'logs', 'errors', 'entries'), errorLog);
+  } catch (e) {
+    // Fallback: log to console if Firestore fails
+    console.error('Failed to log error to Firestore:', e, error);
+  }
+};

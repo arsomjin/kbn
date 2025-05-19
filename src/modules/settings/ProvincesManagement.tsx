@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { getProvinces, createProvince, updateProvince, deleteProvince } from '../../services/provinceService';
 import { Province } from '../../types/province';
 import AccessDenied from "../../components/common/AccessDenied";
-import { usePermissions } from "../../hooks/usePermissions";
+import { usePermissions } from "hooks/usePermissions";
 import { ROLES } from "../../constants/roles";
 import { App as AntdApp } from 'antd';
 import { useAntdModal } from '../../hooks/useAntModal';

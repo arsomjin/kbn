@@ -1,9 +1,9 @@
-import React, { useEffect, useRef, useContext } from "react";
-import { Form, Input, InputRef } from "antd";
-import type { Rule } from "antd/es/form";
-import { EditableContext } from "./EditableRow";
-import { getInputNode } from "../../api/Table";
-import { getValidationRules } from "./helper";
+import React, { useEffect, useRef, useContext } from 'react';
+import { Form, Input, InputRef } from 'antd';
+import type { Rule } from 'antd/es/form';
+import { EditableContext } from './EditableRow';
+import { getInputNode } from '../../api/Table';
+import { getValidationRules } from './helper';
 
 interface EditableCellProps {
   record: Record<string, any>;
@@ -18,7 +18,7 @@ interface EditableCellProps {
   rowKey: string;
   rowIndex: number;
   colIndex: number;
-  align?: "left" | "center" | "right";
+  align?: 'left' | 'center' | 'right';
 }
 
 const EditableCell: React.FC<EditableCellProps> = ({
@@ -50,8 +50,8 @@ const EditableCell: React.FC<EditableCellProps> = ({
     if (isCurrentlyEditing) {
       const currentVal = record[dataIndex];
       // If the underlying value is 0, replace it with '' in the form:
-      if (["0", 0, "0.00"].includes(currentVal)) {
-        form.setFieldsValue({ [dataIndex]: "" });
+      if (['0', 0, '0.00'].includes(currentVal)) {
+        form.setFieldsValue({ [dataIndex]: '' });
         replacedZeroRef.current = true;
       } else {
         form.setFieldsValue({ [dataIndex]: currentVal });
@@ -80,7 +80,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
         // If validation passes, finish editing (which may trigger new row addition)
         setEditingCell(null);
       } catch (error) {
-        console.warn("Row validation failed:", error);
+        console.warn('Row validation failed:', error);
         // Remain in editing mode so user can correct errors.
       }
     }
@@ -89,11 +89,11 @@ const EditableCell: React.FC<EditableCellProps> = ({
   // Save current cell, then optionally jump to the next:
   const saveCell = async () => {
     try {
-      const values = await form.validateFields([dataIndex]) as Record<string, any>;
+      const values = (await form.validateFields([dataIndex])) as Record<string, any>;
       let newValue = values[dataIndex];
 
       // Only revert '' back to 0 if we originally converted 0 -> '' in useEffect
-      if (replacedZeroRef.current && newValue === "") {
+      if (replacedZeroRef.current && newValue === '') {
         newValue = 0;
       }
 
@@ -102,7 +102,7 @@ const EditableCell: React.FC<EditableCellProps> = ({
       // Move focus
       moveToNextCell(updatedRow);
     } catch (err) {
-      console.warn("Validate error:", err);
+      console.warn('Validate error:', err);
     }
   };
 
@@ -128,19 +128,19 @@ const EditableCell: React.FC<EditableCellProps> = ({
               onBlur={saveCell}
               onPressEnter={() => {
                 const input = inputRef.current?.input;
-                if (input && (!input.value || input.value.trim() === "")) {
+                if (input && (!input.value || input.value.trim() === '')) {
                   inputRef.current?.blur();
                 } else {
                   saveCell();
                 }
               }}
               style={
-                align === "center"
-                  ? { textAlign: "center" }
-                  : align === "left"
-                    ? { textAlign: "left" }
-                    : align === "right"
-                      ? { textAlign: "right" }
+                align === 'center'
+                  ? { textAlign: 'center' }
+                  : align === 'left'
+                    ? { textAlign: 'left' }
+                    : align === 'right'
+                      ? { textAlign: 'right' }
                       : {}
               }
             />
@@ -152,13 +152,13 @@ const EditableCell: React.FC<EditableCellProps> = ({
       <div
         style={{
           minHeight: 20,
-          cursor: "pointer",
-          ...(align === "center"
-            ? { textAlign: "center" }
-            : align === "left"
-              ? { textAlign: "left" }
-              : align === "right"
-                ? { textAlign: "right" }
+          cursor: 'pointer',
+          ...(align === 'center'
+            ? { textAlign: 'center' }
+            : align === 'left'
+              ? { textAlign: 'left' }
+              : align === 'right'
+                ? { textAlign: 'right' }
                 : {})
         }}
         onClick={() => setEditingCell({ key: rowKey, dataIndex })}
@@ -171,4 +171,4 @@ const EditableCell: React.FC<EditableCellProps> = ({
   return <td {...restProps}>{childNode}</td>;
 };
 
-export default EditableCell; 
+export default EditableCell;

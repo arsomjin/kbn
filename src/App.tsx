@@ -4,6 +4,7 @@ import { ConfigProvider, App as AntdApp, Spin } from 'antd';
 import { BrowserRouter } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { useAuth } from './hooks/useAuth';
+import { ModalProvider } from "./contexts/ModalContext";
 
 // Redux store
 import { store } from './store';
@@ -20,6 +21,8 @@ import NotificationProvider from './components/notifications';
 import { BranchProvider } from './contexts/BranchContext';
 import { ProvinceProvider } from './contexts/ProvinceContext';
 import { LoadingProvider } from './contexts/LoadingContext';
+import { EmployeeProvider } from './contexts/EmployeeContext';
+import { DepartmentProvider } from './contexts/DepartmentContext';
 
 // Enter Key Navigation Provider
 import EnterKeyNavigationProvider from './components/EnterKeyNavigationProvider';
@@ -76,19 +79,25 @@ const ThemeAppContent: React.FC = () => {
   return (
     <ConfigProvider theme={antdTheme}>
       <AntdApp notification={{ placement: 'topRight' }}>
-        <NotificationProvider>
-          <PermissionProvider userProfile={userProfile}>
-            <ProvinceProvider>
-              <BranchProvider>
-                <EnterKeyNavigationProvider>
-                  <BrowserRouter>
-                    <AppRouter />
-                  </BrowserRouter>
-                </EnterKeyNavigationProvider>
-              </BranchProvider>
-            </ProvinceProvider>
-          </PermissionProvider>
-        </NotificationProvider>
+        <ModalProvider>
+          <NotificationProvider>
+            <PermissionProvider userProfile={userProfile}>
+              <ProvinceProvider>
+                <BranchProvider>
+                  <EmployeeProvider>
+                    <DepartmentProvider>
+                      <EnterKeyNavigationProvider>
+                        <BrowserRouter>
+                          <AppRouter />
+                        </BrowserRouter>
+                      </EnterKeyNavigationProvider>
+                    </DepartmentProvider>
+                  </EmployeeProvider>
+                </BranchProvider>
+              </ProvinceProvider>
+            </PermissionProvider>
+          </NotificationProvider>
+        </ModalProvider>
       </AntdApp>
     </ConfigProvider>
   );

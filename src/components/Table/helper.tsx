@@ -18,7 +18,7 @@ import {
   PaymentMethod
 } from "../../data/Constant";
 import { isDateTypeField, parser } from "../../utils/functions";
-import { getNameFromEmployeeCode } from "../../modules/Utils";
+import { getNameFromEmployeeCode } from "modules/Utils";
 import { Numb } from "../../utils/number";
 import type {
   PriceTypeKey,

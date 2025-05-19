@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Table, Form } from 'antd';
 import type { TablePaginationConfig } from 'antd/es/table';
 import { PlusOutlined } from '@ant-design/icons';
@@ -70,6 +70,7 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
   const [form] = Form.useForm();
   const [data, setData] = useState<TableBaseRecord[]>(dataSource);
   const [editingKey, setEditingKey] = useState<string>('');
+  const lastEditedField = useRef<string | undefined>(undefined);
 
   const isEditing = (record: TableBaseRecord) => record.key === editingKey;
 
@@ -175,7 +176,34 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
 
   const onBlur = async (dIndex: string) => {
     const dArr = await save(editingKey);
-    handleSave(dArr.data, dIndex, editingKey);
+    const dataIndexToUse = lastEditedField.current || dIndex;
+    handleSave(dArr.data, dataIndexToUse, editingKey);
+    lastEditedField.current = undefined;
+  };
+
+  // Handler to update data and call onUpdate when a value changes
+  const handleValuesChange = (changedValues: any, allValues: any) => {
+    if (!editingKey) return;
+    const changedField = Object.keys(changedValues)[0];
+    lastEditedField.current = changedField;
+    const rowIndex = data.findIndex(item => item.key === editingKey);
+    const newData = data.map((item) => {
+      if (item.key === editingKey) {
+        return { ...item, ...allValues };
+      }
+      return item;
+    });
+    // Debug logging
+    console.log('[EditableRowTable] onValuesChange:', {
+      changedValues,
+      allValues,
+      editingKey,
+      changedField,
+      rowIndex,
+      newData
+    });
+    setData(newData);
+    onUpdate?.(newData, changedField, rowIndex.toString());
   };
 
   const mColumns = GetColumns({
@@ -201,7 +229,7 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
   const tableWidth = typeof totalWidth === 'number' && totalWidth > 100 ? '100%' : totalWidth;
 
   return (
-    <Form form={form} component={false}>
+    <Form form={form} component={false} onValuesChange={handleValuesChange}>
       <Table
         components={{
           body: {

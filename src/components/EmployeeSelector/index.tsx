@@ -38,8 +38,8 @@ export interface EmployeeSelectorRef {
 }
 
 const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
-  ({ onChange, placeholder, noAddable, allowNotInList, ...props }, ref) => {
-    const { employees } = useSelector((state: any) => state.data);
+  ({ onChange, placeholder, noAddable=true, allowNotInList, ...props }, ref) => {
+    const employees = useSelector((state: any) => state.employees?.employees || {});
     const { user } = useSelector((state: any) => state.auth);
     const [showAddNew, setShowAddNew] = useState(false);
     const [mValue, setValue] = useState<string | string[] | null>(null);
@@ -151,9 +151,10 @@ const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
       setShowAddNew(false);
     };
 
-    const Options = Object.keys(employees).map((it) => (
+    const safeEmployees = employees || {};
+    const Options = Object.keys(safeEmployees).map((it) => (
       <Option key={it} value={it}>
-        {`${employees[it].employeeCode} / ${employees[it].employeeName}`}
+        {`${safeEmployees[it].employeeCode} / ${safeEmployees[it].firstName} ${safeEmployees[it].lastName}`}
       </Option>
     ));
 

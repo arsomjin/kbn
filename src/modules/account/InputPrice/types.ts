@@ -44,22 +44,33 @@ export interface InputPriceItem {
   importTime?: string;
   inputDate?: string;
   receiveNo?: string;
-  [key: string]: unknown;
 }
 
 export interface InputPriceFormValues {
-  billNoSKC: string | null;
-  taxInvoiceNo: string | null;
-  taxInvoiceDate: Dayjs | undefined;
-  taxFiledPeriod: string | null;
-  creditDays: number | null;
-  dueDate: Dayjs | undefined;
-  priceType: string | null;
-  remark: string | null;
-  billDiscount: number | null;
-  deductDeposit: number | null;
-  transferCompleted: boolean;
+  billNoSKC: string;
+  taxInvoiceNo: string;
+  taxInvoiceDate: string | Dayjs;
+  taxFiledPeriod: string;
+  creditDays: number;
+  dueDate: string | Dayjs;
+  priceType: string;
+  remark?: string;
+  billDiscount?: number;
+  deductDeposit?: number;
+  transferCompleted?: boolean;
   items: InputPriceItem[];
+  auditTrail?: any[];
+  statusHistory?: Array<{
+    status: string;
+    time: number;
+    uid: string;
+    userInfo: {
+      name: string;
+      email: string;
+      department?: string;
+      role?: string;
+    };
+  }>;
 }
 
 export interface InputPriceState extends Record<string, unknown> {
@@ -74,6 +85,8 @@ export interface InputPriceState extends Record<string, unknown> {
 export interface InputPriceProps {
   grant?: boolean;
   readOnly?: boolean;
+  provinceId: string;
+  departmentId: string;
 }
 
 export interface RenderSummaryProps {
@@ -84,4 +97,4 @@ export interface RenderSummaryProps {
   billTotal: number;
   onBillDiscountChange: (value: number | null) => void;
   onDeductDepositChange: (value: number | null) => void;
-} 
+}

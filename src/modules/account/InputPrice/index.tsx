@@ -1,11 +1,11 @@
-import React, { useCallback, useMemo } from 'react';
-import { Form, Card, Row, Col, Modal } from 'antd';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import { Form, Card, Row, Col, Modal, Alert, Timeline, Collapse, Divider } from 'antd';
 import { getFirestore, collection, doc, getDocs, query, where, setDoc } from 'firebase/firestore';
 import { useMergeState } from 'hooks/useMergeState';
 
 import { CheckOutlined, SearchOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
-import { showWarn, arrayForEach, showSuccess, firstKey, sortArr } from 'utils/functions';
+import { showWarn, arrayForEach, firstKey, sortArr, useErrorHandler } from 'utils/functions';
 import PageTitle from 'components/common/PageTitle';
 import { createNewId } from 'utils';
 import { removeAllNonAlphaNumericCharacters } from 'utils/RegEx';
@@ -20,48 +20,277 @@ import DocSelector from 'components/DocSelector';
 import { Input, InputNumber } from 'antd';
 import PriceTypeSelector from 'components/PriceTypeSelector';
 import { DatePicker } from 'elements';
-import dayjs from 'dayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { isString, isNumber, isDayjs } from '../../../utils/validation';
-import { showConfirm } from '../../../utils/functions';
+import { useModal } from '../../../contexts/ModalContext';
+import { PERMISSIONS } from '../../../constants/Permissions';
+import { usePermissions } from '../../../hooks/usePermissions';
+import { RootState } from '../../../store';
+import EmployeeSelector from 'components/EmployeeSelector';
+import DocumentAuditTrail, { DocumentAuditTrailValue } from 'components/DocumentAuditTrail';
 
 // Add custom styles for the summary component
 import './inputPrice.css';
 import { isMobile } from 'react-device-detect';
 
+const initMergeState: InputPriceState = {
+  mReceiveNo: null,
+  noItemUpdated: false,
+  deductDeposit: null,
+  billDiscount: null,
+  priceType: null,
+  total: null
+};
+
 /**
  * InputPrice screen component for account module
  */
-const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
+const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, provinceId, departmentId }) => {
   const { t } = useTranslation('inputPrice');
   const firestore = getFirestore();
-  
+  const { hasPermission, hasProvinceAccess } = usePermissions();
+  const { user } = useSelector((state: any) => state.auth);
+  const { userProfile } = useSelector((state: RootState) => state.auth);
+  const [cState, setCState] = useMergeState<InputPriceState>(initMergeState);
+  const [form] = Form.useForm<InputPriceFormValues>();
+  const resetToInitial = useCallback(() => {
+    form.resetFields();
+    setCState(initMergeState);
+  }, [form, setCState]);
+  const [items, setItems] = useState<InputPriceItem[]>(initialValues.items);
+  useEffect(() => {
+    const total = items.reduce(
+      (sum, elem) => sum + (Numb(elem.qty) * Numb(elem.unitPrice) - Numb(elem.discount || 0)),
+      0
+    );
+    setCState({ total: Number(total.toFixed(4)) });
+  }, [items, setCState]);
+  const errorHandler = useErrorHandler();
+  const summary = useMemo(() => {
+    const safeTotal = Numb(cState.total);
+    const safeDiscount = Numb(cState.billDiscount);
+    const safeDeposit = Numb(cState.deductDeposit);
+    const afterDiscount = safeTotal - safeDiscount;
+    const afterDepositDeduct = afterDiscount - safeDeposit;
+    const billVAT = cState.priceType === 'noVat' ? 0 : afterDepositDeduct * 0.07;
+    const billTotal = afterDepositDeduct + billVAT;
+    return { afterDiscount, afterDepositDeduct, billVAT, billTotal };
+  }, [cState.total, cState.billDiscount, cState.deductDeposit, cState.priceType]);
+  const { showConfirm, showSuccess, showWarning } = useModal();
+  // Placeholder: get document status from props, form, or API
+  // Replace this with real status logic as needed
+  const docStatus: 'draft' | 'reviewed' | 'approved' = 'draft'; // Replace with real status logic
+  const isReadOnly = readOnlyProp || (docStatus as any) === 'reviewed' || (docStatus as any) === 'approved';
+  // Stepper logic by permission
+  let activeStep = 0;
+  if (hasPermission(PERMISSIONS.DOCUMENT_EDIT)) activeStep = 0;
+  if (hasPermission(PERMISSIONS.DOCUMENT_REVIEW)) activeStep = 1;
+  if (hasPermission(PERMISSIONS.DOCUMENT_APPROVE)) activeStep = 2;
+  // Department access check
+  const canAccessDepartment = userProfile?.department === departmentId;
+  // RBAC: Only allow if user has MANAGE_EXPENSE and province access
+  const canAccess = hasPermission(PERMISSIONS.MANAGE_EXPENSE) && hasProvinceAccess(provinceId);
+
+  const onConfirm = useCallback(
+    async (mValues: InputPriceFormValues) => {
+      console.log(`[mValues]`, mValues);
+      const expensesRef = collection(firestore, 'sections', 'account', 'expenses');
+      // Find existing expense by billNoSKC
+      const expenseQ = query(expensesRef, where('billNoSKC', '==', mValues.billNoSKC));
+      const expenseSnap = await getDocs(expenseQ);
+      let expenseId = createNewId('ACC-EXP');
+      let prevDoc: any = undefined;
+      let isUpdate = false;
+      if (!expenseSnap.empty) {
+        prevDoc = expenseSnap.docs[0].data();
+        expenseId = expenseSnap.docs[0].id;
+        isUpdate = true;
+      }
+      showConfirm({
+        content: t('confirmSubmit', 'Are you sure you want to submit?'),
+        onOk: async () => {
+          try {
+            let dueDate: string | undefined = undefined;
+            let taxInvoiceDate: string | undefined = undefined;
+            if (mValues.dueDate) {
+              const due = typeof mValues.dueDate === 'string' ? dayjs(mValues.dueDate) : mValues.dueDate;
+              if (due && typeof (due as any).format === 'function') {
+                dueDate = due.format('YYYY-MM-DD');
+              } else {
+                errorHandler(new Error(t('invalidDueDate', 'Due date is invalid. Please select a valid date.')));
+                return;
+              }
+            }
+            if (mValues.taxInvoiceDate) {
+              const taxDate =
+                typeof mValues.taxInvoiceDate === 'string' ? dayjs(mValues.taxInvoiceDate) : mValues.taxInvoiceDate;
+              if (taxDate && typeof (taxDate as any).format === 'function') {
+                taxInvoiceDate = taxDate.format('YYYY-MM-DD');
+              } else {
+                errorHandler(
+                  new Error(t('invalidTaxInvoiceDate', 'Tax invoice date is invalid. Please select a valid date.'))
+                );
+                return;
+              }
+            }
+            const { billDiscount, deductDeposit } = cState;
+            const expense = {
+              ...mValues,
+              dueDate,
+              taxInvoiceDate,
+              total: cState.total,
+              billDiscount,
+              deductDeposit,
+              billVAT: summary.billVAT,
+              billTotal: summary.billTotal,
+              expenseType: 'purchaseTransfer',
+              receiveNo: mValues.taxInvoiceNo,
+              branchCode: '0450',
+              date: dayjs().format('YYYY-MM-DD'),
+              time: Date.now(),
+              inputBy: user.uid,
+              isPart: false
+            };
+            // --- Audit Trail Logic ---
+            let auditTrailArr = (prevDoc?.auditTrail as any[]) || [];
+            // Compute changes
+            const getChangesFn = (await import('utils/functions')).getChanges;
+            const changes = getChangesFn(prevDoc || {}, expense);
+            if (Object.keys(changes).length > 0) {
+              const auditEntry = {
+                uid: user.uid,
+                time: Date.now(),
+                changes,
+                action: isUpdate ? 'update' : 'create',
+                userInfo: {
+                  name: userProfile?.displayName || user.email,
+                  email: user.email,
+                  department: userProfile?.department,
+                  role: userProfile?.role
+                },
+                documentInfo: {
+                  expenseId,
+                  billNoSKC: mValues.billNoSKC,
+                  taxInvoiceNo: mValues.taxInvoiceNo,
+                  total: expense.total
+                }
+              };
+              auditTrailArr = [...auditTrailArr, auditEntry];
+            }
+
+            // Add status tracking
+            const currentStatus = isUpdate ? prevDoc?.status || 'draft' : 'draft';
+            const statusHistory = prevDoc?.statusHistory || [];
+            if (currentStatus !== prevDoc?.status) {
+              statusHistory.push({
+                status: currentStatus,
+                time: Date.now(),
+                uid: user.uid,
+                userInfo: {
+                  name: userProfile?.displayName || user.email,
+                  email: user.email,
+                  department: userProfile?.department,
+                  role: userProfile?.role
+                }
+              });
+            }
+
+            const expenseItem = cleanValuesBeforeSave({
+              ...expense,
+              expenseId,
+              _key: expenseId,
+              auditTrail: auditTrailArr || [],
+              status: currentStatus,
+              statusHistory: statusHistory || [],
+              lastModified: {
+                time: Date.now(),
+                uid: user.uid,
+                userInfo: {
+                  name: userProfile?.displayName || user.email,
+                  email: user.email,
+                  department: userProfile?.department,
+                  role: userProfile?.role
+                }
+              }
+            });
+            console.log('[Firestore Save] expenseId:', expenseId);
+            console.log('[Firestore Save] expenseItem:', expenseItem);
+            await setDoc(doc(expensesRef, expenseId), expenseItem);
+            console.log('[Firestore Save] setDoc success');
+
+            // Update related import vehicles
+            const importVehiclesRef = collection(firestore, 'sections', 'stocks', 'importVehicles');
+            const latestItems = form.getFieldValue('items') || [];
+            if (latestItems.length > 0) {
+              await arrayForEach(latestItems, async (item: InputPriceItem) => {
+                if (item._key) {
+                  await setDoc(
+                    doc(importVehiclesRef, item._key),
+                    {
+                      ...item,
+                      total: Numb(item.unitPrice) * Numb(item.qty),
+                      processed: true,
+                      lastExpenseId: expenseId
+                    },
+                    { merge: true }
+                  );
+                }
+              });
+            }
+
+            showSuccess(t('saveSuccess'));
+            resetToInitial();
+            setItems(initialValues.items); // <-- Add this line
+          } catch (error) {
+            console.error('[Firestore Save] error:', error);
+            errorHandler(error instanceof Error ? error : new Error(String(error)));
+          }
+        }
+      });
+    },
+    [
+      cState,
+      summary.billVAT,
+      summary.billTotal,
+      user.uid,
+      firestore,
+      resetToInitial,
+      t,
+      showConfirm,
+      showSuccess,
+      errorHandler,
+      form
+    ]
+  );
+
+  if (!canAccessDepartment) {
+    return (
+      <Alert
+        message={t('accessDenied', 'Access Denied')}
+        description={t('noDepartmentAccess', 'You do not have permission to access this department.')}
+        type='error'
+        showIcon
+        className='my-8'
+      />
+    );
+  }
+  if (!canAccess) {
+    return (
+      <Alert
+        message={t('accessDenied', 'Access Denied')}
+        description={t('noPermissionProvince', 'You do not have permission to manage expenses for this province.')}
+        type='error'
+        showIcon
+        className='my-8'
+      />
+    );
+  }
+
   const defaultSteps = [
     t('inputPrice.step.record', 'บันทึกรายการ'),
     t('inputPrice.step.review', 'ตรวจสอบ'),
     t('inputPrice.step.approve', 'อนุมัติ')
   ];
-
-  const initMergeState: InputPriceState = {
-    mReceiveNo: null,
-    noItemUpdated: false,
-    deductDeposit: null,
-    billDiscount: null,
-    priceType: null,
-    total: null
-  };
-
-  const { user } = useSelector((state: any) => state.auth);
-  const [cState, setCState] = useMergeState<InputPriceState>(initMergeState);
-
-  const [form] = Form.useForm<InputPriceFormValues>();
-
-  const isInput = true;
-  const activeStep = 0;
-
-  const resetToInitial = useCallback(() => {
-    form.resetFields();
-    setCState(initMergeState);
-  }, [form, setCState]);
 
   const _onValuesChange = async (val: Partial<InputPriceFormValues>) => {
     try {
@@ -95,7 +324,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
             };
             arr.push(item);
           });
-          
+
           if (arr.length > 0) {
             const mArr: InputPriceItem[] = [];
             await arrayForEach(
@@ -106,13 +335,13 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
                 const lpQuery = query(vehicleListRef, where('productPCode', '==', productPCode));
                 const lpSnap = await getDocs(lpQuery);
                 let lp: any = null;
-                
+
                 if (!lpSnap.empty) {
                   lpSnap.forEach(lpDoc => {
                     lp = { ...lpDoc.data(), _id: lpDoc.id };
                   });
                 }
-                
+
                 if (lp) {
                   mArr.push({
                     ...it,
@@ -131,15 +360,44 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
               id,
               key: id.toString()
             })) as InputPriceItem[];
-            
+
             form.setFieldsValue({
               items: sortedArr as any,
               priceType: sortedArr[0]?.priceType,
               creditDays: sortedArr[0]?.creditTerm
             });
+            setItems(sortedArr);
             setCState({
-              total: sortedArr.reduce((sum, elem) => sum + Numb(elem?.total || 0), 0)
+              total: (sortedArr || []).reduce((sum, elem) => sum + Numb(elem?.total || 0), 0)
             });
+          }
+        }
+        // --- Merge with existing expense data if found ---
+        const formValues = form.getFieldsValue();
+        if (formValues.billNoSKC) {
+          const expensesRef = collection(firestore, 'sections', 'account', 'expenses');
+          const expenseQ = query(expensesRef, where('billNoSKC', '==', val[changeKey]));
+          const expenseSnap = await getDocs(expenseQ);
+          if (!expenseSnap.empty) {
+            const docData = expenseSnap.docs[0].data();
+            // Merge: use found expense data (excluding items), but always use arr for items
+            const { items: _ignore, ...restDocData } = docData;
+            form.setFieldsValue({
+              ...formValues,
+              ...restDocData,
+              billDiscount: restDocData.billDiscount ?? 0,
+              deductDeposit: restDocData.deductDeposit ?? 0,
+              auditTrail: docData.auditTrail || undefined
+            });
+            setCState({
+              total: (restDocData.items || []).reduce(
+                (sum: number, elem: InputPriceItem) => sum + Numb(elem?.total || 0),
+                0
+              ),
+              billDiscount: restDocData.billDiscount ?? 0,
+              deductDeposit: restDocData.deductDeposit ?? 0
+            });
+            return;
           }
         }
       } else if (changeKey && ['creditDays', 'taxInvoiceDate'].includes(changeKey)) {
@@ -157,25 +415,13 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
         }
       }
     } catch (error) {
-      showWarn(error instanceof Error ? error.message : String(error));
+      errorHandler(error instanceof Error ? error : new Error(String(error)));
     }
   };
 
   const footer = cState.noItemUpdated ? <h6>{t('pleaseEnterPrice')}</h6> : undefined;
 
   const { billDiscount, deductDeposit, priceType, total } = cState;
-
-  // Calculate summary values in real-time
-  const summary = useMemo(() => {
-    const safeTotal = Numb(total);
-    const safeDiscount = Numb(billDiscount);
-    const safeDeposit = Numb(deductDeposit);
-    const afterDiscount = safeTotal - safeDiscount;
-    const afterDepositDeduct = afterDiscount - safeDeposit;
-    const billVAT = priceType === 'noVat' ? 0 : afterDepositDeduct * 0.07;
-    const billTotal = afterDepositDeduct + billVAT;
-    return { afterDiscount, afterDepositDeduct, billVAT, billTotal };
-  }, [total, billDiscount, deductDeposit, priceType]);
 
   const onBillDiscountChange = (value: number | null) => {
     if (value === null || isNaN(value)) {
@@ -198,66 +444,24 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
     if (!items) return;
 
     const arr = items.map((it: InputPriceItem) => {
-      const unitPrice = priceType === 'separateVat' 
-        ? Number((Numb(it.unitPrice_original || 0) / 1.07).toFixed(3))
-        : it.unitPrice_original || 0;
+      const unitPrice =
+        priceType === 'separateVat'
+          ? Number((Numb(it.unitPrice_original || 0) / 1.07).toFixed(3))
+          : it.unitPrice_original || 0;
       return { ...it, priceType, unitPrice };
     });
 
-    const total = arr.reduce((sum: number, elem: InputPriceItem) => 
-      sum + (Numb(elem.qty) * Numb(elem.unitPrice) - Numb(elem.discount || 0)), 0);
+    const total = (arr || []).reduce(
+      (sum: number, elem: InputPriceItem) => sum + (Numb(elem.qty) * Numb(elem.unitPrice) - Numb(elem.discount || 0)),
+      0
+    );
 
     form.setFieldsValue({ priceType, items: arr as any });
     setCState({ priceType, total: Number(total.toFixed(4)) });
   };
 
-  const onConfirm = useCallback(
-    async (mValues: InputPriceFormValues) => {
-      showConfirm(async () => {
-        try {
-          const dueDate = mValues.dueDate ? mValues.dueDate.format('YYYY-MM-DD') : undefined;
-          const { billDiscount, deductDeposit } = cState;
-          const expense = {
-            ...mValues,
-            dueDate,
-            total,
-            billDiscount,
-            deductDeposit,
-            billVAT: summary.billVAT,
-            billTotal: summary.billTotal,
-            expenseType: 'purchaseTransfer',
-            receiveNo: mValues.taxInvoiceNo,
-            branchCode: '0450',
-            date: dayjs().format('YYYY-MM-DD'),
-            time: Date.now(),
-            inputBy: user.uid,
-            isPart: false
-          };
-          const expenseId = createNewId('ACC-EXP');
-          const expenseItem = cleanValuesBeforeSave({
-            ...expense,
-            expenseId,
-            _key: expenseId
-          });
-          const expensesRef = collection(firestore, 'sections', 'account', 'expenses');
-          await setDoc(doc(expensesRef, expenseId), expenseItem);
-          if (mValues?.items) {
-            await arrayForEach(mValues.items, async (it: InputPriceItem) => {
-              // Update payment info
-            });
-          }
-          showSuccess(t('saveSuccess'));
-          resetToInitial();
-        } catch (error) {
-          showWarn(error instanceof Error ? error.message : String(error));
-        }
-      }, t('confirmSubmit', 'Are you sure you want to submit?'));
-    },
-    [cState, total, summary.billVAT, summary.billTotal, user.uid, firestore, resetToInitial, t]
-  );
-
   const summaryContent = (
-    <div className="flex flex-col justify-between h-full">
+    <div className='flex flex-col justify-between h-full'>
       <RenderSummary
         total={total || 0}
         afterDiscount={summary.afterDiscount}
@@ -269,41 +473,161 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
         billDiscount={billDiscount}
         deductDeposit={deductDeposit}
       />
-
-      {/* Save Button */}
-      <div className="flex justify-end mt-6">
-        <Button 
-          type="primary" 
-          htmlType="submit" 
-          icon={<CheckOutlined />} 
-          form="input-price-form" 
-          className="save-button"
-          style={{ 
-            minWidth: 160, 
-            fontSize: 16,
-            height: 40
-          }}
-        >
-          {t('save')}
-        </Button>
-      </div>
     </div>
-
   );
 
+  // Wire audit trail data from loaded document (replace 'loadedDoc' with actual variable if different)
+  const loadedDoc = form.getFieldsValue(); // Replace with actual loaded document if available
+  const editedBy = (loadedDoc as any)?.editedBy ?? '';
+  const reviewedBy = (loadedDoc as any)?.reviewedBy ?? '';
+  const approvedBy = (loadedDoc as any)?.approvedBy ?? '';
+  const editedDate = (loadedDoc as any)?.editedDate ?? undefined;
+  const reviewedDate = (loadedDoc as any)?.reviewedDate ?? undefined;
+  const approvedDate = (loadedDoc as any)?.approvedDate ?? undefined;
+
+  // Determine enabled/disabled state for each block based on permissions
+  const canEditEditedBy = hasPermission(PERMISSIONS.DOCUMENT_EDIT);
+  const canEditReviewedBy = hasPermission(PERMISSIONS.DOCUMENT_REVIEW);
+  const canEditApprovedBy = hasPermission(PERMISSIONS.DOCUMENT_APPROVE);
+
+  const renderAuditHistory = () => {
+    const auditTrail = form.getFieldValue('auditTrail') || [];
+    const statusHistory = form.getFieldValue('statusHistory') || [];
+
+    return (
+      <div className='space-y-4'>
+        <Collapse
+          className='bg-transparent border-none'
+          items={[
+            {
+              key: '1',
+              label: (
+                <div className='flex items-center'>
+                  <span className='font-medium'>{t('changeHistory', 'Change History')}</span>
+                  {auditTrail.length > 0 && (
+                    <span className='ml-2 text-sm text-gray-500'>
+                      ({auditTrail.length} {t('changes', 'changes')})
+                    </span>
+                  )}
+                </div>
+              ),
+              children:
+                auditTrail.length > 0 ? (
+                  <Card className='bg-gray-50 dark:bg-gray-800'>
+                    <Timeline>
+                      {auditTrail.map((entry: any, index: number) => (
+                        <Timeline.Item key={index} color={entry.action === 'create' ? 'green' : 'blue'}>
+                          <div className='flex flex-col space-y-1'>
+                            <div className='font-medium'>
+                              {entry.userInfo?.displayName ||
+                                entry.userInfo?.fullName ||
+                                entry.userInfo?.name ||
+                                t('unknownUser', 'Unknown User')}
+                            </div>
+                            <div className='text-sm text-gray-600 dark:text-gray-400'>
+                              {dayjs(entry.time).format('YYYY-MM-DD HH:mm:ss')}
+                            </div>
+                            <div className='text-sm'>
+                              {entry.action === 'create'
+                                ? t('createdDocument', 'Created document')
+                                : t('updatedDocument', 'Updated document')}
+                            </div>
+                            {Object.entries(entry.changes || {}).map(([key, value]: [string, any]) => (
+                              <div key={key} className='text-sm text-gray-600 dark:text-gray-400'>
+                                {t('history.changedField', {
+                                  field: t(`fields.${key}`, key),
+                                  value: typeof value === 'object' ? JSON.stringify(value) : value
+                                })}
+                              </div>
+                            ))}
+                          </div>
+                        </Timeline.Item>
+                      ))}
+                    </Timeline>
+                  </Card>
+                ) : (
+                  <div className='text-center py-4 text-gray-500'>{t('noChanges', 'No changes recorded')}</div>
+                )
+            },
+            {
+              key: '2',
+              label: (
+                <div className='flex items-center'>
+                  <span className='font-medium'>{t('statusHistory', 'Status History')}</span>
+                  {statusHistory.length > 0 && (
+                    <span className='ml-2 text-sm text-gray-500'>
+                      ({statusHistory.length} {t('statusChanges', 'status changes')})
+                    </span>
+                  )}
+                </div>
+              ),
+              children:
+                statusHistory.length > 0 ? (
+                  <Card className='bg-gray-50 dark:bg-gray-800'>
+                    <Timeline>
+                      {statusHistory.map((entry: any, index: number) => (
+                        <Timeline.Item
+                          key={index}
+                          color={
+                            entry.status === 'approved'
+                              ? 'green'
+                              : entry.status === 'reviewed'
+                                ? 'blue'
+                                : entry.status === 'draft'
+                                  ? 'gray'
+                                  : 'orange'
+                          }
+                        >
+                          <div className='flex flex-col space-y-1'>
+                            <div className='font-medium'>
+                              {entry.userInfo?.displayName ||
+                                entry.userInfo?.fullName ||
+                                entry.userInfo?.name ||
+                                t('unknownUser', 'Unknown User')}
+                            </div>
+                            <div className='text-sm text-gray-600 dark:text-gray-400'>
+                              {dayjs(entry.time).format('YYYY-MM-DD HH:mm:ss')}
+                            </div>
+                            <div className='text-sm'>
+                              {t('history.statusChanged', {
+                                status: t(`status.${entry.status}`, entry.status),
+                                user:
+                                  entry.userInfo?.displayName ||
+                                  entry.userInfo?.fullName ||
+                                  entry.userInfo?.name ||
+                                  t('unknownUser', 'Unknown User')
+                              })}
+                            </div>
+                          </div>
+                        </Timeline.Item>
+                      ))}
+                    </Timeline>
+                  </Card>
+                ) : (
+                  <div className='text-center py-4 text-gray-500'>
+                    {t('noStatusChanges', 'No status changes recorded')}
+                  </div>
+                )
+            }
+          ]}
+        />
+      </div>
+    );
+  };
+
   return (
-    <div className="space-y-6">
-      <PageTitle 
+    <div className='space-y-6'>
+      <PageTitle
         title={t('title')}
         subtitle={t('subtitle', 'รถและอุปกรณ์')}
         steps={defaultSteps}
-        activeStep={0}
+        activeStep={activeStep}
         showStepper={true}
       />
 
-      <Card size={isMobile ? "small" : "default"}>
+      <Card size={isMobile ? 'small' : 'default'}>
         <Form
-          id="input-price-form"
+          id='input-price-form'
           form={form}
           onValuesChange={(changed, all) => {
             _onValuesChange(changed);
@@ -312,106 +636,181 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly }) => {
           }}
           onFinish={onConfirm}
           initialValues={initialValues}
-          layout="vertical"
+          layout='vertical'
         >
-            <Form.Item 
-              label={<span><SearchOutlined /> {t('searchByReceiptNumber')}</span>}
-              name="billNoSKC"
+          <Form.Item
+            label={
+              <span>
+                <SearchOutlined /> {t('searchByReceiptNumber')}
+              </span>
+            }
+            name='billNoSKC'
+          >
+            <DocSelector
+              collection='sections/stocks/importVehicles'
+              orderBy={['billNoSKC']}
+              wheres={[
+                ['warehouseChecked', '!=', null],
+                ['total', '==', null]
+              ]}
+              size='middle'
+              placeholder={t('receiptNumber')}
+              hasKeywords
+            />
+          </Form.Item>
+
+          {/* Form Fields in 2 Column Grid */}
+          <Row gutter={16}>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name='taxInvoiceNo'
+                label={<span className='font-medium'>* {t('taxInvoiceNo')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <Input placeholder={t('taxInvoiceNo')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name='taxInvoiceDate'
+                label={<span className='font-medium'>* {t('taxInvoiceDate')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <DatePicker placeholder={t('taxInvoiceDate')} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name='priceType'
+                label={<span className='font-medium'>* {t('priceType')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <PriceTypeSelector onChange={onPriceTypeChange} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          <Row gutter={16}>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name='taxFiledPeriod'
+                label={<span className='font-medium'>* {t('taxFiledPeriod')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <Input placeholder={t('taxFiledPeriod')} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name='creditDays'
+                label={<span className='font-medium'>* {t('credit')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <InputNumber placeholder={t('credit')} addonAfter={t('days')} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name='dueDate'
+                label={<span className='font-medium'>* {t('dueDate')}</span>}
+                rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
+              >
+                <DatePicker placeholder={t('dueDate')} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+          </Row>
+
+          {/* Table */}
+          <div className='mt-4'>
+            <InputItems
+              items={items || []}
+              onChange={newItems => {
+                setItems(newItems);
+                form.setFieldsValue({ items: newItems as any });
+              }}
+              grant={grant}
+              readOnly={isReadOnly}
+              footer={footer}
+              noItemUpdated={cState.noItemUpdated}
+            />
+          </div>
+
+          <div className='w-full mt-4' style={{ width: '100%' }}>
+            {summaryContent}
+          </div>
+
+          {/* Edited/Reviewed/Approved By Section - Ant Design Row/Col Responsive Layout */}
+          <Divider />
+          <Row gutter={16} className='mb-4 mt-4'>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name={['auditTrail', 0, 'userInfo', 'name']}
+                label={<span className='font-medium'>* {t('editor', 'ผู้แก้ไข')}</span>}
+                rules={[{ required: canEditEditedBy, message: t('selectEditor', 'กรุณาเลือกผู้แก้ไข') }]}
+              >
+                <EmployeeSelector disabled={!canEditEditedBy} />
+              </Form.Item>
+              <Form.Item
+                name={['auditTrail', 0, 'time']}
+                label={<span className='font-medium'>{t('editDate', 'วันที่แก้ไข')}</span>}
+                rules={[{ required: canEditEditedBy, message: t('selectEditDate', 'กรุณาเลือกวันที่แก้ไข') }]}
+              >
+                <DatePicker disabled={!canEditEditedBy} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name={['auditTrail', 1, 'userInfo', 'name']}
+                label={<span className='font-medium'>* {t('reviewer', 'ผู้ตรวจสอบ')}</span>}
+                rules={[{ required: canEditReviewedBy, message: t('selectReviewer', 'กรุณาเลือกผู้ตรวจสอบ') }]}
+              >
+                <EmployeeSelector disabled={!canEditReviewedBy} />
+              </Form.Item>
+              <Form.Item
+                name={['auditTrail', 1, 'time']}
+                label={<span className='font-medium'>{t('reviewDate', 'วันที่ตรวจสอบ')}</span>}
+                rules={[{ required: canEditReviewedBy, message: t('selectReviewDate', 'กรุณาเลือกวันที่ตรวจสอบ') }]}
+              >
+                <DatePicker disabled={!canEditReviewedBy} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item
+                name={['auditTrail', 2, 'userInfo', 'name']}
+                label={<span className='font-medium'>* {t('approver', 'ผู้อนุมัติ')}</span>}
+                rules={[{ required: canEditApprovedBy, message: t('selectApprover', 'กรุณาเลือกผู้อนุมัติ') }]}
+              >
+                <EmployeeSelector disabled={!canEditApprovedBy} />
+              </Form.Item>
+              <Form.Item
+                name={['auditTrail', 2, 'time']}
+                label={<span className='font-medium'>{t('approveDate', 'วันที่อนุมัติ')}</span>}
+                rules={[{ required: canEditApprovedBy, message: t('selectApproveDate', 'กรุณาเลือกวันที่อนุมัติ') }]}
+              >
+                <DatePicker disabled={!canEditApprovedBy} style={{ width: '100%' }} />
+              </Form.Item>
+            </Col>
+          </Row>
+          {/* Change History and Status History (outside Form.Item, so errors don't overlap) */}
+          {renderAuditHistory()}
+
+          {/* Save Button at Bottom Center */}
+          <div className='flex justify-center mt-10'>
+            <Button
+              type='primary'
+              htmlType='submit'
+              icon={<CheckOutlined />}
+              form='input-price-form'
+              className='save-button'
+              style={{ minWidth: 160, fontSize: 16, height: 40 }}
             >
-              <DocSelector
-                collection="sections/stocks/importVehicles"
-                orderBy={['billNoSKC']}
-                wheres={[["warehouseChecked", "!=", null], ["total", "==", null]]}
-                size="middle"
-                placeholder={t('receiptNumber')}
-                hasKeywords
-              />
-            </Form.Item>
-
-            {/* Form Fields in 2 Column Grid */}
-            <Row gutter={16}>
-              <Col xs={24} md={8}>
-                <Form.Item
-                  name="taxInvoiceNo"
-                  label={<span className="font-medium">* {t('taxInvoiceNo')}</span>}
-                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-                >
-                  <Input placeholder={t('taxInvoiceNo')} />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={8}>
-                <Form.Item 
-                  name="taxInvoiceDate" 
-                  label={<span className="font-medium">* {t('taxInvoiceDate')}</span>}
-                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-                >
-                  <DatePicker placeholder={t('taxInvoiceDate')} style={{ width: '100%' }} />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={8}>
-                <Form.Item 
-                  name="priceType" 
-                  label={<span className="font-medium">* {t('priceType')}</span>}
-                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-                >
-                  <PriceTypeSelector onChange={onPriceTypeChange} />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            <Row gutter={16}>
-              <Col xs={24} md={8}>
-                <Form.Item
-                  name="taxFiledPeriod"
-                  label={<span className="font-medium">* {t('taxFiledPeriod')}</span>}
-                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-                >
-                  <Input placeholder={t('taxFiledPeriod')} />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={8}>
-                <Form.Item
-                  name="creditDays"
-                  label={<span className="font-medium">* {t('credit')}</span>}
-                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-                >
-                  <InputNumber placeholder={t('credit')} addonAfter={t('days')} style={{ width: '100%' }} />
-                </Form.Item>
-              </Col>
-              <Col xs={24} md={8}>
-                <Form.Item
-                  name="dueDate"
-                  label={<span className="font-medium">* {t('dueDate')}</span>}
-                  rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
-                >
-                  <DatePicker placeholder={t('dueDate')} style={{ width: '100%' }} />
-                </Form.Item>
-              </Col>
-            </Row>
-
-            {/* Table */}
-            <div className="mt-4">
-              <InputItems
-                items={form.getFieldValue('items') || []}
-                onChange={items => form.setFieldsValue({ items: items as any })}
-                grant={grant}
-                readOnly={readOnly}
-                footer={footer}
-                noItemUpdated={cState.noItemUpdated}
-              />
-            </div>      
-          </Form>
+              {t('save')}
+            </Button>
+          </div>
+        </Form>
       </Card>
-
-      {!isMobile ?
-        <Card className="sticky top-4" style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-          {summaryContent}
-        </Card>
-        :
-        <div className="w-full" style={{ width: '100%' }}>{summaryContent}</div>
-      }
     </div>
   );
 };
 
-export default InputPrice; 
+export default InputPrice;

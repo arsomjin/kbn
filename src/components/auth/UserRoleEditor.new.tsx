@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Modal, Tabs } from "antd";
 import { useTranslation } from "react-i18next";
-import { useModalTranslations } from "../../hooks/useTranslationKeys";
+import { useModalTranslations } from "hooks/useTranslationKeys";
 import type { UserRoleEditorProps, TabItem, UserRoleFormData } from "./UserRoleEditor.types";
 
 /**

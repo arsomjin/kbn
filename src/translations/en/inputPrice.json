@@ -20,13 +20,20 @@
   "unit": "THB",
   "days": "days",
   "enterNumber": "Please enter a number",
-  "inputPrice": {
-    "step": {
-      "record": "Record",
-      "review": "Review",
-      "approve": "Approve"
-    }
+  "step": {
+    "record": "Record",
+    "review": "Review",
+    "approve": "Approve"
   },
+  "editedBy": "Edited By",
+  "reviewedBy": "Reviewed By",
+  "approvedBy": "Approved By",
+  "selectEditor": "Select Editor",
+  "selectReviewer": "Select Reviewer",
+  "selectApprover": "Select Approver",
+  "editDate": "Edit Date",
+  "reviewDate": "Review Date",
+  "approveDate": "Approve Date",
   "receiptNumber": "Receipt No.",
   "inputDate": "Input Date",
   "productCode": "Product Code",
@@ -37,5 +44,48 @@
   "productName": "Product Name",
   "warehouse": "Warehouse",
   "quantity": "Quantity",
-  "unitPrice": "Price / Unit"
-} 
+  "unitPrice": "Price / Unit",
+  "receiptInfo": "Receipt Information",
+  "productInfo": "Product Information",
+  "confirmSubmit": "Are you sure you want to submit?",
+  "invalidDueDate": "Due date is invalid. Please select a valid date.",
+  "invalidTaxInvoiceDate": "Tax invoice date is invalid. Please select a valid date.",
+  "requiredField": "Please enter a value",
+  "numberField": "Please enter a number of days",
+  "duplicateInvoice": "This tax invoice number and date already exists.",
+  "changeHistory": "Change History",
+  "statusHistory": "Status History",
+  "changes": "changes",
+  "statusChanges": "status changes",
+  "createdDocument": "Created document",
+  "updatedDocument": "Updated document",
+  "unknownUser": "Unknown User",
+  "noChanges": "No changes recorded",
+  "noStatusChanges": "No status changes recorded",
+  "fields": {
+    "billNoSKC": "Receipt No.",
+    "taxInvoiceNo": "Tax Invoice No.",
+    "taxInvoiceDate": "Tax Invoice Date",
+    "taxFiledPeriod": "Tax Filing Period",
+    "creditDays": "Credit Days",
+    "dueDate": "Due Date",
+    "priceType": "Price Type",
+    "remark": "Remark",
+    "billDiscount": "Discount",
+    "deductDeposit": "Deposit Deduction",
+    "transferCompleted": "Transfer Completed",
+    "items": "Items",
+    "total": "Total Amount"
+  },
+  "status": {
+    "draft": "Draft",
+    "reviewed": "Reviewed",
+    "approved": "Approved"
+  },
+  "history": {
+    "changedField": "Changed {{field}} to {{value}}",
+    "createdDocument": "Created document",
+    "updatedDocument": "Updated document",
+    "statusChanged": "Status changed to {{status}} by {{user}}"
+  }
+}

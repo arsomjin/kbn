@@ -11,7 +11,7 @@ admin.initializeApp({
 const db = admin.firestore();
 
 // === CONFIGURATION ===
-const COLLECTION_NAME = 'sections/account/incomes'; // e.g. 'sections/account/incomes'
+const COLLECTION_NAME = 'sections/stocks/importVehicles'; // e.g. 'sections/account/incomes'
 const PROVINCE_ID = 'nakhon-ratchasima'; // e.g. 'nakhon-ratchasima'
 // =====================
 
