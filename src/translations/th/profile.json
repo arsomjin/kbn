@@ -5,7 +5,7 @@
   "completeProfileSubtitle": "กรุณากรอกข้อมูลโปรไฟล์ของคุณด้านล่าง",
   "completeProfile": "กรอกข้อมูลโปรไฟล์",
   "displayName": "ชื่อที่แสดง",
-  "role": "บทบาท",
+  "role": "[Role]",
   "branch": "สาขา",
   "department": "แผนก",
   "selectDepartment": "เลือกแผนก",

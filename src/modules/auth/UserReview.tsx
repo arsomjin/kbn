@@ -44,6 +44,7 @@ import { getPrivilegeLevel } from '../../utils/roleUtils';
 import { useTheme } from 'hooks/useTheme';
 import { useModal } from 'contexts/ModalContext';
 import { useAuth } from 'contexts/AuthContext';
+import PageDoc from '../../components/PageDoc';
 
 const { Option } = Select;
 const { Title, Paragraph, Text } = Typography;
@@ -878,72 +879,79 @@ const UserReview: React.FC = () => {
   };
   console.log('users', users);
   return (
-    <div className={styles.userReviewContainer}>
-      <Card className={styles.headerCard}>
-        <div
-          className={`flex ${isMobile ? 'flex-col' : 'flex-row justify-between'} items-${isMobile ? 'start' : 'center'}`}
-        >
-          <div>
-            <Title level={isMobile ? 2 : 3} className={`mb-1`} style={{ color: theme === 'dark' ? 'white' : 'black' }}>
-              {t('title')}
-            </Title>
-            <Paragraph>{t('subtitle', 'Review and approve user registration requests')}</Paragraph>
+    <>
+      <div className={styles.userReviewContainer}>
+        <Card className={styles.headerCard}>
+          <div
+            className={`flex ${isMobile ? 'flex-col' : 'flex-row justify-between'} items-${isMobile ? 'start' : 'center'}`}
+          >
+            <div>
+              <Title
+                level={isMobile ? 2 : 3}
+                className={`mb-1`}
+                style={{ color: theme === 'dark' ? 'white' : 'black' }}
+              >
+                {t('title')}
+              </Title>
+              <Paragraph>{t('subtitle', 'Review and approve user registration requests')}</Paragraph>
+            </div>
+            <Tooltip title={t('tooltip')}>
+              <Button type='text' icon={<QuestionCircleOutlined className='text-xl' />} />
+            </Tooltip>
           </div>
-          <Tooltip title={t('tooltip')}>
-            <Button type='text' icon={<QuestionCircleOutlined className='text-xl' />} />
-          </Tooltip>
-        </div>
-      </Card>
-
-      {loading ? (
-        <div className='flex justify-center items-center h-64'>
-          <Spin size={isMobile ? 'default' : 'large'} tip={t('loading')} />
-        </div>
-      ) : users.length > 0 ? (
-        <Card className={styles.tableCard}>
-          <Table
-            dataSource={users}
-            columns={getColumns()}
-            rowKey='uid'
-            expandable={expandableConfig}
-            pagination={{
-              pageSize: isMobile ? 5 : 10,
-              showSizeChanger: !isMobile,
-              pageSizeOptions: isMobile ? ['5', '10'] : ['5', '10', '20'],
-              size: isMobile ? 'small' : 'default',
-              position: ['bottomCenter'],
-              className: 'mt-4'
-            }}
-            size={isMobile ? 'small' : 'middle'}
-            scroll={{ x: isMobile ? 800 : 1200 }}
-            rowClassName='hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors'
-            className={styles.userTable}
-          />
         </Card>
-      ) : (
-        <Card className={`${styles.tableCard} ${styles.emptyState}`}>
-          <Empty
-            description={<Text className='text-gray-500'>{t('empty', 'No pending user requests')}</Text>}
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-          />
-        </Card>
-      )}
 
-      {/* Use the shared UserRoleEditor component */}
-      <UserRoleEditor
-        visible={editModalVisible}
-        user={currentUser}
-        availableRoles={availableRoles}
-        availableProvinces={availableProvinces}
-        rolePermissions={rolePermissions}
-        onCancel={() => setEditModalVisible(false)}
-        onSave={handleEditSave}
-        isSaving={false}
-        allPermissions={allPermissions}
-        modalTitle={t('editModal.title')}
-        namespace='userReview'
-      />
-    </div>
+        {loading ? (
+          <div className='flex justify-center items-center h-64'>
+            <Spin size={isMobile ? 'default' : 'large'} tip={t('loading')} />
+          </div>
+        ) : users.length > 0 ? (
+          <Card className={styles.tableCard}>
+            <Table
+              dataSource={users}
+              columns={getColumns()}
+              rowKey='uid'
+              expandable={expandableConfig}
+              pagination={{
+                pageSize: isMobile ? 5 : 10,
+                showSizeChanger: !isMobile,
+                pageSizeOptions: isMobile ? ['5', '10'] : ['5', '10', '20'],
+                size: isMobile ? 'small' : 'default',
+                position: ['bottomCenter'],
+                className: 'mt-4'
+              }}
+              size={isMobile ? 'small' : 'middle'}
+              scroll={{ x: isMobile ? 800 : 1200 }}
+              rowClassName='hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors'
+              className={styles.userTable}
+            />
+          </Card>
+        ) : (
+          <Card className={`${styles.tableCard} ${styles.emptyState}`}>
+            <Empty
+              description={<Text className='text-gray-500'>{t('empty', 'No pending user requests')}</Text>}
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+            />
+          </Card>
+        )}
+
+        {/* Use the shared UserRoleEditor component */}
+        <UserRoleEditor
+          visible={editModalVisible}
+          user={currentUser}
+          availableRoles={availableRoles}
+          availableProvinces={availableProvinces}
+          rolePermissions={rolePermissions}
+          onCancel={() => setEditModalVisible(false)}
+          onSave={handleEditSave}
+          isSaving={false}
+          allPermissions={allPermissions}
+          modalTitle={t('editModal.title')}
+          namespace='userReview'
+        />
+      </div>
+      <PageDoc />
+    </>
   );
 };
 

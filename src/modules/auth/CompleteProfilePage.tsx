@@ -44,6 +44,7 @@ import BranchSelector from '../../components/BranchSelector';
 import { transformUserData, transformToUserProfile, removeUndefinedFields } from '../../utils/userTransform';
 import { useLoading } from 'hooks/useLoading';
 import DepartmentSelector from 'components/DepartmentSelector';
+import PageDoc from '../../components/PageDoc';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -229,278 +230,281 @@ const CompleteProfilePage: React.FC = () => {
   ];
 
   return (
-    <AuthContainer
-      title={t('profile:completeProfileTitle', 'Complete Your Profile')}
-      subtitle={t('profile:completeProfileSubtitle', 'Please provide your information to continue')}
-      showAnimatedBackground={true}
-      animationKey='complete-profile'
-    >
-      {error && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className='mb-4'
-        >
-          <Alert
-            message={t('common:error', 'Error')}
-            description={error}
-            type='error'
-            showIcon
-            closable
-            onClose={() => setError(null)}
-          />
-        </motion.div>
-      )}
-      <motion.div variants={containerVariants} initial='hidden' animate='visible' exit='exit'>
-        <Form
-          form={form}
-          name='complete_profile'
-          onFinish={onFinish}
-          layout='vertical'
-          requiredMark={false}
-          className='space-y-4'
-        >
-          {/* Greeting with user photo and displayName, only if either exists */}
-          {(user?.displayName || user?.photoURL) && (
-            <div
-              style={{
-                display: 'flex',
-                flexDirection: window.innerWidth < 480 ? 'column' : 'row',
-                alignItems: 'center',
-                gap: window.innerWidth < 480 ? 8 : 16,
-                marginBottom: 24,
-                background: isDarkMode
-                  ? 'linear-gradient(90deg, #232526 0%, #414345 100%)'
-                  : 'linear-gradient(90deg, #f5f7fa 0%, #c3cfe2 100%)',
-                borderRadius: 16,
-                padding: window.innerWidth < 480 ? '12px' : '16px',
-                boxShadow: '0 2px 8px rgba(75, 96, 67, 0.08)'
-              }}
-            >
-              <Avatar
-                src={user.photoURL}
-                size={window.innerWidth < 480 ? 48 : 64}
-                style={{ border: '3px solid #4B6043', background: '#fff' }}
-                alt={user.displayName || undefined}
+    <>
+      <AuthContainer
+        title={t('profile:completeProfileTitle', 'Complete Your Profile')}
+        subtitle={t('profile:completeProfileSubtitle', 'Please provide your information to continue')}
+        showAnimatedBackground={true}
+        animationKey='complete-profile'
+      >
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className='mb-4'
+          >
+            <Alert
+              message={t('common:error', 'Error')}
+              description={error}
+              type='error'
+              showIcon
+              closable
+              onClose={() => setError(null)}
+            />
+          </motion.div>
+        )}
+        <motion.div variants={containerVariants} initial='hidden' animate='visible' exit='exit'>
+          <Form
+            form={form}
+            name='complete_profile'
+            onFinish={onFinish}
+            layout='vertical'
+            requiredMark={false}
+            className='space-y-4'
+          >
+            {/* Greeting with user photo and displayName, only if either exists */}
+            {(user?.displayName || user?.photoURL) && (
+              <div
+                style={{
+                  display: 'flex',
+                  flexDirection: window.innerWidth < 480 ? 'column' : 'row',
+                  alignItems: 'center',
+                  gap: window.innerWidth < 480 ? 8 : 16,
+                  marginBottom: 24,
+                  background: isDarkMode
+                    ? 'linear-gradient(90deg, #232526 0%, #414345 100%)'
+                    : 'linear-gradient(90deg, #f5f7fa 0%, #c3cfe2 100%)',
+                  borderRadius: 16,
+                  padding: window.innerWidth < 480 ? '12px' : '16px',
+                  boxShadow: '0 2px 8px rgba(75, 96, 67, 0.08)'
+                }}
               >
-                {user.displayName?.[0]?.toUpperCase()}
-              </Avatar>
-              <div style={{ textAlign: window.innerWidth < 480 ? 'center' : 'left' }}>
-                <span
-                  style={{
-                    fontSize: window.innerWidth < 480 ? 18 : 24,
-                    fontWeight: 700,
-                    color: '#4B6043',
-                    display: 'block'
-                  }}
+                <Avatar
+                  src={user.photoURL}
+                  size={window.innerWidth < 480 ? 48 : 64}
+                  style={{ border: '3px solid #4B6043', background: '#fff' }}
+                  alt={user.displayName || undefined}
                 >
-                  {t('profile:greeting', { name: user.displayName })}
-                </span>
-                <div style={{ fontSize: window.innerWidth < 480 ? 12 : 14, color: '#888' }}>
-                  {t('profile:greetingWelcome')}
+                  {user.displayName?.[0]?.toUpperCase()}
+                </Avatar>
+                <div style={{ textAlign: window.innerWidth < 480 ? 'center' : 'left' }}>
+                  <span
+                    style={{
+                      fontSize: window.innerWidth < 480 ? 18 : 24,
+                      fontWeight: 700,
+                      color: '#4B6043',
+                      display: 'block'
+                    }}
+                  >
+                    {t('profile:greeting', { name: user.displayName })}
+                  </span>
+                  <div style={{ fontSize: window.innerWidth < 480 ? 12 : 14, color: '#888' }}>
+                    {t('profile:greetingWelcome')}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <Content>
-            <motion.div initial='hidden' animate='visible' variants={containerVariants}>
-              <motion.div variants={itemVariants}>
-                <Title level={5} className='mb-4'>
-                  {t('profile:selectUserType', 'Please select your user type:')}
-                </Title>
-                <div style={{ marginBottom: 8 }}>
-                  <Radio.Group
-                    optionType='button'
-                    style={{ width: '100%' }}
-                    buttonStyle='solid'
-                    value={userType}
-                    onChange={e => onUserTypeChange(e.target.value)}
-                  >
-                    {options.map(option => (
-                      <Radio
-                        key={option.value}
-                        value={option.value}
-                        style={{
-                          width: '50%',
-                          textAlign: 'center',
-                          padding: window.innerWidth < 480 ? '0 4px' : undefined
-                        }}
-                      >
-                        {option.value === 'employee' ? (
-                          <UserOutlined style={{ marginRight: 8 }} />
-                        ) : (
-                          <GlobalOutlined style={{ marginRight: 8 }} />
-                        )}
-                        {option.label}
-                      </Radio>
-                    ))}
-                  </Radio.Group>
-                </div>
-              </motion.div>
-
-              <motion.div variants={itemVariants}>
-                <Divider className='my-6' />
-              </motion.div>
-
-              <motion.div variants={itemVariants}>
-                <Form.Item shouldUpdate>
-                  {() => {
-                    // const values = form.getFieldsValue(true);
-                    // console.log('[CompleteProfile] Current form values:', values);
-                    return null;
-                  }}
-                </Form.Item>
-                <Row gutter={[16, 0]}>
-                  <Col xs={24} sm={12}>
-                    <Form.Item
-                      name='firstName'
-                      label={t('profile:firstName')}
-                      rules={[{ required: true, message: t('validation:required') }]}
-                      initialValue={userProfile?.firstName || user?.displayName?.split(' ')[0] || ''}
+            <Content>
+              <motion.div initial='hidden' animate='visible' variants={containerVariants}>
+                <motion.div variants={itemVariants}>
+                  <Title level={5} className='mb-4'>
+                    {t('profile:selectUserType', 'Please select your user type:')}
+                  </Title>
+                  <div style={{ marginBottom: 8 }}>
+                    <Radio.Group
+                      optionType='button'
+                      style={{ width: '100%' }}
+                      buttonStyle='solid'
+                      value={userType}
+                      onChange={e => onUserTypeChange(e.target.value)}
                     >
-                      <Input
-                        prefix={<UserOutlined className='text-primary mr-2' />}
-                        placeholder={t('profile:firstName')}
-                        size='large'
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col xs={24} sm={12}>
-                    <Form.Item
-                      name='lastName'
-                      label={t('profile:lastName')}
-                      rules={[{ required: true, message: t('validation:required') }]}
-                      initialValue={userProfile?.lastName || user?.displayName?.split(' ').slice(1).join(' ') || ''}
-                    >
-                      <Input
-                        prefix={<UserOutlined className='text-primary mr-2' />}
-                        placeholder={t('profile:lastName')}
-                        size='large'
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-
-                {/* Employee-specific fields */}
-                {userType === 'employee' && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                    <Form.Item
-                      name='province'
-                      label={t('profile:province')}
-                      rules={[{ required: true, message: t('validation:required') }]}
-                    >
-                      <ProvinceSelector
-                        value={form.getFieldValue('province')}
-                        onChange={value => {
-                          // Update province but let the effect handle clearing branch
-                          form.setFieldsValue({ province: value });
-                        }}
-                        size='large'
-                        allowedProvinces={['nakhon-ratchasima', 'nakhon-sawan']}
-                      />
-                    </Form.Item>
-
-                    <Row gutter={[16, 0]}>
-                      <Col xs={24} sm={12}>
-                        <Form.Item noStyle dependencies={['province']}>
-                          {({ getFieldValue }) => (
-                            <Form.Item
-                              name='branch'
-                              label={t('profile:branch')}
-                              rules={[{ required: true, message: t('common:required') }]}
-                            >
-                              <BranchSelector
-                                provinceId={getFieldValue('province')}
-                                disabled={!getFieldValue('province')}
-                                size='large'
-                              />
-                            </Form.Item>
-                          )}
-                        </Form.Item>
-                      </Col>
-                      <Col xs={24} sm={12}>
-                        <Form.Item noStyle dependencies={['province']}>
-                          {({ getFieldValue }) => (
-                            <Form.Item
-                              name='department'
-                              label={t('profile:department')}
-                              rules={[{ required: true, message: t('validation:required') }]}
-                            >
-                              <DepartmentSelector size='large' />
-                            </Form.Item>
-                          )}
-                        </Form.Item>
-                      </Col>
-                    </Row>
-
-                    <Form.Item
-                      name='employeeId'
-                      label={t('profile:employeeId', 'Employee ID')}
-                      rules={[{ required: true, message: t('validation:required') }]}
-                    >
-                      <Input
-                        prefix={<IdcardOutlined className='text-primary mr-2' />}
-                        placeholder={t('profile:employeeId', 'Employee ID')}
-                        size='large'
-                      />
-                    </Form.Item>
-                  </motion.div>
-                )}
-
-                {/* Visitor-specific fields */}
-                {userType === 'visitor' && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-                    <Row gutter={[16, 0]}>
-                      <Col xs={24} sm={24}>
-                        <Form.Item
-                          name='phoneNumber'
-                          label={t('profile:phoneNumber') || 'Phone Number'}
-                          rules={[
-                            { required: true, message: t('validation:required') },
-                            {
-                              pattern: /^[0-9]{9,15}$/,
-                              message: t('validation:phoneNumber') || 'Please enter a valid phone number'
-                            }
-                          ]}
+                      {options.map(option => (
+                        <Radio
+                          key={option.value}
+                          value={option.value}
+                          style={{
+                            width: '50%',
+                            textAlign: 'center',
+                            padding: window.innerWidth < 480 ? '0 4px' : undefined
+                          }}
                         >
-                          <Input
-                            type='tel'
-                            placeholder={t('profile:phoneNumber') || 'Phone Number'}
-                            size='large'
-                            className='text-primay'
-                            autoComplete='tel'
-                          />
-                        </Form.Item>
-                      </Col>
-                    </Row>
+                          {option.value === 'employee' ? (
+                            <UserOutlined style={{ marginRight: 8 }} />
+                          ) : (
+                            <GlobalOutlined style={{ marginRight: 8 }} />
+                          )}
+                          {option.label}
+                        </Radio>
+                      ))}
+                    </Radio.Group>
+                  </div>
+                </motion.div>
 
-                    <Form.Item
-                      name='purpose'
-                      label={t('profile:purpose', 'Purpose of Visit')}
-                      rules={[{ required: true, message: t('validation:required') }]}
-                    >
-                      <Input
-                        prefix={<GlobalOutlined className='text-primary mr-2' />}
-                        placeholder={t('profile:purpose', 'Purpose of Visit')}
-                        size='large'
-                      />
-                    </Form.Item>
-                  </motion.div>
-                )}
+                <motion.div variants={itemVariants}>
+                  <Divider className='my-6' />
+                </motion.div>
 
-                <Form.Item className='mt-6'>
-                  <Button type='primary' htmlType='submit' size='large' loading={loading} block>
-                    {t('profile:completeProfile', 'Complete Profile')}
-                  </Button>
-                </Form.Item>
+                <motion.div variants={itemVariants}>
+                  <Form.Item shouldUpdate>
+                    {() => {
+                      // const values = form.getFieldsValue(true);
+                      // console.log('[CompleteProfile] Current form values:', values);
+                      return null;
+                    }}
+                  </Form.Item>
+                  <Row gutter={[16, 0]}>
+                    <Col xs={24} sm={12}>
+                      <Form.Item
+                        name='firstName'
+                        label={t('profile:firstName')}
+                        rules={[{ required: true, message: t('validation:required') }]}
+                        initialValue={userProfile?.firstName || user?.displayName?.split(' ')[0] || ''}
+                      >
+                        <Input
+                          prefix={<UserOutlined className='text-primary mr-2' />}
+                          placeholder={t('profile:firstName')}
+                          size='large'
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} sm={12}>
+                      <Form.Item
+                        name='lastName'
+                        label={t('profile:lastName')}
+                        rules={[{ required: true, message: t('validation:required') }]}
+                        initialValue={userProfile?.lastName || user?.displayName?.split(' ').slice(1).join(' ') || ''}
+                      >
+                        <Input
+                          prefix={<UserOutlined className='text-primary mr-2' />}
+                          placeholder={t('profile:lastName')}
+                          size='large'
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  {/* Employee-specific fields */}
+                  {userType === 'employee' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                      <Form.Item
+                        name='province'
+                        label={t('profile:province')}
+                        rules={[{ required: true, message: t('validation:required') }]}
+                      >
+                        <ProvinceSelector
+                          value={form.getFieldValue('province')}
+                          onChange={value => {
+                            // Update province but let the effect handle clearing branch
+                            form.setFieldsValue({ province: value });
+                          }}
+                          size='large'
+                          allowedProvinces={['nakhon-ratchasima', 'nakhon-sawan']}
+                        />
+                      </Form.Item>
+
+                      <Row gutter={[16, 0]}>
+                        <Col xs={24} sm={12}>
+                          <Form.Item noStyle dependencies={['province']}>
+                            {({ getFieldValue }) => (
+                              <Form.Item
+                                name='branch'
+                                label={t('profile:branch')}
+                                rules={[{ required: true, message: t('common:required') }]}
+                              >
+                                <BranchSelector
+                                  provinceId={getFieldValue('province')}
+                                  disabled={!getFieldValue('province')}
+                                  size='large'
+                                />
+                              </Form.Item>
+                            )}
+                          </Form.Item>
+                        </Col>
+                        <Col xs={24} sm={12}>
+                          <Form.Item noStyle dependencies={['province']}>
+                            {({ getFieldValue }) => (
+                              <Form.Item
+                                name='department'
+                                label={t('profile:department')}
+                                rules={[{ required: true, message: t('validation:required') }]}
+                              >
+                                <DepartmentSelector size='large' />
+                              </Form.Item>
+                            )}
+                          </Form.Item>
+                        </Col>
+                      </Row>
+
+                      <Form.Item
+                        name='employeeId'
+                        label={t('profile:employeeId', 'Employee ID')}
+                        rules={[{ required: true, message: t('validation:required') }]}
+                      >
+                        <Input
+                          prefix={<IdcardOutlined className='text-primary mr-2' />}
+                          placeholder={t('profile:employeeId', 'Employee ID')}
+                          size='large'
+                        />
+                      </Form.Item>
+                    </motion.div>
+                  )}
+
+                  {/* Visitor-specific fields */}
+                  {userType === 'visitor' && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+                      <Row gutter={[16, 0]}>
+                        <Col xs={24} sm={24}>
+                          <Form.Item
+                            name='phoneNumber'
+                            label={t('profile:phoneNumber') || 'Phone Number'}
+                            rules={[
+                              { required: true, message: t('validation:required') },
+                              {
+                                pattern: /^[0-9]{9,15}$/,
+                                message: t('validation:phoneNumber') || 'Please enter a valid phone number'
+                              }
+                            ]}
+                          >
+                            <Input
+                              type='tel'
+                              placeholder={t('profile:phoneNumber') || 'Phone Number'}
+                              size='large'
+                              className='text-primay'
+                              autoComplete='tel'
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+
+                      <Form.Item
+                        name='purpose'
+                        label={t('profile:purpose', 'Purpose of Visit')}
+                        rules={[{ required: true, message: t('validation:required') }]}
+                      >
+                        <Input
+                          prefix={<GlobalOutlined className='text-primary mr-2' />}
+                          placeholder={t('profile:purpose', 'Purpose of Visit')}
+                          size='large'
+                        />
+                      </Form.Item>
+                    </motion.div>
+                  )}
+
+                  <Form.Item className='mt-6'>
+                    <Button type='primary' htmlType='submit' size='large' loading={loading} block>
+                      {t('profile:completeProfile', 'Complete Profile')}
+                    </Button>
+                  </Form.Item>
+                </motion.div>
               </motion.div>
-            </motion.div>
-          </Content>
-        </Form>
-      </motion.div>
-    </AuthContainer>
+            </Content>
+          </Form>
+        </motion.div>
+      </AuthContainer>
+      <PageDoc />
+    </>
   );
 };
 

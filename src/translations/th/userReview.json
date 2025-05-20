@@ -15,12 +15,12 @@
     "monitorUsers": "ข้อผิดพลาดในการติดตามผู้ใช้"
   },
   "success": {
-    "approved": "อนุมัติผู้ใช้ด้วยบทบาท: {{role}}",
+    "approved": "อนุมัติผู้ใช้ด้วย[Role]: {{role}}",
     "rejected": "ปฏิเสธผู้ใช้สำเร็จ"
   },
   "confirm": {
     "approveTitle": "ยืนยันการอนุมัติผู้ใช้",
-    "approveContent": "คุณแน่ใจหรือไม่ที่จะอนุมัติ {{user}} ด้วยบทบาท {{role}}?",
+    "approveContent": "คุณแน่ใจหรือไม่ที่จะอนุมัติ {{user}} ด้วย[Role] {{role}}?",
     "approveWarning": "การดำเนินการนี้ไม่สามารถย้อนกลับได้",
     "approve": "อนุมัติ",
     "rejectTitle": "ยืนยันการปฏิเสธผู้ใช้",
@@ -30,11 +30,11 @@
   },
   "notifications": {
     "userTitle": "อนุมัติบัญชีแล้ว",
-    "userDescription": "บัญชีของคุณได้รับการอนุมัติด้วยบทบาท: {{role}}",
+    "userDescription": "บัญชีของคุณได้รับการอนุมัติด้วย[Role]: {{role}}",
     "userRejectedTitle": "ปฏิเสธบัญชีแล้ว",
     "userRejectedDescription": "การลงทะเบียนบัญชีของคุณถูกปฏิเสธ กรุณาติดต่อฝ่ายสนับสนุนสำหรับข้อมูลเพิ่มเติม",
     "adminTitle": "อนุมัติผู้ใช้ใหม่แล้ว",
-    "adminDescription": "ผู้ใช้ {{user}} ได้รับการอนุมัติด้วยบทบาท {{role}}",
+    "adminDescription": "ผู้ใช้ {{user}} ได้รับการอนุมัติด้วย[Role] {{role}}",
     "adminRejectedTitle": "ปฏิเสธการลงทะเบียนผู้ใช้แล้ว",
     "adminRejectedDescription": "การลงทะเบียนของผู้ใช้ {{user}} ถูกปฏิเสธ"
   },
@@ -42,15 +42,15 @@
     "name": "ชื่อ",
     "email": "อีเมล",
     "requestedDate": "วันที่ขอ",
-    "role": "บทบาท",
+    "role": "[Role]",
     "permissions": "สิทธิ์",
     "provinces": "จังหวัด",
     "actions": "การดำเนินการ",
     "settings": "ตั้งค่า",
     "province": "จังหวัด",
     "status": "สถานะ",
-    "requestedRole": "บทบาทที่ขอ",
-    "assignedRole": "บทบาทที่ได้รับ",
+    "requestedRole": "[Role]ที่ขอ",
+    "assignedRole": "[Role]ที่ได้รับ",
     "lastUpdate": "อัพเดทล่าสุด"
   },
   "actions": {
@@ -73,11 +73,11 @@
   },
   "permissionCount": "{{count}} สิทธิ์",
   "noPermissions": "ไม่มีสิทธิ์",
-  "noProvinces": "ไม่ได้กำหนดจังหวัด",    
+  "noProvinces": "ไม่ได้กำหนดจังหวัด",
   "editModal": {
     "title": "แก้ไขการตั้งค่าผู้ใช้",
     "tabs": {
-      "role": "บทบาท",
+      "role": "[Role]",
       "permissions": "สิทธิ์",
       "provinces": "จังหวัด",
       "summary": "สรุป"
@@ -86,11 +86,11 @@
       "toRight": "เพิ่มสิทธิ์ที่เลือก",
       "toLeft": "ลบสิทธิ์ที่เลือก"
     },
-    "roleTitle": "เลือกบทบาทผู้ใช้",
-    "roleLabel": "บทบาท",
-    "roleDescription": "กำหนดบทบาทเพื่อควบคุมสิทธิ์การเข้าถึง",
-    "roleInfo": "ข้อมูลบทบาท",
-    "roleInfoDescription": "บทบาทจะกำหนดสิทธิ์และขอบเขตการเข้าถึงของผู้ใช้",
+    "roleTitle": "เลือก[Role]ผู้ใช้",
+    "roleLabel": "[Role]",
+    "roleDescription": "กำหนด[Role]เพื่อควบคุมสิทธิ์การเข้าถึง",
+    "roleInfo": "ข้อมูล[Role]",
+    "roleInfoDescription": "[Role]จะกำหนดสิทธิ์และขอบเขตการเข้าถึงของผู้ใช้",
     "permissionsTitle": "กำหนดสิทธิ์",
     "permissionsDescription": "เลือกสิทธิ์ที่ต้องการให้กับผู้ใช้",
     "availablePermissions": "สิทธิ์ที่มีให้เลือก",
@@ -104,14 +104,14 @@
     "selectProvincesPlaceholder": "เลือกจังหวัด...",
     "noProvincesWarning": "ยังไม่ได้เลือกจังหวัด",
     "autoProvinceAccess": "สิทธิ์เข้าถึงจังหวัดอัตโนมัติ",
-    "autoProvinceAccessDescription": "บทบาทนี้จะได้รับสิทธิ์เข้าถึงทุกจังหวัดโดยอัตโนมัติ",
+    "autoProvinceAccessDescription": "[Role]นี้จะได้รับสิทธิ์เข้าถึงทุกจังหวัดโดยอัตโนมัติ",
     "employeeProvinceNote": "พนักงานจะถูกผูกกับจังหวัด: {{province}}",
     "employeeProvinceWarning": "เนื่องจากเป็นพนักงาน ผู้ใช้นี้ถูกกำหนดให้กับ {{provinceName}} สามารถกำหนดสิทธิ์การเข้าถึงจังหวัดเพิ่มเติมได้ที่นี่",
     "employeeProvinceRestriction": "พนักงานต้องมีจังหวัดที่สังกัด",
     "employeeProvinceAccess": "สิทธิ์การเข้าถึงจังหวัดของพนักงาน",
     "employeeProvinceDefault": "จังหวัดที่สังกัดเริ่มต้น: {{province}}",
     "summaryTitle": "สรุปข้อมูลผู้ใช้",
-    "selectedRole": "บทบาทที่เลือก",
+    "selectedRole": "[Role]ที่เลือก",
     "userDetails": "รายละเอียดผู้ใช้",
     "email": "อีเมล",
     "displayName": "ชื่อที่แสดง",
@@ -176,8 +176,8 @@
       "description": "ผู้ดูแลระบบมีสิทธิ์ระดับสูง"
     },
     "privilege": {
-      "label": "ผู้ใช้พิเศษ",
+      "label": "ผู้บริหารระดับสูง",
       "description": "ผู้ดูแลระบบที่มีสิทธิ์สูงสุด"
     }
   }
-} 
+}

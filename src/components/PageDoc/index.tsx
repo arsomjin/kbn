@@ -4,6 +4,8 @@ import { FloatButton, Drawer, Collapse } from 'antd';
 import { FileTextOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import pageDocs from '../../in-app-docs/pageDocs';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 const { Panel } = Collapse;
 
@@ -18,6 +20,7 @@ const PageDoc: React.FC = () => {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const { t, i18n } = useTranslation();
+  const darkMode = useSelector((state: RootState) => state.theme?.darkMode);
 
   // Try to match the current path to a doc entry
   // Try exact, then fallback to first segment (e.g. /auth/login -> /auth/login, then /auth)
@@ -48,11 +51,22 @@ const PageDoc: React.FC = () => {
         onClose={() => setOpen(false)}
         open={open}
         width={Math.min(window.innerWidth, 400)}
-        bodyStyle={{ padding: 0, background: 'var(--background, #fff)' }}
+        bodyStyle={{
+          padding: 0,
+          background: darkMode ? 'var(--color-paper, #23241e)' : 'var(--background, #fff)',
+          color: darkMode ? 'var(--color-text, #e9e5dd)' : 'inherit',
+          minHeight: '100vh'
+        }}
         style={{ zIndex: 1200 }}
+        className={darkMode ? 'dark' : ''}
       >
         {doc ? (
-          <Collapse defaultActiveKey={['overview']} bordered={false} style={{ background: 'transparent' }}>
+          <Collapse
+            defaultActiveKey={['overview']}
+            bordered={false}
+            style={{ background: 'transparent', color: darkMode ? 'var(--color-text, #e9e5dd)' : 'inherit' }}
+            className={darkMode ? 'dark' : ''}
+          >
             <Panel header={t('ภาพรวม') + ' / Overview'} key='overview'>
               <div style={{ marginBottom: 0 }}>{doc.overview}</div>
             </Panel>
@@ -67,7 +81,7 @@ const PageDoc: React.FC = () => {
             </Panel>
           </Collapse>
         ) : (
-          <div style={{ padding: 24, color: '#888' }}>{t('ไม่มีคู่มือสำหรับหน้านี้')}</div>
+          <div style={{ padding: 24, color: darkMode ? '#b9b5ad' : '#888' }}>{t('ไม่มีคู่มือสำหรับหน้านี้')}</div>
         )}
       </Drawer>
     </>

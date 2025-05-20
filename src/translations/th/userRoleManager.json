@@ -1,17 +1,17 @@
 {
   "editModal": {
-    "title": "แก้ไขบทบาทผู้ใช้",
+    "title": "แก้ไข[Role]ผู้ใช้",
     "tabs": {
-      "role": "บทบาท",
+      "role": "[Role]",
       "permissions": "สิทธิ์",
       "provinces": "จังหวัด",
       "summary": "สรุป"
     },
-    "roleTitle": "เลือกบทบาทผู้ใช้",
-    "roleLabel": "บทบาท",
-    "roleDescription": "เลือกบทบาทเพื่อกำหนดสิทธิ์การเข้าถึงและการทำงานของผู้ใช้",
-    "roleInfo": "รายละเอียดบทบาท",
-    "roleInfoDescription": "บทบาทที่เลือก: {{role}}",
+    "roleTitle": "เลือก[Role]ผู้ใช้",
+    "roleLabel": "[Role]",
+    "roleDescription": "เลือก[Role]เพื่อกำหนดสิทธิ์การเข้าถึงและการทำงานของผู้ใช้",
+    "roleInfo": "รายละเอียด[Role]",
+    "roleInfoDescription": "[Role]ที่เลือก: {{role}}",
     "permissionsTitle": "กำหนดสิทธิ์ผู้ใช้",
     "permissionsDescription": "เลือกสิทธิ์ที่ต้องการกำหนดให้กับผู้ใช้",
     "availablePermissions": "สิทธิ์ที่มีให้เลือก",
@@ -33,7 +33,7 @@
     "selectProvincesPlaceholder": "เลือกจังหวัด...",
     "noProvincesWarning": "ยังไม่ได้เลือกจังหวัด กรุณาเลือกอย่างน้อยหนึ่งจังหวัด",
     "autoProvinceAccess": "สิทธิ์เข้าถึงจังหวัดอัตโนมัติ",
-    "autoProvinceAccessDescription": "บทบาทนี้จะสามารถเข้าถึงทุกจังหวัดได้โดยอัตโนมัติ",
+    "autoProvinceAccessDescription": "[Role]นี้จะสามารถเข้าถึงทุกจังหวัดได้โดยอัตโนมัติ",
     "employeeProvinceNote": "พนักงานจะถูกกำหนดให้กับจังหวัด: {{province}}",
     "summaryTitle": "สรุปข้อมูลผู้ใช้",
     "columns": {
@@ -52,7 +52,7 @@
     "confirmChanges": "โปรดตรวจสอบและยืนยันการเปลี่ยนแปลงก่อนบันทึก",
     "employeeProvinceWarning": "เนื่องจากเป็นพนักงาน ผู้ใช้นี้ถูกกำหนดให้กับ {{provinceName}} สามารถกำหนดสิทธิ์การเข้าถึงจังหวัดเพิ่มเติมได้ที่นี่",
     "searchPlaceholder": "ค้นหา...",
-    "selectedRole": "บทบาทที่เลือก",
+    "selectedRole": "[Role]ที่เลือก",
     "selectedPermissions": "สิทธิ์ที่เลือก",
     "selectedProvinces": "จังหวัดที่เลือก",
     "userDetails": "รายละเอียดผู้ใช้",
@@ -63,25 +63,25 @@
       "visitor": "ผู้เยี่ยมชม"
     },
     "summarySection": {
-      "roleInfo": "ข้อมูลบทบาทผู้ใช้",
-      "permissions": "สิทธิ์ที่ได้รับทั้งหมด", 
+      "roleInfo": "ข้อมูล[Role]ผู้ใช้",
+      "permissions": "สิทธิ์ที่ได้รับทั้งหมด",
       "provinces": "จังหวัดที่สามารถเข้าถึง",
       "userInfo": "ข้อมูลรายละเอียดผู้ใช้"
     }
   },
-  "title": "จัดการบทบาทผู้ใช้",
-  "pageTitle": "จัดการบทบาทผู้ใช้",
-  "description": "จัดการบทบาทและสิทธิ์ของผู้ใช้ในแต่ละจังหวัด",
-  "tooltip": "กำหนดค่าบทบาท สิทธิ์ และการเข้าถึงจังหวัดสำหรับผู้ใช้",
+  "title": "จัดการ[Role]ผู้ใช้",
+  "pageTitle": "จัดการ[Role]ผู้ใช้",
+  "description": "จัดการ[Role]และสิทธิ์ของผู้ใช้ในแต่ละจังหวัด",
+  "tooltip": "กำหนดค่า[Role] สิทธิ์ และการเข้าถึงจังหวัดสำหรับผู้ใช้",
   "filters": {
     "search": "ค้นหาผู้ใช้...",
     "searchPlaceholder": "ค้นหาตามชื่อหรืออีเมล...",
-    "role": "กรองตามบทบาท",
-    "filterByRole": "กรองตามบทบาท",
+    "role": "กรองตาม[Role]",
+    "filterByRole": "กรองตาม[Role]",
     "province": "กรองตามจังหวัด",
     "filterByProvince": "กรองตามจังหวัด",
     "resetFilters": "รีเซ็ตตัวกรอง",
-    "allRoles": "ทุกบทบาท",
+    "allRoles": "ทุก[Role]",
     "allProvinces": "ทุกจังหวัด",
     "department": "กรองตามแผนก",
     "branch": "กรองตามสาขา",
@@ -95,14 +95,14 @@
     "dateRange": "ช่วงวันที่"
   },
   "tooltips": {
-    "editDisabled": "คุณไม่มีสิทธิ์แก้ไขบทบาทผู้ใช้",
+    "editDisabled": "คุณไม่มีสิทธิ์แก้ไข[Role]ผู้ใช้",
     "deleteDisabled": "คุณไม่มีสิทธิ์ลบผู้ใช้",
     "multipleProvinces": "ผู้ใช้มีสิทธิ์เข้าถึงหลายจังหวัด",
     "noProvinces": "ผู้ใช้ไม่มีสิทธิ์เข้าถึงจังหวัดใด",
     "lastActive": "ใช้งานล่าสุด: {{date}}",
     "superAdmin": "ผู้ดูแลระบบสูงสุดมีสิทธิ์เข้าถึงทุกจังหวัด",
-    "developer": "บทบาทนักพัฒนามีสิทธิ์เข้าถึงระบบทั้งหมด",
-    "roleInfo": "คลิกเพื่อดูรายละเอียดบทบาท",
+    "developer": "[Role]นักพัฒนามีสิทธิ์เข้าถึงระบบทั้งหมด",
+    "roleInfo": "คลิกเพื่อดูรายละเอียด[Role]",
     "provinceAccess": "การเข้าถึงจังหวัด: {{provinces}}",
     "noPermissions": "ไม่มีสิทธิ์พิเศษที่กำหนด"
   },
@@ -152,7 +152,7 @@
   },
   "columns": {
     "name": "ชื่อ",
-    "role": "บทบาท",
+    "role": "[Role]",
     "province": "จังหวัด",
     "provinces": "จังหวัด",
     "permissions": "สิทธิ์",
@@ -177,7 +177,7 @@
     "view": "ดูรายละเอียด",
     "enable": "เปิดใช้งาน",
     "disable": "ปิดใช้งาน",
-    "editUserRole": "แก้ไขบทบาทผู้ใช้"
+    "editUserRole": "แก้ไข[Role]ผู้ใช้"
   },
   "buttons": {
     "addUser": "เพิ่มผู้ใช้ใหม่",
@@ -191,14 +191,14 @@
   },
   "messages": {
     "success": {
-      "update": "อัพเดทบทบาทผู้ใช้สำเร็จ",
+      "update": "อัพเดท[Role]ผู้ใช้สำเร็จ",
       "delete": "ลบผู้ใช้สำเร็จ",
       "activate": "เปิดใช้งานผู้ใช้สำเร็จ",
       "deactivate": "ปิดใช้งานผู้ใช้สำเร็จ",
       "import": "นำเข้าผู้ใช้สำเร็จ"
     },
     "error": {
-      "update": "ไม่สามารถอัพเดทบทบาทผู้ใช้",
+      "update": "ไม่สามารถอัพเดท[Role]ผู้ใช้",
       "delete": "ไม่สามารถลบผู้ใช้",
       "activate": "ไม่สามารถเปิดใช้งานผู้ใช้",
       "deactivate": "ไม่สามารถปิดใช้งานผู้ใช้",
@@ -207,17 +207,17 @@
     }
   },
   "notifications": {
-    "updateConfirm": "คุณแน่ใจหรือไม่ที่จะอัพเดทบทบาทของผู้ใช้นี้?",
+    "updateConfirm": "คุณแน่ใจหรือไม่ที่จะอัพเดท[Role]ของผู้ใช้นี้?",
     "deleteConfirm": "คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้?",
     "activateConfirm": "คุณแน่ใจหรือไม่ที่จะเปิดใช้งานผู้ใช้นี้?",
     "deactivateConfirm": "คุณแน่ใจหรือไม่ที่จะปิดใช้งานผู้ใช้นี้?",
     "unsavedChanges": "คุณมีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก คุณแน่ใจหรือไม่ที่จะออก?",
-    "roleUpdated": "อัพเดทบทบาทผู้ใช้สำเร็จ",
+    "roleUpdated": "อัพเดท[Role]ผู้ใช้สำเร็จ",
     "userDeleted": "ลบผู้ใช้สำเร็จ",
     "userEnabled": "เปิดใช้งานผู้ใช้สำเร็จ",
     "userDisabled": "ปิดใช้งานผู้ใช้สำเร็จ",
     "error": {
-      "updateFailed": "ไม่สามารถอัพเดทบทบาทผู้ใช้",
+      "updateFailed": "ไม่สามารถอัพเดท[Role]ผู้ใช้",
       "deleteFailed": "ไม่สามารถลบผู้ใช้",
       "enableFailed": "ไม่สามารถเปิดใช้งานผู้ใช้",
       "disableFailed": "ไม่สามารถปิดใช้งานผู้ใช้"

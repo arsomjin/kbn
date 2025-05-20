@@ -181,22 +181,73 @@ export const pageDocs = {
 - Ensure `useTranslation()` is set up correctly with translations for all strings used
 - Optional: support Markdown injection for advanced formatting
 
-Let me know if you want me to include Markdown parsing or external documentation support.
+Place `<PageDoc />` in your layout or page component. The help button will float in the bottom-right corner.
 
-## 🖼 Visual Aids from Screenshots
+## 🧩 Ready-to-Use Snippet (JSX/Markdown)
 
-To enhance documentation with visuals:
-
-1. Capture a screenshot of the UI or feature.
-2. Drop it into the `src/docs/visuals/` folder.
-3. Use Cursor AI to annotate or describe the screenshot.
-4. Update the relevant section (e.g., `flow`) to include the image and caption.
-
-Example:
+Below is a customizable JSX snippet you can use directly in your pages. It supports dark mode, theme styling, and auto-detects the current route:
 
 ```tsx
-<img src={require('@/docs/visuals/users-flow.png')} alt="User Flow Diagram" style={{ width: '100%' }} />
-<p>แผนภาพลำดับขั้นตอนการใช้งานหน้า User</p>
-```
+import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { FloatButton, Drawer, Collapse, ConfigProvider } from 'antd';
+import { FileTextOutlined } from '@ant-design/icons';
+import { useTranslation } from 'react-i18next';
+import { pageDocs } from '@/docs/pageDocs';
 
-This can be rendered inside the Collapse panel in `PageDoc`.
+const { Panel } = Collapse;
+
+const PageDoc = () => {
+  const location = useLocation();
+  const [open, setOpen] = useState(false);
+  const { t, i18n } = useTranslation();
+  const path = location.pathname;
+  const doc = pageDocs[path];
+
+  return (
+    <ConfigProvider
+      theme={{
+        algorithm: document.documentElement.classList.contains('dark')
+          ? ConfigProvider.theme.darkAlgorithm
+          : ConfigProvider.theme.defaultAlgorithm
+      }}
+    >
+      <FloatButton
+        icon={<FileTextOutlined />}
+        onClick={() => setOpen(true)}
+        tooltip={t('คู่มือการใช้งาน')}
+        style={{ right: 24, bottom: 24 }}
+      />
+      <Drawer
+        title={t('คู่มือสำหรับหน้านี้')}
+        placement='right'
+        onClose={() => setOpen(false)}
+        open={open}
+        width={400}
+        bodyStyle={{ paddingBottom: 80 }}
+      >
+        {doc ? (
+          <Collapse defaultActiveKey={['overview']}>
+            <Panel header={t('ภาพรวม')} key='overview'>
+              <p>{doc.overview}</p>
+            </Panel>
+            <Panel header={t('คำแนะนำการใช้งาน')} key='instruction'>
+              <p>{doc.instruction}</p>
+            </Panel>
+            <Panel header={t('ลำดับการทำงาน')} key='flow'>
+              <p>{doc.flow}</p>
+            </Panel>
+            <Panel header={t('ตรรกะธุรกิจ')} key='logic'>
+              <p>{doc.logic}</p>
+            </Panel>
+          </Collapse>
+        ) : (
+          <p>{t('ไม่มีคู่มือสำหรับหน้านี้')}</p>
+        )}
+      </Drawer>
+    </ConfigProvider>
+  );
+};
+
+export default PageDoc;
+```

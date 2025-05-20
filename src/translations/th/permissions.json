@@ -9,7 +9,7 @@
   "user_edit": "แก้ไขผู้ใช้",
   "user_create": "สร้างผู้ใช้",
   "user_delete": "ลบผู้ใช้",
-  "user_role_edit": "แก้ไขบทบาทผู้ใช้",
+  "user_role_edit": "แก้ไข[Role]ผู้ใช้",
   "user_invite": "เชิญผู้ใช้",
   "content_view": "ดูเนื้อหา",
   "content_edit": "แก้ไขเนื้อหา",
@@ -48,8 +48,8 @@
   "manage_settings": "จัดการการตั้งค่า",
   "view_users": "ดูผู้ใช้",
   "manage_users": "จัดการผู้ใช้",
-  "view_roles": "ดูบทบาท",
-  "manage_roles": "จัดการบทบาท",
+  "view_roles": "ดู[Role]",
+  "manage_roles": "จัดการ[Role]",
   "view_provinces": "ดูจังหวัด",
   "manage_provinces": "จัดการจังหวัด"
 }

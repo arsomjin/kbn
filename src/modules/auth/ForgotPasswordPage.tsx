@@ -8,6 +8,7 @@ import AuthContainer from '../../components/auth/AuthContainer';
 import { getAuthErrorMessage } from '../../utils/firebaseErrorMessages';
 import { motion } from 'framer-motion';
 import { useAntdModal } from 'hooks/useAntModal';
+import PageDoc from '../../components/PageDoc';
 
 const ForgotPasswordPage: React.FC = () => {
   const { t } = useTranslation();
@@ -71,77 +72,80 @@ const ForgotPasswordPage: React.FC = () => {
   };
 
   return (
-    <AuthContainer
-      title={t('auth:resetPassword')}
-      subtitle={t('auth:resetPasswordInstruction')}
-      animationKey='forgot-password'
-    >
-      <motion.div
-        initial='hidden'
-        animate='visible'
-        variants={containerVariants}
-        className={`max-w-md w-full mx-auto ${isMobile ? 'px-4' : ''}`}
+    <>
+      <AuthContainer
+        title={t('auth:resetPassword')}
+        subtitle={t('auth:resetPasswordInstruction')}
+        animationKey='forgot-password'
       >
-        <motion.div variants={itemVariants}>
-          {error && (
-            <Alert
-              message={t('auth:passwordResetError')}
-              description={error}
-              type='error'
-              showIcon
-              closable
-              onClose={() => setError(null)}
-              className='mb-6'
-            />
-          )}
-
-          {success && (
-            <Alert
-              message={t('auth:passwordResetSuccess')}
-              description={t('auth:passwordResetSuccessDescription')}
-              type='success'
-              showIcon
-              className='mb-6'
-            />
-          )}
-
-          <Form form={form} name='forgotPassword' onFinish={onFinish} layout='vertical' requiredMark={false}>
-            <Form.Item
-              name='email'
-              rules={[
-                { required: true, message: t('validation:required') },
-                { type: 'email', message: t('validation:email') }
-              ]}
-            >
-              <Input
-                prefix={<MailOutlined className={`text-disable ${isMobile ? 'mr-1' : 'mr-2'}`} />}
-                placeholder={t('auth:email')}
-                size='large'
-                className='text-primay'
+        <motion.div
+          initial='hidden'
+          animate='visible'
+          variants={containerVariants}
+          className={`max-w-md w-full mx-auto ${isMobile ? 'px-4' : ''}`}
+        >
+          <motion.div variants={itemVariants}>
+            {error && (
+              <Alert
+                message={t('auth:passwordResetError')}
+                description={error}
+                type='error'
+                showIcon
+                closable
+                onClose={() => setError(null)}
+                className='mb-6'
               />
-            </Form.Item>
+            )}
 
-            <Form.Item>
-              <Button
-                type='primary'
-                htmlType='submit'
-                className='btn btn-primary w-full'
-                size='large'
-                loading={loading}
+            {success && (
+              <Alert
+                message={t('auth:passwordResetSuccess')}
+                description={t('auth:passwordResetSuccessDescription')}
+                type='success'
+                showIcon
+                className='mb-6'
+              />
+            )}
+
+            <Form form={form} name='forgotPassword' onFinish={onFinish} layout='vertical' requiredMark={false}>
+              <Form.Item
+                name='email'
+                rules={[
+                  { required: true, message: t('validation:required') },
+                  { type: 'email', message: t('validation:email') }
+                ]}
               >
-                {t('auth:resetPassword')}
-              </Button>
-            </Form.Item>
+                <Input
+                  prefix={<MailOutlined className={`text-disable ${isMobile ? 'mr-1' : 'mr-2'}`} />}
+                  placeholder={t('auth:email')}
+                  size='large'
+                  className='text-primay'
+                />
+              </Form.Item>
 
-            <div className='text-center mt-4'>
-              <Link to='/login' className={`text-primary hover:text-primary-dark ${isMobile ? 'text-sm' : ''}`}>
-                &larr; {t('auth:backToLogin')}
-              </Link>
-            </div>
-          </Form>
+              <Form.Item>
+                <Button
+                  type='primary'
+                  htmlType='submit'
+                  className='btn btn-primary w-full'
+                  size='large'
+                  loading={loading}
+                >
+                  {t('auth:resetPassword')}
+                </Button>
+              </Form.Item>
+
+              <div className='text-center mt-4'>
+                <Link to='/login' className={`text-primary hover:text-primary-dark ${isMobile ? 'text-sm' : ''}`}>
+                  &larr; {t('auth:backToLogin')}
+                </Link>
+              </div>
+            </Form>
+          </motion.div>
         </motion.div>
-      </motion.div>
-    </AuthContainer>
+      </AuthContainer>
+      <PageDoc />
+    </>
   );
 };
 
