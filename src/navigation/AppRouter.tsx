@@ -5,6 +5,8 @@ import { getLandingPage } from 'utils/roleUtils';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
+import PageDoc from 'components/PageDoc';
+import SystemOverview from 'modules/about/SystemOverview';
 
 // Auth and layout components
 import MainLayout from 'components/layout/MainLayout';
@@ -245,6 +247,9 @@ export const AppRouter: React.FC = () => {
 
           {/* Private routes */}
           <Route path='/*'>{PrivateRoutes}</Route>
+
+          {/* System Overview Documentation Route */}
+          <Route path='/about/system-overview' element={<SystemOverview />} />
         </Route>
 
         {/* Not found route */}

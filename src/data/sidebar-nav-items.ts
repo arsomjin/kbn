@@ -1,9 +1,12 @@
 import { UserRole } from '../constants/roles';
 import { PERMISSIONS } from '../constants/Permissions';
+import { useTranslation } from 'react-i18next';
 
 // Latest menu key = 285
 
-export default function () {
+export function useSidebarNavItems() {
+  const { t } = useTranslation();
+
   return [
     {
       title: 'Dashboard',
@@ -868,6 +871,11 @@ export default function () {
           htmlAfter: '',
           items: [
             {
+              title: t('System Overview') || 'System Overview',
+              key: 'system-overview',
+              to: '/about/system-overview'
+            },
+            {
               title: 'เกี่ยวกับเรา',
               key: '115',
               to: '/about'
@@ -883,3 +891,5 @@ export default function () {
     }
   ];
 }
+
+export default useSidebarNavItems;

@@ -55,6 +55,8 @@ import enInputPrice from './en/inputPrice.json';
 import thInputPrice from './th/inputPrice.json';
 import enTime from './en/time.json';
 import thTime from './th/time.json';
+import enAbout from './en/about.json';
+import thAbout from './th/about.json';
 
 // Resources object containing translations
 const resources = {
@@ -84,7 +86,8 @@ const resources = {
     employees: enEmployees,
     account: enAccount,
     inputPrice: enInputPrice,
-    time: enTime
+    time: enTime,
+    about: enAbout
   },
   th: {
     app: thApp,
@@ -112,7 +115,8 @@ const resources = {
     employees: thEmployees,
     account: thAccount,
     inputPrice: thInputPrice,
-    time: thTime
+    time: thTime,
+    about: thAbout
   }
 };
 
@@ -152,7 +156,8 @@ i18n
       'employees',
       'account',
       'inputPrice',
-      'time'
+      'time',
+      'about'
     ],
     interpolation: {
       escapeValue: false

@@ -329,6 +329,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           onClick: () => navigate('/admin/provinces')
         }
       ].filter(Boolean)
+    },
+    {
+      key: 'system-overview',
+      icon: <DashboardOutlined />,
+      label: t('about:systemOverview') || 'System Overview',
+      onClick: () => navigate('/about/system-overview')
     }
   ];
 
@@ -405,6 +411,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     if (location.pathname.startsWith('/admin/branches')) {
       if (!openKeys.includes('settings')) setOpenKeys(['settings']);
       return 'branches';
+    }
+    if (location.pathname.startsWith('/about/system-overview')) {
+      return 'system-overview';
     }
     return '';
   };

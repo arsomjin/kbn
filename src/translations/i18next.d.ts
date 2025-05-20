@@ -30,6 +30,7 @@ declare module 'react-i18next' {
       account: typeof import('./en/account.json');
       inputPrice: typeof import('./en/inputPrice.json');
       time: typeof import('./en/time.json');
+      about: typeof import('./en/about.json');
     };
   }
 
