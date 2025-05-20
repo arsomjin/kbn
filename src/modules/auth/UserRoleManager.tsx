@@ -170,6 +170,11 @@ const UserRoleManager: React.FC = () => {
         querySnapshot.forEach(doc => {
           const userData = doc.data();
 
+          // Skip developer role users
+          if (userData.role === ROLES.DEVELOPER) {
+            return;
+          }
+
           // Check if current user has access to this user's province
           if (userData.provinceId && !checkProvinceAccess(userData.provinceId)) {
             console.log(`[UserRoleManager] Skipping user ${doc.id} - no province access`);
@@ -178,14 +183,15 @@ const UserRoleManager: React.FC = () => {
 
           usersList.push({
             uid: doc.id,
-            email: userData.auth.email || '',
+            email: userData.email || userData.auth?.email || '',
             displayName:
-              userData.auth.displayName ||
-              `${userData.auth.firstName || ''} ${userData.auth.lastName || ''}`.trim() ||
+              userData.displayName ||
+              userData.auth?.displayName ||
+              `${userData.firstName || userData.auth?.firstName || ''} ${userData.lastName || userData.auth?.lastName || ''}`.trim() ||
               '',
-            firstName: userData.auth.firstName,
-            lastName: userData.auth.lastName,
-            photoURL: userData.auth.photoURL,
+            firstName: userData.firstName || userData.auth?.firstName,
+            lastName: userData.lastName || userData.auth?.lastName,
+            photoURL: userData.photoURL || userData.auth?.photoURL,
             role: userData.role as RoleType,
             customPermissions: userData.customPermissions || [],
             accessibleProvinceIds: userData.accessibleProvinceIds || [],

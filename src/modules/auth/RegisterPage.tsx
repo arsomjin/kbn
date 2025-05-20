@@ -488,10 +488,10 @@ const RegisterPage: React.FC = () => {
                 </Button>
               </Form.Item>
 
-              <div className='text-center mt-4'>
+              <div className='text-center text-sm mt-4'>
                 <p>
                   {t('auth:alreadyHaveAccount')}{' '}
-                  <Link to='/login' className='text-primary hover:text-primary-dark'>
+                  <Link to='/login' className='text-secondary hover:text-primary-dark'>
                     {t('auth:login')}
                   </Link>
                 </p>

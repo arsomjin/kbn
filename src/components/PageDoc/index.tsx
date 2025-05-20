@@ -104,7 +104,7 @@ const PageDoc: React.FC = () => {
             <Panel header={t('ลำดับการทำงาน') + ' / Flow'} key='flow'>
               <div style={{ marginBottom: 0 }}>{doc.flow}</div>
             </Panel>
-            <Panel header={t('ตรรกะธุรกิจ') + ' / Business Logic'} key='logic'>
+            <Panel header={t('ระบบงาน') + ' / Business Logic'} key='logic'>
               <div style={{ marginBottom: 0 }}>{doc.logic}</div>
             </Panel>
           </Collapse>

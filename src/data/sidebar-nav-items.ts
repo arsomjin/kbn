@@ -1,3 +1,6 @@
+import { UserRole } from '../constants/roles';
+import { PERMISSIONS } from '../constants/Permissions';
+
 // Latest menu key = 285
 
 export default function () {
@@ -10,7 +13,6 @@ export default function () {
           to: '/overview',
           htmlBefore: '<i class="material-icons" style="font-size:17px;">&#xE917;</i>',
           htmlAfter: '',
-          // permCat: 'permCat001',
           key: '1'
         }
       ],
@@ -34,77 +36,41 @@ export default function () {
                 {
                   title: 'รับเงินประจำวัน',
                   key: '6',
-                  to: '/account/income-daily'
+                  to: '/account/income-daily',
+                  permission: PERMISSIONS.VIEW_INCOME
                 },
                 {
                   title: 'รับเงินหลังปิดบัญชีประจำวัน',
                   key: '7',
-                  to: '/account/income-after-close-account'
+                  to: '/account/income-after-close-account',
+                  permission: PERMISSIONS.VIEW_INCOME
                 },
                 {
                   title: 'รับเงิน - SKL',
                   key: '8',
-                  to: '/account/income-skl'
+                  to: '/account/income-skl',
+                  permission: PERMISSIONS.VIEW_INCOME
                 },
                 {
                   title: 'รับเงิน - สินเชื่อส่วนบุคคล',
                   key: '284',
-                  to: '/account/income-personal-loan'
+                  to: '/account/income-personal-loan',
+                  permission: PERMISSIONS.VIEW_INCOME
                 },
                 {
                   title: 'รับเงิน - ธกส.',
                   key: '9',
-                  to: '/account/income-baac'
+                  to: '/account/income-baac',
+                  permission: PERMISSIONS.VIEW_INCOME
                 },
                 {
                   title: 'เงินฝากธนาคาร - ประจำวัน',
                   key: '182',
-                  to: '/account/daily-bank-deposit'
+                  to: '/account/daily-bank-deposit',
+                  permission: PERMISSIONS.VIEW_INCOME
                 }
-                // {
-                //   title: 'ฝากส่งเงินสด ผู้บริหาร - ประจำวัน',
-                //   key: '283',
-                //   to: '/account/daily-executive-cash-deposit',
-                // },
               ]
             },
-            // {
-            //   title: 'รายรับ',
-            // key: '11',
-            //   type: 'group',
-            //   items: [
-            //     {
-            //       title: 'ภาพรวม',
-            //       to: '/account/income-overview',
-            //     },
-            //     {
-            //       title: 'บันทึกข้อมูล',
-            //       type: 'subMenu',
-            //       items: [
-            //         {
-            //           title: 'รับเงินประจำวัน',
-            //           to: '/account/income-daily',
-            //         },
-            //         {
-            //           title: 'รับเงินหลังปิดบัญชีประจำวัน',
-            //           to: '/account/income-after-close-account',
-            //         },
-            //         {
-            //           title: 'รับเงินค่าขายสินค้า SKL',
-            //           to: '/account/income-skl',
-            //         },
-            //         {
-            //           title: 'รับเงินค่าขายสินค้า ธกส.',
-            //           to: '/account/income-baac',
-            //         },
-            //         {
-            //           title: 'รับเงินค่าขายสินค้า ผ่านบัตรเครดิต',
-            //           to: '/account/income-credit-card',
-            //         },
-            //       ],
-            //     },
-            //   ],
-            // },
             {
               title: 'รายจ่าย',
               key: '19',
@@ -120,11 +86,6 @@ export default function () {
                   key: '205',
                   to: '/account/expense-transfer-cycle'
                 },
-                // {
-                //   title: 'เชฟโรเลต',
-                //   key: '202',
-                //   to: '/account/expense-chevrolet',
-                // },
                 {
                   title: 'ตรวจสอบค่าแนะนำ',
                   key: '260',
@@ -244,11 +205,6 @@ export default function () {
           htmlBefore: '<i class="material-icons" style="font-size:17px;">store_mall_directory</i>',
           open: false,
           items: [
-            // {
-            //   title: 'บันทึกงานบริการ',
-            //   key: '32',
-            //   to: '/service-input',
-            // },
             {
               title: 'แจ้งบริการ/ประเมินราคา',
               key: '32',
@@ -299,10 +255,6 @@ export default function () {
                       key: '39',
                       to: '/warehouse/purchase-plan'
                     }
-                    // {
-                    //   title: 'สั่งซื้อ',
-                    //   to: '/warehouse/purchase',
-                    // },
                   ]
                 },
                 {
@@ -403,12 +355,6 @@ export default function () {
                 }
               ]
             }
-            // {
-            //   title: 'นำเข้าข้อมูล',
-            //   to: '/warehouse/stock-import',
-            //   htmlBefore:
-            //     '<i class="material-icons" style="font-size:17px;">add_business</i>',
-            // },
           ],
           permCat: 'permCat004'
         }
@@ -439,117 +385,6 @@ export default function () {
       ],
       permCat: 'permCat005'
     },
-    // {
-    //   title: 'Credit',
-    //   key: '60',
-    //   items: [
-    //     {
-    //       title: 'สินเชื่อ',
-    //       key: '61',
-    //       htmlBefore:
-    //         '<i class="material-icons" style="font-size:17px;">attach_money</i>',
-    //       open: false,
-    //       items: [
-    //         {
-    //           title: 'สินเชื่อ SKL',
-    //           key: '62',
-    //           type: 'group',
-    //           items: [
-    //             {
-    //               title: 'บันทึกข้อมูล',
-    //               key: '63',
-    //               to: '/credit-skl/input-data',
-    //             },
-    //           ],
-    //         },
-    //         {
-    //           title: 'สินเชื่อ ธกส.',
-    //           key: '64',
-    //           type: 'group',
-    //           items: [
-    //             {
-    //               title: 'บันทึกข้อมูล',
-    //               key: '65',
-    //               to: '/credit-baa/input-data',
-    //             },
-    //           ],
-    //         },
-    //         {
-    //           title: 'โครงการร้าน',
-    //           key: '66',
-    //           type: 'group',
-    //           items: [
-    //             {
-    //               title: 'บันทึกข้อมูล',
-    //               key: '67',
-    //               to: '/credit-kbn/input-data',
-    //             },
-    //           ],
-    //         },
-    //         {
-    //           title: 'เงินสด',
-    //           key: '208',
-    //           type: 'group',
-    //           items: [
-    //             {
-    //               title: 'บันทึกข้อมูล',
-    //               key: '209',
-    //               to: '/credit-cash/input-data',
-    //             },
-    //           ],
-    //         },
-    //       ],
-    //       permCat: 'permCat004',
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: 'Registration',
-    //   key: '68',
-    //   items: [
-    //     {
-    //       title: 'งานทะเบียน',
-    //       key: '69',
-    //       htmlBefore:
-    //         '<i class="material-icons" style="font-size:17px;">source</i>',
-    //       htmlAfter: '',
-    //       items: [
-    //         {
-    //           title: 'รถลูกค้า',
-    //           key: '70',
-    //           items: [
-    //             {
-    //               title: 'รถใหม่',
-    //               key: '71',
-    //               to: '/registration/customer/new-machines',
-    //             },
-    //             {
-    //               title: 'รถมือสอง',
-    //               key: '72',
-    //               to: '/registration/customer/used-machines',
-    //             },
-    //           ],
-    //         },
-    //         {
-    //           title: 'รถบริษัท',
-    //           key: '73',
-    //           items: [
-    //             {
-    //               title: 'ภาษีรถประจำปี',
-    //               key: '74',
-    //               to: '/registration/company/annual-car-tax',
-    //             },
-    //             {
-    //               title: 'ประกันภัยประจำปี',
-    //               key: '75',
-    //               to: '/registration/company/annual-insurance',
-    //             },
-    //           ],
-    //         },
-    //       ],
-    //     },
-    //   ],
-    // },
     {
       title: 'Users',
       key: '89',
@@ -563,7 +398,6 @@ export default function () {
           items: [
             {
               title: 'บันทึกการทำงาน',
-              // type: 'group',
               items: [
                 {
                   title: 'การลางาน',
@@ -587,11 +421,6 @@ export default function () {
               to: '/users',
               key: 242
             }
-            // {
-            //   title: 'Online / Offline',
-            //   to: '/users-status',
-            //   key: 243,
-            // },
           ]
         }
       ]
@@ -603,21 +432,14 @@ export default function () {
         {
           title: 'รายงาน',
           key: '77',
-          // to: '/reports',
           htmlBefore: '<i class="material-icons" style="font-size:17px;">assessment</i>',
           htmlAfter: '',
-          // permCat: 'permCat008',
           items: [
             {
               title: 'บัญชี',
               key: '78',
               type: 'group',
               items: [
-                // {
-                //   title: 'ภาพรวม',
-                // key: '79',
-                //   to: '/reports/account-overview',
-                // },
                 {
                   title: 'สรุปรายรับ-รายจ่าย',
                   key: '80',
@@ -712,7 +534,6 @@ export default function () {
                 {
                   title: 'งานรับจอง',
                   key: '253',
-                  // type: 'group',
                   permission: 'permission802',
                   items: [
                     {
@@ -721,28 +542,24 @@ export default function () {
                       to: '/reports/sale-booking-analytics',
                       permission: 'permission802'
                     },
-
                     {
                       title: 'สรุปงานรับจอง',
                       key: '244',
                       to: '/reports/sale-booking-summary',
                       permission: 'permission802'
                     },
-
                     {
                       title: 'ผลการประเมิน',
                       key: '210',
                       to: '/reports/sale-assessment',
                       permission: 'permission802'
                     },
-
                     {
                       title: 'ยกเลิกใบจอง',
                       key: '251',
                       to: '/reports/reservation-cancellation',
                       permission: 'permission802'
                     },
-
                     {
                       title: 'ยอดจองคงเหลือ',
                       key: '252',
@@ -754,7 +571,6 @@ export default function () {
                 {
                   title: 'งานขาย',
                   key: '254',
-                  // type: 'group',
                   permission: 'permission802',
                   items: [
                     {
@@ -774,7 +590,6 @@ export default function () {
                 {
                   title: 'การตลาด',
                   key: '87',
-                  // type: 'group',
                   permission: 'permission802',
                   items: [
                     {
@@ -829,11 +644,6 @@ export default function () {
                   to: '/reports/service-type',
                   permission: 'permission803'
                 },
-                // {
-                //   title: 'สรุปงาน',
-                //   key: '233',
-                //   to: '/reports/service-works',
-                // },
                 {
                   title: 'สรุปยอด',
                   key: '234',
@@ -882,11 +692,6 @@ export default function () {
                       to: '/reports/warehouse/vehicles/transferIn',
                       permission: 'permission804'
                     },
-                    // {
-                    //   title: 'รายการโอนย้าย',
-                    //   key: '214',
-                    //   to: '/reports/warehouse/vehicles/transfer',
-                    // },
                     {
                       title: 'ทะเบียนคุมลอกลายรถ',
                       key: '218',
@@ -959,74 +764,10 @@ export default function () {
                 }
               ]
             }
-            // {
-            //   title: 'อะไหล่',
-            //   key: '206',
-            //   type: 'group',
-            //   items: [
-            //     {
-            //       title: 'รายรับอะไหล่',
-            //       key: '207',
-            //       to: '/reports/income-parts',
-            //     },
-            //   ],
-            // },
           ]
         }
       ]
     },
-    // {
-    //   title: 'Data',
-    //   items: [
-    //     {
-    //       title: 'ข้อมูล',
-    //       htmlBefore:
-    //         '<i class="material-icons" style="font-size:17px;">feed</i>',
-    //       open: false,
-    //       items: [
-    //         {
-    //           title: 'นำเข้าข้อมูล',
-    //           to: '/data-import',
-    //         },
-    //         {
-    //           title: 'ส่งออกข้อมูล',
-    //           to: '/data-export',
-    //         },
-    //       ],
-    //       permCat: 'permCat004',
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: 'Data Managers',
-    //   key: '277',
-    //   items: [
-    //     {
-    //       title: 'การจัดการข้อมูล',
-    //       key: '278',
-    //       htmlBefore:
-    //         '<i class="material-icons" style="font-size:17px;">file_copy</i>',
-    //       open: false,
-    //       items: [
-    //         {
-    //           title: 'Export ข้อมูล',
-    //           key: '279',
-    //           to: '/data-managers/export-files',
-    //         },
-    //         {
-    //           title: 'File Manager List',
-    //           key: '280',
-    //           to: '/file-manager-list',
-    //         },
-    //         {
-    //           title: 'File Manager Cards',
-    //           key: '281',
-    //           to: '/file-manager-cards',
-    //         },
-    //       ],
-    //     },
-    //   ],
-    // },
     {
       title: 'Settings',
       key: '95',
@@ -1038,99 +779,42 @@ export default function () {
           open: false,
           items: [
             {
-              title: 'ทั่วไป',
+              title: 'สาขา',
               key: '97',
-              type: 'group',
-              items: [
-                {
-                  title: 'สาขา',
-                  key: '98',
-                  to: '/setting-branches'
-                },
-                {
-                  title: 'กลุ่มผู้ใช้งาน',
-                  key: '99',
-                  to: '/setting-users'
-                }
-              ]
+              to: '/admin/settings/branches',
+              allowedRoles: [UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]
             },
             {
-              title: 'คลังสินค้า',
+              title: 'ผู้ใช้งาน',
+              key: '98',
+              to: '/admin/settings/users',
+              allowedRoles: [UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]
+            },
+            {
+              title: 'ยานพาหนะ',
+              key: '99',
+              to: '/admin/settings/vehicles',
+              allowedRoles: [UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]
+            },
+            {
+              title: 'อะไหล่',
               key: '100',
-              type: 'group',
-              items: [
-                {
-                  title: 'รายการรถและอุปกรณ์',
-                  key: '101',
-                  to: '/setting-vehicles'
-                },
-                {
-                  title: 'รายการอะไหล่',
-                  key: '225',
-                  to: '/setting-parts'
-                }
-              ]
+              to: '/admin/settings/parts',
+              allowedRoles: [UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]
             },
             {
-              title: 'การบริการ',
-              key: '227',
-              type: 'group',
-              items: [
-                {
-                  title: 'รหัสบริการ',
-                  key: '228',
-                  to: '/setting-services'
-                }
-              ]
-            },
-            // {
-            //   title: 'บัญชี',
-            //   key: '102',
-            //   type: 'group',
-            //   items: [
-            //     {
-            //       title: 'บัญชีธนาคาร',
-            //       key: '103',
-            //       to: '/setting-account',
-            //     },
-            //   ],
-            // },
-            {
-              title: 'การขาย',
-              key: '104',
-              type: 'group',
-              items: [
-                {
-                  title: 'โปรโมชั่น',
-                  key: '105',
-                  to: '/setting-promotions'
-                }
-              ]
+              title: 'บริการ',
+              key: '101',
+              to: '/admin/settings/services',
+              allowedRoles: [UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]
             },
             {
-              title: 'บัญชี',
-              key: '246',
-              type: 'group',
-              items: [
-                {
-                  title: 'หมวดรายจ่าย',
-                  key: '247',
-                  to: '/setting-expense-category'
-                },
-                {
-                  title: 'หมวดย่อย',
-                  key: '248',
-                  to: '/setting-expense-subCategory'
-                },
-                {
-                  title: 'ชื่อบัญชี',
-                  key: '249',
-                  to: '/setting-expense-name'
-                }
-              ]
+              title: 'โปรโมชั่น',
+              key: '102',
+              to: '/admin/settings/promotions',
+              allowedRoles: [UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]
             }
-          ],
-          permCat: 'permCat006'
+          ]
         }
       ]
     },
@@ -1197,100 +881,5 @@ export default function () {
         }
       ]
     }
-    // {
-    //   title: 'Templates',
-    //   items: [
-    //     {
-    //       title: 'User Account',
-    //       htmlBefore: '<i class="material-icons" style="font-size:17px;">&#xE7FD;</i>',
-    //       open: false,
-    //       items: [
-    //         {
-    //           title: 'User Profile',
-    //           to: '/user-profile',
-    //         },
-    //         {
-    //           title: 'User Profile Lite',
-    //           to: '/user-profile-lite',
-    //         },
-    //         {
-    //           title: 'Edit User Profile',
-    //           to: '/edit-user-profile',
-    //         },
-    //         {
-    //           title: 'Login',
-    //           to: '/login',
-    //         },
-    //         {
-    //           title: 'Register',
-    //           to: '/register',
-    //         },
-    //         {
-    //           title: 'Change Password',
-    //           to: '/change-password',
-    //         },
-    //         {
-    //           title: 'Forgot Password',
-    //           to: '/forgot-password',
-    //         },
-    //       ],
-    //     },
-    //     {
-    //       title: 'Transaction History',
-    //       htmlBefore: '<i class="material-icons" style="font-size:17px;">&#xE889;</i>',
-    //       to: '/transaction-history',
-    //     },
-    //     {
-    //       title: 'Calendar',
-    //       htmlBefore: '<i class="material-icons" style="font-size:17px;">calendar_today</i>',
-    //       to: '/calendar',
-    //     },
-    //     {
-    //       title: 'Add New Post',
-    //       htmlBefore: '<i class="material-icons" style="font-size:17px;">note_add</i>',
-    //       to: '/add-new-post',
-    //     },
-    //     {
-    //       title: 'Errors',
-    //       htmlBefore: '<i class="material-icons" style="font-size:17px;">error</i>',
-    //       to: '/errors',
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: 'Components',
-    //   items: [
-    //     {
-    //       title: 'Overview',
-    //       htmlBefore: '<i class="material-icons" style="font-size:17px;">view_module</i>',
-    //       to: '/components-overview',
-    //     },
-    //     {
-    //       title: 'Tables',
-    //       htmlBefore: '<i class="material-icons" style="font-size:17px;">table_chart</i>',
-    //       to: '/tables',
-    //     },
-    //     {
-    //       title: 'Blog Posts',
-    //       htmlBefore: '<i class="material-icons" style="font-size:17px;">vertical_split</i>',
-    //       to: '/blog-posts',
-    //     },
-    //   ],
-    // },
-    // {
-    //   title: 'Layouts',
-    //   items: [
-    //     {
-    //       title: 'Header Nav',
-    //       htmlBefore: '<i class="material-icons" style="font-size:17px;">view_day</i>',
-    //       to: '/header-navigation',
-    //     },
-    //     {
-    //       title: 'Icon Sidebar',
-    //       htmlBefore: '<i class="material-icons" style="font-size:17px;">&#xE251;</i>',
-    //       to: '/icon-sidebar-nav',
-    //     },
-    //   ],
-    // },
   ];
 }

@@ -42,16 +42,6 @@ const ProvincesManagement: React.FC = () => {
     }
   };
 
-  // useEffect must be called before any return
-  useEffect(() => {
-    fetchProvinces();
-  }, []);
-
-  // Early return after all hooks
-  if (!hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE])) {
-    return <AccessDenied />;
-  }
-
   const fetchProvinces = async () => {
     await withLoading(async () => {
       try {
@@ -63,6 +53,16 @@ const ProvincesManagement: React.FC = () => {
       }
     });
   };
+
+  // useEffect must be called before any return
+  useEffect(() => {
+    fetchProvinces();
+  }, []);
+
+  // Early return after all hooks
+  if (!hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.DEVELOPER])) {
+    return <AccessDenied />;
+  }
 
   const handleSubmit = async (values: any) => {
     const safeValues = {

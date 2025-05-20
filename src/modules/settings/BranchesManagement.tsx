@@ -42,7 +42,7 @@ const BranchesManagement: React.FC = () => {
     fetchBranches();
   }, []);
 
-  if (!hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE])) {
+  if (!hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.DEVELOPER])) {
     return <AccessDenied />;
   }
 

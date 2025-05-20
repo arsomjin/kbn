@@ -301,7 +301,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: t('common:settings') || 'Settings',
       children: [
         // User management
-        hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.GENERAL_MANAGER]) && {
+        hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.GENERAL_MANAGER, ROLES.DEVELOPER]) && {
           key: 'user-management',
           icon: <TeamOutlined />,
           label: t('userManagement:title') || 'User Management',
@@ -315,14 +315,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           onClick: () => navigate('/admin/settings')
         },
         // Branch settings (only SUPER_ADMIN and PRIVILEGE)
-        hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.BRANCH_MANAGER, ROLES.PROVINCE_ADMIN]) && {
+        hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.BRANCH_MANAGER, ROLES.PROVINCE_ADMIN, ROLES.DEVELOPER]) && {
           key: 'branches',
           icon: <BankOutlined />,
           label: t('branches:title') || 'Branches',
           onClick: () => navigate('/admin/branches')
         },
         // Province settings (only SUPER_ADMIN and PRIVILEGE)
-        hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE]) && {
+        hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.DEVELOPER]) && {
           key: 'provinces',
           icon: <SettingOutlined />,
           label: t('provinces:title') || 'Provinces',

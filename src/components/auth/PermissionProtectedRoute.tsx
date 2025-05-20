@@ -5,12 +5,14 @@ import { usePermissions } from 'hooks/usePermissions';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Permission } from '../../constants/Permissions';
+import { UserRole } from '../../constants/roles';
 
 interface PermissionProtectedRouteProps {
   children: React.ReactNode;
   requiredPermission?: Permission;
   fallbackPath?: string;
   provinceCheck?: () => boolean;
+  allowedRoles?: UserRole[];
 }
 
 /**
@@ -33,7 +35,8 @@ const PermissionProtectedRoute: React.FC<PermissionProtectedRouteProps> = ({
   children,
   requiredPermission,
   fallbackPath = '/dashboard',
-  provinceCheck
+  provinceCheck,
+  allowedRoles
 }) => {
   const { isAuthenticated, userProfile, isLoading } = useAuth();
   const { hasPermission } = usePermissions();
@@ -52,6 +55,11 @@ const PermissionProtectedRoute: React.FC<PermissionProtectedRouteProps> = ({
   if (!isAuthenticated) {
     // Save the location they were trying to go to for later redirect
     return <Navigate to='/login' state={{ from: location }} replace />;
+  }
+
+  // Check if user has required role
+  if (allowedRoles && userProfile && !allowedRoles.includes(userProfile.role as UserRole)) {
+    return <Navigate to={fallbackPath} replace />;
   }
 
   // If permission check is required, verify user has the permission

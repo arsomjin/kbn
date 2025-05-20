@@ -12,7 +12,7 @@ import NotFound from 'components/common/NotFound';
 import { ProtectedRoute } from 'components/auth/ProtectedRoute';
 import { PublicOnlyRoute } from './router/PublicOnlyRoute';
 import PermissionProtectedRoute from 'components/auth/PermissionProtectedRoute';
-import { ROLES } from 'constants/roles';
+import { UserRole } from 'constants/roles';
 import RoleCheck from 'modules/auth/RoleCheck';
 
 // Route configurations
@@ -139,7 +139,7 @@ export const AppRouter: React.FC = () => {
             index
             element={
               userProfile ? (
-                hasRole(ROLES.PENDING) ? (
+                hasRole(UserRole.PENDING) ? (
                   <Navigate to='/pending' replace />
                 ) : !isProfileComplete ? (
                   <Navigate to='/complete-profile' replace />
@@ -162,7 +162,11 @@ export const AppRouter: React.FC = () => {
           <Route
             path='/overview'
             element={
-              <PermissionProtectedRoute requiredPermission={PERMISSIONS.SYSTEM_SETTINGS_VIEW} fallbackPath='/dashboard'>
+              <PermissionProtectedRoute
+                // requiredPermission={PERMISSIONS.SYSTEM_SETTINGS_VIEW}
+                fallbackPath='/dashboard'
+                allowedRoles={[UserRole.SUPER_ADMIN, UserRole.DEVELOPER, UserRole.PRIVILEGE]}
+              >
                 <Overview />
               </PermissionProtectedRoute>
             }
@@ -172,7 +176,11 @@ export const AppRouter: React.FC = () => {
           <Route
             path='/account/*'
             element={
-              <PermissionProtectedRoute requiredPermission={PERMISSIONS.VIEW_ACCOUNTS} fallbackPath='/dashboard'>
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
+                fallbackPath='/dashboard'
+                allowedRoles={[UserRole.SUPER_ADMIN, UserRole.DEVELOPER, UserRole.PRIVILEGE]}
+              >
                 <Account />
               </PermissionProtectedRoute>
             }
@@ -198,6 +206,7 @@ export const AppRouter: React.FC = () => {
                   requiredPermission={PERMISSIONS.PROVINCE_ANALYTICS_VIEW}
                   fallbackPath='/dashboard'
                   provinceCheck={() => true}
+                  allowedRoles={[UserRole.SUPER_ADMIN, UserRole.DEVELOPER, UserRole.PRIVILEGE]}
                 >
                   <ProvinceDashboard />
                 </PermissionProtectedRoute>
@@ -210,6 +219,7 @@ export const AppRouter: React.FC = () => {
                   requiredPermission={PERMISSIONS.SYSTEM_SETTINGS_VIEW}
                   fallbackPath='/dashboard'
                   provinceCheck={() => true}
+                  allowedRoles={[UserRole.SUPER_ADMIN, UserRole.DEVELOPER, UserRole.PRIVILEGE]}
                 >
                   <ProvinceSettings />
                 </PermissionProtectedRoute>
@@ -222,6 +232,7 @@ export const AppRouter: React.FC = () => {
                   requiredPermission={PERMISSIONS.PROVINCE_REPORTS_VIEW}
                   fallbackPath='/dashboard'
                   provinceCheck={() => true}
+                  allowedRoles={[UserRole.SUPER_ADMIN, UserRole.DEVELOPER, UserRole.PRIVILEGE]}
                 >
                   <ProvinceReports />
                 </PermissionProtectedRoute>

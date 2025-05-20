@@ -16,7 +16,7 @@ const pageDocs: Record<string, DocSection> = {
     instruction: 'กรอกอีเมลและรหัสผ่านที่ลงทะเบียนไว้ หรือเลือกเข้าสู่ระบบด้วย Google หากมีสิทธิ์',
     flow: <LoginPageFlow />,
     logic:
-      'ตรวจสอบอีเมลและรหัสผ่าน, หากสำเร็จจะโหลดข้อมูลโปรไฟล์และสิทธิ์, มีการตรวจสอบระบบควบคุมการเข้าถึงตาม[Role] (RBAC) ซึ่งกำหนดสิทธิ์การใช้งานตาม[Role]ของผู้ใช้ เช่น Admin สามารถจัดการระบบทั้งหมด, Manager จัดการได้เฉพาะในจังหวัดของตน และ Staff ใช้งานได้ตามสิทธิ์ที่ได้รับ, รวมถึงมีการตรวจสอบการเข้าถึงตามจังหวัด (province access) หลังเข้าสู่ระบบ'
+      'ตรวจสอบอีเมลและรหัสผ่าน, หากสำเร็จจะโหลดข้อมูลโปรไฟล์และสิทธิ์, มีการตรวจสอบระบบควบคุมการเข้าถึงตาม[Role] (Role Based Access Control) ซึ่งกำหนดสิทธิ์การใช้งานตาม[Role]ของผู้ใช้ เช่น Admin สามารถจัดการระบบทั้งหมด, Manager จัดการได้เฉพาะในจังหวัดของตน และ Staff ใช้งานได้ตามสิทธิ์ที่ได้รับ, รวมถึงมีการตรวจสอบการเข้าถึงตามจังหวัด (province access) หลังเข้าสู่ระบบ'
   },
 
   // Register Page
@@ -53,7 +53,7 @@ const pageDocs: Record<string, DocSection> = {
       'รออีเมลแจ้งเตือนเมื่อบัญชีได้รับการอนุมัติ และจะสามารถเข้าใช้งานระบบตาม Role และสิทธิ์ที่ได้รับได้ทันที',
     flow: 'สมัคร/เข้าสู่ระบบ > รออนุมัติ > ได้รับอีเมลแจ้งเตือน > เข้าสู่ระบบใหม่โดยอัตโนมัติ',
     logic:
-      'RBAC: เฉพาะผู้ดูแล (Admin/Manager) และผู้บริหารระดับสูงเท่านั้นที่สามารถอนุมัติบัญชี, ผู้ใช้ที่รออนุมัติจะไม่สามารถเข้าถึงข้อมูลใด ๆ'
+      'Role Based Access Control: เฉพาะผู้ดูแล (Admin/Manager) และผู้บริหารระดับสูงเท่านั้นที่สามารถอนุมัติบัญชี, ผู้ใช้ที่รออนุมัติจะไม่สามารถเข้าถึงข้อมูลใด ๆ'
   },
 
   // User Role Manager (Admin)
@@ -163,10 +163,10 @@ flowchart TD
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔐 ตรรกะธุรกิจ (RBAC & Province Access)</h2>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔐 ระบบงาน (RBAC & Province Access)</h2>
         <ul>
-          <li>RBAC: กำหนดสิทธิ์ตามบทบาท (Admin, Province Manager, User)</li>
-          <li>Province-limited: ข้อมูลผู้ใช้และสิทธิ์ถูกจำกัดตาม provinceId</li>
+          <li>RBAC: กำหนดสิทธิ์ตามระดับสิทธิ์ (Admin, Province Manager, User)</li>
+          <li>Province-limited: ข้อมูลผู้ใช้และสิทธิ์ถูกจำกัดตาม จังหวัด</li>
           <li>Permission check: ตรวจสอบสิทธิ์ก่อนแสดงปุ่ม/ดำเนินการ</li>
         </ul>
         <div style={{ margin: '12px 0' }}>
@@ -386,7 +386,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>⚙️ ตรรกะธุรกิจ & สิทธิ์การเข้าถึง</h2>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>⚙️ ระบบงาน & สิทธิ์การเข้าถึง</h2>
         <ul>
           <li>
             RBAC: เฉพาะผู้ที่มีสิทธิ์ <b>USER_ROLE_EDIT</b> (เช่น Admin, Manager)
@@ -520,7 +520,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ตรรกะธุรกิจ (RBAC & Province Access)</h2>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ระบบงาน (RBAC & Province Access)</h2>
         <ul>
           <li>
             ข้อมูลพนักงานจะถูกกรองตาม <b>จังหวัด (provinceId)</b> ของผู้ใช้ที่เข้าสู่ระบบ
@@ -627,7 +627,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ตรรกะธุรกิจ (RBAC & Permissions)</h2>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ระบบงาน (RBAC & Permissions)</h2>
         <ul>
           <li>
             เฉพาะผู้ที่มีสิทธิ์ <b>จัดการข้อมูลสาขา</b> เท่านั้นที่สามารถเพิ่ม แก้ไข หรือลบสาขาได้
@@ -711,7 +711,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ตรรกะธุรกิจ (RBAC & Permissions)</h2>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ระบบงาน (RBAC & Permissions)</h2>
         <ul>
           <li>
             เฉพาะผู้ที่มีสิทธิ์ <b>จัดการข้อมูลจังหวัด</b> เท่านั้นที่สามารถเพิ่ม แก้ไข หรือลบจังหวัดได้
@@ -730,7 +730,8 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
         <h2 style={{ marginBottom: 8, color: '#2d4739' }}>💸 ภาพรวม</h2>
         <p>
           <b>หน้าบันทึกราคาซื้อ (รถและอุปกรณ์)</b> สำหรับบันทึกและตรวจสอบราคาซื้อสินค้า/อุปกรณ์จากใบรับสินค้า
-          พร้อมคำนวณยอดสุทธิและภาษี รองรับการอนุมัติหลายขั้นตอน (แก้ไข, ตรวจสอบ, อนุมัติ) และแสดงประวัติการเปลี่ยนแปลง
+          หลังจากคลังสินค้าตรวจรับสินค้าเรียบร้อยแล้ว พร้อมคำนวณยอดสุทธิและภาษี รองรับการอนุมัติหลายขั้นตอน (แก้ไข,
+          ตรวจสอบ, อนุมัติ) และแสดงประวัติการเปลี่ยนแปลง ก่อนส่งต่อให้กับแผนกสินเชื่อเพื่อตรวจสอบในขั้นตอนถัดไป
         </p>
         <div style={{ margin: '16px 0' }}>
           <img
@@ -861,22 +862,22 @@ flowchart TD
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔐 ตรรกะธุรกิจ (RBAC & Permission)</h2>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔐 ระบบงาน (RBAC & Permission)</h2>
         <ul>
           <li>
-            เฉพาะผู้ที่มีสิทธิ์ <b>MANAGE_EXPENSE</b> และเข้าถึงจังหวัด (province)
+            เฉพาะผู้ที่มีสิทธิ์ <b>จัดการข้อมูลบัญชีรายจ่าย</b> และเข้าถึงข้อมูลระดับจังหวัด (province)
             ได้เท่านั้นที่สามารถบันทึก/แก้ไขข้อมูล
           </li>
           <li>
-            การตรวจสอบ/อนุมัติ ต้องมีสิทธิ์ <b>DOCUMENT_REVIEW</b> หรือ <b>DOCUMENT_APPROVE</b> ตามลำดับ
+            การตรวจสอบ/อนุมัติ ต้องมีสิทธิ์ <b>ตรวจสอบเอกสาร</b> หรือ <b>อนุมัติเอกสาร</b> ตามลำดับ
           </li>
           <li>
-            ข้อมูลจะถูกบันทึกพร้อม <b>provinceId</b> และ <b>departmentId</b> ทุกครั้ง
+            ข้อมูลจะถูกบันทึกพร้อม <b>ข้อมูลจังหวัด</b> และ <b>แผนก</b> ทุกครั้ง
           </li>
-          <li>ทุกการเปลี่ยนแปลงจะถูกบันทึกผู้กระทำและเวลา (audit log)</li>
+          <li>ทุกการเปลี่ยนแปลงจะถูกบันทึกผู้ดำเนินการและเวลา (audit log)</li>
         </ul>
         <div style={{ margin: '12px 0' }}>
-          <b>ตัวอย่าง Permission Check:</b>
+          <b>ตัวอย่าง การเช็คสิทธิ์ (Code):</b>
           <pre style={{ background: 'transparent', padding: 8, borderRadius: 6 }}>{`
 if (!hasPermission(PERMISSIONS.MANAGE_EXPENSE) || !hasProvinceAccess(provinceId)) {
   return <AccessDenied />;

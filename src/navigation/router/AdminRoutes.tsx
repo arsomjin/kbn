@@ -13,10 +13,11 @@ import BranchesManagement from '../../modules/settings/BranchesManagement';
 import { EmployeeList } from '../../modules/employees/components/EmployeeList';
 import { EmployeeForm } from '../../modules/employees/components/EmployeeForm';
 import { EmployeeDetails } from '../../modules/employees/components/EmployeeDetails';
+import Settings from '../../modules/settings/Settings';
 
 /**
  * Admin routes configuration
- * Only accessible to users with admin roles (system-admin, province-admin, owner, executive)
+ * Only accessible to users with admin roles (system-admin, province-admin, owner, executive, developer)
  */
 export const AdminRoutes = [
   <Route
@@ -24,7 +25,13 @@ export const AdminRoutes = [
     path='review-users'
     element={
       <ProtectedRoute
-        allowedRoles={[UserRole.PROVINCE_ADMIN, UserRole.SUPER_ADMIN, UserRole.GENERAL_MANAGER, UserRole.PRIVILEGE]}
+        allowedRoles={[
+          UserRole.PROVINCE_ADMIN,
+          UserRole.SUPER_ADMIN,
+          UserRole.GENERAL_MANAGER,
+          UserRole.PRIVILEGE,
+          UserRole.DEVELOPER
+        ]}
       >
         <UserReview />
       </ProtectedRoute>
@@ -35,7 +42,13 @@ export const AdminRoutes = [
     path='users'
     element={
       <ProtectedRoute
-        allowedRoles={[UserRole.PROVINCE_ADMIN, UserRole.SUPER_ADMIN, UserRole.GENERAL_MANAGER, UserRole.PRIVILEGE]}
+        allowedRoles={[
+          UserRole.PROVINCE_ADMIN,
+          UserRole.SUPER_ADMIN,
+          UserRole.GENERAL_MANAGER,
+          UserRole.PRIVILEGE,
+          UserRole.DEVELOPER
+        ]}
       >
         <UserRoleManager />
       </ProtectedRoute>
@@ -46,7 +59,7 @@ export const AdminRoutes = [
     key='provinces'
     path='provinces'
     element={
-      <ProtectedRoute allowedRoles={[UserRole.PRIVILEGE, UserRole.SUPER_ADMIN]}>
+      <ProtectedRoute allowedRoles={[UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]}>
         <ProvincesManagement />
       </ProtectedRoute>
     }
@@ -55,8 +68,63 @@ export const AdminRoutes = [
     key='branches'
     path='branches'
     element={
-      <ProtectedRoute allowedRoles={[UserRole.PRIVILEGE, UserRole.SUPER_ADMIN]}>
+      <ProtectedRoute allowedRoles={[UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]}>
         <BranchesManagement />
+      </ProtectedRoute>
+    }
+  />,
+  // Settings routes
+  <Route
+    key='settings-branches'
+    path='settings/branches'
+    element={
+      <ProtectedRoute allowedRoles={[UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]}>
+        <Settings />
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+    key='settings-users'
+    path='settings/users'
+    element={
+      <ProtectedRoute allowedRoles={[UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]}>
+        <Settings />
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+    key='settings-vehicles'
+    path='settings/vehicles'
+    element={
+      <ProtectedRoute allowedRoles={[UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]}>
+        <Settings />
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+    key='settings-parts'
+    path='settings/parts'
+    element={
+      <ProtectedRoute allowedRoles={[UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]}>
+        <Settings />
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+    key='settings-services'
+    path='settings/services'
+    element={
+      <ProtectedRoute allowedRoles={[UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]}>
+        <Settings />
+      </ProtectedRoute>
+    }
+  />,
+  <Route
+    key='settings-promotions'
+    path='settings/promotions'
+    element={
+      <ProtectedRoute allowedRoles={[UserRole.PRIVILEGE, UserRole.SUPER_ADMIN, UserRole.DEVELOPER]}>
+        <Settings />
       </ProtectedRoute>
     }
   />,

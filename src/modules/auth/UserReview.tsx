@@ -308,7 +308,14 @@ const UserReview: React.FC = () => {
     // If user is province_admin, only show users from their province
     if (userProfile?.role === ROLES.PROVINCE_ADMIN && userProfile?.province) {
       console.log(`Filtering users for province_admin in province: ${userProfile.province}`);
-      q = query(usersRef, where('role', '==', ROLES.PENDING), where('province', '==', userProfile.province));
+      q = query(
+        usersRef,
+        where('role', '==', ROLES.PENDING),
+        where('province', '==', userProfile.province),
+        where('role', '!=', ROLES.DEVELOPER)
+      );
+    } else {
+      q = query(usersRef, where('role', '==', ROLES.PENDING), where('role', '!=', ROLES.DEVELOPER));
     }
 
     const unsubscribe = onSnapshot(
