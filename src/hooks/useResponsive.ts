@@ -8,7 +8,7 @@ interface WindowSize {
   isDesktop: boolean;
 }
 
-export const useWindowSize = (): WindowSize => {
+export const useResponsive = (): WindowSize => {
   const [windowSize, setWindowSize] = useState<WindowSize>({
     width: window.innerWidth,
     height: window.innerHeight,

@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { User } from 'firebase/auth';
 import { Timestamp, FieldValue } from 'firebase/firestore';
-import { UserProfile } from '@/types/auth';
+import { UserProfile } from 'types/auth';
 import { getUserProfile } from 'services/authService';
 import { removeUndefinedFields } from 'utils/userTransform';
 

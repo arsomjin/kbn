@@ -44,3 +44,10 @@ html,
   /* You can add a smooth transition for theme switching */
   transition: background 0.3s;
 }
+
+/* Add margin-top for mobile devices */
+@media (max-width: 768px) {
+  #root {
+    margin-top: 70px;
+  }
+}

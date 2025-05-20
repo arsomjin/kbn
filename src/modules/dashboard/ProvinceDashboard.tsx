@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Row, Col, Statistic } from 'antd';
+import { Card, Row, Col, Statistic, Typography } from 'antd';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -9,30 +9,22 @@ const ProvinceDashboard: React.FC = () => {
 
   return (
     <div>
+      <Typography.Title level={2}>[ทดสอบ] หน้าหลักสำหรับผู้ใช้งานระดับจังหวัด</Typography.Title>
       <h1>{t('dashboard:province.title')}</h1>
       <Row gutter={16}>
         <Col span={8}>
           <Card>
-            <Statistic
-              title={t('dashboard:province.totalBranches')}
-              value={0}
-            />
+            <Statistic title={t('dashboard:province.totalBranches')} value={0} />
           </Card>
         </Col>
         <Col span={8}>
           <Card>
-            <Statistic
-              title={t('dashboard:province.totalEmployees')}
-              value={0}
-            />
+            <Statistic title={t('dashboard:province.totalEmployees')} value={0} />
           </Card>
         </Col>
         <Col span={8}>
           <Card>
-            <Statistic
-              title={t('dashboard:province.totalCustomers')}
-              value={0}
-            />
+            <Statistic title={t('dashboard:province.totalCustomers')} value={0} />
           </Card>
         </Col>
       </Row>
@@ -40,4 +32,4 @@ const ProvinceDashboard: React.FC = () => {
   );
 };
 
-export default ProvinceDashboard; 
+export default ProvinceDashboard;

@@ -26,6 +26,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useAntdModal } from 'hooks/useAntModal';
 import { transformUserData, transformToUserProfile } from '../../utils/userTransform';
+import DepartmentSelector from 'components/DepartmentSelector';
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -34,7 +35,7 @@ const { Content } = Layout;
 type UserType = 'employee' | 'visitor';
 
 const RegisterPage: React.FC = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['profile', 'common', 'notifications']);
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
@@ -159,10 +160,10 @@ const RegisterPage: React.FC = () => {
 
           // Notify admins, super_admins, and privilege users about new pending user
           await createNotification({
-            title: t('notifications:adminTitle', 'New user registration'),
+            title: t('profile:adminTitle', 'มีผู้ใช้ลงทะเบียนใหม่'),
             description: `${displayName} (${values.email}) registered and is pending approval.`,
             type: NotificationType.INFO,
-            targetRoles: ['province_admin', 'super_admin', 'general_manager'],
+            targetRoles: ['province_admin', 'super_admin', 'general_manager', 'developer', 'privilege'],
             link: '/review-users'
           });
 
@@ -395,16 +396,16 @@ const RegisterPage: React.FC = () => {
                     </Form.Item>
                   </Col>
                   <Col xs={24} sm={12}>
-                    <Form.Item
-                      name='department'
-                      label={t('profile:department')}
-                      rules={[{ required: true, message: t('validation:required') }]}
-                    >
-                      <Input
-                        prefix={<TeamOutlined className='text-primary mr-2' />}
-                        placeholder={t('profile:department')}
-                        size='large'
-                      />
+                    <Form.Item noStyle dependencies={['province']}>
+                      {({ getFieldValue }) => (
+                        <Form.Item
+                          name='department'
+                          label={t('profile:department')}
+                          rules={[{ required: true, message: t('validation:required') }]}
+                        >
+                          <DepartmentSelector placeholder={t('profile:selectDepartment')} size='large' />
+                        </Form.Item>
+                      )}
                     </Form.Item>
                   </Col>
                 </Row>

@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { notification } from 'antd';
 import { CheckCircleOutlined, InfoCircleOutlined, WarningOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { RootState } from '../../store';
-import { removeToast } from '../../store/slices/notificationSlice';
+import { removeToast } from '../../store/slices/notificationsSlice';
 import { NotificationType } from '../../services/notificationService';
 import './ToastNotification.css';
 
@@ -43,14 +43,16 @@ const ToastContainer: React.FC = () => {
   const dispatch = useDispatch();
   const toasts = useSelector((state: RootState) => state.notifications.toasts || []);
 
+  // Use a ref to keep track of displayed toast IDs
+  const displayedIds = React.useRef<Set<string>>(new Set());
+
   useEffect(() => {
-    // Display new toast notifications
     toasts.forEach(toast => {
       // Skip if already displayed
-      if (toast.displayed) return;
+      if (!toast.id || displayedIds.current.has(toast.id)) return;
 
-      // Mark as displayed to prevent duplicate toasts
-      toast.displayed = true;
+      // Mark as displayed
+      displayedIds.current.add(toast.id);
 
       const { method, icon } = notificationTypeMap[toast.type] || notificationTypeMap[NotificationType.INFO];
       const duration = toast.duration || 4.5; // Default duration in seconds
@@ -63,9 +65,9 @@ const ToastContainer: React.FC = () => {
         duration,
         className: 'kbn-toast-notification',
         onClose: () => {
-          // Ensure toast.id is not undefined before dispatching
           if (toast.id) {
             dispatch(removeToast(toast.id));
+            displayedIds.current.delete(toast.id);
           }
         }
       });

@@ -12,16 +12,27 @@ import {
   resetNotifications,
   initializeFcm,
   addToast
-} from '../store/slices/notificationSlice';
+} from '../store/slices/notificationsSlice';
 import { subscribeToNotifications, NotificationType } from '../services/notificationService';
 import { notificationController } from '../controllers/notificationController';
 import { getTimestampMillis, serializeTimestampArray } from '../utils/timestampUtils';
+import { useAuth } from 'contexts/AuthContext';
 
-export const useNotifications = (userProfile: UserProfile | null) => {
+export const useNotifications = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { notifications, unreadCount, hasMore, status, error, isNotificationDrawerOpen, fcmInitialized } = useSelector(
     (state: RootState) => state.notifications
   );
+  // Get user from AuthContext (or Redux if that's your pattern)
+  const { user, userProfile } = useAuth();
+
+  // Determine the UID to use for notification subscription
+  const uid = user?.uid || userProfile?.uid;
+
+  // Debug log for which UID is being used
+  console.log('[NOTIF DEBUG] useNotifications: Using UID for subscription:', uid, { user, userProfile });
+
+  console.log(`[useNotifications] Notifications: ${JSON.stringify(notifications)}`);
 
   // Initialize Firebase Cloud Messaging using the notification controller
   useEffect(() => {
@@ -81,42 +92,69 @@ export const useNotifications = (userProfile: UserProfile | null) => {
   useEffect(() => {
     let unsubscribe: (() => void) | null = null;
 
-    if (userProfile) {
-      unsubscribe = subscribeToNotifications(userProfile, newNotifications => {
-        if (newNotifications.length > 0) {
-          // Serialize notifications before dispatching
-          dispatch(updateNotifications(serializeTimestampArray(newNotifications)));
-
-          // Show toast for new unread notifications that just arrived
-          const now = Date.now();
-          const recentNotifications = newNotifications.filter(n => {
-            const notificationTime = getTimestampMillis(n.createdAt);
-            // Only show toasts for notifications that are less than 10 seconds old
-            return !n.isRead && now - notificationTime < 10000;
-          });
-
-          if (recentNotifications.length > 0) {
-            recentNotifications.forEach(notification => {
-              dispatch(
-                addToast({
-                  type: notification.type,
-                  title: notification.title,
-                  message: notification.description,
-                  duration: 6 // Show for 6 seconds
-                })
-              );
-            });
-          }
-        }
-      });
+    if (!uid || typeof uid !== 'string' || uid.length < 10) {
+      console.log('[NOTIF DEBUG] useNotifications: UID not ready, skipping subscription', { user, userProfile });
+      return;
     }
+
+    // Build a minimal profile for subscription if userProfile is not ready
+    let effectiveProfile: UserProfile = {
+      uid,
+      firstName: userProfile?.firstName || '',
+      lastName: userProfile?.lastName || '',
+      email: userProfile?.email || '',
+      role: userProfile?.role || '',
+      province: userProfile?.province || '',
+      accessibleProvinceIds: userProfile?.accessibleProvinceIds || [],
+      requestedType: userProfile?.requestedType || 'employee',
+      createdAt: userProfile?.createdAt || new Date(),
+      updatedAt: userProfile?.updatedAt || new Date()
+    };
+
+    console.log('[NOTIF DEBUG] useNotifications: Subscribing to notifications for uid', uid);
+    unsubscribe = subscribeToNotifications(effectiveProfile, newNotifications => {
+      if (newNotifications.length > 0) {
+        console.log('[NOTIF DEBUG] New notifications received:', newNotifications);
+        // Serialize notifications before dispatching
+        const serializedNotifications = serializeTimestampArray(newNotifications);
+        console.log('[NOTIF DEBUG] Serialized notifications:', serializedNotifications);
+        console.log('[NOTIF DEBUG] Dispatching updateNotifications with:', {
+          count: serializedNotifications.length,
+          firstNotification: serializedNotifications[0],
+          lastNotification: serializedNotifications[serializedNotifications.length - 1]
+        });
+        dispatch(updateNotifications(serializedNotifications));
+        console.log('[NOTIF DEBUG] Dispatched updateNotifications action');
+
+        // Show toast for new unread notifications that just arrived
+        const now = Date.now();
+        const recentNotifications = newNotifications.filter(n => {
+          const notificationTime = getTimestampMillis(n.createdAt);
+          // Only show toasts for notifications that are less than 10 seconds old
+          return !n.isRead && now - notificationTime < 10000;
+        });
+
+        if (recentNotifications.length > 0) {
+          recentNotifications.forEach(notification => {
+            dispatch(
+              addToast({
+                type: notification.type,
+                title: notification.title,
+                message: notification.description,
+                duration: 6 // Show for 6 seconds
+              })
+            );
+          });
+        }
+      }
+    });
 
     return () => {
       if (unsubscribe) {
         unsubscribe();
       }
     };
-  }, [userProfile, dispatch]);
+  }, [uid, userProfile, dispatch]);
 
   // Initial fetch of notifications
   useEffect(() => {

@@ -1,5 +1,5 @@
-import { useSelector } from "react-redux";
-import { PERMISSIONS, PermissionValue } from "../constants/Permissions";
+import { useSelector } from 'react-redux';
+import { PERMISSIONS, PermissionValue } from '../constants/Permissions';
 import { Permission } from '../constants/Permissions';
 import { RootState } from '../store';
 import { store } from '../store';
@@ -13,7 +13,9 @@ import { UserProfile } from '../services/authService';
 export const hasPermission = (permission: PermissionValue): boolean => {
   const state = store.getState();
   const { userProfile } = state.auth;
-  return userProfile?.customPermissions?.includes(permission) || false;
+  return (
+    userProfile?.customPermissions?.includes(permission) || userProfile?.permissions?.includes(permission) || false
+  );
 };
 
 /**
@@ -71,4 +73,4 @@ export const useBranchAccessCheck = (branchId: string): boolean => {
   const { userProfile } = useSelector((state: RootState) => state.auth);
   if (!userProfile) return false;
   return userProfile.requestedType === 'employee' && userProfile.branch === branchId;
-}; 
+};

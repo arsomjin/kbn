@@ -8,6 +8,7 @@ import { NotificationType } from '../../services/notificationService';
 import { Timestamp } from 'firebase/firestore'; // Import Timestamp
 import { useTranslation } from 'react-i18next';
 import './ComposeNotification.css';
+import { useAuth } from 'contexts/AuthContext';
 
 const { TextArea } = Input;
 const { Option } = Select;
@@ -36,7 +37,7 @@ const ComposeNotification: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [recipientType, setRecipientType] = useState<string>('role');
   const [users, setUsers] = useState<any[]>([]);
-  const userProfile = useSelector((state: RootState) => state.auth.userProfile);
+  const { userProfile } = useAuth();
   const isDarkMode = useSelector((state: RootState) => state.theme?.darkMode);
 
   useEffect(() => {
@@ -164,11 +165,19 @@ const ComposeNotification: React.FC = () => {
               sendPush: true
             }}
           >
-            <Form.Item name='title' label={t('compose.form.title', 'Title')} rules={[{ required: true, message: t('compose.form.titleRequired', 'Please enter a title') }]}> 
+            <Form.Item
+              name='title'
+              label={t('compose.form.title', 'Title')}
+              rules={[{ required: true, message: t('compose.form.titleRequired', 'Please enter a title') }]}
+            >
               <Input placeholder={t('compose.form.titlePlaceholder', 'Notification title')} maxLength={100} />
             </Form.Item>
 
-            <Form.Item name='message' label={t('compose.form.message', 'Message')} rules={[{ required: true, message: t('compose.form.messageRequired', 'Please enter a message') }]}> 
+            <Form.Item
+              name='message'
+              label={t('compose.form.message', 'Message')}
+              rules={[{ required: true, message: t('compose.form.messageRequired', 'Please enter a message') }]}
+            >
               <TextArea
                 placeholder={t('compose.form.messagePlaceholder', 'Notification message')}
                 autoSize={{ minRows: 3, maxRows: 6 }}
@@ -206,7 +215,12 @@ const ComposeNotification: React.FC = () => {
               <Form.Item
                 name='recipients'
                 label={t('compose.form.selectRecipients', 'Select Recipients')}
-                rules={[{ required: true, message: t('compose.form.selectRecipientsRequired', 'Please select at least one recipient') }]}
+                rules={[
+                  {
+                    required: true,
+                    message: t('compose.form.selectRecipientsRequired', 'Please select at least one recipient')
+                  }
+                ]}
               >
                 <Select
                   mode='multiple'
@@ -227,7 +241,9 @@ const ComposeNotification: React.FC = () => {
               <Form.Item
                 name='roles'
                 label={t('compose.form.selectRoles', 'Select Roles')}
-                rules={[{ required: true, message: t('compose.form.selectRolesRequired', 'Please select at least one role') }]}
+                rules={[
+                  { required: true, message: t('compose.form.selectRolesRequired', 'Please select at least one role') }
+                ]}
               >
                 <Select
                   mode='multiple'
@@ -262,7 +278,9 @@ const ComposeNotification: React.FC = () => {
               <Form.Item
                 name='department'
                 label={t('compose.form.selectDepartment', 'Select Department')}
-                rules={[{ required: true, message: t('compose.form.selectDepartmentRequired', 'Please select a department') }]}
+                rules={[
+                  { required: true, message: t('compose.form.selectDepartmentRequired', 'Please select a department') }
+                ]}
               >
                 <Select placeholder={t('compose.form.selectDepartmentPlaceholder', 'Select department')}>
                   <Option value='department1'>{t('compose.form.department1', 'Department 1')}</Option>

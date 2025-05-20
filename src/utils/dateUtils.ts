@@ -75,16 +75,16 @@ export const formatRelativeTime = (date: Date | Timestamp | string | null | unde
   const diffInSeconds = Math.floor((now.getTime() - jsDate.getTime()) / 1000);
 
   if (diffInSeconds < 60) {
-    return i18n.t('time.justNow');
+    return i18n.t('time:justNow');
   } else if (diffInSeconds < 3600) {
     const minutes = Math.floor(diffInSeconds / 60);
-    return i18n.t('time.minutesAgo', { count: minutes });
+    return i18n.t('time:minutesAgo', { count: minutes });
   } else if (diffInSeconds < 86400) {
     const hours = Math.floor(diffInSeconds / 3600);
-    return i18n.t('time.hoursAgo', { count: hours });
+    return i18n.t('time:hoursAgo', { count: hours });
   } else if (diffInSeconds < 604800) {
     const days = Math.floor(diffInSeconds / 86400);
-    return i18n.t('time.daysAgo', { count: days });
+    return i18n.t('time:daysAgo', { count: days });
   } else {
     return formatDate(jsDate);
   }

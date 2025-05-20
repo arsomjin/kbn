@@ -24,7 +24,8 @@ export const DepartmentProvider: React.FC<{ children: ReactNode }> = ({ children
   const [error, setErrorState] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!currentProvince?.id) return;
+    // console.log(`[DepartmentContext] Current province: ${currentProvince?.id}`);
+    // if (!currentProvince?.id) return;
     dispatch(setLoading(true));
     setLoadingState(true);
     setErrorState(null);
@@ -37,6 +38,7 @@ export const DepartmentProvider: React.FC<{ children: ReactNode }> = ({ children
         snapshot.forEach(doc => {
           data[doc.id] = { id: doc.id, ...doc.data() } as DepartmentType;
         });
+        // console.log(`[DepartmentContext] Departments fetched: ${JSON.stringify(data)}`);
         setDepartmentsState(data);
         dispatch(setDepartments(data));
         dispatch(setLoading(false));

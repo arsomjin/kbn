@@ -13,6 +13,7 @@ import { RootState } from '../../store';
 import { notificationController } from '../../controllers/notificationController';
 import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
 import './NotificationSettings.css';
+import { useAuth } from 'contexts/AuthContext';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -58,7 +59,7 @@ const NotificationSettings: React.FC = () => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [permissionStatus, setPermissionStatus] = useState<NotificationPermission>('default');
-  const userProfile = useSelector((state: RootState) => state.auth.userProfile);
+  const { userProfile } = useAuth();
   const isDarkMode = useSelector((state: RootState) => state.theme?.darkMode);
   const [preferences, setPreferences] = useState<NotificationPreferences>(defaultPreferences);
 

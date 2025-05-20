@@ -8,6 +8,7 @@
   "role": "บทบาท",
   "branch": "สาขา",
   "department": "แผนก",
+  "selectDepartment": "เลือกแผนก",
   "requestedType": "ประเภท",
   "employee": "พนักงาน",
   "visitor": "ผู้เยี่ยมชม",
@@ -27,6 +28,8 @@
   "noName": "ไม่มีชื่อ",
   "noEmail": "ไม่มีอีเมล",
   "noStatus": "ไม่มีสถานะ",
+  "adminTitle": "ผู้ใช้งานถูกอนุมัติ",
+  "adminDescription": "ผู้ใช้งาน {{user}} ได้ถูกอนุมัติด้วยตำแหน่ง {{role}}",
   "tabs": {
     "personal": "ข้อมูลส่วนตัว",
     "work": "ข้อมูลการทำงาน",
@@ -71,4 +74,4 @@
     "verifyEmailSent": "ส่งอีเมลยืนยันแล้ว",
     "passwordResetSent": "ส่งอีเมลรีเซ็ตรหัสผ่านแล้ว"
   }
-} 
+}

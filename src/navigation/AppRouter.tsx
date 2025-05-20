@@ -43,6 +43,7 @@ const ProvinceReports = lazy(() => import('modules/dashboard/ProvinceReports'));
 const Account = lazy(() => import('modules/account'));
 const Income = lazy(() => import('modules/account/Income'));
 const Expense = lazy(() => import('modules/account/Expense'));
+const Landing = lazy(() => import('modules/dashboard/Landing'));
 
 /**
  * Main application router for KBN.
@@ -154,6 +155,9 @@ export const AppRouter: React.FC = () => {
 
           {/* Common routes */}
           <Route path='/profile' element={<Profile />} />
+          <Route path='/landing' element={<Landing />} />
+          <Route path='/province-dashboard' element={<ProvinceDashboard />} />
+          <Route path='/branch-dashboard' element={<BranchDashboard />} />
 
           {/* Overview route for privileged users */}
           <Route

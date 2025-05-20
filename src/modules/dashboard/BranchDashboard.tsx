@@ -38,7 +38,9 @@ const BranchDashboard: React.FC = () => {
 
   return (
     <div className={isMobile ? 'p-2' : 'p-6'}>
-      <Title level={isMobile ? 3 : 2}>{t('dashboard:branchDashboard')}</Title>
+      <Title level={isMobile ? 2 : 3}>[ทดสอบ] หน้าหลักสำหรับผู้ใช้งานสาขา</Title>
+
+      {/* <Title level={isMobile ? 2 : 3}>{t('dashboard:branchDashboard')}</Title> */}
       <p className='text-gray-500 mb-6'>
         {t('dashboard:branchWelcome', { name: userProfile?.displayName || t('common:user') })}
       </p>

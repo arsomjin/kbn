@@ -17,5 +17,11 @@
   "branchPerformance": "Branch Performance",
   "branchPerformanceNote": "Your branch is performing well with {{count}} completed tasks this month.",
   "recentActivities": "Recent Activities",
-  "noBranchActivities": "No recent branch activities to display"
-} 
+  "noBranchActivities": "No recent branch activities to display",
+  "province": {
+    "title": "Province Dashboard",
+    "totalBranches": "Total Branches",
+    "totalEmployees": "Total Employees",
+    "totalCustomers": "Total Customers"
+  }
+}

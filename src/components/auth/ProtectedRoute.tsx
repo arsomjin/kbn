@@ -3,7 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { UserRole } from '@/constants/roles';
+import { UserRole } from 'constants/roles';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -27,6 +27,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
   }
 
   if (allowedRoles && userProfile && !allowedRoles.includes(userProfile.role as UserRole)) {
+    console.log('I am here 3');
     return <Navigate to='/' replace />;
   }
 

@@ -1,12 +1,17 @@
 {
   "title": "การแจ้งเตือน",
-  "markAsRead": "ทำเครื่องหมายว่าอ่านแล้ว",
-  "markAllAsRead": "ทำเครื่องหมายว่าอ่านแล้วทั้งหมด",
+  "markAsRead": "อ่านแล้ว",
+  "markAllAsRead": "อ่านแล้วทั้งหมด",
   "noNotifications": "ไม่มีการแจ้งเตือน",
   "loadMore": "โหลดเพิ่มเติม",
   "new": "ใหม่",
   "unread": "ยังไม่ได้อ่าน",
   "readAll": "อ่านทั้งหมด",
+  "newUserRegistration": "มีผู้ใช้ลงทะเบียนใหม่",
+  "adminDescription": "{{name}} ({{email}}) ได้ลงทะเบียนใหม่ในระบบที่รอการอนุมัติ",
+  "roleUpdatedTitle": "มีการอัปเดตบทบาทผู้ใช้",
+  "roleUpdatedDescription": "บทบาทของผู้ใช้ถูกอัปเดตแล้ว",
+  "adminTitle": "อนุมัติผู้ใช้ใหม่แล้ว",
   "compose": {
     "title": "สร้างการแจ้งเตือน",
     "form": {

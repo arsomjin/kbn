@@ -1,6 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { useAuth } from 'contexts/AuthContext';
-import { Province } from '@/types/province';
+import { Province } from 'types/province';
 import { Permission } from 'constants/Permissions';
 import { ROLES, isInRoleCategory, RoleCategory } from 'constants/roles';
 

@@ -6,6 +6,7 @@ import { RoleType, ROLES, ROLE_PERMISSIONS, isInRoleCategory, RoleCategory } fro
 import { PERMISSIONS } from '../../constants/Permissions';
 import { Province } from '../../types/province';
 import { getPrivilegeLevel } from '../../utils/roleUtils';
+import { useProvinces } from 'hooks/useProvinces';
 
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -56,13 +57,8 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
   showAllTabs = true,
   namespace = 'userRoleManager'
 }) => {
-  const { t } = useTranslation([
-    namespace,
-    'common',
-    'roles',
-    'provinces',
-    'permissions',
-  ]);
+  const { t } = useTranslation([namespace, 'common', 'roles', 'provinces', 'permissions']);
+  const { provinces } = useProvinces();
   const [editingUser, setEditingUser] = useState<EditableUser | null>(null);
   const [activeTabKey, setActiveTabKey] = useState<string>('role');
 
@@ -77,7 +73,6 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
   };
 
   const keyPrefix = getKeyPrefix();
-
 
   // Update editingUser when user prop changes
   useEffect(() => {
@@ -104,9 +99,12 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
     const defaultPermissions = rolePermissions[role] || [];
 
     // Set default selectedProvinceIds based on role privilege level
-    const defaultProvinceIds = getPrivilegeLevel(role) >= getPrivilegeLevel(ROLES.GENERAL_MANAGER)
-      ? availableProvinces.filter(province => province.isActive !== false).map(province => province.id)
-      : editingUser.provinceId ? [editingUser.provinceId] : [];
+    const defaultProvinceIds =
+      getPrivilegeLevel(role) >= getPrivilegeLevel(ROLES.GENERAL_MANAGER)
+        ? availableProvinces.filter(province => province.isActive !== false).map(province => province.id)
+        : editingUser.provinceId
+          ? [editingUser.provinceId]
+          : [];
 
     setEditingUser({
       ...editingUser,
@@ -129,19 +127,19 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
   // Translate a permission key to its display name
   const translatePermission = (permission: string): string => {
     try {
-      if (typeof permission !== "string") {
-        console.error("Invalid permission format:", permission);
-        return "Unknown Permission";
+      if (typeof permission !== 'string') {
+        console.error('Invalid permission format:', permission);
+        return 'Unknown Permission';
       }
       // Convert from DATA_VIEW format to data_view format
-      const permKey = permission.replace(/^PERMISSIONS\./, "").toLowerCase();
+      const permKey = permission.replace(/^PERMISSIONS\./, '').toLowerCase();
       // Try using the key with explicit permissions namespace and empty defaultValue
-      const translated = t(permKey, { ns: "permissions", defaultValue: "" });
+      const translated = t(permKey, { ns: 'permissions', defaultValue: '' });
       if (translated) return translated;
       // Fallback: humanize the permission key (e.g., DATA_VIEW -> Data View)
-      return permKey.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      return permKey.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
     } catch (error) {
-      console.error("Error translating permission:", permission, error);
+      console.error('Error translating permission:', permission, error);
       return String(permission);
     }
   };
@@ -184,11 +182,16 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
         label: t(`${keyPrefix}.tabs.role`, t(`editModal.tabs.role`, 'Role')),
         children: (
           <div className='p-4 w-full overflow-x-hidden'>
-            <h3 className='text-lg mb-4'>{t(`editModal.roleTitle`, t(`${namespace}.editModal.roleTitle`, 'Select User Role'))}</h3>
+            <h3 className='text-lg mb-4'>
+              {t(`editModal.roleTitle`, t(`${namespace}.editModal.roleTitle`, 'Select User Role'))}
+            </h3>
             <Form layout='vertical'>
               <Form.Item
                 label={t(`editModal.roleLabel`, t(`${namespace}.editModal.roleLabel`, 'Role'))}
-                extra={t(`editModal.roleDescription`, t(`${namespace}.editModal.roleDescription`, 'Assign a role to control user access'))}
+                extra={t(
+                  `editModal.roleDescription`,
+                  t(`${namespace}.editModal.roleDescription`, 'Assign a role to control user access')
+                )}
               >
                 <Select
                   value={editingUser.selectedRole}
@@ -219,12 +222,8 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
         // label: t(`editModal.tabs.permissions`),
         children: (
           <div className='p-4 w-full overflow-x-hidden'>
-            <h3 className='text-lg mb-4'>
-              {t(`editModal.permissionsTitle`)}
-            </h3>
-            <p className='mb-4'>
-              {t(`editModal.permissionsDescription`)}
-            </p>
+            <h3 className='text-lg mb-4'>{t(`editModal.permissionsTitle`)}</h3>
+            <p className='mb-4'>{t(`editModal.permissionsDescription`)}</p>
             <Transfer
               dataSource={allPermissions
                 .filter(l => l.key !== 'USER_INVITE')
@@ -232,14 +231,8 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
                   ...item,
                   title: translatePermission(item.key)
                 }))}
-              titles={[
-                t(`editModal.availablePermissions`),
-                t(`editModal.assignedPermissions`)
-              ]}
-              operations={[
-                t(`editModal.moveButtons.toRight`),
-                t(`editModal.moveButtons.toLeft`)
-              ]}
+              titles={[t(`editModal.availablePermissions`), t(`editModal.assignedPermissions`)]}
+              operations={[t(`editModal.moveButtons.toRight`), t(`editModal.moveButtons.toLeft`)]}
               targetKeys={editingUser.selectedPermissions}
               onChange={handlePermissionChange}
               render={item => item.title}
@@ -248,8 +241,7 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
                 height: 300
               }}
               showSearch
-              filterOption={(inputValue, option) => 
-                option.title.toLowerCase().indexOf(inputValue.toLowerCase()) > -1}
+              filterOption={(inputValue, option) => option.title.toLowerCase().indexOf(inputValue.toLowerCase()) > -1}
               className='bg-white dark:bg-gray-800'
               locale={{
                 itemUnit: t('item', { ns: 'common', defaultValue: 'รายการ' }),
@@ -272,47 +264,39 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
         label: t(`editModal.tabs.provinces`),
         children: (
           <div className='p-4 w-full overflow-x-hidden'>
-            <h3 className='text-lg mb-4'>
-              {t(`editModal.provincesTitle`)}
-            </h3>
-            <p className='mb-4'>
-              {t(`editModal.provincesDescription`)}
-            </p>
+            <h3 className='text-lg mb-4'>{t(`editModal.provincesTitle`)}</h3>
+            <p className='mb-4'>{t(`editModal.provincesDescription`)}</p>
 
             <Form layout='vertical'>
-              <Form.Item
-                label={t(`editModal.selectProvinces`)}
-                extra={t(`editModal.provincesExtra`)}
-              >
+              <Form.Item label={t(`editModal.selectProvinces`)} extra={t(`editModal.provincesExtra`)}>
                 <Select
-                  mode="multiple"
+                  mode='multiple'
                   value={editingUser.selectedProvinceIds}
                   onChange={handleProvinceChange}
                   style={{ width: '100%' }}
                   placeholder={t(`editModal.selectProvincesPlaceholder`)}
-                  disabled={(user?.role && getPrivilegeLevel(user?.role) <= getPrivilegeLevel(ROLES.GENERAL_MANAGER))}
-                  className="province-select"
-                  optionFilterProp="children"
+                  disabled={user?.role && getPrivilegeLevel(user?.role) <= getPrivilegeLevel(ROLES.GENERAL_MANAGER)}
+                  className='province-select'
+                  optionFilterProp='children'
                   showSearch
                 >
                   {availableProvinces
                     .filter(province => province.isActive !== false)
-                    .map(province => (
-                      <Option key={province.id} value={province.id}>
-                        {province.name} {province.code ? `(${province.code})` : ''}
-                      </Option>
-                    ))}
+                    .map(province => {
+                      console.log('availableProvinces', availableProvinces);
+                      console.log('province', province);
+                      return (
+                        <Option key={province.id} value={province.id}>
+                          {province.name} {province.code ? `(${province.code})` : ''}
+                        </Option>
+                      );
+                    })}
                 </Select>
               </Form.Item>
             </Form>
 
             {editingUser.selectedProvinceIds.length === 0 && (
-              <Alert
-                message={t(`editModal.noProvincesWarning`)}
-                type='warning'
-                showIcon
-                className='mb-4'
-              />
+              <Alert message={t(`editModal.noProvincesWarning`)} type='warning' showIcon className='mb-4' />
             )}
 
             {isInRoleCategory(editingUser.selectedRole, RoleCategory.GENERAL_MANAGER) && (
@@ -329,7 +313,8 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
               <div className='mt-4 bg-blue-50 p-3 rounded border border-blue-200 dark:bg-blue-900 dark:border-blue-800'>
                 <p className='text-blue-700 dark:text-blue-200'>
                   {t(`${keyPrefix}.employeeProvinceWarning`, {
-                    provinceName: availableProvinces.find(p => p.id === editingUser.provinceId)?.name || editingUser.provinceId
+                    provinceName:
+                      availableProvinces.find(p => p.id === editingUser.provinceId)?.name || editingUser.provinceId
                   })}
                 </p>
               </div>
@@ -350,11 +335,19 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
             </h3>
 
             <div className='mb-4'>
-              <h4 className='font-medium mb-2'>{t(`editModal.selectedRole`, t(`${namespace}.editModal.selectedRole`, 'Selected Role'))}:</h4>
+              <h4 className='font-medium mb-2'>
+                {t(`editModal.selectedRole`, t(`${namespace}.editModal.selectedRole`, 'Selected Role'))}:
+              </h4>
               <Tag>{t(`${editingUser.selectedRole.toLowerCase()}.label`, { ns: 'roles' })}</Tag>
             </div>
             <div className='mb-4'>
-              <h4 className='font-medium mb-2'>{t(`editModal.selectedPermissions`, t(`${namespace}.editModal.selectedPermissions`, 'Selected Permissions'))}:</h4>
+              <h4 className='font-medium mb-2'>
+                {t(
+                  `editModal.selectedPermissions`,
+                  t(`${namespace}.editModal.selectedPermissions`, 'Selected Permissions')
+                )}
+                :
+              </h4>
               <div>
                 {editingUser.selectedPermissions.map(permission => (
                   <Tag key={permission}>{translatePermission(permission)}</Tag>
@@ -362,7 +355,9 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
               </div>
             </div>
             <div className='mb-4'>
-              <h4 className='font-medium mb-2'>{t(`editModal.selectedProvinces`, t(`${namespace}.editModal.selectedProvinces`, 'Selected Provinces'))}:</h4>
+              <h4 className='font-medium mb-2'>
+                {t(`editModal.selectedProvinces`, t(`${namespace}.editModal.selectedProvinces`, 'Selected Provinces'))}:
+              </h4>
               <div>
                 {editingUser.selectedProvinceIds.map(provinceId => (
                   <Tag key={provinceId}>{availableProvinces.find(p => p.id === provinceId)?.name || provinceId}</Tag>
@@ -384,20 +379,20 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
       onOk={handleSave}
       title={t(modalTitle)}
       footer={[
-        <Button key="cancel" onClick={onCancel}>
-          {t(`${namespace}.editModal.cancelButton`, 'Cancel')}
+        <Button key='cancel' onClick={onCancel}>
+          {t(`common.cancel`, 'ยกเลิก')}
         </Button>,
-        <Button key="save" type="primary" loading={isSaving} onClick={handleSave}>
-          {t(`${namespace}.editModal.saveButton`, 'Save')}
+        <Button key='save' type='primary' loading={isSaving} onClick={handleSave}>
+          {t(`common.save`, 'บันทึก')}
         </Button>
       ]}
-      style={{minWidth: '600px'}}
+      style={{ minWidth: '600px' }}
     >
       <Tabs
         activeKey={activeTabKey}
-        onChange={(key) => setActiveTabKey(key)}
+        onChange={key => setActiveTabKey(key)}
         items={getTabItems()}
-        className="w-full"
+        className='w-full'
         style={{ maxWidth: '100%' }}
       />
     </Modal>

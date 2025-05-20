@@ -25,7 +25,7 @@ const AuditHistory: React.FC<AuditHistoryProps> = ({
   employees: employeesProp,
   onApprove
 }) => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation('inputPrice');
   const employeesFromRedux = useSelector((state: RootState) => state.employees.employees);
   const currentUser = useSelector((state: RootState) => state.auth.user);
   const employees = employeesProp || employeesFromRedux;

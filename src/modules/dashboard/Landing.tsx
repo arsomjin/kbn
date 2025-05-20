@@ -75,7 +75,8 @@ const Landing: React.FC = () => {
 
   return (
     <div className={isMobile ? 'p-2' : 'p-6'}>
-      <Title level={isMobile ? 3 : 2}>Welcome to KBN!</Title>
+      <Title level={isMobile ? 2 : 3}>[ทดสอบ] หน้าหลักสำหรับผู้ใช้งานทั่วไป</Title>
+      {/* <Title level={isMobile ? 2 : 3}>Welcome to KBN!</Title> */}
       <p className='text-gray-500 mb-6'>Hello, {userProfile?.displayName || 'User'}. Welcome to your KBN dashboard.</p>
 
       <Row gutter={[isMobile ? 8 : 16, isMobile ? 8 : 16]}>

@@ -53,6 +53,8 @@ import enAccount from './en/account.json';
 import thAccount from './th/account.json';
 import enInputPrice from './en/inputPrice.json';
 import thInputPrice from './th/inputPrice.json';
+import enTime from './en/time.json';
+import thTime from './th/time.json';
 
 // Resources object containing translations
 const resources = {
@@ -81,7 +83,8 @@ const resources = {
     branches: enBranches,
     employees: enEmployees,
     account: enAccount,
-    inputPrice: enInputPrice
+    inputPrice: enInputPrice,
+    time: enTime
   },
   th: {
     app: thApp,
@@ -108,7 +111,8 @@ const resources = {
     userRoleManager: thUserRoleManager,
     employees: thEmployees,
     account: thAccount,
-    inputPrice: thInputPrice
+    inputPrice: thInputPrice,
+    time: thTime
   }
 };
 
@@ -123,9 +127,32 @@ i18n
     fallbackLng: 'th',
     defaultNS: 'common',
     ns: [
-      'app', 'auth', 'notifications', 'profile', 'userReview', 'roles', 'theme', 'language', 'common', 'validation', 'firebase', 'provinces',
-      'dashboard', 'overview', 'developer', 'content', 'userManagement', 'systemSettings', 'sendNotification', 'permissions', 'userRoleManager',
-      'branches', 'employees', 'account'
+      'app',
+      'auth',
+      'notifications',
+      'profile',
+      'userReview',
+      'roles',
+      'theme',
+      'language',
+      'common',
+      'validation',
+      'firebase',
+      'provinces',
+      'dashboard',
+      'overview',
+      'developer',
+      'content',
+      'userManagement',
+      'systemSettings',
+      'sendNotification',
+      'permissions',
+      'userRoleManager',
+      'branches',
+      'employees',
+      'account',
+      'inputPrice',
+      'time'
     ],
     interpolation: {
       escapeValue: false

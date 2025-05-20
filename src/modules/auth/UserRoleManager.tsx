@@ -715,7 +715,7 @@ const UserRoleManager: React.FC = () => {
           className={`flex ${isMobile ? 'flex-col' : 'flex-row justify-between'} items-${isMobile ? 'start' : 'center'}`}
         >
           <div>
-            <Title level={isMobile ? 3 : 2} className='mb-1'>
+            <Title level={isMobile ? 2 : 3} className='mb-1'>
               {t('title')}
             </Title>
             <Paragraph>{t('description')}</Paragraph>

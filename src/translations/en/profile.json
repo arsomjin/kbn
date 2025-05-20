@@ -8,6 +8,7 @@
   "role": "Role",
   "branch": "Branch",
   "department": "Department",
+  "selectDepartment": "Select Department",
   "requestedType": "Type",
   "employee": "Employee",
   "visitor": "Visitor",
@@ -27,6 +28,8 @@
   "noName": "No Name",
   "noEmail": "No Email",
   "noStatus": "No Status",
+  "adminTitle": "New User Approved",
+  "adminDescription": "User {{user}} has been approved with role {{role}}",
   "tabs": {
     "personal": "Personal Information",
     "work": "Work Information",
@@ -71,4 +74,4 @@
     "verifyEmailSent": "Verification email sent",
     "passwordResetSent": "Password reset email sent"
   }
-} 
+}

@@ -11,11 +11,15 @@ export interface Notification {
   description: string;
   type: NotificationType;
   read: boolean;
-  createdAt: {
-    seconds: number;
-    nanoseconds: number;
-  } | string;
+  createdAt:
+    | {
+        seconds: number;
+        nanoseconds: number;
+      }
+    | string;
   imageUrl?: string;
   link?: string;
   data?: Record<string, any>;
-} 
+  params?: Record<string, any>;
+  targetUserIds?: string[];
+}

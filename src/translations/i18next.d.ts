@@ -29,11 +29,9 @@ declare module 'react-i18next' {
       employees: typeof import('./en/employees.json');
       account: typeof import('./en/account.json');
       inputPrice: typeof import('./en/inputPrice.json');
+      time: typeof import('./en/time.json');
     };
   }
 
-  function useTranslation(
-    ns?: string | string[],
-    options?: UseTranslationOptions
-  ): UseTranslationResponse;
+  function useTranslation(ns?: string | string[], options?: UseTranslationOptions): UseTranslationResponse;
 }

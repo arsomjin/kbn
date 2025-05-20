@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut } from 'firebase/auth';
 import { auth, db } from 'config/firebase';
 import { doc, getDoc, updateDoc, onSnapshot } from 'firebase/firestore';
-import { UserProfile } from '@/types/auth';
+import { UserProfile } from 'types/auth';
 import { LoadingSpinner } from 'components/common/LoadingSpinner';
 import { ROLES } from 'constants/roles';
 import { transformUserData, transformToUserProfile, removeUndefinedFields } from 'utils/userTransform';
@@ -78,7 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       doc => {
         console.log('[AuthContext] User profile updated:', doc.data());
         if (doc.exists()) {
-          const profileData = doc.data();
+          const profileData = { ...doc.data(), ...doc.data()?.auth };
+          console.log('[AuthContext] User profile data:', profileData);
           setUserProfile(profileData as UserProfile);
           // Update current province if available
           if (profileData?.provinceId) {
@@ -86,7 +87,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         } else {
           console.log('[AuthContext] No profile found for user, creating initial profile');
-          const initialUserData: UserProfile = {
+          let initialUserData: UserProfile = {
             uid: user.uid,
             firstName: '',
             lastName: '',
@@ -162,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...data,
         updatedAt: new Date()
       });
-      setUserProfile(prev => (prev ? { ...prev, ...data } : null));
+      setUserProfile((prev: any) => (prev ? { ...prev, ...data } : null));
     } catch (err) {
       setError(err instanceof Error ? err : new Error('Failed to update profile'));
       throw err;
@@ -221,7 +222,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Computed values
     isAuthenticated,
     isProfileComplete: userProfile?.isProfileComplete ?? false,
-    hasProvinceAccess: (provinceId: string) => !!userProfile?.provinceAccess?.includes(provinceId),
+    hasProvinceAccess: (provinceId: string) => {
+      console.log('userProfile?.accessibleProvinceIds', userProfile?.accessibleProvinceIds);
+      console.log('userProfile?.provinceId', userProfile?.provinceId);
+      console.log('provinceId', provinceId);
+      console.log(
+        'result',
+        !!(userProfile?.accessibleProvinceIds || []).includes(provinceId) ||
+          (userProfile?.provinceId || '').includes(provinceId)
+      );
+      return (
+        !!(userProfile?.accessibleProvinceIds || []).includes(provinceId) ||
+        (userProfile?.provinceId || '').includes(provinceId)
+      );
+    },
     hasNoProfile: !userProfile,
     isLoading: loading || isProfileLoading,
 

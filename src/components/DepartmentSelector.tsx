@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from 'store';
 import { Department } from 'services/departmentService';
-
+import { useDepartmentContext } from 'contexts/DepartmentContext';
 interface DepartmentSelectorProps {
   value?: string;
   onChange?: (value: string) => void;
@@ -54,12 +54,14 @@ const DepartmentSelector: React.FC<DepartmentSelectorProps> = ({
     );
   }, [departments, provinceId]);
 
+  console.log(filteredDepartments);
+
   return (
     <Select
       showSearch
       value={value}
       onChange={onChange}
-      placeholder={t('selectDepartment', { ns: 'departments' })}
+      placeholder={placeholder || t('selectDepartment', { ns: 'departments' })}
       disabled={disabled || loading}
       loading={loading}
       optionFilterProp='children'

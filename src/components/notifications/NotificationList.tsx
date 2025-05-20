@@ -33,6 +33,8 @@ import './NotificationList.css';
 import dayjs from 'dayjs';
 import { getTimestampMillis } from '../../utils/timestampUtils';
 import { Timestamp } from 'firebase/firestore';
+import { useAuth } from 'contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -43,10 +45,11 @@ const { RangePicker } = DatePicker;
  */
 const NotificationList: React.FC = () => {
   const navigate = useNavigate();
-  const userProfile = useSelector((state: RootState) => state.auth.userProfile);
+  const { userProfile } = useAuth();
   const notifications = useSelector((state: RootState) => state.notifications.notifications) as Notification[];
-  const { unreadCount, isLoading, hasMore, loadMoreNotifications, markAsRead, markAllAsRead } =
-    useNotifications(userProfile);
+  const { unreadCount, isLoading, hasMore, loadMoreNotifications, markAsRead, markAllAsRead } = useNotifications();
+  const { t } = useTranslation('notifications');
+  const getTranslationKey = (key: string) => key?.replace(/^notifications\./, '');
 
   const [filteredNotifications, setFilteredNotifications] = useState<Notification[]>([]);
   const [filters, setFilters] = useState({
@@ -168,7 +171,7 @@ const NotificationList: React.FC = () => {
         <div className='notification-item-content' onClick={() => handleNotificationClick(record)}>
           <Space>
             {!record.isRead && <Badge status='processing' />}
-            <Text strong={!record.isRead}>{title}</Text>
+            <Text strong={!record.isRead}>{t(getTranslationKey(title))}</Text>
           </Space>
         </div>
       )
@@ -177,7 +180,9 @@ const NotificationList: React.FC = () => {
       title: 'Message',
       dataIndex: 'description',
       key: 'description',
-      render: (description: string) => <Text ellipsis={{ tooltip: description }}>{description}</Text>
+      render: (description: string, record: Notification) => (
+        <Text ellipsis={{ tooltip: description }}>{t(getTranslationKey(description), record.params || {})}</Text>
+      )
     },
     {
       title: 'Date',

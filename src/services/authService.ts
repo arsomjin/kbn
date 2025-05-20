@@ -127,8 +127,6 @@ export const registerUser = async (
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Update display name
-    await updateProfile(user, { displayName });
     console.log('User registered:', user);
     // Create user profile in Firestore
     const userProfile: UserProfile = {

@@ -1,5 +1,5 @@
 import { store } from '../store';
-import { addNotification, markAsRead, updateNotifications } from '../store/slices/notificationSlice';
+import { addNotification, markAsRead, updateNotifications } from '../store/slices/notificationsSlice';
 import {
   Notification,
   NotificationType,
@@ -13,6 +13,7 @@ import { callFunction } from '../utils/firestoreUtils';
 import { UserProfile } from '../services/authService';
 import { Timestamp } from 'firebase/firestore';
 import { isInRoleCategory, RoleCategory, ROLES, RoleType } from '../constants/roles';
+import { useAuth } from 'contexts/AuthContext';
 
 /**
  * Basic interface for notification objects with province-aware properties
@@ -367,11 +368,12 @@ export const notificationController = {
     limit?: number;
     provinceId?: string;
     startAfter?: any;
+    userProfile: UserProfile;
   }): Promise<Notification[]> {
     try {
       // Build query based on options provided
       const pageSize = options.limit || 10;
-      const userProfile = store.getState().auth?.userProfile;
+      const { userProfile } = options;
 
       // Debug logs
       console.log('[NOTIFICATION CONTROLLER] Fetch options:', options);
@@ -474,6 +476,42 @@ export const notificationController = {
     } catch (error) {
       console.error('Error creating user registration notification:', error);
       return { id: '', success: false };
+    }
+  },
+
+  /**
+   * Fetch personal notifications for a user
+   * @param userId - User ID
+   * @param userProfile - User profile
+   * @returns Promise<Notification[]> - Retrieved notifications
+   */
+  async fetchPersonalNotifications(userId: string, userProfile: UserProfile): Promise<Notification[]> {
+    try {
+      if (!userProfile) {
+        throw new Error('User profile is required');
+      }
+
+      // Get notifications with proper filtering
+      const result = await getNotifications(userProfile, 10);
+
+      // Filter to only include notifications where the user is the target
+      const notifications = result.notifications.filter(notification => {
+        // Check if this is a personal notification (no targeting criteria)
+        const isPersonal = !notification.targetRoles && !notification.targetBranch && !notification.targetDepartment;
+
+        // Check if user is explicitly targeted
+        const isTargeted =
+          notification.targetRoles?.includes(userProfile.role) ||
+          notification.targetBranch === userProfile.branch ||
+          notification.targetDepartment === userProfile.department;
+
+        return isPersonal || isTargeted;
+      });
+
+      return notifications;
+    } catch (error) {
+      console.error('Error fetching personal notifications:', error);
+      return [];
     }
   }
 };

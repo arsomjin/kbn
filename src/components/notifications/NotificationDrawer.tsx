@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { Notification, NotificationType } from '../../services/notificationService';
 import { formatRelativeTime } from '../../utils/dateUtils';
 import { createSafeHtml } from '../../utils/htmlUtils';
+import { useResponsive } from 'hooks/useResponsive';
 
 interface NotificationDrawerProps {
   open: boolean;
@@ -27,18 +28,8 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
   onLoadMore,
   hasMore = false
 }) => {
-  const { t } = useTranslation();
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  // Add responsive behavior
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const { t } = useTranslation('notifications');
+  const { isMobile } = useResponsive();
 
   // Get appropriate color for notification type
   const getTagColor = (type: NotificationType): string => {
@@ -55,34 +46,38 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
     }
   };
 
+  const getTranslationKey = (key: string) => key?.replace(/^notifications\./, '');
+
   return (
     <Drawer
       title={
         <div className='flex items-center justify-between'>
           <div className='flex items-center'>
             <BellOutlined className='mr-2' />
-            <span>{t('notifications.title')}</span>
+            <span>{t('notifications:title')}</span>
           </div>
           {notifications.length > 0 && onMarkAllAsRead && (
             <Button type='text' size='small' onClick={onMarkAllAsRead} className='text-xs'>
-              {t('notifications.markAllAsRead')}
+              {t('notifications:markAllAsRead')}
             </Button>
           )}
-          {!isMobile && <Button
-            type="text"
-            size="small"
-            icon={<CloseOutlined />}
-            aria-label={t('common.close')}
-            onClick={onClose}
-            className="ml-2"
-          />}
+          {!isMobile && (
+            <Button
+              type='text'
+              size='small'
+              icon={<CloseOutlined />}
+              aria-label={t('common.close')}
+              onClick={onClose}
+              className='ml-2'
+            />
+          )}
         </div>
       }
       placement={isMobile ? 'left' : 'right'}
       onClose={onClose}
       open={open}
       width={isMobile ? '85%' : 350}
-      className="notification-drawer-right-close"
+      className='notification-drawer-right-close'
       closeIcon={isMobile}
     >
       {loading && notifications.length === 0 ? (
@@ -113,7 +108,7 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
               <div className='flex flex-col'>
                 {/* Notification header */}
                 <div className='flex justify-between items-center mb-2'>
-                  <Tag color={getTagColor(notification.type)}>{t(`common.${notification.type}`)}</Tag>
+                  <Tag color={getTagColor(notification.type)}>{t(`common:${notification.type}`)}</Tag>
                   <Typography.Text type='secondary' className='text-xs'>
                     {formatRelativeTime(notification.createdAt)}
                   </Typography.Text>
@@ -121,15 +116,13 @@ const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
 
                 {/* Notification title */}
                 <Typography.Title level={5} className='m-0'>
-                  {notification.title}
+                  {t('notifications:title')}
                 </Typography.Title>
 
                 {/* Notification content */}
-                <Typography.Paragraph
-                  className='mt-1 mb-0'
-                  ellipsis={{ rows: 3, expandable: true, symbol: 'more' }}
-                  dangerouslySetInnerHTML={createSafeHtml(notification.description)}
-                />
+                <Typography.Paragraph className='mt-1 mb-0' ellipsis={{ rows: 3, expandable: true, symbol: 'more' }}>
+                  {t(getTranslationKey(notification.description), notification.params || {})}
+                </Typography.Paragraph>
               </div>
             </List.Item>
           )}

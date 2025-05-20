@@ -94,20 +94,20 @@ const PendingPage: React.FC = () => {
         >
           <div className='text-center drop-shadow-xl'>
             <h3
-              className={`${isMobile ? 'text-xl' : isTablet ? 'text-2xl' : 'text-3xl'} font-bold tracking-wide opacity-0 -translate-x-20 lg:text-4xl text-secondary dark:text-secondary mb-2 drop-shadow-md`}
+              className={`${isMobile ? 'text-xl' : isTablet ? 'text-2xl' : 'text-3xl'} font-bold tracking-wide lg:text-4xl text-secondary dark:text-secondary mb-2 drop-shadow-md`}
               ref={welcome}
             >
               บัญชีของคุณกำลังรออนุมัติ
             </h3>
             <h1
-              className={`pb-4 pt-2 bg-gradient-to-b from-primary to-secondary bg-clip-text ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'} font-extrabold text-transparent -translate-x-20 opacity-0 md:text-6xl drop-shadow-xl border-b-2 border-primary/30 mb-2`}
+              className={`pb-4 pt-2 bg-gradient-to-b from-primary to-secondary bg-clip-text ${isMobile ? 'text-3xl' : isTablet ? 'text-4xl' : 'text-5xl'} font-extrabold text-transparent md:text-6xl drop-shadow-xl border-b-2 border-primary/30 mb-2`}
               ref={title}
             >
               คูโบต้า เบญจพล
             </h1>
           </div>
           <p
-            className={`${isMobile ? 'text-sm' : isTablet ? 'text-base' : 'text-lg'} text-gray-800 dark:text-gray-200 font-medium text-center w-full max-w-xl opacity-0 -translate-x-20 mt-2 mb-4 drop-shadow tracking-wide`}
+            className={`${isMobile ? 'text-sm' : isTablet ? 'text-base' : 'text-lg'} text-gray-800 dark:text-gray-200 font-medium text-center w-full max-w-xl mt-2 mb-4 drop-shadow tracking-wide`}
             ref={paragraph}
           >
             บัญชีของคุณกำลังอยู่ในระหว่างการตรวจสอบ

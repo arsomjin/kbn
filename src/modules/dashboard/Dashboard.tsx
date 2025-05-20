@@ -4,7 +4,7 @@ import { UserOutlined, BellOutlined, CheckCircleOutlined, ClockCircleOutlined } 
 import { useTranslation } from 'react-i18next';
 import { useAuth } from 'contexts/AuthContext';
 import { UserRole } from '../../constants/roles';
-import { useWindowSize } from 'hooks/useWindowSize';
+import { useResponsive } from 'hooks/useResponsive';
 
 const { Title } = Typography;
 
@@ -12,7 +12,7 @@ const Dashboard: React.FC = () => {
   const { t } = useTranslation(['dashboard', 'common']);
   const { userProfile } = useAuth();
 
-  const { isMobile } = useWindowSize();
+  const { isMobile } = useResponsive();
 
   // Placeholder stats for demonstration
   const stats = {
@@ -29,7 +29,8 @@ const Dashboard: React.FC = () => {
   return (
     <div className={`${isMobile ? 'p-3' : 'p-6'}`}>
       <div className='mb-6'>
-        <Title level={isMobile ? 3 : 2}>{t('app:title')}</Title>
+        <Title level={isMobile ? 2 : 3}>[ทดสอบ] หน้าหลักสำหรับผู้บริหาร</Title>
+        {/* <Title level={isMobile ? 2 : 3}>{t('app:title')}</Title> */}
         <p className={`text-text-light mb-6 ${isMobile ? 'text-sm' : ''}`}>
           {t('dashboard:welcome')}, {userProfile?.displayName || t('common:user')}!
         </p>

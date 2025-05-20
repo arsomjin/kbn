@@ -20,7 +20,8 @@ interface NotificationItemProps {
 }
 
 const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onClick }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('notifications');
+  const getTranslationKey = (key: string) => key?.replace(/^notifications\./, '');
   const getTypeConfig = (type: NotificationType) => {
     return notificationTypeConfig[type] || notificationTypeConfig[NotificationType.INFO];
   };
@@ -47,20 +48,23 @@ const NotificationItem: React.FC<NotificationItemProps> = ({ notification, onCli
             style={{ backgroundColor: config.color }}
             icon={notification.imageUrl ? null : config.icon}
             src={notification.imageUrl}
+            size={24}
           />
         }
         title={
           <div className='notification-title'>
-            <Text strong>{t(notification.title, notification.title)}</Text>
-            <span className='notification-time'>
-              {formattedDate}
-            </span>
+            <Text strong>{t(getTranslationKey(notification.title))}</Text>
+            <span className='notification-time'>{formattedDate}</span>
           </div>
         }
-        description={<Text className='notification-description'>{t(notification.description, notification.description)}</Text>}
+        description={
+          <Text className='notification-description'>
+            {t(getTranslationKey(notification.description), notification.params || {})}
+          </Text>
+        }
       />
     </List.Item>
   );
 };
 
-export default NotificationItem; 
+export default NotificationItem;

@@ -5,6 +5,7 @@ import employeesReducer from './slices/employeesSlice';
 import dataReducer from './slices/dataSlice';
 import notificationsReducer from './slices/notificationsSlice';
 import departmentsReducer from './slices/departmentSlice';
+import logger from 'redux-logger';
 
 export const store = configureStore({
   reducer: {
@@ -14,7 +15,9 @@ export const store = configureStore({
     data: dataReducer,
     notifications: notificationsReducer,
     departments: departmentsReducer
-  }
+  },
+  middleware: getDefaultMiddleware =>
+    process.env.NODE_ENV === 'development' ? getDefaultMiddleware().concat(logger) : getDefaultMiddleware()
 });
 
 export type RootState = ReturnType<typeof store.getState>;

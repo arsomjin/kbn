@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState, useEffect } from 'react';
-import { Form, Card, Row, Col, Modal, Alert, Timeline, Collapse, Divider } from 'antd';
+import { Form, Card, Row, Col, Modal, Alert, Timeline, Collapse, Divider, Tooltip } from 'antd';
 import { getFirestore, collection, doc, getDocs, query, where, setDoc } from 'firebase/firestore';
 import { useMergeState } from 'hooks/useMergeState';
 
@@ -29,10 +29,14 @@ import { RootState } from '../../../store';
 import EmployeeSelector from 'components/EmployeeSelector';
 import DocumentAuditTrail, { DocumentAuditTrailValue } from 'components/DocumentAuditTrail';
 import AuditHistory from '../../../components/AuditHistory';
+import { ROLES, RoleType } from '../../../constants/roles';
+import { getPrivilegeLevel } from '../../../utils/roleUtils';
+import AuditTrailSection from '../../../components/AuditTrailSection';
 
 // Add custom styles for the summary component
 import './inputPrice.css';
 import { isMobile } from 'react-device-detect';
+import { useAuth } from 'contexts/AuthContext';
 
 const initMergeState: InputPriceState = {
   mReceiveNo: null,
@@ -50,8 +54,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
   const { t } = useTranslation('inputPrice');
   const firestore = getFirestore();
   const { hasPermission, hasProvinceAccess } = usePermissions();
-  const { user } = useSelector((state: any) => state.auth);
-  const { userProfile } = useSelector((state: RootState) => state.auth);
+  const { user, userProfile } = useAuth();
   const [cState, setCState] = useMergeState<InputPriceState>(initMergeState);
   const [form] = Form.useForm<InputPriceFormValues>();
   const resetToInitial = useCallback(() => {
@@ -88,9 +91,12 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
   if (hasPermission(PERMISSIONS.DOCUMENT_REVIEW)) activeStep = 1;
   if (hasPermission(PERMISSIONS.DOCUMENT_APPROVE)) activeStep = 2;
   // Department access check
-  const canAccessDepartment = userProfile?.department === departmentId;
-  // RBAC: Only allow if user has MANAGE_EXPENSE and province access
-  const canAccess = hasPermission(PERMISSIONS.MANAGE_EXPENSE) && hasProvinceAccess(provinceId);
+  const isGeneralManagerOrHigher =
+    userProfile && getPrivilegeLevel(userProfile.role) >= getPrivilegeLevel(ROLES.GENERAL_MANAGER);
+  const canAccessDepartment = isGeneralManagerOrHigher || userProfile?.department === departmentId;
+  // RBAC: Only allow if user has MANAGE_EXPENSE and province access, or is general manager or higher
+  const canAccess =
+    isGeneralManagerOrHigher || (hasPermission(PERMISSIONS.MANAGE_EXPENSE) && hasProvinceAccess(provinceId));
 
   const onConfirm = useCallback(
     async (mValues: InputPriceFormValues) => {
@@ -149,7 +155,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
               branchCode: '0450',
               date: dayjs().format('YYYY-MM-DD'),
               time: Date.now(),
-              inputBy: user.uid,
+              inputBy: user?.uid,
               isPart: false
             };
             // --- Audit Trail Logic ---
@@ -159,13 +165,13 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
             const changes = getChangesFn(prevDoc || {}, expense);
             if (Object.keys(changes).length > 0) {
               const auditEntry = {
-                uid: user.uid,
+                uid: user?.uid,
                 time: Date.now(),
                 changes,
                 action: isUpdate ? 'update' : 'create',
                 userInfo: {
-                  name: userProfile?.displayName || user.email,
-                  email: user.email,
+                  name: userProfile?.displayName || user?.email,
+                  email: user?.email,
                   department: userProfile?.department,
                   role: userProfile?.role
                 },
@@ -186,10 +192,10 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
               statusHistory.push({
                 status: currentStatus,
                 time: Date.now(),
-                uid: user.uid,
+                uid: user?.uid,
                 userInfo: {
-                  name: userProfile?.displayName || user.email,
-                  email: user.email,
+                  name: userProfile?.displayName || user?.email,
+                  email: user?.email,
                   department: userProfile?.department,
                   role: userProfile?.role
                 }
@@ -205,10 +211,10 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
               statusHistory: statusHistory || [],
               lastModified: {
                 time: Date.now(),
-                uid: user.uid,
+                uid: user?.uid,
                 userInfo: {
-                  name: userProfile?.displayName || user.email,
-                  email: user.email,
+                  name: userProfile?.displayName || user?.email,
+                  email: user?.email,
                   department: userProfile?.department,
                   role: userProfile?.role
                 }
@@ -253,7 +259,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
       cState,
       summary.billVAT,
       summary.billTotal,
-      user.uid,
+      user?.uid,
       firestore,
       resetToInitial,
       t,
@@ -492,7 +498,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
   const canEditApprovedBy = hasPermission(PERMISSIONS.DOCUMENT_APPROVE);
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-6' style={{ marginTop: isMobile ? '60px' : '0px' }}>
       <PageTitle
         title={t('title')}
         subtitle={t('subtitle', 'รถและอุปกรณ์')}
@@ -616,57 +622,11 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
           </div>
 
           {/* Edited/Reviewed/Approved By Section - Ant Design Row/Col Responsive Layout */}
-          <Divider />
-          <Row gutter={16} className='mb-4 mt-4'>
-            <Col xs={24} md={8}>
-              <Form.Item
-                name={['auditTrail', 0, 'userInfo', 'name']}
-                label={<span className='font-medium'>* {t('editor', 'ผู้แก้ไข')}</span>}
-                rules={[{ required: canEditEditedBy, message: t('selectEditor', 'กรุณาเลือกผู้แก้ไข') }]}
-              >
-                <EmployeeSelector disabled={!canEditEditedBy} />
-              </Form.Item>
-              <Form.Item
-                name={['auditTrail', 0, 'time']}
-                label={<span className='font-medium'>{t('editDate', 'วันที่แก้ไข')}</span>}
-                rules={[{ required: canEditEditedBy, message: t('selectEditDate', 'กรุณาเลือกวันที่แก้ไข') }]}
-              >
-                <DatePicker disabled={!canEditEditedBy} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={8}>
-              <Form.Item
-                name={['auditTrail', 1, 'userInfo', 'name']}
-                label={<span className='font-medium'>* {t('reviewer', 'ผู้ตรวจสอบ')}</span>}
-                rules={[{ required: canEditReviewedBy, message: t('selectReviewer', 'กรุณาเลือกผู้ตรวจสอบ') }]}
-              >
-                <EmployeeSelector disabled={!canEditReviewedBy} />
-              </Form.Item>
-              <Form.Item
-                name={['auditTrail', 1, 'time']}
-                label={<span className='font-medium'>{t('reviewDate', 'วันที่ตรวจสอบ')}</span>}
-                rules={[{ required: canEditReviewedBy, message: t('selectReviewDate', 'กรุณาเลือกวันที่ตรวจสอบ') }]}
-              >
-                <DatePicker disabled={!canEditReviewedBy} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-            <Col xs={24} md={8}>
-              <Form.Item
-                name={['auditTrail', 2, 'userInfo', 'name']}
-                label={<span className='font-medium'>* {t('approver', 'ผู้อนุมัติ')}</span>}
-                rules={[{ required: canEditApprovedBy, message: t('selectApprover', 'กรุณาเลือกผู้อนุมัติ') }]}
-              >
-                <EmployeeSelector disabled={!canEditApprovedBy} />
-              </Form.Item>
-              <Form.Item
-                name={['auditTrail', 2, 'time']}
-                label={<span className='font-medium'>{t('approveDate', 'วันที่อนุมัติ')}</span>}
-                rules={[{ required: canEditApprovedBy, message: t('selectApproveDate', 'กรุณาเลือกวันที่อนุมัติ') }]}
-              >
-                <DatePicker disabled={!canEditApprovedBy} style={{ width: '100%' }} />
-              </Form.Item>
-            </Col>
-          </Row>
+          <AuditTrailSection
+            canEditEditedBy={canEditEditedBy}
+            canEditReviewedBy={canEditReviewedBy}
+            canEditApprovedBy={canEditApprovedBy}
+          />
           {/* Change History and Status History (outside Form.Item, so errors don't overlap) */}
           <AuditHistory
             auditTrail={form.getFieldValue('auditTrail') || []}

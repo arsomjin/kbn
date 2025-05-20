@@ -42,6 +42,8 @@ import styles from './UserReview.module.css';
 import { useAntdModal } from 'hooks/useAntModal';
 import { getPrivilegeLevel } from '../../utils/roleUtils';
 import { useTheme } from 'hooks/useTheme';
+import { useModal } from 'contexts/ModalContext';
+import { useAuth } from 'contexts/AuthContext';
 
 const { Option } = Select;
 const { Title, Paragraph, Text } = Typography;
@@ -118,6 +120,17 @@ const DEFAULT_ROLE_PERMISSIONS: Record<string, string[]> = {
     PERMISSIONS.USER_VIEW,
     PERMISSIONS.USER_EDIT
   ],
+  [ROLES.PROVINCE_ADMIN]: [
+    PERMISSIONS.DATA_VIEW,
+    PERMISSIONS.DATA_EDIT,
+    PERMISSIONS.DATA_CREATE,
+    PERMISSIONS.DATA_DELETE,
+    PERMISSIONS.CONTENT_VIEW,
+    PERMISSIONS.CONTENT_EDIT,
+    PERMISSIONS.CONTENT_CREATE,
+    PERMISSIONS.USER_VIEW,
+    PERMISSIONS.USER_EDIT
+  ],
   [ROLES.GENERAL_MANAGER]: [
     PERMISSIONS.DATA_VIEW,
     PERMISSIONS.DATA_EDIT,
@@ -132,7 +145,7 @@ const DEFAULT_ROLE_PERMISSIONS: Record<string, string[]> = {
     PERMISSIONS.USER_EDIT,
     PERMISSIONS.USER_CREATE
   ],
-  [ROLES.PROVINCE_ADMIN]: [
+  [ROLES.SUPER_ADMIN]: [
     PERMISSIONS.DATA_VIEW,
     PERMISSIONS.DATA_EDIT,
     PERMISSIONS.DATA_CREATE,
@@ -184,8 +197,9 @@ interface PendingUser extends EditableUser {
 }
 
 const UserReview: React.FC = () => {
-  const { t } = useTranslation(['userReview', 'roles']);
+  const { t } = useTranslation(['userReview', 'roles', 'common']);
   const { theme } = useTheme();
+  const { showWarning, showConfirm, showSuccess } = useModal();
 
   const [users, setUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(false);
@@ -194,8 +208,7 @@ const UserReview: React.FC = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // Update user selector to access correct Redux state path
-  const USER = useSelector((state: RootState) => state.auth.user);
-  const userProfile = useSelector((state: RootState) => state.auth.userProfile);
+  const { user: USER, userProfile } = useAuth();
   const { hasPermission } = usePermissions();
 
   // State for available provinces and permissions
@@ -327,7 +340,8 @@ const UserReview: React.FC = () => {
               provinceId: data.provinceId,
               firstName: data.firstName,
               lastName: data.lastName,
-              photoURL: data.photoURL
+              photoURL: data.photoURL,
+              ...data?.auth
             });
           }
           pendingUsers.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
@@ -382,7 +396,7 @@ const UserReview: React.FC = () => {
     // Check permissions first
     if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT)) {
       console.error('User lacks USER_ROLE_EDIT permission');
-      message.error(t('errors.insufficientPermissions'));
+      showWarning(t('errors.insufficientPermissions'));
       return;
     }
 
@@ -399,9 +413,9 @@ const UserReview: React.FC = () => {
           <p>{t('confirm.approveWarning')}</p>
         </div>
       ),
-      okText: t('buttons.approve', 'Approve'),
+      okText: t('buttons.approve', 'อนุมัติ'),
       okType: 'primary',
-      cancelText: t('common.cancel', 'Cancel'),
+      cancelText: t('common.cancel', 'ยกเลิก'),
       onOk: async () => {
         setProcessingUsers(prev => ({ ...prev, [uid]: true }));
         try {
@@ -420,17 +434,19 @@ const UserReview: React.FC = () => {
             // Prepare permission update
             const permissionsUpdate = {
               role: selectedRole,
-              permissions: {
-                ...(userDataSnap.permissions || {}),
-                granted: true,
-                approvedBy: USER?.uid,
-                approvedAt: new Date().toISOString(),
-                permissionList: userData.selectedPermissions || rolePermissions[selectedRole] || []
-              },
-              // Update province access - critical for multi-province architecture
-              provinces: userData.selectedProvinceIds || [],
-              // Always include provinceId for backward compatibility
-              provinceId: userData.selectedProvinceIds?.[0] || userDataSnap.provinceId || null
+              permissions: userData.selectedPermissions || rolePermissions[selectedRole] || [],
+              permissionsChanges: [
+                ...(userDataSnap.permissionsChanges || []),
+                {
+                  granted: true,
+                  approvedBy: USER?.uid,
+                  approvedAt: new Date().toISOString(),
+                  permissionList: userData.selectedPermissions || rolePermissions[selectedRole] || []
+                }
+              ],
+              accessibleProvinceIds: userData.selectedProvinceIds || [],
+              provinceId: userData.selectedProvinceIds?.[0] || userDataSnap.provinceId || null,
+              status: 'active'
             };
 
             console.log('Updating user with:', permissionsUpdate);
@@ -445,7 +461,8 @@ const UserReview: React.FC = () => {
                 description: t('notifications.userDescription', { role: selectedRole }),
                 type: NotificationType.SUCCESS,
                 link: '/dashboard',
-                imageUrl: undefined
+                imageUrl: undefined,
+                targetUserIds: [uid]
               },
               { userIds: [uid], sendPush: true }
             );
@@ -453,15 +470,15 @@ const UserReview: React.FC = () => {
             // Send notification to appropriate admins based on province
             await notificationController.sendNotification({
               title: t('notifications.adminTitle'),
-              description: t('notifications.adminDescription', {
-                user: userDataSnap.displayName || userDataSnap.email,
-                role: selectedRole
-              }),
+              description: t('notifications.adminDescription'),
               type: NotificationType.INFO,
               targetRoles: [ROLES.SUPER_ADMIN, ROLES.GENERAL_MANAGER],
-              // For PROVINCE_ADMIN and PROVINCE_MANAGER, restrict to the user's province
               provinceId: userData.provinceId || userData.selectedProvinceIds?.[0],
-              link: '/review-users'
+              link: '/review-users',
+              params: {
+                name: userDataSnap.displayName || userDataSnap.firstName || '',
+                email: userDataSnap.email || ''
+              }
             });
 
             message.success(t('success.approved', { role: selectedRole }));
@@ -510,15 +527,15 @@ const UserReview: React.FC = () => {
           // Send notification to admins about rejected user
           await notificationController.sendNotification({
             title: t('notifications.adminRejectedTitle'),
-            description: t('notifications.adminRejectedDescription', {
-              user: userDataSnap ? userDataSnap.displayName || userDataSnap.email : ''
-            }),
+            description: t('notifications.adminRejectedDescription'),
             type: NotificationType.WARNING,
-            // Only include roles that should receive all notifications (regardless of province)
             targetRoles: [ROLES.SUPER_ADMIN, ROLES.GENERAL_MANAGER],
-            // For PROVINCE_ADMIN and PROVINCE_MANAGER, restrict to the user's province
             provinceId: userDataSnap?.provinceId || userDataSnap?.selectedProvinceIds?.[0],
-            link: '/review-users'
+            link: '/review-users',
+            params: {
+              name: userDataSnap?.displayName || userDataSnap?.firstName || '',
+              email: userDataSnap?.email || ''
+            }
           });
           message.success(t('success.rejected'));
         } catch {
@@ -859,7 +876,7 @@ const UserReview: React.FC = () => {
       </div>
     );
   };
-
+  console.log('users', users);
   return (
     <div className={styles.userReviewContainer}>
       <Card className={styles.headerCard}>
@@ -867,7 +884,7 @@ const UserReview: React.FC = () => {
           className={`flex ${isMobile ? 'flex-col' : 'flex-row justify-between'} items-${isMobile ? 'start' : 'center'}`}
         >
           <div>
-            <Title level={isMobile ? 3 : 2} className={`mb-1`} style={{ color: theme === 'dark' ? 'white' : 'black' }}>
+            <Title level={isMobile ? 2 : 3} className={`mb-1`} style={{ color: theme === 'dark' ? 'white' : 'black' }}>
               {t('title')}
             </Title>
             <Paragraph>{t('subtitle', 'Review and approve user registration requests')}</Paragraph>

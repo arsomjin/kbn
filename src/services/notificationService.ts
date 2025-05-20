@@ -48,6 +48,8 @@ export interface Notification {
   imageUrl?: string;
   readBy?: string[]; // Array of user IDs who read the notification
   provinceId?: string | null; // Province-specific notification or null for system-wide
+  params?: Record<string, any>;
+  targetUserIds?: string[];
 }
 
 // Toast interface
@@ -187,21 +189,24 @@ export const getNotifications = async (
       // Check if user's role matches the notification's target roles
       let matchesRole = false;
       if (data.targetRoles && userProfile.role && Array.isArray(data.targetRoles)) {
-        // Direct role match
-        matchesRole = data.targetRoles.includes(userProfile.role);
+        // Direct role match - case insensitive
+        matchesRole = data.targetRoles.some(
+          (targetRole: string) => targetRole.toUpperCase() === userProfile.role.toUpperCase()
+        );
 
         // Special handling for province_admin - they should also see user registration notifications
-        if (!matchesRole && userProfile.role === 'province_admin') {
+        if (!matchesRole && userProfile.role.toUpperCase() === 'PROVINCE_ADMIN') {
           // Check if this is a user registration notification (based on title pattern)
           const isUserRegistration =
             data.title === 'มีผู้ใช้ลงทะเบียนใหม่' ||
-            data.title === 'notifications.adminTitle' ||
+            'notifications.adminTitle' ||
+            data.title === 'profile.adminTitle' ||
             (data.link && data.link.includes('/review-users'));
 
           // Check if notification is targeted at roles province_admin should see
           // Using correct role names from RBAC system
           const adminRoles = ['SUPER_ADMIN', 'PROVINCE_ADMIN', 'GENERAL_MANAGER'];
-          const hasAdminTargeting = data.targetRoles.some(role => adminRoles.includes(role.toUpperCase()));
+          const hasAdminTargeting = data.targetRoles.some((role: string) => adminRoles.includes(role.toUpperCase()));
 
           if (isUserRegistration && hasAdminTargeting) {
             matchesRole = true;
@@ -210,7 +215,9 @@ export const getNotifications = async (
 
           // province_admin should also see notifications for roles they manage
           const provinceAdminManagesRoles = ['province_manager', 'branch_manager', 'lead', 'user'];
-          const targetsManageableRole = provinceAdminManagesRoles.some(role => data.targetRoles?.includes(role));
+          const targetsManageableRole = provinceAdminManagesRoles.some((role: string) =>
+            data.targetRoles?.some((targetRole: string) => targetRole.toUpperCase() === role.toUpperCase())
+          );
 
           if (targetsManageableRole) {
             matchesRole = true;
@@ -234,8 +241,11 @@ export const getNotifications = async (
         data.targetDepartment && userProfile.department && data.targetDepartment === userProfile.department
       );
 
+      // Check if this notification is targeted to the current user
+      const isPersonal = Array.isArray(data.targetUserIds) && data.targetUserIds.includes(userId);
+
       // Combine all the relevance criteria
-      const isRelevant = hasNoTargeting || matchesRole || matchesBranch || matchesDepartment;
+      const isRelevant = isPersonal || hasNoTargeting || matchesRole || matchesBranch || matchesDepartment;
 
       console.log(`[NOTIFICATION SERVICE] Is notification ${doc.id} relevant by role/branch/dept:`, isRelevant, {
         hasNoTargeting,
@@ -265,7 +275,7 @@ export const getNotifications = async (
         }
       }
 
-      if (isRelevant && provinceRelevant) {
+      if ((isPersonal || isRelevant) && provinceRelevant) {
         // Check if the notification has been read by this user
         const readBy = data.readBy || [];
         const isRead = readBy.includes(userId);
@@ -279,6 +289,7 @@ export const getNotifications = async (
         console.log(`[NOTIFICATION SERVICE] Added notification ${doc.id} to results`);
       } else {
         console.log(`[NOTIFICATION SERVICE] Skipping notification ${doc.id} - not relevant to user`, {
+          isPersonal,
           isRelevant,
           provinceRelevant
         });
@@ -404,11 +415,13 @@ export const subscribeToNotifications = (
       // Check if user's role matches the notification's target roles
       let matchesRole = false;
       if (data.targetRoles && userProfile.role && Array.isArray(data.targetRoles)) {
-        // Direct role match
-        matchesRole = data.targetRoles.includes(userProfile.role);
+        // Direct role match - case insensitive
+        matchesRole = data.targetRoles.some(
+          (targetRole: string) => targetRole.toUpperCase() === userProfile.role.toUpperCase()
+        );
 
         // Special handling for province_admin - they should also see user registration notifications
-        if (!matchesRole && userProfile.role === 'province_admin') {
+        if (!matchesRole && userProfile.role.toUpperCase() === 'PROVINCE_ADMIN') {
           // Check if this is a user registration notification (based on title pattern)
           const isUserRegistration =
             data.title === 'มีผู้ใช้ลงทะเบียนใหม่' ||
@@ -418,7 +431,7 @@ export const subscribeToNotifications = (
           // Check if notification is targeted at roles province_admin should see
           // Using correct role names from RBAC system
           const adminRoles = ['SUPER_ADMIN', 'PROVINCE_ADMIN', 'GENERAL_MANAGER'];
-          const hasAdminTargeting = data.targetRoles.some(role => adminRoles.includes(role.toUpperCase()));
+          const hasAdminTargeting = data.targetRoles.some((role: string) => adminRoles.includes(role.toUpperCase()));
 
           if (isUserRegistration && hasAdminTargeting) {
             matchesRole = true;
@@ -426,7 +439,9 @@ export const subscribeToNotifications = (
 
           // province_admin should also see notifications for roles they manage
           const provinceAdminManagesRoles = ['province_manager', 'branch_manager', 'lead', 'user'];
-          const targetsManageableRole = provinceAdminManagesRoles.some(role => data.targetRoles?.includes(role));
+          const targetsManageableRole = provinceAdminManagesRoles.some((role: string) =>
+            data.targetRoles?.some((targetRole: string) => targetRole.toUpperCase() === role.toUpperCase())
+          );
 
           if (targetsManageableRole) {
             matchesRole = true;
@@ -441,6 +456,9 @@ export const subscribeToNotifications = (
       const matchesDepartment = Boolean(
         data.targetDepartment && userProfile.department && data.targetDepartment === userProfile.department
       );
+
+      // Check if this notification is targeted to the current user
+      const isPersonal = Array.isArray(data.targetUserIds) && data.targetUserIds.includes(userId);
 
       // Check province relevance
       let provinceRelevant = true;
@@ -458,7 +476,42 @@ export const subscribeToNotifications = (
       }
 
       // Combine all the relevance criteria
-      const isRelevant = (hasNoTargeting || matchesRole || matchesBranch || matchesDepartment) && provinceRelevant;
+      const isRelevant = isPersonal || hasNoTargeting || matchesRole || matchesBranch || matchesDepartment;
+
+      // --- DEEP DEBUG LOGGING ---
+      if (!isRelevant) {
+        console.warn('[NOTIF DEBUG] Notification excluded:', {
+          notificationId: doc.id,
+          data,
+          userProfile,
+          hasNoTargeting,
+          matchesRole,
+          matchesBranch,
+          matchesDepartment,
+          provinceRelevant,
+          isRelevant,
+          reason: !hasNoTargeting
+            ? !matchesRole
+              ? 'Role mismatch'
+              : !provinceRelevant
+                ? 'Province mismatch'
+                : 'Other'
+            : 'No targeting'
+        });
+      } else {
+        console.log('[NOTIF DEBUG] Notification included:', {
+          notificationId: doc.id,
+          data,
+          userProfile,
+          hasNoTargeting,
+          matchesRole,
+          matchesBranch,
+          matchesDepartment,
+          provinceRelevant,
+          isRelevant
+        });
+      }
+      // --- END DEBUG LOGGING ---
 
       if (isRelevant) {
         // Check if the user has read this notification

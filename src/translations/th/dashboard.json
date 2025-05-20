@@ -17,5 +17,11 @@
   "branchPerformance": "ประสิทธิภาพสาขา",
   "branchPerformanceNote": "สาขาของคุณทำงานได้ดี โดยมีงานที่เสร็จสมบูรณ์ {{count}} รายการในเดือนนี้",
   "recentActivities": "กิจกรรมล่าสุด",
-  "noBranchActivities": "ไม่มีกิจกรรมล่าสุดของสาขา"
-} 
+  "noBranchActivities": "ไม่มีกิจกรรมล่าสุดของสาขา",
+  "province": {
+    "title": "แดชบอร์ดจังหวัด",
+    "totalBranches": "จำนวนสาขาทั้งหมด",
+    "totalEmployees": "จำนวนพนักงานทั้งหมด",
+    "totalCustomers": "จำนวนลูกค้าทั้งหมด"
+  }
+}

@@ -29,7 +29,7 @@ export interface UserProfile {
   accessibleProvinceIds?: string[];
   isProfileComplete: boolean;
   provinceAccess: string[];
-  defaultProvinceId?: string;
+  provinceId?: string;
   permissions: string[];
 }
 

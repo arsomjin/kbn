@@ -53,5 +53,10 @@
   "loadMore": "Load More",
   "new": "New",
   "unread": "Unread",
-  "readAll": "Read All"
+  "readAll": "Read All",
+  "newUserRegistration": "New user registration",
+  "adminTitle": "New user registration",
+  "adminDescription": "{{name}} ({{email}}) registered and is pending approval.",
+  "roleUpdatedTitle": "User role updated",
+  "roleUpdatedDescription": "The user's role has been updated."
 }

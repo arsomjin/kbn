@@ -157,14 +157,14 @@ const CompleteProfilePage: React.FC = () => {
 
           // Send notification to admins about new pending user
           await createNotification({
-            title: t('notifications:adminTitle', 'New user registration'),
-            description: t('notifications:adminDescription', {
+            title: t('profile:adminTitle', 'มีผู้ใช้ลงทะเบียนใหม่'),
+            description: t('profile:adminDescription', {
               name: `${values.firstName} ${values.lastName}`,
               email: user.email || '',
               type: userType
             }),
             type: NotificationType.INFO,
-            targetRoles: ['province_admin', 'super_admin', 'general_manager']
+            targetRoles: ['province_admin', 'super_admin', 'general_manager', 'developer', 'privilege']
           });
 
           // Refresh profile in Redux store and wait for it to complete

@@ -1159,10 +1159,14 @@ const NotificationManager: React.FC = () => {
           results = await notificationController.fetchAllNotifications(user.accessibleProvinces);
         } else if (hasProvinceAccess(currentProvinceId)) {
           // Regular view - can only see notifications for their current province
-          results = await notificationController.fetchNotifications(user.uid, currentProvinceId);
+          results = await notificationController.fetchNotifications({
+            userId: user.uid,
+            provinceId: currentProvinceId,
+            userProfile: user
+          });
         } else {
           // Fallback - only personal notifications
-          results = await notificationController.fetchPersonalNotifications(user.uid);
+          results = await notificationController.fetchPersonalNotifications(user.uid, user);
         }
 
         setNotifications(results);

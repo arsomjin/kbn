@@ -185,6 +185,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     homeKey = 'dashboard';
     homeLabel = t('dashboard:title') || 'Dashboard';
     homePath = '/dashboard';
+  } else if (userProfile?.role === ROLES.PROVINCE_MANAGER) {
+    homeKey = 'province-dashboard';
+    homeLabel = t('provinceDashboard:title') || 'Province Dashboard';
+    homePath = '/province-dashboard';
   } else if (userProfile?.role === ROLES.BRANCH_MANAGER) {
     homeKey = 'branch-dashboard';
     homeLabel = t('branchDashboard:title') || 'Branch Dashboard';
@@ -266,7 +270,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: t('employees:title') || 'Employee Management',
       onClick: () => navigate('/admin/employees')
     },
-    hasRole(ROLES.PROVINCE_ADMIN) && {
+    hasPermission(PERMISSIONS.USER_VIEW) && {
       key: 'user-review',
       icon: <TeamOutlined />,
       label: t('userReview:title'),

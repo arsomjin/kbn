@@ -56,16 +56,20 @@ export const getLandingPage = (userProfile: UserProfile): string => {
 
   switch (userProfile.role) {
     case ROLES.SUPER_ADMIN:
-    case ROLES.PROVINCE_ADMIN:
+    case ROLES.PRIVILEGE:
+    case ROLES.DEVELOPER:
       return '/overview';
     case ROLES.PROVINCE_MANAGER:
     case ROLES.GENERAL_MANAGER:
-      return '/province/dashboard';
+      return '/dashboard';
+    case ROLES.PROVINCE_MANAGER:
+    case ROLES.PROVINCE_ADMIN:
+      return '/province-dashboard';
     case ROLES.BRANCH_MANAGER:
       return '/branch-dashboard';
     case ROLES.USER:
     case ROLES.BRANCH:
-      return '/dashboard';
+      return '/landing';
     default:
       return '/';
   }

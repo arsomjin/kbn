@@ -3,7 +3,7 @@ import { Provider } from 'react-redux';
 import { ConfigProvider, App as AntdApp } from 'antd';
 import { BrowserRouter } from 'react-router-dom';
 import { ModalProvider } from 'contexts/ModalContext';
-import { AuthProvider } from 'contexts/AuthContext';
+import { AuthProvider, useAuth } from 'contexts/AuthContext';
 import { I18nextProvider } from 'react-i18next';
 import i18n from 'translations/i18n';
 import { useSelector } from 'react-redux';
@@ -34,6 +34,7 @@ import { LoadingSpinner } from 'components/common/LoadingSpinner';
 
 // Styles
 import './App.css';
+import { useNotifications } from 'hooks/useNotifications';
 // import './styles/inputNumber.css';
 
 // Theme-aware App Content component
@@ -44,6 +45,9 @@ const ThemeAppContent: React.FC = () => {
 
   // Get appropriate Ant Design theme based on current theme state
   const antdTheme = getAntDesignConfig(isDarkMode ? 'dark' : 'light');
+
+  useNotifications();
+
   return (
     <ConfigProvider theme={antdTheme}>
       <AntdApp notification={{ placement: 'topRight' }}>
