@@ -276,6 +276,11 @@ const UserRoleManager: React.FC = () => {
 
   // Filter users based on search text, role, and province
   const filteredUsers = users.filter(user => {
+    // Skip developer role users from UI display
+    if (user.role === ROLES.DEVELOPER) {
+      return false;
+    }
+
     const matchesSearch =
       searchText === '' ||
       user.email.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -475,10 +480,12 @@ const UserRoleManager: React.FC = () => {
             {t(`${role.toLowerCase()}.label`, { ns: 'roles' })}
           </Tag>
         ),
-        filters: Object.values(ROLES).map(role => ({
-          text: t(`${role.toLowerCase()}.label`, { ns: 'roles' }),
-          value: role
-        })),
+        filters: Object.values(ROLES)
+          .filter(role => role !== ROLES.DEVELOPER)
+          .map(role => ({
+            text: t(`${role.toLowerCase()}.label`, { ns: 'roles' }),
+            value: role
+          })),
         onFilter: (value, record) => record.role === value
       },
       {
@@ -745,11 +752,13 @@ const UserRoleManager: React.FC = () => {
             onChange={setFilterRole}
             style={{ width: isMobile ? '100%' : 180 }}
           >
-            {Object.values(ROLES).map(role => (
-              <Option key={role} value={role}>
-                {t(`${role.toLowerCase()}.label`, { ns: 'roles' })}
-              </Option>
-            ))}
+            {Object.values(ROLES)
+              .filter(role => role !== ROLES.DEVELOPER)
+              .map(role => (
+                <Option key={role} value={role}>
+                  {t(`${role.toLowerCase()}.label`, { ns: 'roles' })}
+                </Option>
+              ))}
           </Select>
 
           <Select
