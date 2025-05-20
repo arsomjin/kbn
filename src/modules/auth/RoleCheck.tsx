@@ -13,7 +13,7 @@ import { ROLES } from '../../constants/roles';
  * Shows a loading spinner while the check is in progress.
  */
 const RoleCheck: React.FC = () => {
-  const { isAuthenticated, userProfile, isLoading } = useAuth();
+  const { isAuthenticated, userProfile, isLoading, isProfileComplete } = useAuth();
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // Handle responsive behavior
@@ -27,8 +27,6 @@ const RoleCheck: React.FC = () => {
   }, []);
 
   const isMobile = windowWidth < 480;
-
-  const isProfileComplete = userProfile?.firstName && userProfile?.lastName;
 
   // Use hasPrivilegedAccess utility for privilege check
   const isPrivileged = hasPrivilegedAccess(userProfile);
@@ -50,7 +48,7 @@ const RoleCheck: React.FC = () => {
     return <Navigate to='/complete-profile' replace />;
   }
 
-  if (userProfile.role === ROLES.PENDING) {
+  if (userProfile?.role === ROLES.PENDING) {
     return <Navigate to='/pending' replace />;
   }
 

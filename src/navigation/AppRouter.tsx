@@ -61,9 +61,8 @@ const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 );
 
 export const AppRouter: React.FC = () => {
-  const { userProfile, isLoading, isAuthenticated, hasRole } = useAuth();
+  const { userProfile, isLoading, isAuthenticated, hasRole, isProfileComplete } = useAuth();
   const { t } = useTranslation();
-  const isProfileComplete = userProfile?.firstName && userProfile?.lastName;
 
   console.log('[AppRouter] State:', {
     userProfile,

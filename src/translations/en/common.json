@@ -25,5 +25,13 @@
   "toggleTheme": "Toggle Theme",
   "errors": {
     "notFound": "Sorry, the page you are looking for does not exist."
+  },
+  "excelImportExport": {
+    "importExcel": "Import Excel",
+    "exportExcel": "Export Excel",
+    "downloadTemplate": "Download Template",
+    "previewImport": "Preview Import",
+    "previewImportedData": "Preview Imported Data",
+    "noDataToExport": "No data to export"
   }
-} 
+}

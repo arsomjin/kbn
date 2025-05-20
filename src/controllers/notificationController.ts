@@ -160,21 +160,6 @@ export const notificationController = {
     // Explicitly check each condition and ensure boolean return type
     if (!notification || !userProfile) return false;
 
-    console.log('[NOTIFICATION CONTROLLER] Checking relevance for:', {
-      notificationTargets: {
-        roles: notification.targetRoles,
-        branch: notification.targetBranch,
-        department: notification.targetDepartment,
-        provinceId: notification.provinceId
-      },
-      user: {
-        role: userProfile.role,
-        branch: userProfile.branch,
-        department: userProfile.department,
-        provinceId: userProfile.province
-      }
-    });
-
     const hasNoTargeting =
       !notification.targetRoles &&
       !notification.targetBranch &&
@@ -195,7 +180,6 @@ export const notificationController = {
 
         if (targetsManageableRole) {
           matchesRole = true;
-          console.log('[NOTIFICATION CONTROLLER] Province admin can see notification for managed role');
         }
       }
     }
@@ -218,15 +202,6 @@ export const notificationController = {
       },
       userProfile
     );
-
-    // Log detailed role matching information
-    console.log('[NOTIFICATION CONTROLLER] Relevance check results:', {
-      hasNoTargeting,
-      matchesRole,
-      matchesBranch,
-      matchesDepartment,
-      hasProvinceAccess
-    });
 
     // Explicitly return a boolean value
     return Boolean(
@@ -375,10 +350,6 @@ export const notificationController = {
       const pageSize = options.limit || 10;
       const { userProfile } = options;
 
-      // Debug logs
-      console.log('[NOTIFICATION CONTROLLER] Fetch options:', options);
-      console.log('[NOTIFICATION CONTROLLER] User profile:', userProfile);
-
       if (!userProfile) {
         throw new Error('User is not authenticated');
       }
@@ -386,31 +357,23 @@ export const notificationController = {
       // Get notifications with proper filtering
       const result = await getNotifications(userProfile, pageSize, options.startAfter);
 
-      console.log('[NOTIFICATION CONTROLLER] Raw notifications from service:', result.notifications);
-
       // Handle province filtering based on user role
       let notifications = result.notifications;
 
       // Special handling for province_admin role - they should see all notifications
       // for their province plus any system-wide notifications (those with null provinceId)
       if (options.provinceId && userProfile.role === 'province_admin') {
-        console.log('[NOTIFICATION CONTROLLER] Province admin filtering for province:', options.provinceId);
         notifications = notifications.filter(
           (notification: Notification) =>
             !notification.provinceId || // System-wide notifications (null provinceId)
             notification.provinceId === options.provinceId // Province-specific notifications
         );
-        console.log('[NOTIFICATION CONTROLLER] After province_admin filtering:', notifications);
       }
       // Standard province filtering for other roles
       else if (options.provinceId) {
-        console.log('[NOTIFICATION CONTROLLER] Standard province filtering for:', options.provinceId);
         notifications = notifications.filter(
           (notification: Notification) => !notification.provinceId || notification.provinceId === options.provinceId
         );
-        console.log('[NOTIFICATION CONTROLLER] After standard province filtering:', notifications);
-      } else {
-        console.log('[NOTIFICATION CONTROLLER] No province filtering applied');
       }
 
       // Check each notification against user permissions
@@ -426,7 +389,6 @@ export const notificationController = {
           userProfile
         );
 
-        console.log(`[NOTIFICATION CONTROLLER] Permission check for notification ${notification.id}: ${hasPermission}`);
         return hasPermission;
       });
 
@@ -452,12 +414,6 @@ export const notificationController = {
       const targetRoles = [ROLES.SUPER_ADMIN, ROLES.GENERAL_MANAGER, ROLES.PROVINCE_ADMIN];
       const provinceId = user?.provinceId || null;
       const userName = user?.displayName || user?.email || '';
-
-      console.log('[NOTIFICATION CONTROLLER] Creating user registration notification:', {
-        targetRoles,
-        provinceId,
-        userName
-      });
 
       const notification = {
         title: 'มีผู้ใช้ลงทะเบียนใหม่',

@@ -26,5 +26,13 @@
   "loading": "กำลังโหลด...",
   "errors": {
     "notFound": "ขออภัย ไม่พบหน้าที่คุณต้องการ"
+  },
+  "excelImportExport": {
+    "importExcel": "นำเข้า Excel",
+    "exportExcel": "ส่งออก Excel",
+    "downloadTemplate": "ดาวน์โหลดเทมเพลต",
+    "previewImport": "ดูตัวอย่างนำเข้า",
+    "previewImportedData": "ดูตัวอย่างข้อมูลที่นำเข้า",
+    "noDataToExport": "ไม่มีข้อมูลสำหรับส่งออก"
   }
 }

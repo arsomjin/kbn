@@ -69,9 +69,10 @@ export const getLandingPage = (userProfile: UserProfile): string => {
       return '/branch-dashboard';
     case ROLES.USER:
     case ROLES.BRANCH:
+    case ROLES.LEAD:
       return '/landing';
     default:
-      return '/';
+      return '/landing';
   }
 };
 

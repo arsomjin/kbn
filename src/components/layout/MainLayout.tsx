@@ -270,7 +270,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: t('employees:title') || 'Employee Management',
       onClick: () => navigate('/admin/employees')
     },
-    hasPermission(PERMISSIONS.USER_VIEW) && {
+    hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.GENERAL_MANAGER]) && {
       key: 'user-review',
       icon: <TeamOutlined />,
       label: t('userReview:title'),
@@ -301,7 +301,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: t('common:settings') || 'Settings',
       children: [
         // User management
-        hasPermission(PERMISSIONS.USER_VIEW) && {
+        hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.GENERAL_MANAGER]) && {
           key: 'user-management',
           icon: <TeamOutlined />,
           label: t('userManagement:title') || 'User Management',
@@ -315,7 +315,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           onClick: () => navigate('/admin/settings')
         },
         // Branch settings (only SUPER_ADMIN and PRIVILEGE)
-        hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE]) && {
+        hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.BRANCH_MANAGER, ROLES.PROVINCE_ADMIN]) && {
           key: 'branches',
           icon: <BankOutlined />,
           label: t('branches:title') || 'Branches',

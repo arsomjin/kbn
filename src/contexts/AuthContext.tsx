@@ -49,13 +49,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Separate effect for handling auth state changes
   useEffect(() => {
-    console.log('[AuthContext] Setting up auth state listener');
     const unsubscribe = auth.onAuthStateChanged(user => {
       console.log('[AuthContext] Auth state changed:', user?.uid);
       setUser(user);
       if (!user) {
         console.log('[AuthContext] No user, clearing profile');
-        setUserProfile(null);
         setCurrentProvinceId(null);
         setLoading(false);
       }
@@ -78,7 +76,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       doc => {
         console.log('[AuthContext] User profile updated:', doc.data());
         if (doc.exists()) {
-          const profileData = { ...doc.data(), ...doc.data()?.auth };
+          const isUserProfileComplete = Boolean(doc.data()?.firstName && doc.data()?.lastName);
+          const profileData = { ...doc.data(), ...doc.data()?.auth, isProfileComplete: isUserProfileComplete };
           console.log('[AuthContext] User profile data:', profileData);
           setUserProfile(profileData as UserProfile);
           // Update current province if available
@@ -223,14 +222,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     isAuthenticated,
     isProfileComplete: userProfile?.isProfileComplete ?? false,
     hasProvinceAccess: (provinceId: string) => {
-      console.log('userProfile?.accessibleProvinceIds', userProfile?.accessibleProvinceIds);
-      console.log('userProfile?.provinceId', userProfile?.provinceId);
-      console.log('provinceId', provinceId);
-      console.log(
-        'result',
-        !!(userProfile?.accessibleProvinceIds || []).includes(provinceId) ||
-          (userProfile?.provinceId || '').includes(provinceId)
-      );
       return (
         !!(userProfile?.accessibleProvinceIds || []).includes(provinceId) ||
         (userProfile?.provinceId || '').includes(provinceId)
@@ -253,7 +244,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   console.log('[AuthContext] Render state:', {
     user: !!user,
-    userProfile: !!userProfile,
+    userProfile,
     loading,
     isProfileLoading,
     isAuthenticated

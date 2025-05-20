@@ -51,14 +51,9 @@ export const AdminRoutes = [
     key='branches'
     path='branches'
     element={
-      <PermissionProtectedRoute
-        requiredPermission={PERMISSIONS.BRANCH_MANAGE}
-        fallbackPath='/dashboard'
-        // Note that SUPER_ADMIN and PRIVILEGE automatically get BRANCH_MANAGE permission
-        // through their role hierarchy, so we don't need separate role check
-      >
+      <ProtectedRoute allowedRoles={[UserRole.PRIVILEGE, UserRole.SUPER_ADMIN]}>
         <BranchesManagement />
-      </PermissionProtectedRoute>
+      </ProtectedRoute>
     }
   />,
   // Employee management routes

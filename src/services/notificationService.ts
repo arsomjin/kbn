@@ -69,7 +69,13 @@ export interface Toast {
  */
 export const saveFcmToken = async (userId: string): Promise<boolean> => {
   try {
-    // First request notification permission
+    // First check current permission status
+    if (Notification.permission === 'denied') {
+      console.log('Notification permission is blocked. Please enable notifications in your browser settings.');
+      return false;
+    }
+
+    // Request notification permission if not already granted
     const permissionGranted = await requestNotificationPermission();
     if (!permissionGranted) {
       console.log('Notification permission not granted');
@@ -79,38 +85,47 @@ export const saveFcmToken = async (userId: string): Promise<boolean> => {
     const messaging = await initializeMessaging();
     if (!messaging) return false;
 
-    // Get token and save it
-    const token = await getToken(messaging, {
-      vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY
-    });
+    try {
+      // Get token and save it
+      const token = await getToken(messaging, {
+        vapidKey: process.env.REACT_APP_FIREBASE_VAPID_KEY
+      });
 
-    if (!token) {
-      console.error('No FCM token received');
-      return false;
+      if (!token) {
+        console.error('No FCM token received');
+        return false;
+      }
+
+      // Get user's province information for province-based token storage
+      const userDoc = await getDoc(doc(firestore, 'users', userId));
+      const userData = userDoc.data();
+
+      const tokenRef = doc(firestore, 'fcmTokens', userId);
+
+      // Use setDoc instead of updateDoc for the non-existent document case
+      await setDoc(
+        tokenRef,
+        {
+          token,
+          userId,
+          device: navigator.userAgent,
+          provinceId: userData?.provinceId || null, // Associate token with user's province
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        },
+        { merge: true }
+      );
+
+      console.log('FCM token saved successfully');
+      return true;
+    } catch (error: any) {
+      // Handle specific FCM permission errors
+      if (error?.code === 'messaging/permission-blocked') {
+        console.error('Notification permission is blocked. Please enable notifications in your browser settings.');
+        return false;
+      }
+      throw error; // Re-throw other errors
     }
-
-    // Get user's province information for province-based token storage
-    const userDoc = await getDoc(doc(firestore, 'users', userId));
-    const userData = userDoc.data();
-
-    const tokenRef = doc(firestore, 'fcmTokens', userId);
-
-    // Use setDoc instead of updateDoc for the non-existent document case
-    await setDoc(
-      tokenRef,
-      {
-        token,
-        userId,
-        device: navigator.userAgent,
-        provinceId: userData?.provinceId || null, // Associate token with user's province
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      },
-      { merge: true }
-    );
-
-    console.log('FCM token saved successfully');
-    return true;
   } catch (error) {
     console.error('Error saving FCM token:', error);
     return false;
@@ -137,13 +152,6 @@ export const getNotifications = async (
       throw new Error('User ID is required');
     }
 
-    console.log('[NOTIFICATION SERVICE] Getting notifications for:', {
-      userId,
-      role: userProfile.role,
-      province: userProfile.province,
-      accessibleProvinceIds: userProfile.accessibleProvinceIds
-    });
-
     // Base query - includes notifications that:
     // 1. Haven't expired
     // 2. Match user targeting criteria (role, branch, department)
@@ -161,9 +169,7 @@ export const getNotifications = async (
       notificationsQuery = query(notificationsQuery, startAfter(startAfterDoc));
     }
 
-    console.log('[NOTIFICATION SERVICE] Executing notification query...');
     const querySnapshot = await getDocs(notificationsQuery);
-    console.log(`[NOTIFICATION SERVICE] Query returned ${querySnapshot.size} documents`);
 
     const notifications: Notification[] = [];
     let lastDoc: DocumentSnapshot | undefined;
@@ -177,11 +183,6 @@ export const getNotifications = async (
       }
 
       const data = doc.data() as Notification;
-      console.log(`[NOTIFICATION SERVICE] Processing notification ${doc.id}:`, {
-        title: data.title,
-        targetRoles: data.targetRoles,
-        provinceId: data.provinceId
-      });
 
       // Check if this notification has no targeting criteria (for all users)
       const hasNoTargeting = !data.targetRoles && !data.targetBranch && !data.targetDepartment;
@@ -210,7 +211,6 @@ export const getNotifications = async (
 
           if (isUserRegistration && hasAdminTargeting) {
             matchesRole = true;
-            console.log(`[NOTIFICATION SERVICE] Province admin matched to user registration notification`);
           }
 
           // province_admin should also see notifications for roles they manage
@@ -221,17 +221,9 @@ export const getNotifications = async (
 
           if (targetsManageableRole) {
             matchesRole = true;
-            console.log(`[NOTIFICATION SERVICE] Province admin can see notification for managed role`);
           }
         }
       }
-
-      // Log detailed information about the role matching
-      console.log(`[NOTIFICATION SERVICE] Role matching for ${doc.id}:`, {
-        userRole: userProfile.role,
-        targetRoles: data.targetRoles,
-        matchesRole
-      });
 
       const matchesBranch = Boolean(
         data.targetBranch && userProfile.branch && data.targetBranch === userProfile.branch
@@ -247,25 +239,12 @@ export const getNotifications = async (
       // Combine all the relevance criteria
       const isRelevant = isPersonal || hasNoTargeting || matchesRole || matchesBranch || matchesDepartment;
 
-      console.log(`[NOTIFICATION SERVICE] Is notification ${doc.id} relevant by role/branch/dept:`, isRelevant, {
-        hasNoTargeting,
-        matchesRole,
-        matchesBranch,
-        matchesDepartment,
-        targetRoles: data.targetRoles,
-        userRole: userProfile.role
-      });
-
       // For province_admin, check province match
       let provinceRelevant = true; // Default true for non-province notifications
       if (data.provinceId) {
         if (userProfile.role === 'province_admin') {
           // Province admin should see notifications for their province or system-wide
           provinceRelevant = !data.provinceId || data.provinceId === userProfile.province;
-          console.log(`[NOTIFICATION SERVICE] Province admin check for notification ${doc.id}: ${provinceRelevant}`, {
-            notificationProvinceId: data.provinceId,
-            userProvinceId: userProfile.province
-          });
         } else if (userProfile.accessibleProvinceIds && userProfile.accessibleProvinceIds.length > 0) {
           // Users with multiple province access
           provinceRelevant = !data.provinceId || userProfile.accessibleProvinceIds.includes(data.provinceId);
@@ -285,21 +264,12 @@ export const getNotifications = async (
           ...data,
           isRead
         });
-
-        console.log(`[NOTIFICATION SERVICE] Added notification ${doc.id} to results`);
-      } else {
-        console.log(`[NOTIFICATION SERVICE] Skipping notification ${doc.id} - not relevant to user`, {
-          isPersonal,
-          isRelevant,
-          provinceRelevant
-        });
       }
     });
 
     // Determine if there are more notifications to fetch
     const hasMore = querySnapshot.size > pageSize;
 
-    console.log(`[NOTIFICATION SERVICE] Returning ${notifications.length} notifications`);
     return {
       notifications,
       lastDoc,
@@ -477,41 +447,6 @@ export const subscribeToNotifications = (
 
       // Combine all the relevance criteria
       const isRelevant = isPersonal || hasNoTargeting || matchesRole || matchesBranch || matchesDepartment;
-
-      // --- DEEP DEBUG LOGGING ---
-      if (!isRelevant) {
-        console.warn('[NOTIF DEBUG] Notification excluded:', {
-          notificationId: doc.id,
-          data,
-          userProfile,
-          hasNoTargeting,
-          matchesRole,
-          matchesBranch,
-          matchesDepartment,
-          provinceRelevant,
-          isRelevant,
-          reason: !hasNoTargeting
-            ? !matchesRole
-              ? 'Role mismatch'
-              : !provinceRelevant
-                ? 'Province mismatch'
-                : 'Other'
-            : 'No targeting'
-        });
-      } else {
-        console.log('[NOTIF DEBUG] Notification included:', {
-          notificationId: doc.id,
-          data,
-          userProfile,
-          hasNoTargeting,
-          matchesRole,
-          matchesBranch,
-          matchesDepartment,
-          provinceRelevant,
-          isRelevant
-        });
-      }
-      // --- END DEBUG LOGGING ---
 
       if (isRelevant) {
         // Check if the user has read this notification

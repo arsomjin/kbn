@@ -172,23 +172,15 @@ const notificationsSlice = createSlice({
       state.fcmInitialized = action.payload;
     },
     updateNotifications: (state, action: PayloadAction<Notification[]>) => {
-      console.log('[NOTIF DEBUG] updateNotifications reducer called with:', action.payload);
-      console.log('[NOTIF DEBUG] Current state before update:', {
-        notifications: state.notifications,
-        unreadCount: state.unreadCount
-      });
-
       const newNotifications = action.payload.map(n => ({
         ...n,
         description: n.description ?? n.title ?? ''
       }));
-      console.log('[NOTIF DEBUG] Processed notifications:', newNotifications);
       let unreadAdded = 0;
 
       // Add only notifications that don't already exist
       newNotifications.forEach(newNotif => {
         const existingIndex = state.notifications.findIndex(existing => existing.id === newNotif.id);
-        console.log('[NOTIF DEBUG] Processing notification:', newNotif.id, 'existingIndex:', existingIndex);
 
         if (existingIndex !== -1) {
           // Update existing notification if read status changed
@@ -199,7 +191,6 @@ const notificationsSlice = createSlice({
               unreadAdded++;
             }
             state.notifications[existingIndex] = newNotif;
-            console.log('[NOTIF DEBUG] Updated existing notification:', newNotif.id);
           }
         } else {
           // Add new notification
@@ -207,13 +198,11 @@ const notificationsSlice = createSlice({
           if (!newNotif.isRead) {
             unreadAdded++;
           }
-          console.log('[NOTIF DEBUG] Added new notification:', newNotif.id);
         }
       });
 
       // Update unread count
       state.unreadCount = Math.max(0, state.unreadCount + unreadAdded);
-      console.log('[NOTIF DEBUG] Updated unread count:', state.unreadCount);
 
       // Process timestamps and sort notifications by createdAt (newest first)
       state.notifications = state.notifications
@@ -234,11 +223,6 @@ const notificationsSlice = createSlice({
           };
         })
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-      console.log('[NOTIF DEBUG] Final state after update:', {
-        notifications: state.notifications,
-        unreadCount: state.unreadCount
-      });
     },
     resetNotifications: state => {
       state.notifications = [];

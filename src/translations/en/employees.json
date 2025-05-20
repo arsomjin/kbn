@@ -13,7 +13,12 @@
       "edit": "Edit Employee"
     },
     "submit": "Save Employee",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "back": "Back",
+    "personalInfo": "Personal Information",
+    "uploadPhoto": "Upload Photo",
+    "uploadDocument": "Upload Document",
+    "save": "Save"
   },
   "details": {
     "title": "Employee Details",
@@ -22,6 +27,7 @@
   },
   "fields": {
     "employeeId": "Employee ID",
+    "employeeCode": "Employee Code",
     "firstName": "First Name",
     "lastName": "Last Name",
     "name": "Full Name",
@@ -52,7 +58,11 @@
       "type": "Document Type",
       "uploadDate": "Upload Date",
       "actions": "Actions"
-    }
+    },
+    "details": "Details",
+    "emergencyContactName": "Emergency Contact Name",
+    "emergencyContactRelationship": "Emergency Contact Relationship",
+    "emergencyContactPhone": "Emergency Contact Phone"
   },
   "status": {
     "active": "Active",
@@ -124,4 +134,4 @@
       "bankAccount": "Please enter a valid bank account number"
     }
   }
-} 
+}

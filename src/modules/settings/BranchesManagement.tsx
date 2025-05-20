@@ -10,6 +10,7 @@ import { usePermissions } from 'hooks/usePermissions';
 import { ROLES } from '../../constants/roles';
 import { App as AntdApp } from 'antd';
 import { useAntdModal } from 'hooks/useAntModal';
+import PageDoc from '../../components/PageDoc';
 
 const BranchesManagement: React.FC = () => {
   const { t } = useTranslation(['branches', 'common']);
@@ -175,6 +176,7 @@ const BranchesManagement: React.FC = () => {
 
   return (
     <div className='p-2 sm:p-4 md:p-6 w-full max-w-7xl mx-auto'>
+      <PageDoc />
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4'>
         <h1 className='text-xl sm:text-2xl font-semibold break-words'>{t('branches:title')}</h1>
         <div className='sm:ml-auto flex justify-end'>
@@ -198,7 +200,7 @@ const BranchesManagement: React.FC = () => {
       <div className='overflow-x-auto rounded-lg shadow bg-white dark:bg-gray-800'>
         <Table
           columns={columns}
-          dataSource={branches}
+          dataSource={branches.slice().sort((a, b) => a.branchCode.localeCompare(b.branchCode))}
           rowKey='id'
           loading={loading}
           pagination={{

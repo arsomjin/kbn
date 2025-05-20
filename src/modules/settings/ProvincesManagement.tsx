@@ -9,6 +9,7 @@ import { usePermissions } from 'hooks/usePermissions';
 import { ROLES } from '../../constants/roles';
 import { App as AntdApp } from 'antd';
 import { useAntdModal } from 'hooks/useAntModal';
+import PageDoc from '../../components/PageDoc';
 
 const regions = [
   { value: 'central', label: 'Central' },
@@ -180,6 +181,7 @@ const ProvincesManagement: React.FC = () => {
 
   return (
     <div className='p-2 sm:p-4 md:p-6 w-full max-w-7xl mx-auto'>
+      <PageDoc />
       <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6'>
         <h1 className='text-xl sm:text-2xl font-semibold break-words'>{t('provinces:title')}</h1>
         <div className='sm:ml-auto flex justify-end'>

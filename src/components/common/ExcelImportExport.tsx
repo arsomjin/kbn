@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Button, Upload, Table, Modal, Select, message } from 'antd';
 import { UploadOutlined, DownloadOutlined, EyeOutlined } from '@ant-design/icons';
 import * as XLSX from 'xlsx';
+import { useTranslation } from 'react-i18next';
 
 interface ExcelColumn {
   title: string;
@@ -29,6 +30,7 @@ const ExcelImportExport: React.FC<ExcelImportExportProps> = ({
   templateDownload = false,
   previewRows = 10
 }) => {
+  const { t } = useTranslation('common');
   const [importedData, setImportedData] = useState<any[]>([]);
   const [previewVisible, setPreviewVisible] = useState(false);
   const [exportType, setExportType] = useState(exportFormats[0]);
@@ -39,7 +41,7 @@ const ExcelImportExport: React.FC<ExcelImportExportProps> = ({
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (evt) => {
+    reader.onload = evt => {
       const bstr = evt.target?.result;
       if (!bstr) return;
       const wb = XLSX.read(bstr, { type: 'binary' });
@@ -58,7 +60,7 @@ const ExcelImportExport: React.FC<ExcelImportExportProps> = ({
   // Export handler
   const handleExport = () => {
     if (!data || data.length === 0) {
-      message.warning('No data to export');
+      message.warning(t('excelImportExport.noDataToExport'));
       return;
     }
     const ws = XLSX.utils.json_to_sheet(data, { header: columns.map(c => c.dataIndex) });
@@ -78,40 +80,41 @@ const ExcelImportExport: React.FC<ExcelImportExportProps> = ({
 
   return (
     <div>
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
         <input
-          type="file"
+          type='file'
           accept={importFormats.map(f => `application/${f.replace('.', '')},${f}`).join(',')}
           style={{ display: 'none' }}
           ref={fileInputRef}
           onChange={handleFileChange}
         />
         <Button icon={<UploadOutlined />} onClick={() => fileInputRef.current?.click()}>
-          Import Excel
+          {t('excelImportExport.importExcel')}
         </Button>
         <Select
           value={exportType}
           onChange={setExportType}
           style={{ width: 100 }}
           options={exportFormats.map(f => ({ label: f.toUpperCase(), value: f }))}
+          size='large'
         />
         <Button icon={<DownloadOutlined />} onClick={handleExport}>
-          Export Excel
+          {t('excelImportExport.exportExcel')}
         </Button>
         {templateDownload && (
           <Button icon={<DownloadOutlined />} onClick={handleTemplateDownload}>
-            Download Template
+            {t('excelImportExport.downloadTemplate')}
           </Button>
         )}
         {importedData.length > 0 && (
           <Button icon={<EyeOutlined />} onClick={() => setPreviewVisible(true)}>
-            Preview Import
+            {t('excelImportExport.previewImport')}
           </Button>
         )}
       </div>
       <Modal
         open={previewVisible}
-        title="Preview Imported Data"
+        title={t('excelImportExport.previewImportedData')}
         onCancel={() => setPreviewVisible(false)}
         footer={null}
         width={800}

@@ -13,6 +13,10 @@ import LoadingScreen from '../../../components/common/LoadingScreen';
 import { collection, getDocs, Timestamp } from 'firebase/firestore';
 import { firestore as db } from '../../../services/firebase';
 import dayjs from 'dayjs';
+import PageTitle from 'components/common/PageTitle';
+import DepartmentSelector from '../../../components/DepartmentSelector';
+import { useDepartments } from 'hooks/useDepartments';
+import PageDoc from '../../../components/PageDoc';
 
 const { Option } = Select;
 
@@ -46,6 +50,7 @@ export const EmployeeList: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { currentProvince, loading: provinceLoading } = useProvince();
+  const { departments } = useDepartments();
   const [loading, setLoading] = useState(true);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [filters, setFilters] = useState({
@@ -134,9 +139,12 @@ export const EmployeeList: React.FC = () => {
     }
   ];
 
+  // Generate unique, sorted position options from employees
+  const positionOptions = Array.from(new Set(employees.map(e => e.position).filter(Boolean))).sort();
+
   const columns: ColumnsType<Employee> = [
     {
-      title: t('fields.employeeCode'),
+      title: t('fields.employeeCode', { ns: 'employees' }),
       dataIndex: 'employeeCode',
       key: 'employeeCode',
       sorter: (a, b) => (a.employeeCode || '').localeCompare(b.employeeCode || '')
@@ -164,7 +172,13 @@ export const EmployeeList: React.FC = () => {
       title: t('fields.department'),
       dataIndex: 'department',
       key: 'department',
-      sorter: (a, b) => (a.department || '').localeCompare(b.department || '')
+      sorter: (a, b) => (a.department || '').localeCompare(b.department || ''),
+      render: (departmentId: string) => {
+        console.log('departmentId', departmentId);
+        console.log('departments', departments);
+        const dept = departments.find(d => d.id === departmentId);
+        return dept ? dept.name : '-';
+      }
     },
     {
       title: t('fields.status'),
@@ -203,7 +217,7 @@ export const EmployeeList: React.FC = () => {
       }
     },
     {
-      title: t('actions.actions', { ns: 'common' }) || t('actions'),
+      title: t('actions', { ns: 'common' }) || t('actions'),
       key: 'actions',
       render: (_, record) => (
         <Space size='middle'>
@@ -231,15 +245,14 @@ export const EmployeeList: React.FC = () => {
 
   return (
     <div className='p-6'>
+      <PageDoc />
       <Card className='mb-6'>
+        <PageTitle title={t('title')} />
         <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
-          <h1 className='text-2xl font-bold'>{t('title')}</h1>
-          <Space>
-            <ExcelImportExport columns={excelColumns} data={employees} onImport={loadEmployees} templateDownload />
-            <Button type='primary' icon={<PlusOutlined />} onClick={() => navigate('/admin/employees/new')}>
-              {t('actions.add')}
-            </Button>
-          </Space>
+          <ExcelImportExport columns={excelColumns} data={employees} onImport={loadEmployees} templateDownload />
+          <Button type='primary' icon={<PlusOutlined />} onClick={() => navigate('/admin/employees/new')}>
+            {t('actions.add')}
+          </Button>
         </div>
       </Card>
 
@@ -251,6 +264,7 @@ export const EmployeeList: React.FC = () => {
             value={filters.search}
             onChange={e => setFilters({ ...filters, search: e.target.value })}
             className='max-w-xs'
+            size='middle'
           />
           <Select
             placeholder={t('filters.status')}
@@ -265,15 +279,13 @@ export const EmployeeList: React.FC = () => {
               </Option>
             ))}
           </Select>
-          <Select
-            placeholder={t('filters.department')}
-            allowClear
+          <DepartmentSelector
             value={filters.department}
-            onChange={value => setFilters({ ...filters, department: value })}
+            onChange={(value: string) => setFilters({ ...filters, department: value })}
+            placeholder={t('filters.department')}
             className='min-w-[200px]'
-          >
-            {/* Add department options */}
-          </Select>
+            size='middle'
+          />
           <Select
             placeholder={t('filters.position')}
             allowClear
@@ -281,7 +293,11 @@ export const EmployeeList: React.FC = () => {
             onChange={value => setFilters({ ...filters, position: value })}
             className='min-w-[200px]'
           >
-            {/* Add position options */}
+            {positionOptions.map(position => (
+              <Option key={position} value={position}>
+                {position}
+              </Option>
+            ))}
           </Select>
         </div>
 

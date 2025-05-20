@@ -78,6 +78,15 @@ const NotificationSettings: React.FC = () => {
 
   const requestPermission = async () => {
     try {
+      // If permission is blocked, show instructions to enable in browser settings
+      if (Notification.permission === 'denied') {
+        message.warning(
+          'Notifications are blocked in your browser settings. Please enable them in your browser settings to receive notifications.',
+          0 // Keep the message visible until manually closed
+        );
+        return;
+      }
+
       const permission = await Notification.requestPermission();
       setPermissionStatus(permission);
 
@@ -87,8 +96,10 @@ const NotificationSettings: React.FC = () => {
           await notificationController.initialize(userProfile.uid);
           message.success('Notification permissions granted!');
         }
+      } else if (permission === 'denied') {
+        message.warning('Notification permissions were denied. You can enable them later in your browser settings.', 0);
       } else {
-        message.warning('Notification permissions not granted.');
+        message.info('Notification permission request was dismissed.');
       }
     } catch (error) {
       console.error('Error requesting notification permission:', error);
@@ -159,52 +170,51 @@ const NotificationSettings: React.FC = () => {
     }
   };
 
-  // Render an appropriate message based on the notification permission status
-  const renderPermissionAlert = () => {
-    if (typeof Notification === 'undefined') {
-      return (
-        <Alert
-          message='Notifications Not Supported'
-          description='Your browser does not support notifications.'
-          type='warning'
-          showIcon
-        />
-      );
+  // Add a function to check if notifications are supported
+  const isNotificationsSupported = () => {
+    return 'Notification' in window;
+  };
+
+  // Add a function to get browser-specific instructions
+  const getBrowserInstructions = () => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    if (userAgent.includes('chrome')) {
+      return 'Click the lock icon in the address bar and enable notifications';
+    } else if (userAgent.includes('firefox')) {
+      return 'Click the shield icon in the address bar and enable notifications';
+    } else if (userAgent.includes('safari')) {
+      return 'Go to Safari Preferences > Websites > Notifications and enable notifications for this site';
+    }
+    return 'Enable notifications in your browser settings';
+  };
+
+  // Render permission status message
+  const renderPermissionStatus = () => {
+    if (!isNotificationsSupported()) {
+      return <Alert type='warning' message='Notifications are not supported in your browser.' />;
     }
 
     switch (permissionStatus) {
+      case 'granted':
+        return <Alert type='success' message='Notifications are enabled.' />;
       case 'denied':
         return (
           <Alert
-            message='Notifications Blocked'
-            description='You have blocked notifications. Please update your browser settings to enable notifications.'
             type='error'
-            showIcon
-          />
-        );
-      case 'granted':
-        return (
-          <Alert
-            message='Notifications Enabled'
-            description='You will receive notifications when important events occur.'
-            type='success'
-            showIcon
-          />
-        );
-      default:
-        return (
-          <Alert
-            message='Notification Permission Required'
-            description='Allow notifications to stay informed about important updates.'
-            type='info'
-            showIcon
-            action={
-              <Button size='small' type='primary' onClick={requestPermission}>
-                Enable
-              </Button>
+            message={
+              <div>
+                <p>Notifications are blocked. To enable them:</p>
+                <ol>
+                  <li>Open your browser settings</li>
+                  <li>{getBrowserInstructions()}</li>
+                  <li>Refresh this page</li>
+                </ol>
+              </div>
             }
           />
         );
+      default:
+        return <Alert type='info' message='Notification permissions have not been requested yet.' />;
     }
   };
 
@@ -219,7 +229,7 @@ const NotificationSettings: React.FC = () => {
         }
         className='settings-card'
       >
-        {renderPermissionAlert()}
+        {renderPermissionStatus()}
 
         <Form
           form={form}

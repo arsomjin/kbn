@@ -310,6 +310,298 @@ if (user.approved) {
     instruction: 'ระบบจะ redirect อัตโนมัติ ไม่ต้องมีการโต้ตอบจากผู้ใช้',
     flow: 'เข้าสู่ระบบ > ตรวจสอบ role > redirect ไปยังหน้าหลัก/overview/dashboard',
     logic: 'RBAC: ตรวจสอบ role และ province access เพื่อกำหนด landing page ที่เหมาะสม'
+  },
+
+  // Employee List Page
+  '/admin/employees': {
+    overview: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>👥 ภาพรวม</h2>
+        <p>
+          <b>หน้ารายชื่อพนักงาน</b> สำหรับดูข้อมูลพนักงานทั้งหมดในระบบ สามารถค้นหา กรอง แก้ไข หรือนำเข้าข้อมูลพนักงานได้
+          รองรับการส่งออก/นำเข้า Excel และแสดงสถานะการจ้างงานของแต่ละคน
+        </p>
+      </>
+    ),
+    instruction: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>📝 วิธีใช้งาน</h2>
+        <ol style={{ paddingLeft: 20 }}>
+          <li>ใช้ช่องค้นหาเพื่อค้นหาพนักงานด้วยชื่อ, รหัส, หรือแผนก</li>
+          <li>
+            เลือกกรองตาม <b>สถานะ</b>, <b>แผนก</b>, หรือ <b>ตำแหน่ง</b> เพื่อดูเฉพาะกลุ่มที่ต้องการ
+          </li>
+          <li>
+            คลิก <b>ปุ่มเพิ่มพนักงาน</b> เพื่อเพิ่มข้อมูลใหม่
+          </li>
+          <li>
+            คลิก <b>ไอคอนดินสอ</b> เพื่อแก้ไขข้อมูล หรือ <b>ไอคอนถังขยะ</b> เพื่อลบ
+          </li>
+          <li>
+            ใช้ปุ่ม <b>นำเข้า/ส่งออก Excel</b> เพื่อจัดการข้อมูลจำนวนมาก
+          </li>
+        </ol>
+      </>
+    ),
+    flow: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔄 ลำดับการทำงาน (Workflow)</h2>
+        <div style={{ marginBottom: 16 }}>
+          <img
+            src={require('../docs/visuals/employee-list.png')}
+            alt='ตารางรายชื่อพนักงาน'
+            style={{
+              width: '100%',
+              borderRadius: 12,
+              boxShadow: '0 2px 12px rgba(44, 62, 80, 0.08)',
+              marginBottom: 8,
+              objectFit: 'contain',
+              display: 'block'
+            }}
+          />
+          <div style={{ fontSize: 13, color: '#888' }}>
+            <b>1. ตารางรายชื่อพนักงาน:</b> แสดงข้อมูลพนักงานทั้งหมด สามารถคลิกเพื่อแก้ไข หรือลบแต่ละรายการได้
+          </div>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <img
+            src={require('../docs/visuals/employee-actions.png')}
+            alt='การดำเนินการกับพนักงาน'
+            style={{
+              width: '100%',
+              borderRadius: 12,
+              boxShadow: '0 2px 12px rgba(44, 62, 80, 0.08)',
+              marginBottom: 8,
+              objectFit: 'contain',
+              display: 'block'
+            }}
+          />
+          <div style={{ fontSize: 13, color: '#888' }}>
+            <b>2. การดำเนินการ:</b> ใช้ไอคอนดินสอเพื่อแก้ไข หรือถังขยะเพื่อลบข้อมูล
+          </div>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <img
+            src={require('../docs/visuals/employee-batch.png')}
+            alt='นำเข้า/ส่งออก Excel'
+            style={{
+              width: '100%',
+              borderRadius: 12,
+              boxShadow: '0 2px 12px rgba(44, 62, 80, 0.08)',
+              marginBottom: 8,
+              objectFit: 'contain',
+              display: 'block'
+            }}
+          />
+          <div style={{ fontSize: 13, color: '#888' }}>
+            <b>3. นำเข้า/ส่งออก Excel:</b> จัดการข้อมูลพนักงานจำนวนมากได้อย่างรวดเร็ว
+          </div>
+        </div>
+      </>
+    ),
+    logic: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ตรรกะธุรกิจ (RBAC & Province Access)</h2>
+        <ul>
+          <li>
+            ข้อมูลพนักงานจะถูกกรองตาม <b>จังหวัด (provinceId)</b> ของผู้ใช้ที่เข้าสู่ระบบ
+          </li>
+          <li>
+            เฉพาะผู้ที่มีสิทธิ์ <b>ดูข้อมูลพนักงาน</b> หรือ <b>แก้ไขข้อมูลพนักงาน</b> เท่านั้นที่สามารถดู/แก้ไขข้อมูลได้
+          </li>
+          <li>
+            ผู้จัดการ/ผู้บริหารระดับสูง สามารถดูและแก้ไขข้อมูลพนักงานทุกจังหวัด, Manager/Staff
+            จะเห็นเฉพาะข้อมูลในจังหวัดของตนเอง
+          </li>
+          <li>การเพิ่ม/ลบ/แก้ไขข้อมูลจะถูกบันทึกผู้กระทำและเวลา (audit log)</li>
+        </ul>
+      </>
+    )
+  },
+
+  // Branches Management Page
+  '/admin/branches': {
+    overview: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🏢 ภาพรวม</h2>
+        <p>
+          <b>หน้าจัดการสาขา</b> สำหรับดูข้อมูลสาขาทั้งหมดในระบบ เพิ่ม แก้ไข หรือลบสาขาได้อย่างสะดวก
+          รองรับการกรองตามจังหวัดและสถานะการใช้งาน
+        </p>
+      </>
+    ),
+    instruction: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>📝 วิธีใช้งาน</h2>
+        <ol style={{ paddingLeft: 20 }}>
+          <li>
+            คลิก <b>ปุ่มเพิ่มสาขา</b> เพื่อเพิ่มข้อมูลสาขาใหม่
+          </li>
+          <li>
+            ใช้ <b>ไอคอนดินสอ</b> เพื่อแก้ไขข้อมูลสาขา
+          </li>
+          <li>
+            ใช้ <b>ไอคอนถังขยะ</b> เพื่อลบสาขา
+          </li>
+          <li>กรอกข้อมูลในฟอร์มให้ครบถ้วน เช่น รหัสสาขา ชื่อสาขา จังหวัด สถานะ ฯลฯ</li>
+          <li>
+            คลิก <b>บันทึก</b> เพื่อยืนยันการเพิ่มหรือแก้ไข
+          </li>
+        </ol>
+      </>
+    ),
+    flow: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔄 ลำดับการทำงาน (Workflow)</h2>
+        <div style={{ marginBottom: 16 }}>
+          <img
+            src={require('../docs/visuals/branch-list.png')}
+            alt='ตารางรายชื่อสาขา'
+            style={{
+              width: '100%',
+              borderRadius: 12,
+              boxShadow: '0 2px 12px rgba(44, 62, 80, 0.08)',
+              marginBottom: 8,
+              objectFit: 'contain',
+              display: 'block'
+            }}
+          />
+          <div style={{ fontSize: 13, color: '#888' }}>
+            <b>1. ตารางรายชื่อสาขา:</b> แสดงข้อมูลสาขาทั้งหมด สามารถแก้ไขหรือลบแต่ละรายการได้
+          </div>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <img
+            src={require('../docs/visuals/branch-actions.png')}
+            alt='การดำเนินการกับสาขา'
+            style={{
+              width: '100%',
+              borderRadius: 12,
+              boxShadow: '0 2px 12px rgba(44, 62, 80, 0.08)',
+              marginBottom: 8,
+              objectFit: 'contain',
+              display: 'block'
+            }}
+          />
+          <div style={{ fontSize: 13, color: '#888' }}>
+            <b>2. การดำเนินการ:</b> ใช้ไอคอนดินสอเพื่อแก้ไข หรือถังขยะเพื่อลบข้อมูลสาขา
+          </div>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <img
+            src={require('../docs/visuals/branch-edit-modal.png')}
+            alt='ฟอร์มแก้ไข/เพิ่มสาขา'
+            style={{
+              width: '100%',
+              borderRadius: 12,
+              boxShadow: '0 2px 12px rgba(44, 62, 80, 0.08)',
+              marginBottom: 8,
+              objectFit: 'contain',
+              display: 'block'
+            }}
+          />
+          <div style={{ fontSize: 13, color: '#888' }}>
+            <b>3. ฟอร์มแก้ไข/เพิ่มสาขา:</b> กรอกข้อมูลให้ครบถ้วนแล้วกดบันทึก
+          </div>
+        </div>
+      </>
+    ),
+    logic: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ตรรกะธุรกิจ (RBAC & Permissions)</h2>
+        <ul>
+          <li>
+            เฉพาะผู้ที่มีสิทธิ์ <b>จัดการข้อมูลสาขา</b> เท่านั้นที่สามารถเพิ่ม แก้ไข หรือลบสาขาได้
+          </li>
+          <li>ข้อมูลสาขาจะถูกกรองตามจังหวัดที่ผู้ใช้มีสิทธิ์เข้าถึง</li>
+          <li>ทุกการเปลี่ยนแปลงจะถูกบันทึกผู้กระทำและเวลา (audit log)</li>
+        </ul>
+      </>
+    )
+  },
+
+  // Provinces Management Page
+  '/admin/provinces': {
+    overview: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🗺️ ภาพรวม</h2>
+        <p>
+          <b>หน้าจัดการจังหวัด</b> สำหรับดูข้อมูลจังหวัดทั้งหมดในระบบ เพิ่ม แก้ไข หรือลบจังหวัดได้อย่างสะดวก
+          รองรับการกรองและค้นหาตามชื่อ รหัส หรือภูมิภาค
+        </p>
+      </>
+    ),
+    instruction: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>📝 วิธีใช้งาน</h2>
+        <ol style={{ paddingLeft: 20 }}>
+          <li>
+            คลิก <b>ปุ่มเพิ่มจังหวัด</b> เพื่อเพิ่มข้อมูลจังหวัดใหม่
+          </li>
+          <li>
+            ใช้ <b>ไอคอนดินสอ</b> เพื่อแก้ไขข้อมูลจังหวัด
+          </li>
+          <li>
+            ใช้ <b>ไอคอนถังขยะ</b> เพื่อลบจังหวัด
+          </li>
+          <li>กรอกข้อมูลในฟอร์มให้ครบถ้วน เช่น รหัสจังหวัด ชื่อจังหวัด (TH/EN) ภูมิภาค สถานะ ฯลฯ</li>
+          <li>
+            คลิก <b>บันทึก</b> เพื่อยืนยันการเพิ่มหรือแก้ไข
+          </li>
+        </ol>
+      </>
+    ),
+    flow: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔄 ลำดับการทำงาน (Workflow)</h2>
+        <div style={{ marginBottom: 16 }}>
+          <img
+            src={require('../docs/visuals/province-list.png')}
+            alt='ตารางรายชื่อจังหวัด'
+            style={{
+              width: '100%',
+              borderRadius: 12,
+              boxShadow: '0 2px 12px rgba(44, 62, 80, 0.08)',
+              marginBottom: 8,
+              objectFit: 'contain',
+              display: 'block'
+            }}
+          />
+          <div style={{ fontSize: 13, color: '#888' }}>
+            <b>1. ตารางรายชื่อจังหวัด:</b> แสดงข้อมูลจังหวัดทั้งหมด สามารถแก้ไขหรือลบแต่ละรายการได้
+          </div>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <img
+            src={require('../docs/visuals/province-edit-modal.png')}
+            alt='ฟอร์มแก้ไข/เพิ่มจังหวัด'
+            style={{
+              width: '100%',
+              borderRadius: 12,
+              boxShadow: '0 2px 12px rgba(44, 62, 80, 0.08)',
+              marginBottom: 8,
+              objectFit: 'contain',
+              display: 'block'
+            }}
+          />
+          <div style={{ fontSize: 13, color: '#888' }}>
+            <b>2. ฟอร์มแก้ไข/เพิ่มจังหวัด:</b> กรอกข้อมูลให้ครบถ้วนแล้วกดบันทึก
+          </div>
+        </div>
+      </>
+    ),
+    logic: (
+      <>
+        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ตรรกะธุรกิจ (RBAC & Permissions)</h2>
+        <ul>
+          <li>
+            เฉพาะผู้ที่มีสิทธิ์ <b>จัดการข้อมูลจังหวัด</b> เท่านั้นที่สามารถเพิ่ม แก้ไข หรือลบจังหวัดได้
+          </li>
+          <li>ข้อมูลจังหวัดจะถูกใช้ในการกำหนดสิทธิ์และการเข้าถึงข้อมูลในระบบ</li>
+          <li>ทุกการเปลี่ยนแปลงจะถูกบันทึกผู้กระทำและเวลา (audit log)</li>
+        </ul>
+      </>
+    )
   }
 };
 

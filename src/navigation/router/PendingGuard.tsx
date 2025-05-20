@@ -8,6 +8,18 @@ const PendingGuard = ({ children }: { children: React.ReactNode }) => {
   const { userProfile, isLoading } = useAuth();
   const isProfileTransitioning = useSelector((state: any) => state.auth.isProfileTransitioning);
 
+  console.log('[PendingGuard] State:', {
+    isLoading,
+    isProfileTransitioning,
+    userProfile: userProfile
+      ? {
+          role: userProfile.role,
+          firstName: userProfile.firstName,
+          lastName: userProfile.lastName
+        }
+      : null
+  });
+
   if (isLoading || isProfileTransitioning) {
     console.log('[PendingGuard] Loading spinner');
     return (

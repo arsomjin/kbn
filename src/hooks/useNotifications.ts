@@ -29,11 +29,6 @@ export const useNotifications = () => {
   // Determine the UID to use for notification subscription
   const uid = user?.uid || userProfile?.uid;
 
-  // Debug log for which UID is being used
-  console.log('[NOTIF DEBUG] useNotifications: Using UID for subscription:', uid, { user, userProfile });
-
-  console.log(`[useNotifications] Notifications: ${JSON.stringify(notifications)}`);
-
   // Initialize Firebase Cloud Messaging using the notification controller
   useEffect(() => {
     const initializeNotifications = async () => {
@@ -93,7 +88,6 @@ export const useNotifications = () => {
     let unsubscribe: (() => void) | null = null;
 
     if (!uid || typeof uid !== 'string' || uid.length < 10) {
-      console.log('[NOTIF DEBUG] useNotifications: UID not ready, skipping subscription', { user, userProfile });
       return;
     }
 
@@ -111,20 +105,11 @@ export const useNotifications = () => {
       updatedAt: userProfile?.updatedAt || new Date()
     };
 
-    console.log('[NOTIF DEBUG] useNotifications: Subscribing to notifications for uid', uid);
     unsubscribe = subscribeToNotifications(effectiveProfile, newNotifications => {
       if (newNotifications.length > 0) {
-        console.log('[NOTIF DEBUG] New notifications received:', newNotifications);
         // Serialize notifications before dispatching
         const serializedNotifications = serializeTimestampArray(newNotifications);
-        console.log('[NOTIF DEBUG] Serialized notifications:', serializedNotifications);
-        console.log('[NOTIF DEBUG] Dispatching updateNotifications with:', {
-          count: serializedNotifications.length,
-          firstNotification: serializedNotifications[0],
-          lastNotification: serializedNotifications[serializedNotifications.length - 1]
-        });
         dispatch(updateNotifications(serializedNotifications));
-        console.log('[NOTIF DEBUG] Dispatched updateNotifications action');
 
         // Show toast for new unread notifications that just arrived
         const now = Date.now();

@@ -14,6 +14,7 @@ interface DepartmentSelectorProps {
   size?: 'large' | 'middle' | 'small';
   placeholder?: string;
   disabled?: boolean;
+  className?: string;
 }
 
 const DepartmentSelector: React.FC<DepartmentSelectorProps> = ({

@@ -30,6 +30,5 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
     console.log('I am here 3');
     return <Navigate to='/' replace />;
   }
-
   return <>{children}</>;
 };

@@ -13,7 +13,12 @@
       "edit": "แก้ไขพนักงาน"
     },
     "submit": "บันทึกพนักงาน",
-    "cancel": "ยกเลิก"
+    "cancel": "ยกเลิก",
+    "back": "ย้อนกลับ",
+    "personalInfo": "ข้อมูลส่วนตัว",
+    "uploadPhoto": "อัปโหลดรูปภาพ",
+    "uploadDocument": "อัปโหลดเอกสาร",
+    "save": "บันทึก"
   },
   "details": {
     "title": "รายละเอียดพนักงาน",
@@ -22,6 +27,7 @@
   },
   "fields": {
     "employeeId": "รหัสพนักงาน",
+    "employeeCode": "รหัสพนักงาน",
     "firstName": "ชื่อ",
     "lastName": "นามสกุล",
     "name": "ชื่อ-นามสกุล",
@@ -52,7 +58,12 @@
       "type": "ประเภทเอกสาร",
       "uploadDate": "วันที่อัปโหลด",
       "actions": "การดำเนินการ"
-    }
+    },
+    "details": "รายละเอียด",
+    "emergencyContactName": "ชื่อผู้ติดต่อฉุกเฉิน",
+    "emergencyContactRelationship": "ความสัมพันธ์กับผู้ติดต่อฉุกเฉิน",
+    "emergencyContactPhone": "เบอร์โทรศัพท์ผู้ติดต่อฉุกเฉิน",
+    "documents": "เอกสาร"
   },
   "status": {
     "active": "ทำงานอยู่",
@@ -124,4 +135,4 @@
       "bankAccount": "กรุณากรอกเลขบัญชีธนาคารที่ถูกต้อง"
     }
   }
-} 
+}
