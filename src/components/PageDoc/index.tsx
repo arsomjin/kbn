@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { FloatButton, Drawer, Collapse } from 'antd';
-import { FileTextOutlined } from '@ant-design/icons';
+import { FileTextOutlined, CloseOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import pageDocs from '../../in-app-docs/pageDocs';
 import { useSelector } from 'react-redux';
@@ -21,6 +21,7 @@ const PageDoc: React.FC = () => {
   const [open, setOpen] = useState(false);
   const { t, i18n } = useTranslation();
   const darkMode = useSelector((state: RootState) => state.theme?.darkMode);
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 600;
 
   // Try to match the current path to a doc entry
   // Try exact, then fallback to first segment (e.g. /auth/login -> /auth/login, then /auth)
@@ -60,6 +61,33 @@ const PageDoc: React.FC = () => {
         style={{ zIndex: 1200 }}
         className={darkMode ? 'dark' : ''}
       >
+        {/* Mini close button for mobile */}
+        {isMobile && (
+          <button
+            aria-label='Close'
+            onClick={() => setOpen(false)}
+            style={{
+              position: 'absolute',
+              top: 10,
+              left: 10,
+              zIndex: 1300,
+              background: darkMode ? '#23241e' : '#fff',
+              border: 'none',
+              borderRadius: '50%',
+              width: 32,
+              height: 32,
+              boxShadow: '0 1px 4px rgba(0,0,0,0.08)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              color: darkMode ? '#e9e5dd' : '#222',
+              fontSize: 20
+            }}
+          >
+            <CloseOutlined />
+          </button>
+        )}
         {doc ? (
           <Collapse
             defaultActiveKey={['overview']}
