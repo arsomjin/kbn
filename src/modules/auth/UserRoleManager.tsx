@@ -41,6 +41,7 @@ import type { ColumnsType } from 'antd/es/table';
 import UserRoleEditor, { EditableUser } from '../../components/auth/UserRoleEditor';
 import { Province } from '../../types/province';
 import styles from './UserRoleManager.module.css';
+import PageDoc from '../../components/PageDoc';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -189,11 +190,11 @@ const UserRoleManager: React.FC = () => {
             customPermissions: userData.customPermissions || [],
             accessibleProvinceIds: userData.accessibleProvinceIds || [],
             province: userData.provinceId || '',
-            department: userData.employeeInfo.department || '',
-            branch: userData.employeeInfo.branch || '',
+            department: userData.employeeInfo?.department || '',
+            branch: userData.employeeInfo?.branch || '',
             lastLogin: userData.lastLogin,
             status: userData.status || 'active',
-            isEmailVerified: userData.auth.emailVerified
+            isEmailVerified: userData.auth?.emailVerified
           });
         });
 
@@ -826,6 +827,7 @@ const UserRoleManager: React.FC = () => {
         modalTitle='editModal.title'
         showAllTabs={true}
       />
+      <PageDoc />
     </div>
   );
 };

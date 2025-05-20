@@ -32,6 +32,7 @@ import AuditHistory from '../../../components/AuditHistory';
 import { ROLES, RoleType } from '../../../constants/roles';
 import { getPrivilegeLevel } from '../../../utils/roleUtils';
 import AuditTrailSection from '../../../components/AuditTrailSection';
+import PageDoc from 'components/PageDoc';
 
 // Add custom styles for the summary component
 import './inputPrice.css';
@@ -648,6 +649,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
           </div>
         </Form>
       </Card>
+      <PageDoc />
     </div>
   );
 };

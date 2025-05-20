@@ -533,7 +533,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                 <ThemeSwitch />
                 <NotificationCenter />
                 <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
-                  <div className='cursor-pointer flex items-center' style={{ height: 36 }}>
+                  <div className='cursor-pointer flex items-center' style={{ height: 36, marginLeft: 4 }}>
                     <UserAvatar
                       photoURL={photoURL}
                       displayName={userProfile?.displayName ?? user?.displayName ?? undefined}
@@ -562,11 +562,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   className='h-16 w-16 text-lg'
                 />
               </div>
-              <div className='flex items-center gap-4 mr-4' style={{ height: 40 }}>
+              <div className='flex items-center gap-6 mr-4' style={{ height: 40 }}>
                 <ThemeSwitch />
                 <NotificationCenter />
                 <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
-                  <div className='cursor-pointer flex items-center' style={{ height: 32 }}>
+                  <div className='cursor-pointer flex items-center' style={{ height: 32, marginLeft: 10 }}>
                     <UserAvatar
                       photoURL={photoURL}
                       displayName={userProfile?.displayName ?? user?.displayName ?? undefined}

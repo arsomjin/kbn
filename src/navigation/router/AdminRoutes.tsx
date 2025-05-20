@@ -23,7 +23,9 @@ export const AdminRoutes = [
     key='review-users'
     path='review-users'
     element={
-      <ProtectedRoute allowedRoles={[UserRole.PROVINCE_ADMIN, UserRole.SUPER_ADMIN, UserRole.GENERAL_MANAGER]}>
+      <ProtectedRoute
+        allowedRoles={[UserRole.PROVINCE_ADMIN, UserRole.SUPER_ADMIN, UserRole.GENERAL_MANAGER, UserRole.PRIVILEGE]}
+      >
         <UserReview />
       </ProtectedRoute>
     }
@@ -32,7 +34,9 @@ export const AdminRoutes = [
     key='manage-users'
     path='users'
     element={
-      <ProtectedRoute allowedRoles={[UserRole.PROVINCE_ADMIN, UserRole.SUPER_ADMIN, UserRole.GENERAL_MANAGER]}>
+      <ProtectedRoute
+        allowedRoles={[UserRole.PROVINCE_ADMIN, UserRole.SUPER_ADMIN, UserRole.GENERAL_MANAGER, UserRole.PRIVILEGE]}
+      >
         <UserRoleManager />
       </ProtectedRoute>
     }

@@ -15,6 +15,7 @@ const { Text, Title } = Typography;
 
 interface NotificationCenterProps {
   onNotificationClick?: (notification: Notification) => void;
+  className?: string;
 }
 
 const NotificationCenter: React.FC<NotificationCenterProps> = ({ onNotificationClick }) => {
@@ -88,82 +89,13 @@ const NotificationCenter: React.FC<NotificationCenterProps> = ({ onNotificationC
   );
 
   return (
-    <>
-      {/* {!isMobile ? (
-        <>
-          <Badge
-            count={unreadCount}
-            offset={[8, -8]}
-            style={{
-              minWidth: 24,
-              height: 24,
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 14,
-              boxShadow: '0 2px 8px rgba(75,96,67,0.15)',
-              border: '2px solid #fff',
-              background: '#384D3A',
-              color: '#fff',
-              position: 'absolute',
-              top: 0,
-              right: 0
-            }}
-            onClick={() => setIsOpen(true)}
-          >
-            <Tooltip title={t('notifications:title')}>
-              <BellOutlined className='notification-bell' />
-            </Tooltip>
-          </Badge>
-          <NotificationDrawer
-            open={isOpen}
-            onClose={() => setIsOpen(false)}
-            notifications={notifications}
-            onMarkAsRead={id => {
-              const notif = notifications.find((n: Notification) => n.id === id);
-              if (notif) handleNotificationClick(notif);
-            }}
-            onMarkAllAsRead={handleMarkAllAsRead}
-            loading={false}
-            hasMore={false}
-          />
-        </>
-      ) : ( */}
-      <Popover
-        content={content}
-        trigger='click'
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        placement='bottomRight'
-        overlayClassName='notification-popover-container'
-      >
-        <Badge
-          count={unreadCount}
-          offset={[8, -8]}
-          style={{
-            minWidth: 24,
-            height: 24,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 14,
-            boxShadow: '0 2px 8px rgba(75,96,67,0.15)',
-            border: '2px solid #fff',
-            background: '#384D3A',
-            color: '#fff',
-            position: 'absolute',
-            top: 0,
-            right: 0
-          }}
-        >
-          <Tooltip title={t('notifications:title')}>
-            <BellOutlined className='notification-bell' />
-          </Tooltip>
-        </Badge>
-      </Popover>
-    </>
+    <Popover content={content} trigger='click' open={isOpen} onOpenChange={setIsOpen} placement='bottomRight'>
+      <Badge count={unreadCount}>
+        <Tooltip title={t('notifications:title')}>
+          <BellOutlined className='notification-bell' />
+        </Tooltip>
+      </Badge>
+    </Popover>
   );
 };
 

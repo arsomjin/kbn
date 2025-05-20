@@ -187,3 +187,17 @@ export const getPrivilegeLevel = (role: string): number => {
       return 0;
   }
 };
+
+/**
+ * Helper function to check if a role has higher or equal privileges than another
+ * @param userRole - The role of the current user
+ * @param requiredRole - The role being checked against
+ * @returns boolean indicating if the user has sufficient privileges
+ */
+export const hasRolePrivilege = (userRole: RoleType, requiredRole: RoleType): boolean => {
+  const userRoleLevel = getPrivilegeLevel(userRole);
+  const requiredRoleLevel = getPrivilegeLevel(requiredRole);
+
+  // Lower numbers have higher privilege
+  return userRoleLevel <= requiredRoleLevel;
+};
