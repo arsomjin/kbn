@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
 import { getLandingPage } from 'utils/roleUtils';
 import { Spin } from 'antd';
@@ -36,6 +36,7 @@ const CompleteProfilePage = lazy(() => import('modules/auth/CompleteProfilePage'
 const PendingPage = lazy(() => import('modules/auth/PendingPage'));
 const Overview = lazy(() => import('modules/dashboard/Overview'));
 const Profile = lazy(() => import('modules/auth/CompleteProfilePage'));
+const PersonalProfile = lazy(() => import('pages/PersonalProfile'));
 const ProvinceLayout = lazy(() => import('modules/dashboard/ProvinceLayout'));
 const Dashboard = lazy(() => import('modules/dashboard/Dashboard'));
 const BranchDashboard = lazy(() => import('modules/dashboard/BranchDashboard'));
@@ -65,6 +66,7 @@ const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 export const AppRouter: React.FC = () => {
   const { userProfile, isLoading, isAuthenticated, hasRole, isProfileComplete } = useAuth();
   const { t } = useTranslation();
+  const location = useLocation();
 
   console.log('[AppRouter] State:', {
     userProfile,
@@ -139,23 +141,27 @@ export const AppRouter: React.FC = () => {
           {/* Root route - redirects based on user profile */}
           <Route
             index
-            element={
-              userProfile ? (
-                hasRole(UserRole.PENDING) ? (
-                  <Navigate to='/pending' replace />
-                ) : !isProfileComplete ? (
-                  <Navigate to='/complete-profile' replace />
-                ) : (
-                  <Navigate to={getLandingPage(userProfile)} replace />
-                )
-              ) : (
-                <LoadingSpinner />
-              )
-            }
+            element={(() => {
+              if (!userProfile) return <LoadingSpinner />;
+              if (hasRole(UserRole.PENDING)) return <Navigate to='/pending' replace />;
+              if (!isProfileComplete) return <Navigate to='/complete-profile' replace />;
+              const landingPage = getLandingPage(userProfile);
+              console.log('[AppRouter] landingPage:', landingPage, 'current:', location.pathname);
+              if (location.pathname === landingPage) {
+                // Already at landing page, render children
+                return null;
+              }
+              // Prevent redirect loop to root
+              if (landingPage === '/' && location.pathname === '/') {
+                return <Navigate to='/dashboard' replace />;
+              }
+              return <Navigate to={landingPage} replace />;
+            })()}
           />
 
           {/* Common routes */}
           <Route path='/profile' element={<Profile />} />
+          <Route path='/personal-profile' element={<PersonalProfile />} />
           <Route path='/landing' element={<Landing />} />
           <Route path='/province-dashboard' element={<ProvinceDashboard />} />
           <Route path='/branch-dashboard' element={<BranchDashboard />} />

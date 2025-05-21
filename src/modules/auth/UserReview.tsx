@@ -30,8 +30,8 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { firestore } from '../../services/firebase';
-import { ROLES, RoleType } from '../../constants/roles';
-import { PERMISSIONS } from '../../constants/Permissions';
+import { ROLES, RoleType, ROLE_PERMISSIONS, isInRoleCategory, RoleCategory } from '../../constants/roles';
+import { PERMISSIONS, PermissionValue } from '../../constants/Permissions';
 import { notificationController } from '../../controllers/notificationController';
 import { NotificationType } from '../../services/notificationService';
 import { ColumnsType } from 'antd/es/table';
@@ -214,7 +214,7 @@ const UserReview: React.FC = () => {
 
   // State for available provinces and permissions
   const [availableProvinces, setAvailableProvinces] = useState<Province[]>([]);
-  const [rolePermissions, setRolePermissions] = useState<Record<string, string[]>>(DEFAULT_ROLE_PERMISSIONS);
+  const [rolePermissions, setRolePermissions] = useState<Record<RoleType, PermissionValue[]>>(ROLE_PERMISSIONS);
   const [allPermissions, setAllPermissions] = useState<{ key: string; title: string }[]>([]);
 
   // Modal states
@@ -289,7 +289,7 @@ const UserReview: React.FC = () => {
       try {
         const rolePermissionsDoc = await getDoc(doc(firestore, 'systemConfig', 'rolePermissions'));
         if (rolePermissionsDoc.exists()) {
-          setRolePermissions(rolePermissionsDoc.data() as Record<string, string[]>);
+          setRolePermissions(rolePermissionsDoc.data() as Record<RoleType, PermissionValue[]>);
         }
       } catch (error) {
         console.error('Error fetching role permissions:', error);
@@ -305,9 +305,11 @@ const UserReview: React.FC = () => {
     const usersRef = collection(firestore, 'users');
     let q = query(usersRef, where('role', '==', ROLES.PENDING));
 
+    console.log(`start fetching pending users`, userProfile);
+
     // If user is province_admin, only show users from their province
-    if (userProfile?.role === ROLES.PROVINCE_ADMIN && userProfile?.province) {
-      console.log(`Filtering users for province_admin in province: ${userProfile.province}`);
+    if (userProfile?.role === ROLES.PROVINCE_ADMIN && userProfile?.provinceId) {
+      console.log(`Filtering users for province_admin in province: ${userProfile.provinceId}`);
       q = query(
         usersRef,
         where('role', '==', ROLES.PENDING),
@@ -352,6 +354,7 @@ const UserReview: React.FC = () => {
               ...data?.auth
             });
           }
+          console.log('pendingUsers', pendingUsers);
           pendingUsers.sort((a, b) => (b.createdAt?.getTime() || 0) - (a.createdAt?.getTime() || 0));
           setUsers(pendingUsers);
           setLoading(false);
@@ -366,14 +369,14 @@ const UserReview: React.FC = () => {
   }, [t, rolePermissions, userProfile?.role, userProfile?.province]);
 
   // Handle role change and update corresponding permissions
-  const handleRoleChange = (uid: string, role: string) => {
+  const handleRoleChange = (uid: string, role: RoleType) => {
     const defaultPermissions = rolePermissions[role] || [];
     setUsers(prev =>
       prev.map(user =>
         user.uid === uid
           ? {
               ...user,
-              selectedRole: role as RoleType,
+              selectedRole: role,
               selectedPermissions: defaultPermissions
             }
           : user
@@ -442,14 +445,14 @@ const UserReview: React.FC = () => {
             // Prepare permission update
             const permissionsUpdate = {
               role: selectedRole,
-              permissions: userData.selectedPermissions || rolePermissions[selectedRole] || [],
+              permissions: userData.selectedPermissions,
               permissionsChanges: [
                 ...(userDataSnap.permissionsChanges || []),
                 {
                   granted: true,
                   approvedBy: USER?.uid,
                   approvedAt: new Date().toISOString(),
-                  permissionList: userData.selectedPermissions || rolePermissions[selectedRole] || []
+                  permissionList: userData.selectedPermissions
                 }
               ],
               accessibleProvinceIds: userData.selectedProvinceIds || [],
@@ -620,7 +623,7 @@ const UserReview: React.FC = () => {
             value={record.selectedRole}
             style={{ width: '100%' }}
             size={isMobile ? 'small' : 'middle'}
-            onChange={value => handleRoleChange(record.uid, value)}
+            onChange={value => handleRoleChange(record.uid, value as RoleType)}
             dropdownMatchSelectWidth={false}
             className={styles.roleSelector}
             listHeight={320}
@@ -952,7 +955,6 @@ const UserReview: React.FC = () => {
           onCancel={() => setEditModalVisible(false)}
           onSave={handleEditSave}
           isSaving={false}
-          allPermissions={allPermissions}
           modalTitle={t('editModal.title')}
           namespace='userReview'
         />

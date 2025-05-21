@@ -118,7 +118,7 @@ export const transformToUserProfile = (user: User): UserProfile => {
   const baseProfile: Partial<UserProfile> = {
     uid: user.id,
     accessibleProvinceIds: [],
-    customPermissions: [],
+    permissions: [],
     deleted: user.deleted,
     status: user.status,
     type: user.type,

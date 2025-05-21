@@ -24,7 +24,8 @@
   "home": "Home",
   "toggleTheme": "Toggle Theme",
   "errors": {
-    "notFound": "Sorry, the page you are looking for does not exist."
+    "notFound": "Sorry, the page you are looking for does not exist.",
+    "unexpectedError": "An unexpected error occurred"
   },
   "excelImportExport": {
     "importExcel": "Import Excel",

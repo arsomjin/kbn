@@ -73,5 +73,29 @@
     "success": "อัปเดตโปรไฟล์สำเร็จ",
     "verifyEmailSent": "ส่งอีเมลยืนยันแล้ว",
     "passwordResetSent": "ส่งอีเมลรีเซ็ตรหัสผ่านแล้ว"
+  },
+  "personalProfile": {
+    "title": "โปรไฟล์ส่วนตัว",
+    "personalInfo": "ข้อมูลส่วนตัว",
+    "organizationInfo": "ข้อมูลองค์กร",
+    "accountInfo": "ข้อมูลบัญชี",
+    "email": "อีเมล",
+    "phone": "หมายเลขโทรศัพท์",
+    "employeeId": "รหัสพนักงาน",
+    "department": "แผนก",
+    "branch": "สาขา",
+    "province": "จังหวัด",
+    "memberSince": "เป็นสมาชิกตั้งแต่",
+    "lastLogin": "เข้าสู่ระบบล่าสุด",
+    "verified": "ยืนยันแล้ว",
+    "status": {
+      "active": "ใช้งาน",
+      "inactive": "ไม่ใช้งาน",
+      "pending": "รอดำเนินการ"
+    },
+    "loading": "กำลังโหลดข้อมูลโปรไฟล์...",
+    "error": {
+      "loadingProfile": "เกิดข้อผิดพลาดในการโหลดข้อมูลโปรไฟล์"
+    }
   }
 }

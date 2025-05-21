@@ -1,5 +1,5 @@
-import { Timestamp } from "firebase/firestore";
-import { Province, ProvinceAccess } from "./province";
+import { Timestamp } from 'firebase/firestore';
+import { Province, ProvinceAccess } from './province';
 import { Permission } from '../constants/Permissions';
 
 /**
@@ -90,7 +90,7 @@ export type FirestoreUserData = Omit<User, 'id'>;
 export interface UserProfile {
   uid: string;
   accessibleProvinceIds: string[];
-  customPermissions: Permission[];
+  permissions: Permission[];
   deleted: boolean;
   status: UserStatus;
   type: UserType;

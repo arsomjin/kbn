@@ -40,7 +40,14 @@ const Account: React.FC = () => {
       hasPermission(PERMISSIONS.VIEW_ACCOUNTS) ||
       hasPermission(PERMISSIONS.VIEW_INCOME) ||
       hasPermission(PERMISSIONS.VIEW_EXPENSE) ||
-      hasRole([ROLES.SUPER_ADMIN, ROLES.DEVELOPER, ROLES.PRIVILEGE])
+      hasRole([
+        ROLES.SUPER_ADMIN,
+        ROLES.DEVELOPER,
+        ROLES.PRIVILEGE,
+        ROLES.PROVINCE_MANAGER,
+        ROLES.PROVINCE_ADMIN,
+        ROLES.GENERAL_MANAGER
+      ])
     );
   };
 
@@ -96,7 +103,14 @@ const Account: React.FC = () => {
           path='/'
           element={
             hasPermission(PERMISSIONS.VIEW_ACCOUNTS) ||
-            hasRole([ROLES.SUPER_ADMIN, ROLES.DEVELOPER, ROLES.PRIVILEGE]) ? (
+            hasRole([
+              ROLES.SUPER_ADMIN,
+              ROLES.DEVELOPER,
+              ROLES.PRIVILEGE,
+              ROLES.PROVINCE_MANAGER,
+              ROLES.PROVINCE_ADMIN,
+              ROLES.GENERAL_MANAGER
+            ]) ? (
               <Overview />
             ) : (
               <Alert
@@ -115,7 +129,15 @@ const Account: React.FC = () => {
         <Route
           path='/income/*'
           element={
-            hasPermission(PERMISSIONS.VIEW_INCOME) || hasRole([ROLES.SUPER_ADMIN, ROLES.DEVELOPER, ROLES.PRIVILEGE]) ? (
+            hasPermission(PERMISSIONS.VIEW_INCOME) ||
+            hasRole([
+              ROLES.SUPER_ADMIN,
+              ROLES.DEVELOPER,
+              ROLES.PRIVILEGE,
+              ROLES.PROVINCE_MANAGER,
+              ROLES.PROVINCE_ADMIN,
+              ROLES.GENERAL_MANAGER
+            ]) ? (
               <Income />
             ) : (
               <Alert
@@ -135,7 +157,14 @@ const Account: React.FC = () => {
           path='/expense/*'
           element={
             hasPermission(PERMISSIONS.VIEW_EXPENSE) ||
-            hasRole([ROLES.SUPER_ADMIN, ROLES.DEVELOPER, ROLES.PRIVILEGE]) ? (
+            hasRole([
+              ROLES.SUPER_ADMIN,
+              ROLES.DEVELOPER,
+              ROLES.PRIVILEGE,
+              ROLES.PROVINCE_MANAGER,
+              ROLES.PROVINCE_ADMIN,
+              ROLES.GENERAL_MANAGER
+            ]) ? (
               <Expense />
             ) : (
               <Alert
@@ -155,7 +184,14 @@ const Account: React.FC = () => {
           path='/input-price/*'
           element={
             hasPermission(PERMISSIONS.VIEW_ACCOUNTS) ||
-            hasRole([ROLES.SUPER_ADMIN, ROLES.DEVELOPER, ROLES.PRIVILEGE]) ? (
+            hasRole([
+              ROLES.SUPER_ADMIN,
+              ROLES.DEVELOPER,
+              ROLES.PRIVILEGE,
+              ROLES.PROVINCE_MANAGER,
+              ROLES.PROVINCE_ADMIN,
+              ROLES.GENERAL_MANAGER
+            ]) ? (
               <InputPrice provinceId={provinceId || ''} departmentId={userProfile?.department || ''} />
             ) : (
               <Alert

@@ -51,5 +51,6 @@
   "view_roles": "View Roles",
   "manage_roles": "Manage Roles",
   "view_provinces": "View Provinces",
-  "manage_provinces": "Manage Provinces"
+  "manage_provinces": "Manage Provinces",
+  "insufficientPermissions": "You don't have sufficient permissions to perform this action"
 }

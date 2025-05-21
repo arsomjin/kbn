@@ -20,7 +20,14 @@ export const ProvinceRoutes = [
         requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
         fallbackPath='/dashboard'
         provinceCheck={() => true}
-        allowedRoles={[UserRole.SUPER_ADMIN, UserRole.DEVELOPER, UserRole.PRIVILEGE]}
+        allowedRoles={[
+          UserRole.SUPER_ADMIN,
+          UserRole.DEVELOPER,
+          UserRole.PRIVILEGE,
+          UserRole.PROVINCE_MANAGER,
+          UserRole.PROVINCE_ADMIN,
+          UserRole.GENERAL_MANAGER
+        ]}
       >
         <Account />
       </PermissionProtectedRoute>

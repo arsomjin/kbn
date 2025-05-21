@@ -4,6 +4,19 @@ import { Permission } from '../constants/Permissions';
 import { RootState } from '../store';
 import { store } from '../store';
 import { UserProfile } from '../services/authService';
+import { ROLE_PERMISSIONS } from '../constants/roles';
+
+/**
+ * Get all permissions for a user based on their role
+ * @param userProfile - User's profile containing role
+ * @returns Array of permissions the user has based on their role
+ */
+export const getUserPermissions = (userProfile: UserProfile | null): PermissionValue[] => {
+  if (!userProfile) return [];
+
+  // Get role-based permissions only
+  return (ROLE_PERMISSIONS[userProfile.role as keyof typeof ROLE_PERMISSIONS] || []) as PermissionValue[];
+};
 
 /**
  * Check if user has a specific permission
@@ -13,9 +26,11 @@ import { UserProfile } from '../services/authService';
 export const hasPermission = (permission: PermissionValue): boolean => {
   const state = store.getState();
   const { userProfile } = state.auth;
-  return (
-    userProfile?.customPermissions?.includes(permission) || userProfile?.permissions?.includes(permission) || false
-  );
+
+  if (!userProfile) return false;
+
+  const allPermissions = getUserPermissions(userProfile);
+  return allPermissions.includes(permission);
 };
 
 /**
@@ -47,7 +62,13 @@ export const hasBranchAccess = (branchCode: string): boolean => {
  * @returns boolean indicating if user has any of the permissions
  */
 export const hasAnyPermission = (permissions: PermissionValue[]): boolean => {
-  return permissions.some(permission => hasPermission(permission));
+  const state = store.getState();
+  const { userProfile } = state.auth;
+
+  if (!userProfile) return false;
+
+  const allPermissions = getUserPermissions(userProfile);
+  return permissions.some(permission => allPermissions.includes(permission));
 };
 
 /**
@@ -56,21 +77,31 @@ export const hasAnyPermission = (permissions: PermissionValue[]): boolean => {
  * @returns boolean indicating if user has all permissions
  */
 export const hasAllPermissions = (permissions: PermissionValue[]): boolean => {
-  return permissions.every(permission => hasPermission(permission));
+  const state = store.getState();
+  const { userProfile } = state.auth;
+
+  if (!userProfile) return false;
+
+  const allPermissions = getUserPermissions(userProfile);
+  return permissions.every(permission => allPermissions.includes(permission));
 };
 
+/**
+ * Hook to check if user has a specific permission
+ * @param permission - Permission to check
+ * @returns boolean indicating if user has permission
+ */
 export const usePermissionCheck = (permission: Permission): boolean => {
   const { userProfile } = useSelector((state: RootState) => state.auth);
-  return userProfile?.customPermissions?.includes(permission) || false;
+  const allPermissions = getUserPermissions(userProfile);
+  return allPermissions.includes(permission);
 };
 
-export const useProvinceAccessCheck = (provinceId: string): boolean => {
+/**
+ * Hook to get all user permissions
+ * @returns Array of all permissions the user has
+ */
+export const useUserPermissions = (): PermissionValue[] => {
   const { userProfile } = useSelector((state: RootState) => state.auth);
-  return userProfile?.accessibleProvinceIds?.includes(provinceId) || false;
-};
-
-export const useBranchAccessCheck = (branchId: string): boolean => {
-  const { userProfile } = useSelector((state: RootState) => state.auth);
-  if (!userProfile) return false;
-  return userProfile.requestedType === 'employee' && userProfile.branch === branchId;
+  return getUserPermissions(userProfile);
 };

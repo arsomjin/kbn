@@ -1,15 +1,15 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
-import { usePermissions } from 'hooks/usePermissions';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { Permission } from '../../constants/Permissions';
+import { Permission, PermissionValue } from '../../constants/Permissions';
 import { UserRole } from '../../constants/roles';
+import { getUserPermissions } from '../../utils/permissions';
 
 interface PermissionProtectedRouteProps {
   children: React.ReactNode;
-  requiredPermission?: Permission;
+  requiredPermission?: PermissionValue;
   fallbackPath?: string;
   provinceCheck?: () => boolean;
   allowedRoles?: UserRole[];
@@ -39,8 +39,17 @@ const PermissionProtectedRoute: React.FC<PermissionProtectedRouteProps> = ({
   allowedRoles
 }) => {
   const { isAuthenticated, userProfile, isLoading } = useAuth();
-  const { hasPermission } = usePermissions();
   const location = useLocation();
+
+  console.log('PermissionProtectedRoute', {
+    isAuthenticated,
+    userProfile,
+    isLoading,
+    requiredPermission,
+    fallbackPath,
+    provinceCheck,
+    allowedRoles
+  });
 
   // Show loading spinner while checking authentication
   if (isLoading) {
@@ -53,19 +62,21 @@ const PermissionProtectedRoute: React.FC<PermissionProtectedRouteProps> = ({
 
   // Redirect to login if not authenticated
   if (!isAuthenticated) {
-    // Save the location they were trying to go to for later redirect
     return <Navigate to='/login' state={{ from: location }} replace />;
   }
 
   // Check if user has required role
-  if (allowedRoles && userProfile && !allowedRoles.includes(userProfile.role as UserRole)) {
-    return <Navigate to={fallbackPath} replace />;
+  if (allowedRoles && userProfile && allowedRoles.includes(userProfile.role as UserRole)) {
+    // If user has an allowed role, bypass permission and province checks
+    return <>{children}</>;
   }
 
-  // If permission check is required, verify user has the permission
-  if (requiredPermission && !hasPermission(requiredPermission)) {
-    // Redirect to fallback path if user doesn't have required permission
-    return <Navigate to={fallbackPath} replace />;
+  // If user doesn't have an allowed role, check permissions and province access
+  if (requiredPermission) {
+    const userPermissions = getUserPermissions(userProfile);
+    if (!userPermissions.includes(requiredPermission)) {
+      return <Navigate to={fallbackPath} replace />;
+    }
   }
 
   // If province check is required, verify user has access to the province

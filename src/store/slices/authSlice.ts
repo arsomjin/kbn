@@ -40,7 +40,7 @@ export const fetchUserProfile = createAsyncThunk('auth/fetchUserProfile', async 
   const userProfile: UserProfile = {
     ...profile,
     provinceAccess: profile.accessibleProvinceIds || [],
-    permissions: profile.customPermissions || [],
+    permissions: profile.permissions || [],
     isProfileComplete: true,
     firstName: profile.firstName || '',
     lastName: profile.lastName || '',

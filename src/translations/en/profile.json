@@ -73,5 +73,29 @@
     "success": "Profile updated successfully",
     "verifyEmailSent": "Verification email sent",
     "passwordResetSent": "Password reset email sent"
+  },
+  "personalProfile": {
+    "title": "Personal Profile",
+    "personalInfo": "Personal Information",
+    "organizationInfo": "Organization Information",
+    "accountInfo": "Account Information",
+    "email": "Email",
+    "phone": "Phone Number",
+    "employeeId": "Employee ID",
+    "department": "Department",
+    "branch": "Branch",
+    "province": "Province",
+    "memberSince": "Member Since",
+    "lastLogin": "Last Login",
+    "verified": "Verified",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending"
+    },
+    "loading": "Loading profile information...",
+    "error": {
+      "loadingProfile": "Error loading profile information"
+    }
   }
 }

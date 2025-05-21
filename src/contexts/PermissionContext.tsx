@@ -1,11 +1,12 @@
 import React, { createContext, useContext } from 'react';
 import { useAuth } from 'contexts/AuthContext';
 import { Province } from 'types/province';
-import { Permission } from 'constants/Permissions';
+import { Permission, PermissionValue } from 'constants/Permissions';
 import { ROLES, isInRoleCategory, RoleCategory } from 'constants/roles';
+import { getUserPermissions } from '../utils/permissions';
 
 interface PermissionContextType {
-  hasPermission: (permission: string) => boolean;
+  hasPermission: (permission: PermissionValue) => boolean;
   hasRole: (role: string) => boolean;
   hasProvinceAccess: (provinceId: string) => boolean;
   canAccessProvince: (provinceId: string) => boolean;
@@ -15,7 +16,15 @@ interface PermissionContextType {
 const PermissionContext = createContext<PermissionContextType | undefined>(undefined);
 
 export const PermissionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { userProfile, hasPermission: authHasPermission, hasRole: authHasRole } = useAuth();
+  const { userProfile, hasRole: authHasRole } = useAuth();
+
+  // Get all user permissions
+  const userPermissions = getUserPermissions(userProfile);
+
+  // Function to check if the user has a specific permission
+  const hasPermission = (permission: PermissionValue): boolean => {
+    return userPermissions.includes(permission);
+  };
 
   // Function to check if the user has access to a specific province
   const hasProvinceAccess = (provinceId: string): boolean => {
@@ -55,7 +64,7 @@ export const PermissionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     })) || [];
 
   const value: PermissionContextType = {
-    hasPermission: authHasPermission,
+    hasPermission,
     hasRole: authHasRole,
     hasProvinceAccess,
     canAccessProvince,

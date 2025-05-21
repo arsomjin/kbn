@@ -3,7 +3,7 @@
   "pageTitle": "User Role Management",
   "description": "Manage user roles, permissions, and province access",
   "tooltip": "Configure roles, permissions, and province access for users",
-  
+
   "filters": {
     "search": "Search users...",
     "searchPlaceholder": "Search by name or email...",
@@ -81,6 +81,7 @@
 
   "messages": {
     "success": {
+      "updateUserDescription": "Successfully updated user {{user}}",
       "update": "User role updated successfully",
       "delete": "User deleted successfully",
       "activate": "User activated successfully",

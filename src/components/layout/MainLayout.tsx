@@ -139,7 +139,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       key: 'profile',
       icon: <UserOutlined />,
       label: t('profile', { ns: 'common' }),
-      onClick: () => navigate('/profile')
+      onClick: () => navigate('/personal-profile')
     },
     // {
     //   key: 'settings',
@@ -270,7 +270,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: t('employees:title') || 'Employee Management',
       onClick: () => navigate('/admin/employees')
     },
-    hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.GENERAL_MANAGER]) && {
+    hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.GENERAL_MANAGER, ROLES.DEVELOPER]) && {
       key: 'user-review',
       icon: <TeamOutlined />,
       label: t('userReview:title'),

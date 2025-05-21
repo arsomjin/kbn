@@ -59,7 +59,6 @@ export const getLandingPage = (userProfile: UserProfile): string => {
     case ROLES.PRIVILEGE:
     case ROLES.DEVELOPER:
       return '/overview';
-    case ROLES.PROVINCE_MANAGER:
     case ROLES.GENERAL_MANAGER:
       return '/dashboard';
     case ROLES.PROVINCE_MANAGER:
@@ -200,4 +199,28 @@ export const hasRolePrivilege = (userRole: RoleType, requiredRole: RoleType): bo
 
   // Lower numbers have higher privilege
   return userRoleLevel <= requiredRoleLevel;
+};
+
+/**
+ * Get color for role tag based on role type
+ * @param role - The role to get color for
+ * @returns string - Color name for Ant Design Tag component
+ */
+export const getRoleColor = (role: string): string => {
+  const roleColors: Record<string, string> = {
+    [ROLES.SUPER_ADMIN]: 'magenta',
+    [ROLES.PROVINCE_ADMIN]: 'red',
+    [ROLES.PRIVILEGE]: 'volcano',
+    [ROLES.GENERAL_MANAGER]: 'orange',
+    [ROLES.PROVINCE_MANAGER]: 'gold',
+    [ROLES.BRANCH_MANAGER]: 'lime',
+    [ROLES.LEAD]: 'green',
+    [ROLES.USER]: 'cyan',
+    [ROLES.BRANCH]: 'blue',
+    [ROLES.PENDING]: 'purple',
+    [ROLES.GUEST]: 'default',
+    [ROLES.DEVELOPER]: 'geekblue'
+  };
+
+  return roleColors[role] || 'default';
 };

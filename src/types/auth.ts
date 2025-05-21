@@ -16,7 +16,6 @@ export interface UserProfile {
   updatedAt: Date;
   photoURL?: string | null;
   phoneNumber?: string | null;
-  customPermissions?: string[];
   employeeId?: string;
   company?: string;
   purpose?: string;

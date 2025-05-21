@@ -57,6 +57,6 @@
   "newUserRegistration": "New user registration",
   "adminTitle": "New user registration",
   "adminDescription": "{{name}} ({{email}}) registered and is pending approval.",
-  "roleUpdatedTitle": "User role updated",
-  "roleUpdatedDescription": "The user's role has been updated."
+  "roleUpdatedTitle": "Role Updated",
+  "roleUpdatedDescription": "Your role has been updated to {{role}}"
 }

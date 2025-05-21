@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Button, Tabs, Form, Select, Transfer, Alert, Tag } from 'antd';
+import { Modal, Button, Tabs, Form, Select, Transfer, Alert, Tag, Typography } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
 import { RoleType, ROLES, ROLE_PERMISSIONS, isInRoleCategory, RoleCategory } from '../../constants/roles';
-import { PERMISSIONS } from '../../constants/Permissions';
+import { PERMISSIONS, PermissionValue } from '../../constants/Permissions';
 import { Province } from '../../types/province';
 import { getPrivilegeLevel } from '../../utils/roleUtils';
 import { useProvinces } from 'hooks/useProvinces';
+import { useResponsive } from 'hooks/useResponsive';
+import styles from './UserRoleEditor.module.css';
 
 const { Option } = Select;
 const { TabPane } = Tabs;
+const { Text } = Typography;
 
 export interface EditableUser {
   uid: string;
@@ -17,7 +20,7 @@ export interface EditableUser {
   email?: string;
   role: RoleType;
   selectedRole: RoleType;
-  selectedPermissions: string[];
+  selectedPermissions: PermissionValue[];
   selectedProvinceIds: string[];
   type?: 'Employee' | 'Visitor';
   branchId?: string;
@@ -34,14 +37,13 @@ interface UserRoleEditorProps {
   onCancel: () => void;
   onSave: (user: EditableUser) => void;
   isSaving?: boolean;
-  allPermissions: Array<{ key: string; title: string }>;
   modalTitle?: string;
   showAllTabs?: boolean;
   namespace?: string;
 }
 
 /**
- * A reusable component for editing user roles, permissions, and provinces
+ * A reusable component for editing user roles and provinces
  */
 const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
   visible,
@@ -52,13 +54,13 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
   onCancel,
   onSave,
   isSaving = false,
-  allPermissions,
   modalTitle = 'userRoleManager.editModal.title',
   showAllTabs = true,
   namespace = 'userRoleManager'
 }) => {
-  const { t } = useTranslation([namespace, 'common', 'roles', 'provinces', 'permissions']);
+  const { t } = useTranslation([namespace, 'common', 'roles', 'provinces']);
   const { provinces } = useProvinces();
+  const { isMobile, isTablet } = useResponsive();
   const [editingUser, setEditingUser] = useState<EditableUser | null>(null);
   const [activeTabKey, setActiveTabKey] = useState<string>('role');
 
@@ -93,9 +95,8 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
   // Handle role change
   const handleRoleChange = (role: RoleType) => {
     if (!editingUser) return;
-    console.log('role', role);
-    console.log('editingUser', editingUser);
-    // When role changes, reset permissions to the role's default permissions
+
+    // Get default permissions for the selected role
     const defaultPermissions = rolePermissions[role] || [];
 
     // Set default selectedProvinceIds based on role privilege level
@@ -109,7 +110,7 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
     setEditingUser({
       ...editingUser,
       selectedRole: role,
-      selectedPermissions: defaultPermissions,
+      selectedPermissions: defaultPermissions as PermissionValue[],
       selectedProvinceIds: defaultProvinceIds
     });
   };
@@ -118,9 +119,17 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
   const handlePermissionChange = (targetKeys: React.Key[]) => {
     if (!editingUser) return;
 
+    // Get role-based permissions for the current role
+    const roleBasedPermissions = rolePermissions[editingUser.selectedRole] || [];
+
+    // Filter out role-based permissions from the selected permissions
+    const customPermissions = (targetKeys as PermissionValue[]).filter(
+      permission => !roleBasedPermissions.includes(permission)
+    );
+
     setEditingUser({
       ...editingUser,
-      selectedPermissions: targetKeys as string[]
+      selectedPermissions: [...roleBasedPermissions, ...customPermissions] as PermissionValue[]
     });
   };
 
@@ -156,6 +165,7 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
 
   // Handle save
   const handleSave = () => {
+    console.log('[UserRoleEditor] editingUser', editingUser);
     if (editingUser) {
       onSave(editingUser);
     }
@@ -168,7 +178,7 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
     const defaultPermissions = rolePermissions[editingUser.selectedRole] || [];
     setEditingUser({
       ...editingUser,
-      selectedPermissions: [...defaultPermissions]
+      selectedPermissions: [...defaultPermissions] as PermissionValue[]
     });
   };
 
@@ -218,182 +228,152 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
       },
       {
         key: 'permissions',
-        label: t(`editModal.tabs.permissions`),
-        // label: t(`editModal.tabs.permissions`),
+        label: t(`${keyPrefix}.tabs.permissions`, t(`editModal.tabs.permissions`, 'Permissions')),
         children: (
           <div className='p-4 w-full overflow-x-hidden'>
-            <h3 className='text-lg mb-4'>{t(`editModal.permissionsTitle`)}</h3>
-            <p className='mb-4'>{t(`editModal.permissionsDescription`)}</p>
-            <Transfer
-              dataSource={allPermissions
-                .filter(l => l.key !== 'USER_INVITE')
-                .map(item => ({
-                  ...item,
-                  title: translatePermission(item.key)
-                }))}
-              titles={[t(`editModal.availablePermissions`), t(`editModal.assignedPermissions`)]}
-              operations={[t(`editModal.moveButtons.toRight`), t(`editModal.moveButtons.toLeft`)]}
-              targetKeys={editingUser.selectedPermissions}
-              onChange={handlePermissionChange}
-              render={item => item.title}
-              listStyle={{
-                width: '100%',
-                height: 300
-              }}
-              showSearch
-              filterOption={(inputValue, option) => option.title.toLowerCase().indexOf(inputValue.toLowerCase()) > -1}
-              className='bg-white dark:bg-gray-800'
-              locale={{
-                itemUnit: t('item', { ns: 'common', defaultValue: 'รายการ' }),
-                itemsUnit: t('items', { ns: 'common', defaultValue: 'รายการ' }),
-                searchPlaceholder: t('searchPlaceholder', { ns: 'common', defaultValue: 'ค้นหาที่นี่' }),
-                notFoundContent: t('notFoundContent', { ns: 'common', defaultValue: 'ไม่พบข้อมูล' })
-              }}
-            />
-
-            <div className='mt-4'>
-              <Button onClick={resetPermissionsToDefault} type='default'>
-                {t(`editModal.resetPermissions`)}
+            <h3 className='text-lg mb-4'>
+              {t(`editModal.permissionsTitle`, t(`${namespace}.editModal.permissionsTitle`, 'Manage Permissions'))}
+            </h3>
+            <Form layout='vertical'>
+              <Form.Item
+                label={t(
+                  `editModal.permissionsLabel`,
+                  t(`${namespace}.editModal.permissionsLabel`, 'Custom Permissions')
+                )}
+                extra={t(
+                  `editModal.permissionsDescription`,
+                  t(
+                    `${namespace}.editModal.permissionsDescription`,
+                    'Select additional permissions beyond the role defaults'
+                  )
+                )}
+              >
+                <Transfer
+                  dataSource={Object.values(PERMISSIONS).map(permission => ({
+                    key: permission,
+                    title: translatePermission(permission)
+                  }))}
+                  titles={[
+                    t('editModal.availablePermissions', 'Available'),
+                    t('editModal.selectedPermissions', 'Selected')
+                  ]}
+                  targetKeys={editingUser.selectedPermissions}
+                  onChange={handlePermissionChange}
+                  render={item => item.title}
+                  listStyle={{
+                    width: isMobile ? '100%' : 250,
+                    height: 300
+                  }}
+                  operations={[t('editModal.addPermissions', 'Add'), t('editModal.removePermissions', 'Remove')]}
+                  className={styles.permissionsTransfer}
+                />
+              </Form.Item>
+              <Button type='link' onClick={resetPermissionsToDefault} className='mt-2'>
+                {t('editModal.resetToDefault', 'Reset to Role Defaults')}
               </Button>
-            </div>
+            </Form>
           </div>
         )
       },
       {
         key: 'provinces',
-        label: t(`editModal.tabs.provinces`),
+        label: t(`${keyPrefix}.tabs.provinces`, t(`editModal.tabs.provinces`, 'Provinces')),
         children: (
           <div className='p-4 w-full overflow-x-hidden'>
-            <h3 className='text-lg mb-4'>{t(`editModal.provincesTitle`)}</h3>
-            <p className='mb-4'>{t(`editModal.provincesDescription`)}</p>
-
+            <h3 className='text-lg mb-4'>
+              {t(`editModal.provincesTitle`, t(`${namespace}.editModal.provincesTitle`, 'Manage Province Access'))}
+            </h3>
             <Form layout='vertical'>
-              <Form.Item label={t(`editModal.selectProvinces`)} extra={t(`editModal.provincesExtra`)}>
+              <Form.Item
+                label={t(
+                  `editModal.provincesLabel`,
+                  t(`${namespace}.editModal.provincesLabel`, 'Accessible Provinces')
+                )}
+                extra={t(
+                  `editModal.provincesDescription`,
+                  t(`${namespace}.editModal.provincesDescription`, 'Select provinces this user can access')
+                )}
+              >
                 <Select
                   mode='multiple'
                   value={editingUser.selectedProvinceIds}
                   onChange={handleProvinceChange}
                   style={{ width: '100%' }}
-                  placeholder={t(`editModal.selectProvincesPlaceholder`)}
-                  disabled={user?.role && getPrivilegeLevel(user?.role) <= getPrivilegeLevel(ROLES.GENERAL_MANAGER)}
-                  className='province-select'
-                  optionFilterProp='children'
-                  showSearch
+                  disabled={getPrivilegeLevel(editingUser.selectedRole) >= getPrivilegeLevel(ROLES.GENERAL_MANAGER)}
                 >
-                  {availableProvinces
-                    .filter(province => province.isActive !== false)
-                    .map(province => {
-                      console.log('availableProvinces', availableProvinces);
-                      console.log('province', province);
-                      return (
-                        <Option key={province.id} value={province.id}>
-                          {province.name} {province.code ? `(${province.code})` : ''}
-                        </Option>
-                      );
-                    })}
+                  {availableProvinces.map(province => (
+                    <Option key={province.id} value={province.id}>
+                      {province.name}
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
             </Form>
-
-            {editingUser.selectedProvinceIds.length === 0 && (
-              <Alert message={t(`editModal.noProvincesWarning`)} type='warning' showIcon className='mb-4' />
-            )}
-
-            {isInRoleCategory(editingUser.selectedRole, RoleCategory.GENERAL_MANAGER) && (
-              <Alert
-                message={t(`editModal.autoProvinceAccess`)}
-                description={t(`editModal.autoProvinceAccessDescription`)}
-                type='success'
-                showIcon
-                className='mt-4'
-              />
-            )}
-
-            {editingUser.type === 'Employee' && editingUser.provinceId && (
-              <div className='mt-4 bg-blue-50 p-3 rounded border border-blue-200 dark:bg-blue-900 dark:border-blue-800'>
-                <p className='text-blue-700 dark:text-blue-200'>
-                  {t(`${keyPrefix}.employeeProvinceWarning`, {
-                    provinceName:
-                      availableProvinces.find(p => p.id === editingUser.provinceId)?.name || editingUser.provinceId
-                  })}
-                </p>
+          </div>
+        )
+      },
+      {
+        key: 'summary',
+        label: t(`${keyPrefix}.tabs.summary`, t(`editModal.tabs.summary`, 'Summary')),
+        children: (
+          <div className='p-4 w-full overflow-x-hidden'>
+            <h3 className='text-lg mb-4'>
+              {t(`editModal.summaryTitle`, t(`${namespace}.editModal.summaryTitle`, 'User Summary'))}
+            </h3>
+            <div className='space-y-4'>
+              <div>
+                <Text strong>{t('editModal.currentRole', 'Current Role')}:</Text>
+                <div className='mt-1'>
+                  <Tag color='blue'>{t(`${editingUser.selectedRole.toLowerCase()}.label`, { ns: 'roles' })}</Tag>
+                </div>
               </div>
-            )}
+              <div>
+                <Text strong>{t('editModal.permissions', 'Permissions')}:</Text>
+                <div className='mt-1 flex flex-wrap gap-1'>
+                  {editingUser.selectedPermissions.map(permission => (
+                    <Tag key={permission} color='green'>
+                      {translatePermission(permission)}
+                    </Tag>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <Text strong>{t('editModal.provinces', 'Provinces')}:</Text>
+                <div className='mt-1 flex flex-wrap gap-1'>
+                  {editingUser.selectedProvinceIds.map(provinceId => {
+                    const province = availableProvinces.find(p => p.id === provinceId);
+                    return (
+                      <Tag key={provinceId} color='blue'>
+                        {province?.name || provinceId}
+                      </Tag>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
         )
       }
     ];
-
-    if (showAllTabs) {
-      items.push({
-        key: 'summary',
-        label: t(`editModal.tabs.summary`, t(`${namespace}.editModal.tabs.summary`, 'Summary')),
-        children: (
-          <div className='p-4 w-full overflow-x-hidden'>
-            <h3 className='text-lg mb-4'>
-              {t(`editModal.summaryTitle`, t(`${namespace}.editModal.summaryTitle`, 'User Access Summary'))}
-            </h3>
-
-            <div className='mb-4'>
-              <h4 className='font-medium mb-2'>
-                {t(`editModal.selectedRole`, t(`${namespace}.editModal.selectedRole`, 'Selected Role'))}:
-              </h4>
-              <Tag>{t(`${editingUser.selectedRole.toLowerCase()}.label`, { ns: 'roles' })}</Tag>
-            </div>
-            <div className='mb-4'>
-              <h4 className='font-medium mb-2'>
-                {t(
-                  `editModal.selectedPermissions`,
-                  t(`${namespace}.editModal.selectedPermissions`, 'Selected Permissions')
-                )}
-                :
-              </h4>
-              <div>
-                {editingUser.selectedPermissions.map(permission => (
-                  <Tag key={permission}>{translatePermission(permission)}</Tag>
-                ))}
-              </div>
-            </div>
-            <div className='mb-4'>
-              <h4 className='font-medium mb-2'>
-                {t(`editModal.selectedProvinces`, t(`${namespace}.editModal.selectedProvinces`, 'Selected Provinces'))}:
-              </h4>
-              <div>
-                {editingUser.selectedProvinceIds.map(provinceId => (
-                  <Tag key={provinceId}>{availableProvinces.find(p => p.id === provinceId)?.name || provinceId}</Tag>
-                ))}
-              </div>
-            </div>
-          </div>
-        )
-      });
-    }
 
     return items;
   };
 
   return (
     <Modal
-      visible={visible}
+      title={t(modalTitle)}
+      open={visible}
       onCancel={onCancel}
       onOk={handleSave}
-      title={t(modalTitle)}
-      footer={[
-        <Button key='cancel' onClick={onCancel}>
-          {t(`common.cancel`, 'ยกเลิก')}
-        </Button>,
-        <Button key='save' type='primary' loading={isSaving} onClick={handleSave}>
-          {t(`common.save`, 'บันทึก')}
-        </Button>
-      ]}
-      style={{ minWidth: '600px' }}
+      confirmLoading={isSaving}
+      width={isMobile ? '100%' : isTablet ? '80%' : '60%'}
+      className={styles.userRoleEditorModal}
     >
       <Tabs
         activeKey={activeTabKey}
-        onChange={key => setActiveTabKey(key)}
+        onChange={setActiveTabKey}
         items={getTabItems()}
-        className='w-full'
-        style={{ maxWidth: '100%' }}
+        className={styles.userRoleEditorTabs}
       />
     </Modal>
   );

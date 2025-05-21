@@ -61,7 +61,7 @@ const pageDocs: Record<string, DocSection> = {
   '/admin/users': {
     overview: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>👥 ภาพรวม</h2>
+        <h2 style={{ marginBottom: 8 }}>👥 ภาพรวม</h2>
         <p>
           <b>หน้าจัดการ [Role] ผู้ใช้</b> สำหรับผู้ดูแลระบบในการจัดการบทบาท (Role) และสิทธิ์ (Permissions)
           ของผู้ใช้แต่ละคนในแต่ละจังหวัด รองรับการค้นหา กรอง แก้ไข และกำหนดสิทธิ์การเข้าถึงข้อมูลตามจังหวัดและบทบาท
@@ -77,7 +77,7 @@ const pageDocs: Record<string, DocSection> = {
     ),
     instruction: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>📝 ขั้นตอนการใช้งาน</h2>
+        <h2 style={{ marginBottom: 8 }}>📝 ขั้นตอนการใช้งาน</h2>
         <ol style={{ paddingLeft: 20 }}>
           <li>
             <b>ค้นหาผู้ใช้:</b> ใช้ช่องค้นหาด้านบนเพื่อค้นหาด้วยชื่อหรืออีเมล กรองตาม Role หรือ จังหวัดได้
@@ -129,7 +129,7 @@ const pageDocs: Record<string, DocSection> = {
     ),
     flow: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔄 ลำดับการทำงาน (Workflow)</h2>
+        <h2 style={{ marginBottom: 8 }}>🔄 ลำดับการทำงาน (Workflow)</h2>
         <div
           style={{
             background: 'transparent',
@@ -164,7 +164,7 @@ flowchart TD
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔐 ระบบงาน (RBAC & Province Access)</h2>
+        <h2 style={{ marginBottom: 8 }}>🔐 ระบบงาน (RBAC & Province Access)</h2>
         <ul>
           <li>RBAC: กำหนดสิทธิ์ตามระดับสิทธิ์ (Admin, Province Manager, User)</li>
           <li>Province-limited: ข้อมูลผู้ใช้และสิทธิ์ถูกจำกัดตาม จังหวัด</li>
@@ -195,7 +195,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
   '/admin/review-users': {
     overview: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🧑‍💼 ภาพรวม</h2>
+        <h2 style={{ marginBottom: 8 }}>🧑‍💼 ภาพรวม</h2>
         <p>
           <b>หน้าตรวจสอบและอนุมัติผู้ใช้</b> สำหรับผู้ดูแลระบบและผู้จัดการ ใช้สำหรับตรวจสอบ อนุมัติ
           หรือปฏิเสธคำขอสมัครสมาชิกใหม่ สามารถกำหนดบทบาท (Role), สิทธิ์ (Permissions) และจังหวัดที่เข้าถึงได้ (Province)
@@ -205,7 +205,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     instruction: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>📝 ขั้นตอนการใช้งาน</h2>
+        <h2 style={{ marginBottom: 8 }}>📝 ขั้นตอนการใช้งาน</h2>
         <ol style={{ paddingLeft: 20 }}>
           <li>
             <b>ตรวจสอบรายชื่อผู้ใช้ที่รออนุมัติ:</b> ดูรายละเอียดผู้สมัครใหม่ในตาราง
@@ -236,7 +236,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     flow: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔄 ขั้นตอนการทำงาน (Workflow)</h2>
+        <h2 style={{ marginBottom: 8 }}>🔄 ขั้นตอนการทำงาน (Workflow)</h2>
         {/* 1. Notification Center */}
         <div style={{ marginBottom: 16 }}>
           <img
@@ -387,7 +387,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>⚙️ ระบบงาน & สิทธิ์การเข้าถึง</h2>
+        <h2 style={{ marginBottom: 8 }}>⚙️ ระบบงาน & สิทธิ์การเข้าถึง</h2>
         <ul>
           <li>
             RBAC: เฉพาะผู้ที่มีสิทธิ์ <b>USER_ROLE_EDIT</b> (เช่น Admin, Manager)
@@ -436,7 +436,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
   '/admin/employees': {
     overview: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>👥 ภาพรวม</h2>
+        <h2 style={{ marginBottom: 8 }}>👥 ภาพรวม</h2>
         <p>
           <b>หน้ารายชื่อพนักงาน</b> สำหรับดูข้อมูลพนักงานทั้งหมดในระบบ สามารถค้นหา กรอง แก้ไข หรือนำเข้าข้อมูลพนักงานได้
           รองรับการส่งออก/นำเข้า Excel และแสดงสถานะการจ้างงานของแต่ละคน
@@ -445,7 +445,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     instruction: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>📝 วิธีใช้งาน</h2>
+        <h2 style={{ marginBottom: 8 }}>📝 วิธีใช้งาน</h2>
         <ol style={{ paddingLeft: 20 }}>
           <li>ใช้ช่องค้นหาเพื่อค้นหาพนักงานด้วยชื่อ, รหัส, หรือแผนก</li>
           <li>
@@ -465,7 +465,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     flow: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔄 ลำดับการทำงาน (Workflow)</h2>
+        <h2 style={{ marginBottom: 8 }}>🔄 ลำดับการทำงาน (Workflow)</h2>
         <div style={{ marginBottom: 16 }}>
           <img
             src={require('../docs/visuals/employee-list.png')}
@@ -521,7 +521,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ระบบงาน (RBAC & Province Access)</h2>
+        <h2 style={{ marginBottom: 8 }}>🔒 ระบบงาน (RBAC & Province Access)</h2>
         <ul>
           <li>
             ข้อมูลพนักงานจะถูกกรองตาม <b>จังหวัด (provinceId)</b> ของผู้ใช้ที่เข้าสู่ระบบ
@@ -543,7 +543,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
   '/admin/branches': {
     overview: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🏢 ภาพรวม</h2>
+        <h2 style={{ marginBottom: 8 }}>🏢 ภาพรวม</h2>
         <p>
           <b>หน้าจัดการสาขา</b> สำหรับดูข้อมูลสาขาทั้งหมดในระบบ เพิ่ม แก้ไข หรือลบสาขาได้อย่างสะดวก
           รองรับการกรองตามจังหวัดและสถานะการใช้งาน
@@ -552,7 +552,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     instruction: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>📝 วิธีใช้งาน</h2>
+        <h2 style={{ marginBottom: 8 }}>📝 วิธีใช้งาน</h2>
         <ol style={{ paddingLeft: 20 }}>
           <li>
             คลิก <b>ปุ่มเพิ่มสาขา</b> เพื่อเพิ่มข้อมูลสาขาใหม่
@@ -572,7 +572,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     flow: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔄 ลำดับการทำงาน (Workflow)</h2>
+        <h2 style={{ marginBottom: 8 }}>🔄 ลำดับการทำงาน (Workflow)</h2>
         <div style={{ marginBottom: 16 }}>
           <img
             src={require('../docs/visuals/branch-list.png')}
@@ -628,7 +628,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ระบบงาน (RBAC & Permissions)</h2>
+        <h2 style={{ marginBottom: 8 }}>🔒 ระบบงาน (RBAC & Permissions)</h2>
         <ul>
           <li>
             เฉพาะผู้ที่มีสิทธิ์ <b>จัดการข้อมูลสาขา</b> เท่านั้นที่สามารถเพิ่ม แก้ไข หรือลบสาขาได้
@@ -644,7 +644,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
   '/admin/provinces': {
     overview: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🗺️ ภาพรวม</h2>
+        <h2 style={{ marginBottom: 8 }}>🗺️ ภาพรวม</h2>
         <p>
           <b>หน้าจัดการจังหวัด</b> สำหรับดูข้อมูลจังหวัดทั้งหมดในระบบ เพิ่ม แก้ไข หรือลบจังหวัดได้อย่างสะดวก
           รองรับการกรองและค้นหาตามชื่อ รหัส หรือภูมิภาค
@@ -653,7 +653,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     instruction: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>📝 วิธีใช้งาน</h2>
+        <h2 style={{ marginBottom: 8 }}>📝 วิธีใช้งาน</h2>
         <ol style={{ paddingLeft: 20 }}>
           <li>
             คลิก <b>ปุ่มเพิ่มจังหวัด</b> เพื่อเพิ่มข้อมูลจังหวัดใหม่
@@ -673,7 +673,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     flow: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔄 ลำดับการทำงาน (Workflow)</h2>
+        <h2 style={{ marginBottom: 8 }}>🔄 ลำดับการทำงาน (Workflow)</h2>
         <div style={{ marginBottom: 16 }}>
           <img
             src={require('../docs/visuals/province-list.png')}
@@ -712,7 +712,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔒 ระบบงาน (RBAC & Permissions)</h2>
+        <h2 style={{ marginBottom: 8 }}>🔒 ระบบงาน (RBAC & Permissions)</h2>
         <ul>
           <li>
             เฉพาะผู้ที่มีสิทธิ์ <b>จัดการข้อมูลจังหวัด</b> เท่านั้นที่สามารถเพิ่ม แก้ไข หรือลบจังหวัดได้
@@ -728,7 +728,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
   '/account/input-price': {
     overview: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>💸 ภาพรวม</h2>
+        <h2 style={{ marginBottom: 8 }}>💸 ภาพรวม</h2>
         <p>
           <b>หน้าบันทึกราคาซื้อ (รถและอุปกรณ์)</b> สำหรับบันทึกและตรวจสอบราคาซื้อสินค้า/อุปกรณ์จากใบรับสินค้า
           หลังจากคลังสินค้าตรวจรับสินค้าเรียบร้อยแล้ว พร้อมคำนวณยอดสุทธิและภาษี รองรับการอนุมัติหลายขั้นตอน (แก้ไข,
@@ -745,7 +745,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     instruction: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>📝 ขั้นตอนการใช้งาน</h2>
+        <h2 style={{ marginBottom: 8 }}>📝 ขั้นตอนการใช้งาน</h2>
         <ol style={{ paddingLeft: 20 }}>
           <li>
             <b>ค้นหาใบรับสินค้า:</b> พิมพ์เลขที่ใบรับสินค้าเพื่อค้นหาและเลือกข้อมูล
@@ -832,7 +832,7 @@ if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT) || !hasProvinceAccess(provinceId)
     ),
     flow: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔄 ลำดับการทำงาน (Workflow)</h2>
+        <h2 style={{ marginBottom: 8 }}>🔄 ลำดับการทำงาน (Workflow)</h2>
         <div
           style={{
             background: 'transparent',
@@ -863,7 +863,7 @@ flowchart TD
     ),
     logic: (
       <>
-        <h2 style={{ marginBottom: 8, color: '#2d4739' }}>🔐 ระบบงาน (RBAC & Permission)</h2>
+        <h2 style={{ marginBottom: 8 }}>🔐 ระบบงาน (RBAC & Permission)</h2>
         <ul>
           <li>
             เฉพาะผู้ที่มีสิทธิ์ <b>จัดการข้อมูลบัญชีรายจ่าย</b> และเข้าถึงข้อมูลระดับจังหวัด (province)

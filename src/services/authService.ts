@@ -53,7 +53,7 @@ export interface UserProfile {
   updatedAt: Date | Timestamp | FieldValue;
   photoURL?: string | null;
   phoneNumber?: string | null;
-  customPermissions?: string[]; // Add custom permissions field
+  permissions?: string[]; // Add permissions field
   employeeId?: string; // For company employees
   company?: string; // For external visitors
   purpose?: string; // Purpose of visit for external visitors

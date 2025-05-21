@@ -14,7 +14,6 @@ import {
   Alert,
   Tooltip,
   Empty,
-  notification,
   Avatar
 } from 'antd';
 import {
@@ -33,7 +32,7 @@ import {
 import { collection, query, where, getDocs, doc, updateDoc } from 'firebase/firestore';
 import { firestore } from '../../services/firebase';
 import { usePermissions } from 'hooks/usePermissions';
-import { PERMISSIONS } from '../../constants/Permissions';
+import { PERMISSIONS, PermissionValue } from '../../constants/Permissions';
 import { ROLES, RoleType, ROLE_PERMISSIONS, ROLE_HIERARCHY } from '../../constants/roles';
 import { notificationController } from '../../controllers/notificationController';
 import { NotificationType } from '../../services/notificationService';
@@ -42,6 +41,7 @@ import UserRoleEditor, { EditableUser } from '../../components/auth/UserRoleEdit
 import { Province } from '../../types/province';
 import styles from './UserRoleManager.module.css';
 import PageDoc from '../../components/PageDoc';
+import { useModal } from 'contexts/ModalContext';
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -54,7 +54,7 @@ interface UserTableItem {
   lastName?: string;
   photoURL?: string;
   role: RoleType;
-  customPermissions: string[];
+  permissions: PermissionValue[];
   accessibleProvinceIds?: string[];
   province?: string;
   department?: string;
@@ -71,6 +71,7 @@ interface UserTableItem {
 const UserRoleManager: React.FC = () => {
   const { t } = useTranslation(['userRoleManager', 'roles', 'permissions', 'common']);
   const { hasPermission, hasProvinceAccess } = usePermissions();
+  const { showWarning, showSuccess } = useModal();
 
   // Memoize permission checks to prevent unnecessary useEffect reruns
   const canViewUsers = hasPermission(PERMISSIONS.USER_VIEW);
@@ -91,9 +92,6 @@ const UserRoleManager: React.FC = () => {
   const [isEditModalVisible, setIsEditModalVisible] = useState<boolean>(false);
   const [currentUser, setCurrentUser] = useState<EditableUser | null>(null);
   const [editingInProgress, setEditingInProgress] = useState<boolean>(false);
-
-  // Allpermissions for transfer component
-  const [allPermissions, setAllPermissions] = useState<{ key: string; title: string }[]>([]);
 
   // Available roles for selection
   const [availableRoles, setAvailableRoles] = useState<Array<{ value: string; label: string; description: string }>>(
@@ -118,11 +116,13 @@ const UserRoleManager: React.FC = () => {
   // Initialize available roles
   useEffect(() => {
     // Create available roles array based on ROLES object
-    const roles = Object.values(ROLES).map(role => ({
-      value: role,
-      label: `roles.${role.toLowerCase()}.label`,
-      description: `roles.${role.toLowerCase()}.description`
-    }));
+    const roles = Object.values(ROLES)
+      .filter(role => role !== ROLES.DEVELOPER)
+      .map(role => ({
+        value: role,
+        label: `roles.${role.toLowerCase()}.label`,
+        description: `roles.${role.toLowerCase()}.description`
+      }));
 
     setAvailableRoles(roles);
   }, []);
@@ -141,17 +141,14 @@ const UserRoleManager: React.FC = () => {
 
       console.log('[UserRoleManager] Starting to fetch users...');
 
-      if (!canViewUsers) {
-        console.log('[UserRoleManager] User does not have USER_VIEW permission');
-        if (isMounted) {
-          notification.error({
-            message: t('common.error'),
-            description: t('permissions.insufficientPermissions')
-          });
-          setLoading(false);
-        }
-        return;
-      }
+      // if (!canViewUsers) {
+      //   console.log('[UserRoleManager] User does not have USER_VIEW permission');
+      //   if (isMounted) {
+      //     showWarning(t('permissions.insufficientPermissions'));
+      //     setLoading(false);
+      //   }
+      //   return;
+      // }
 
       try {
         isFetching = true;
@@ -170,15 +167,11 @@ const UserRoleManager: React.FC = () => {
         querySnapshot.forEach(doc => {
           const userData = doc.data();
 
+          console.log('[UserRoleManager] userData', userData);
+
           // Skip developer role users
           if (userData.role === ROLES.DEVELOPER) {
             return;
-          }
-
-          // Check if current user has access to this user's province
-          if (userData.provinceId && !checkProvinceAccess(userData.provinceId)) {
-            console.log(`[UserRoleManager] Skipping user ${doc.id} - no province access`);
-            return; // Skip users from provinces the current user cannot access
           }
 
           usersList.push({
@@ -193,7 +186,7 @@ const UserRoleManager: React.FC = () => {
             lastName: userData.lastName || userData.auth?.lastName,
             photoURL: userData.photoURL || userData.auth?.photoURL,
             role: userData.role as RoleType,
-            customPermissions: userData.customPermissions || [],
+            permissions: userData.permissions || [],
             accessibleProvinceIds: userData.accessibleProvinceIds || [],
             province: userData.provinceId || '',
             department: userData.employeeInfo?.department || '',
@@ -211,10 +204,7 @@ const UserRoleManager: React.FC = () => {
       } catch (error) {
         console.error('[UserRoleManager] Error fetching users:', error);
         if (isMounted) {
-          notification.error({
-            message: t('userRoleManager.errors.fetchUsers'),
-            description: error instanceof Error ? error.message : t('common.unexpectedError')
-          });
+          showWarning(error instanceof Error ? error.message : t('common.unexpectedError'));
         }
       } finally {
         isFetching = false;
@@ -231,10 +221,7 @@ const UserRoleManager: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [
-    // Only rerun if translation function changes (permissions checks are memoized above)
-    t
-  ]);
+  }, [t, canViewUsers, checkProvinceAccess, showWarning]);
 
   // Effect to fetch provinces data
   useEffect(() => {
@@ -270,16 +257,6 @@ const UserRoleManager: React.FC = () => {
     fetchProvinces();
   }, []);
 
-  // Effect to create permissions list for transfer component
-  useEffect(() => {
-    const permissionsList = Object.entries(PERMISSIONS).map(([key, value]) => ({
-      key: value,
-      title: t(`permissions.${key.toLowerCase()}`, value)
-    }));
-
-    setAllPermissions(permissionsList);
-  }, [t]);
-
   // Filter users based on search text, role, and province
   const filteredUsers = users.filter(user => {
     // Skip developer role users from UI display
@@ -303,14 +280,6 @@ const UserRoleManager: React.FC = () => {
 
   // Handle edit user button click
   const handleEditUser = (user: UserTableItem) => {
-    if (!hasPermission(PERMISSIONS.USER_ROLE_EDIT)) {
-      notification.error({
-        message: t('common.error'),
-        description: t('permissions.insufficientPermissions')
-      });
-      return;
-    }
-
     // Create editing user object with current values as defaults
     const editingUser: EditableUser = {
       uid: user.uid,
@@ -318,7 +287,7 @@ const UserRoleManager: React.FC = () => {
       displayName: user.displayName,
       role: user.role,
       selectedRole: user.role,
-      selectedPermissions: [...user.customPermissions],
+      selectedPermissions: [...(ROLE_PERMISSIONS[user.role] || []), ...(user.permissions || [])],
       selectedProvinceIds: user.accessibleProvinceIds || ([user.province].filter(Boolean) as string[]),
       branchId: user.branch,
       departmentId: user.department,
@@ -331,6 +300,7 @@ const UserRoleManager: React.FC = () => {
 
   // Handle save changes in edit modal
   const handleSaveChanges = async (editedUser: EditableUser) => {
+    console.log('[UserRoleManager] editedUser', editedUser);
     setEditingInProgress(true);
     try {
       const userRef = doc(firestore, 'users', editedUser.uid);
@@ -338,7 +308,7 @@ const UserRoleManager: React.FC = () => {
       // Prepare update data
       const updateData = {
         role: editedUser.selectedRole,
-        customPermissions: editedUser.selectedPermissions,
+        permissions: editedUser.selectedPermissions,
         accessibleProvinceIds: editedUser.selectedProvinceIds,
         updatedAt: new Date()
       };
@@ -353,7 +323,7 @@ const UserRoleManager: React.FC = () => {
             ? {
                 ...user,
                 role: editedUser.selectedRole,
-                customPermissions: editedUser.selectedPermissions,
+                permissions: editedUser.selectedPermissions,
                 accessibleProvinceIds: editedUser.selectedProvinceIds
               }
             : user
@@ -373,22 +343,18 @@ const UserRoleManager: React.FC = () => {
         { userIds: [editedUser.uid], sendPush: true }
       );
 
-      notification.success({
-        message: t('success.updateUser'),
-        description: t('success.updateUserDescription', {
+      showSuccess(
+        t('messages.success.updateUserDescription', {
           user: editedUser.displayName || editedUser.email
         })
-      });
+      );
 
       // Close modal
       setIsEditModalVisible(false);
       setCurrentUser(null);
     } catch (error) {
       console.error('Error updating user:', error);
-      notification.error({
-        message: t('errors.updateUser'),
-        description: error instanceof Error ? error.message : t('common.unexpectedError')
-      });
+      showWarning(error instanceof Error ? error.message : t('common.unexpectedError'));
     } finally {
       setEditingInProgress(false);
     }
@@ -509,7 +475,7 @@ const UserRoleManager: React.FC = () => {
       },
       {
         title: t('columns.permissions', { ns: 'userRoleManager' }),
-        dataIndex: 'customPermissions',
+        dataIndex: 'permissions',
         key: 'permissions',
         width: 180,
         responsive: ['lg'],
@@ -638,8 +604,8 @@ const UserRoleManager: React.FC = () => {
                     {t('columns.permissions', { ns: 'userRoleManager' })}
                   </Text>
                   <Text>
-                    {record.customPermissions.length > 0
-                      ? `${record.customPermissions.length} ${t('userRoleManager.customPermissions')}`
+                    {record.permissions.length > 0
+                      ? `${record.permissions.length} ${t('userRoleManager.permissions')}`
                       : `${ROLE_PERMISSIONS[record.role]?.length || 0} ${t('userRoleManager.defaultPermissions')}`}
                   </Text>
                 </div>
@@ -838,7 +804,6 @@ const UserRoleManager: React.FC = () => {
         onCancel={() => setIsEditModalVisible(false)}
         onSave={handleSaveChanges}
         isSaving={editingInProgress}
-        allPermissions={allPermissions}
         modalTitle='editModal.title'
         showAllTabs={true}
       />
