@@ -78,7 +78,12 @@ interface ValidMenuNavItem {
  */
 const useAccountBasePath = (): string => {
   const params = useParams();
-  return params.provinceId && params.branchCode ? `/${params.provinceId}/${params.branchCode}/account` : '/account';
+  if (params.provinceId && params.branchCode) {
+    return `/${params.provinceId}/${params.branchCode}/account`;
+  } else if (params.provinceId) {
+    return `/${params.provinceId}/account`;
+  }
+  return '/account';
 };
 
 /**

@@ -71,6 +71,7 @@ export interface InputPriceFormValues {
       role?: string;
     };
   }>;
+  status?: 'draft' | 'reviewed' | 'approved' | 'rejected';
 }
 
 export interface InputPriceState extends Record<string, unknown> {

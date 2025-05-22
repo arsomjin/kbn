@@ -37,6 +37,7 @@ import PageDoc from 'components/PageDoc';
 import './inputPrice.css';
 import { isMobile } from 'react-device-detect';
 import { useAuth } from 'contexts/AuthContext';
+import { DocumentStatusActions, DocumentStatusWatermark } from 'components/DocumentStatusActions';
 
 const initMergeState: InputPriceState = {
   mReceiveNo: null,
@@ -83,13 +84,29 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
   const { showConfirm, showSuccess, showWarning } = useModal();
   // Placeholder: get document status from props, form, or API
   // Replace this with real status logic as needed
-  const docStatus: 'draft' | 'reviewed' | 'approved' = 'draft'; // Replace with real status logic
-  const isReadOnly = readOnlyProp || (docStatus as any) === 'reviewed' || (docStatus as any) === 'approved';
+  // Derive document status from form or loaded document, fallback to 'draft'
+  const loadedDoc = form.getFieldsValue(); // Replace with actual loaded document if available
+  const docStatus: 'draft' | 'reviewed' | 'approved' | 'rejected' =
+    loadedDoc?.status === 'reviewed' || loadedDoc?.status === 'approved' || loadedDoc?.status === 'rejected'
+      ? loadedDoc.status
+      : 'draft';
+  // Permission checks for edit, review, approve, reject, etc.
+  const canEdit = hasPermission(PERMISSIONS.DOCUMENT_EDIT) && hasProvinceAccess(provinceId);
+  const canReview = hasPermission(PERMISSIONS.DOCUMENT_REVIEW) && hasProvinceAccess(provinceId);
+  const canApprove = hasPermission(PERMISSIONS.DOCUMENT_APPROVE) && hasProvinceAccess(provinceId);
+  const canReject = hasPermission(PERMISSIONS.DOCUMENT_REJECT) && hasProvinceAccess(provinceId);
+
+  // Determine readOnly state based on permissions and document status
+  const isReadOnly =
+    readOnlyProp ||
+    (docStatus === 'reviewed' && !canReview && !canApprove) ||
+    (docStatus === 'approved' && !canApprove) ||
+    (!canEdit && !canReview && !canApprove);
   // Stepper logic by permission
   let activeStep = 0;
-  if (hasPermission(PERMISSIONS.DOCUMENT_EDIT)) activeStep = 0;
-  if (hasPermission(PERMISSIONS.DOCUMENT_REVIEW)) activeStep = 1;
-  if (hasPermission(PERMISSIONS.DOCUMENT_APPROVE)) activeStep = 2;
+  if (canEdit) activeStep = 0;
+  if (canReview) activeStep = 1;
+  if (canApprove) activeStep = 2;
   // Department access check
   const isGeneralManagerOrHigher =
     userProfile && getPrivilegeLevel(userProfile.role) >= getPrivilegeLevel(ROLES.GENERAL_MANAGER);
@@ -484,7 +501,6 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
   );
 
   // Wire audit trail data from loaded document (replace 'loadedDoc' with actual variable if different)
-  const loadedDoc = form.getFieldsValue(); // Replace with actual loaded document if available
   const editedBy = (loadedDoc as any)?.editedBy ?? '';
   const reviewedBy = (loadedDoc as any)?.reviewedBy ?? '';
   const approvedBy = (loadedDoc as any)?.approvedBy ?? '';
@@ -493,9 +509,9 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
   const approvedDate = (loadedDoc as any)?.approvedDate ?? undefined;
 
   // Determine enabled/disabled state for each block based on permissions
-  const canEditEditedBy = hasPermission(PERMISSIONS.DOCUMENT_EDIT);
-  const canEditReviewedBy = hasPermission(PERMISSIONS.DOCUMENT_REVIEW);
-  const canEditApprovedBy = hasPermission(PERMISSIONS.DOCUMENT_APPROVE);
+  const canEditEditedBy = canEdit;
+  const canEditReviewedBy = canReview;
+  const canEditApprovedBy = canApprove;
 
   return (
     <div className='space-y-6' style={{ marginTop: isMobile ? '60px' : '0px' }}>
@@ -519,6 +535,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
           onFinish={onConfirm}
           initialValues={initialValues}
           layout='vertical'
+          disabled={isReadOnly}
         >
           <Form.Item
             label={
@@ -642,10 +659,27 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
               form='input-price-form'
               className='save-button'
               style={{ minWidth: 160, fontSize: 16, height: 40 }}
+              disabled={isReadOnly}
             >
               {t('save')}
             </Button>
+            <DocumentStatusActions
+              canApprove={canApprove}
+              docStatus={docStatus}
+              isReadOnly={isReadOnly}
+              onApprove={async () => {
+                form.setFieldsValue({ status: 'approved' });
+                await form.validateFields();
+                onConfirm(form.getFieldsValue());
+              }}
+              onReject={async () => {
+                form.setFieldsValue({ status: 'rejected' });
+                await form.validateFields();
+                onConfirm(form.getFieldsValue());
+              }}
+            />
           </div>
+          <DocumentStatusWatermark docStatus={docStatus} />
         </Form>
       </Card>
       <PageDoc />
