@@ -1,7 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
-import { getLandingPage } from 'utils/roleUtils';
+import { getUserHomePath } from 'utils/roleUtils';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
@@ -32,6 +32,7 @@ import BranchGuard from './router/BranchGuard';
 import BranchReports from 'modules/reports/provinceReports/BranchReports';
 import BranchLayout from 'modules/dashboard/BranchLayout';
 import InputPriceWrapper from 'modules/account/InputPrice/InputPriceWrapper';
+import AccountProvince from 'modules/account/provinces/AccountProvince';
 
 // Lazy-loaded components
 const LoginPage = lazy(() => import('modules/auth/LoginPage'));
@@ -54,6 +55,8 @@ const Income = lazy(() => import('modules/account/Income'));
 const Expense = lazy(() => import('modules/account/Expense'));
 const IncomeBranch = lazy(() => import('modules/account/branches/Income'));
 const ExpenseBranch = lazy(() => import('modules/account/branches/Expense'));
+const IncomeProvince = lazy(() => import('modules/account/provinces/Income'));
+const ExpenseProvince = lazy(() => import('modules/account/provinces/Expense'));
 const Landing = lazy(() => import('modules/dashboard/Landing'));
 const InputPrice = lazy(() => import('modules/account/InputPrice'));
 const AccountBranch = lazy(() => import('modules/account/branches/AccountBranch'));
@@ -83,37 +86,7 @@ export const AppRouter: React.FC = () => {
 
   // Root redirect logic
   const getRootRedirect = () => {
-    if (!isProfileComplete || !userProfile) return <Navigate to='/complete-profile' replace />;
-    const role = userProfile.role;
-    if (role === UserRole.PRIVILEGE || role === UserRole.DEVELOPER) {
-      return <Navigate to='/overview' replace />;
-    }
-    if (role === UserRole.SUPER_ADMIN || role === UserRole.GENERAL_MANAGER) {
-      return <Navigate to='/dashboard' replace />;
-    }
-    if (role === UserRole.PROVINCE_MANAGER || role === UserRole.PROVINCE_ADMIN) {
-      const provinceId = userProfile.provinceId;
-      if (provinceId) {
-        return <Navigate to={`/${provinceId}/dashboard`} replace />;
-      }
-      return <Navigate to='/landing' replace />;
-    }
-    if (role === UserRole.LEAD || role === UserRole.USER || role === UserRole.BRANCH_MANAGER) {
-      const provinceId = userProfile.provinceId;
-      const branchCode = userProfile.employeeInfo?.branch;
-      if (provinceId && branchCode) {
-        return <Navigate to={`/${provinceId}/${branchCode}/dashboard`} replace />;
-      }
-      return <Navigate to='/landing' replace />;
-    }
-    if (role === UserRole.GUEST) {
-      return <Navigate to='/landing' replace />;
-    }
-    if (role === UserRole.PENDING) {
-      return <Navigate to='/pending' replace />;
-    }
-    // fallback
-    return <Navigate to='/landing' replace />;
+    return <Navigate to={getUserHomePath(userProfile, isProfileComplete)} replace />;
   };
 
   return (
@@ -242,6 +215,23 @@ export const AppRouter: React.FC = () => {
                 </PermissionProtectedRoute>
               }
             />
+            <Route
+              path='account'
+              element={
+                <PermissionProtectedRoute
+                  requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
+                  fallbackPath='/dashboard'
+                  allowedRoles={getAllowedRoles(RoleCategory.PROVINCE_MANAGER)}
+                >
+                  <AccountProvince />
+                </PermissionProtectedRoute>
+              }
+            >
+              <Route index element={<Overview />} />
+              <Route path='income/*' element={<IncomeProvince />} />
+              <Route path='expense/*' element={<ExpenseProvince />} />
+              <Route path='input-price/*' element={<InputPriceWrapper />} />
+            </Route>
             <Route
               path='reports'
               element={

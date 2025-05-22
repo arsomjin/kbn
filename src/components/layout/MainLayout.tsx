@@ -35,7 +35,7 @@ import LanguageSwitcher from '../common/LanguageSwitcher';
 import UserAvatar from '../common/UserAvatar';
 
 // Utils
-import { hasPrivilegedAccess, getLandingPage } from '../../utils/roleUtils';
+import { hasPrivilegedAccess, getUserHomePath } from '../../utils/roleUtils';
 
 // Constants
 import { ROLES, RoleCategory } from '../../constants/roles';
@@ -84,40 +84,6 @@ const useAccountBasePath = (): string => {
     return `/${params.provinceId}/account`;
   }
   return '/account';
-};
-
-/**
- * Returns the correct home menu config based on user role.
- */
-const useHomeMenu = (userProfile: any, t: any): { key: string; label: string; path: string; icon: React.ReactNode } => {
-  if (!userProfile) {
-    return { key: 'home', label: t('common:home') || 'Home', path: '/', icon: <DashboardOutlined /> };
-  }
-  if (userProfile.role === ROLES.PROVINCE_MANAGER || userProfile.role === ROLES.GENERAL_MANAGER) {
-    return {
-      key: 'dashboard',
-      label: t('dashboard:title') || 'Dashboard',
-      path: '/dashboard',
-      icon: <DashboardOutlined />
-    };
-  }
-  if (userProfile.role === ROLES.BRANCH_MANAGER) {
-    return {
-      key: 'branch-dashboard',
-      label: t('dashboard:branchDashboard') || 'Branch Dashboard',
-      path: '/branch-dashboard',
-      icon: <DashboardOutlined />
-    };
-  }
-  if (hasPrivilegedAccess(userProfile)) {
-    return {
-      key: 'overview',
-      label: t('overview:title') || 'Overview',
-      path: '/overview',
-      icon: <DashboardOutlined />
-    };
-  }
-  return { key: 'home', label: t('common:home') || 'Home', path: '/', icon: <DashboardOutlined /> };
 };
 
 /**
@@ -275,7 +241,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   ];
 
   // Home menu config
-  const homeMenu = useHomeMenu(userProfile, t);
+  const homeMenu = {
+    key: 'home',
+    label: t('common:home') || 'Home',
+    path: getUserHomePath(userProfile),
+    icon: <DashboardOutlined />
+  };
 
   // Navigation items
   const navItemsRaw = [
@@ -285,27 +256,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: homeMenu.label,
       onClick: () => navigate(homeMenu.path)
     },
-    homeMenu.key !== 'overview' &&
-      hasRole(ROLES.PRIVILEGE) && {
-        key: 'overview',
-        icon: <DashboardOutlined />,
-        label: t('overview:title') || 'Overview',
-        onClick: () => navigate('/overview')
-      },
-    homeMenu.key !== 'dashboard' &&
-      hasRole(ROLES.PROVINCE_MANAGER) && {
-        key: 'dashboard',
-        icon: <DashboardOutlined />,
-        label: t('dashboard:title') || 'Dashboard',
-        onClick: () => navigate('/dashboard')
-      },
-    homeMenu.key !== 'branch-dashboard' &&
-      hasRole(ROLES.BRANCH_MANAGER) && {
-        key: 'branch-dashboard',
-        icon: <DashboardOutlined />,
-        label: t('dashboard:branchDashboard') || 'Branch Dashboard',
-        onClick: () => navigate('/branch-dashboard')
-      },
     hasPermission(PERMISSIONS.VIEW_ACCOUNTS) && {
       key: 'account',
       icon: <AccountBookOutlined />,

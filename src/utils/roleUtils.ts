@@ -1,5 +1,5 @@
 import { UserProfile } from '../services/authService';
-import { ROLES, isInRoleCategory, RoleCategory, RoleType } from '../constants/roles';
+import { ROLES, isInRoleCategory, RoleCategory, RoleType, UserRole } from '../constants/roles';
 import { PERMISSIONS } from '../constants/Permissions';
 
 /**
@@ -79,6 +79,47 @@ export const getLandingPage = (userProfile: UserProfile): string => {
     return '/landing';
   }
   if (role === ROLES.PENDING) {
+    return '/pending';
+  }
+  // fallback
+  return '/landing';
+};
+
+/**
+ * Returns the correct landing/redirect path based on user profile and role.
+ * Used for both menu and root redirect logic.
+ */
+export const getUserHomePath = (userProfile: any, isProfileComplete?: boolean): string => {
+  // If profile is incomplete or missing, go to complete-profile
+  if (!isProfileComplete || !userProfile) return '/complete-profile';
+  const role = userProfile.role;
+  if (role === UserRole.PRIVILEGE || role === UserRole.DEVELOPER) {
+    return '/overview';
+  }
+  if (role === UserRole.SUPER_ADMIN || role === UserRole.GENERAL_MANAGER) {
+    return '/dashboard';
+  }
+  if (role === UserRole.PROVINCE_MANAGER || role === UserRole.PROVINCE_ADMIN) {
+    const provinceId = userProfile.provinceId;
+    if (provinceId) {
+      return `/${provinceId}/dashboard`;
+    }
+    return '/landing';
+  }
+  if (role === UserRole.LEAD || role === UserRole.USER || role === UserRole.BRANCH_MANAGER) {
+    const provinceId = userProfile.provinceId;
+    const branchCode = userProfile.employeeInfo?.branch;
+    if (provinceId && branchCode) {
+      return `/${provinceId}/${branchCode}/dashboard`;
+    } else if (provinceId) {
+      return `/${provinceId}/dashboard`;
+    }
+    return '/landing';
+  }
+  if (role === UserRole.GUEST) {
+    return '/landing';
+  }
+  if (role === UserRole.PENDING) {
     return '/pending';
   }
   // fallback
