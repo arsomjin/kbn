@@ -402,7 +402,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           collapsible
           collapsed={collapsed}
           width={260}
-          collapsedWidth={80}
+          collapsedWidth={60}
           className='bg-white dark:bg-gray-800 shadow hidden md:block fixed top-0 left-0 h-screen z-40'
           style={{ height: '100vh', position: 'fixed', left: 0, top: 0, zIndex: 40 }}
         >
@@ -412,7 +412,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
               alt='KBN Logo'
               style={{ height: 32, marginRight: collapsed ? 0 : 8 }}
             />
-            <h1 className='text-primary font-bold text-lg'>{collapsed ? 'KBN' : 'KBN Platform'}</h1>
+            <h1 className='text-primary font-bold text-lg'>{collapsed ? '' : 'KBN Platform'}</h1>
           </div>
           <div style={{ overflowY: 'auto', height: 'calc(100vh - 64px)' }}>
             <Menu
@@ -497,7 +497,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   transition: 'opacity 0.2s',
                   pointerEvents: mobileHeaderFade < 0.1 ? 'none' : 'auto'
                 }
-              : { marginLeft: collapsed ? 80 : 260 }
+              : { marginLeft: collapsed ? 60 : 260 }
           }
         >
           {isMobile ? (
