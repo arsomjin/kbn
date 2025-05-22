@@ -1,36 +1,9 @@
 import { User } from 'firebase/auth';
 import { UserRole } from '../constants/roles';
 import { UserRequestType } from '../services/authService';
+import type { UserProfile } from '../services/authService';
 
-export interface UserProfile {
-  uid: string;
-  firstName: string;
-  lastName: string;
-  email: string | null;
-  role: UserRole | string;
-  requestedType: UserRequestType;
-  province?: string;
-  branch?: string;
-  department?: string;
-  createdAt: Date;
-  updatedAt: Date;
-  photoURL?: string | null;
-  phoneNumber?: string | null;
-  employeeId?: string;
-  company?: string;
-  purpose?: string;
-  displayName?: string | null;
-  branchCode?: string;
-  isActive?: boolean;
-  isEmailVerified?: boolean;
-  lastLogin?: number;
-  metadata?: Record<string, any>;
-  accessibleProvinceIds?: string[];
-  isProfileComplete: boolean;
-  provinceAccess: string[];
-  provinceId?: string;
-  permissions: string[];
-}
+export type { UserProfile };
 
 export interface AuthContextType {
   // State

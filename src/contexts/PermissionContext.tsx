@@ -30,22 +30,13 @@ export const PermissionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const hasProvinceAccess = (provinceId: string): boolean => {
     if (!userProfile || !provinceId) return false;
 
-    // Admin roles have access to all provinces
-    if (
-      userProfile.role === ROLES.SUPER_ADMIN ||
-      userProfile.role === ROLES.DEVELOPER ||
-      userProfile.role === ROLES.PRIVILEGE
-    ) {
-      return true;
-    }
-
     // Users with GENERAL_MANAGER role category and higher can access all provinces
     if (isInRoleCategory(userProfile.role as any, RoleCategory.GENERAL_MANAGER)) {
       return true;
     }
 
     // Check if the user has access to the specific province
-    return userProfile.provinceAccess.includes(provinceId);
+    return (userProfile?.accessibleProvinceIds || []).includes(provinceId);
   };
 
   // Alias for hasProvinceAccess for better semantics
@@ -53,7 +44,7 @@ export const PermissionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Get provinces that the user has access to
   const userProvinces: Province[] =
-    userProfile?.provinceAccess?.map(id => ({
+    (userProfile?.accessibleProvinceIds || [])?.map(id => ({
       id,
       name: `Province ${id.substring(0, 4)}`,
       nameEn: `Province ${id.substring(0, 4)}`,

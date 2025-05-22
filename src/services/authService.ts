@@ -60,12 +60,19 @@ export interface UserProfile {
   // displayName is deprecated, kept for backward compatibility
   displayName?: string | null;
   branchCode?: string;
+  provinceId?: string;
   isActive?: boolean;
   isEmailVerified?: boolean;
   lastLogin?: number;
   metadata?: Record<string, any>;
   // Province-related fields for multi-province support
   accessibleProvinceIds?: string[]; // Array of province IDs the user has access to
+  employeeInfo?: {
+    employeeCode: string;
+    branch?: string;
+    department?: string;
+  };
+  isProfileComplete?: boolean; // Flag to indicate if the profile is complete
 }
 
 // Simple in-memory cache to reduce Firestore reads

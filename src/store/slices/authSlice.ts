@@ -5,6 +5,8 @@ import { UserProfile } from 'types/auth';
 import { getUserProfile } from 'services/authService';
 import { removeUndefinedFields } from 'utils/userTransform';
 
+// [KBN migration] Remove Redux-based userProfile/permission logic: this slice is now obsolete for user profile/permissions.
+
 interface AuthState {
   user: User | null;
   userProfile: UserProfile | null;
@@ -39,7 +41,6 @@ export const fetchUserProfile = createAsyncThunk('auth/fetchUserProfile', async 
   // Ensure all required properties are present
   const userProfile: UserProfile = {
     ...profile,
-    provinceAccess: profile.accessibleProvinceIds || [],
     permissions: profile.permissions || [],
     isProfileComplete: true,
     firstName: profile.firstName || '',

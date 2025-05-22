@@ -16,6 +16,8 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isProfileComplete: boolean;
   hasProvinceAccess: (provinceId: string) => boolean;
+  hasBranchAccess: (branchCode: string) => boolean;
+  hasDepartmentAccess: (departmentCode: string) => boolean;
   hasNoProfile: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -98,12 +100,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             photoURL: user.photoURL,
             phoneNumber: user.phoneNumber,
             isProfileComplete: false,
-            provinceAccess: [],
-            permissions: [],
+            provinceId: '',
             accessibleProvinceIds: [],
+            permissions: [],
             displayName: user.displayName,
             isEmailVerified: user.emailVerified,
-            lastLogin: Date.now()
+            lastLogin: Date.now(),
+            employeeInfo: {
+              branch: '',
+              employeeCode: '',
+              department: ''
+            }
           };
 
           setUserProfile(removeUndefinedFields(initialUserData));
@@ -170,7 +177,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const switchProvince = async (provinceId: string) => {
-    if (!userProfile?.provinceAccess.includes(provinceId)) {
+    if (!(userProfile?.accessibleProvinceIds || []).includes(provinceId)) {
       throw new Error('User does not have access to this province');
     }
     setCurrentProvinceId(provinceId);
@@ -226,6 +233,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         !!(userProfile?.accessibleProvinceIds || []).includes(provinceId) ||
         (userProfile?.provinceId || '').includes(provinceId)
       );
+    },
+    hasBranchAccess: (branchCode: string) => {
+      return userProfile?.employeeInfo?.branch === branchCode;
+    },
+    hasDepartmentAccess: (departmentCode: string) => {
+      return userProfile?.employeeInfo?.department === departmentCode;
     },
     hasNoProfile: !userProfile,
     isLoading: loading || isProfileLoading,

@@ -5,6 +5,7 @@ import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { UserRole } from 'constants/roles';
 import { getLandingPage } from 'utils/roleUtils';
+import { LoadingSpinner } from 'components/common/LoadingSpinner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,18 +16,12 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowe
   const { isAuthenticated, loading, userProfile } = useAuth();
   const location = useLocation();
 
-  console.log('ProtectedRoute', { isAuthenticated, loading, userProfile, allowedRoles });
-
   if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to='/login' state={{ from: location }} replace />;
+    return <Navigate to='/auth/login' state={{ from: location }} replace />;
   }
 
   // If no allowed roles specified, allow access

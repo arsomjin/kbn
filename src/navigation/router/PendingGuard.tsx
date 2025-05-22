@@ -2,37 +2,18 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
 import { ROLES } from '../../constants/roles';
 import { useSelector } from 'react-redux';
-import { Spin } from 'antd';
+import { LoadingSpinner } from 'components/common/LoadingSpinner';
 
 const PendingGuard = ({ children }: { children: React.ReactNode }) => {
   const { userProfile, isLoading } = useAuth();
   const isProfileTransitioning = useSelector((state: any) => state.auth.isProfileTransitioning);
 
-  console.log('[PendingGuard] State:', {
-    isLoading,
-    isProfileTransitioning,
-    userProfile: userProfile
-      ? {
-          role: userProfile.role,
-          firstName: userProfile.firstName,
-          lastName: userProfile.lastName
-        }
-      : null
-  });
-
   if (isLoading || isProfileTransitioning) {
-    console.log('[PendingGuard] Loading spinner');
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <Spin size='large' />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
   if (userProfile?.role === ROLES.PENDING) {
-    console.log('[PendingGuard] Rendering children for PENDING role');
     return <>{children}</>;
   } else {
-    console.log('[PendingGuard] Redirecting to /, userProfile.role:', userProfile?.role);
     return <Navigate to='/' replace />;
   }
 };

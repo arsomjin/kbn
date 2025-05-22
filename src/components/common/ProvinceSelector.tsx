@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { Select, Tooltip } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useProvinces } from 'hooks/useProvinces';
+import { useProvinceContext } from 'hooks/useProvinceContext';
 
 interface ProvinceSelectorProps {
   value?: string;
@@ -37,9 +37,7 @@ const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({
   style
 }) => {
   const { t } = useTranslation(['provinces', 'common']);
-  const { provinces, loading } = useProvinces({
-    status: showInactive ? undefined : 'active'
-  });
+  const { provinces, loading } = useProvinceContext();
 
   const filteredProvinces = useMemo(() => {
     let filtered = provinces;
@@ -52,15 +50,15 @@ const ProvinceSelector: React.FC<ProvinceSelectorProps> = ({
     // Group by region if enabled
     if (showRegion) {
       return filtered.sort((a, b) => {
-        if (a.region === b.region) {
+        const regionA = (a as any).region || '';
+        const regionB = (b as any).region || '';
+        if (regionA === regionB) {
           return a.name.localeCompare(b.name);
         }
-        return (a.region || '').localeCompare(b.region || '');
+        return regionA.localeCompare(regionB);
       });
     }
-
-    // Otherwise sort by name
-    return filtered.sort((a, b) => a.name.localeCompare(b.name));
+    return filtered;
   }, [provinces, allowedProvinces, showRegion]);
 
   const handleChange = (selectedValue: string) => {

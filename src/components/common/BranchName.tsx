@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { useBranches } from 'hooks/useBranches';
+import { useBranchesForProvince } from 'hooks/useBranchesForProvince';
 import { Spin } from 'antd';
 
 interface BranchNameProps {
@@ -9,14 +9,15 @@ interface BranchNameProps {
 
 const BranchName: React.FC<BranchNameProps> = ({ code }) => {
   const { i18n } = useTranslation();
-  const { branches, loading } = useBranches({ includeAll: true });
+  // Use includeAll to get all branches across provinces
+  const { branches, loading } = useBranchesForProvince({ includeAll: true });
   const lang = i18n.language.startsWith('th') ? 'th' : 'en';
 
   if (loading) {
     return <Spin size='small' />;
   }
-  // console.log(branches);
-  const branch = branches.find(b => b.branchCode === code);
+  // Explicitly type b as Branch
+  const branch = branches.find((b: any) => b.branchCode === code);
   if (!branch) return <span>{code}</span>;
 
   return <span>{lang === 'th' ? branch.name : branch.nameEn}</span>;

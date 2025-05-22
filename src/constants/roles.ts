@@ -5,50 +5,49 @@ import { PERMISSIONS, Permission } from './Permissions';
  */
 export enum UserRole {
   PRIVILEGE = 'privilege',
+  DEVELOPER = 'developer',
   SUPER_ADMIN = 'super_admin',
-  PROVINCE_ADMIN = 'province_admin', // Renamed from ADMIN to PROVINCE_ADMIN
+  GENERAL_MANAGER = 'general_manager',
+  PROVINCE_ADMIN = 'province_admin', // Province level admin
+  PROVINCE_MANAGER = 'province_manager', // Province level manager
+  BRANCH_MANAGER = 'branch_manager', // Branch level manager
+  LEAD = 'lead', // Document reviewers
   USER = 'user',
   GUEST = 'guest',
-  PENDING = 'pending',
-  DEVELOPER = 'developer',
-  LEAD = 'lead', // Document reviewers
-  BRANCH_MANAGER = 'branch_manager', // Branch level manager
-  PROVINCE_MANAGER = 'province_manager', // Province level manager
-  GENERAL_MANAGER = 'general_manager' // Renamed from MANAGER
+  PENDING = 'pending'
 }
 
 /**
  * Role categories for grouping roles by access level
  */
 export enum RoleCategory {
+  DEVELOPER = 'developer',
   SUPER_ADMIN = 'super_admin',
   PRIVILEGE = 'privilege',
   GENERAL_MANAGER = 'general_manager',
-  PROVINCE_ADMIN = 'province_admin', // Renamed from ADMIN
+  PROVINCE_ADMIN = 'province_admin',
   PROVINCE_MANAGER = 'province_manager',
   BRANCH_MANAGER = 'branch_manager',
-  BRANCH = 'branch',
   LEAD = 'lead',
-  GUEST = 'guest',
-  DEVELOPER = 'developer'
+  USER = 'user',
+  GUEST = 'guest'
 }
 
 /**
  * Role constants for consistent role references throughout the app
  */
 export const ROLES = {
-  GUEST: 'guest',
-  PENDING: 'pending',
-  USER: 'user',
-  BRANCH: 'branch',
-  LEAD: 'lead',
-  BRANCH_MANAGER: 'branch_manager',
-  PROVINCE_MANAGER: 'province_manager',
-  GENERAL_MANAGER: 'general_manager',
-  PROVINCE_ADMIN: 'province_admin', // Renamed from ADMIN
   PRIVILEGE: 'privilege',
+  DEVELOPER: 'developer',
   SUPER_ADMIN: 'super_admin',
-  DEVELOPER: 'developer'
+  GENERAL_MANAGER: 'general_manager',
+  PROVINCE_ADMIN: 'province_admin',
+  PROVINCE_MANAGER: 'province_manager',
+  BRANCH_MANAGER: 'branch_manager',
+  LEAD: 'lead',
+  USER: 'user',
+  GUEST: 'guest',
+  PENDING: 'pending'
 } as const;
 
 /**
@@ -73,9 +72,8 @@ export const ROLE_HIERARCHY: Record<RoleType, number> = {
   [ROLES.BRANCH_MANAGER]: 6,
   [ROLES.LEAD]: 7,
   [ROLES.USER]: 8,
-  [ROLES.BRANCH]: 9,
-  [ROLES.PENDING]: 10,
-  [ROLES.GUEST]: 11
+  [ROLES.PENDING]: 9,
+  [ROLES.GUEST]: 10
 };
 
 /**
@@ -86,7 +84,6 @@ export const ROLE_DISPLAY_KEYS: Record<RoleType, string> = {
   [ROLES.GUEST]: 'roles.guest',
   [ROLES.PENDING]: 'roles.pending',
   [ROLES.USER]: 'roles.user',
-  [ROLES.BRANCH]: 'roles.branch',
   [ROLES.LEAD]: 'roles.lead',
   [ROLES.BRANCH_MANAGER]: 'roles.branch_manager',
   [ROLES.PROVINCE_MANAGER]: 'roles.province_manager',
@@ -139,9 +136,8 @@ export const ROLE_CATEGORIES: Record<RoleCategory, Array<RoleType>> = {
     ROLES.SUPER_ADMIN,
     ROLES.DEVELOPER
   ],
-  [RoleCategory.BRANCH]: [
+  [RoleCategory.USER]: [
     ROLES.USER,
-    ROLES.BRANCH,
     ROLES.LEAD,
     ROLES.BRANCH_MANAGER,
     ROLES.PROVINCE_MANAGER,
@@ -155,7 +151,6 @@ export const ROLE_CATEGORIES: Record<RoleCategory, Array<RoleType>> = {
     ROLES.GUEST,
     ROLES.PENDING,
     ROLES.USER,
-    ROLES.BRANCH,
     ROLES.LEAD,
     ROLES.BRANCH_MANAGER,
     ROLES.PROVINCE_MANAGER,
@@ -168,41 +163,12 @@ export const ROLE_CATEGORIES: Record<RoleCategory, Array<RoleType>> = {
 };
 
 /**
- * @deprecated Use ROLE_HIERARCHY object instead
- * Role hierarchy (higher index = higher permissions)
- */
-export const ROLE_HIERARCHY_OLD: Array<RoleType> = [
-  // Order from lowest privilege to highest:
-  // guest -> pending -> branch -> user -> lead -> branch_manager -> province_manager ->
-  // province_admin -> general_manager -> privilege -> super_admin -> developer
-  ROLES.GUEST,
-  ROLES.PENDING,
-  ROLES.BRANCH,
-  ROLES.USER,
-  ROLES.LEAD,
-  ROLES.BRANCH_MANAGER,
-  ROLES.PROVINCE_MANAGER,
-  ROLES.PROVINCE_ADMIN,
-  ROLES.GENERAL_MANAGER,
-  ROLES.PRIVILEGE,
-  ROLES.SUPER_ADMIN,
-  ROLES.DEVELOPER
-];
-
-/**
  * Helper function to check if a role has permission based on hierarchy
  * @param userRole - Current user's role
  * @param requiredRole - Required role for an action
  * @returns boolean indicating if user has sufficient role
  * @deprecated Use hasRolePrivilege instead
  */
-export const hasRolePermission = (userRole: RoleType, requiredRole: RoleType): boolean => {
-  const userRoleIndex = ROLE_HIERARCHY_OLD.indexOf(userRole);
-  const requiredRoleIndex = ROLE_HIERARCHY_OLD.indexOf(requiredRole);
-
-  // User role must be same or higher in the hierarchy
-  return userRoleIndex >= requiredRoleIndex;
-};
 
 /**
  * Helper function to check if a user belongs to a specific role category
@@ -244,11 +210,7 @@ const USER_PERMISSIONS: Permission[] = [
   PERMISSIONS.TASK_COMPLETE,
   // Document creation permission
   PERMISSIONS.DOCUMENT_VIEW,
-  PERMISSIONS.DOCUMENT_CREATE,
-  // Basic account permissions
-  PERMISSIONS.VIEW_ACCOUNTS,
-  PERMISSIONS.VIEW_INCOME,
-  PERMISSIONS.VIEW_EXPENSE
+  PERMISSIONS.DOCUMENT_CREATE
 ];
 
 const LEAD_PERMISSIONS: Permission[] = [
@@ -256,10 +218,7 @@ const LEAD_PERMISSIONS: Permission[] = [
   ...USER_PERMISSIONS,
   // Lead permissions
   PERMISSIONS.DOCUMENT_REVIEW,
-  PERMISSIONS.DOCUMENT_EDIT,
-  // Additional account permissions
-  PERMISSIONS.MANAGE_INCOME,
-  PERMISSIONS.MANAGE_EXPENSE
+  PERMISSIONS.DOCUMENT_EDIT
 ];
 
 const BRANCH_MANAGER_PERMISSIONS: Permission[] = [
@@ -343,7 +302,6 @@ export const ROLE_PERMISSIONS: Record<RoleType, Permission[]> = {
   [ROLES.GUEST]: GUEST_PERMISSIONS,
   [ROLES.PENDING]: GUEST_PERMISSIONS,
   [ROLES.USER]: USER_PERMISSIONS,
-  [ROLES.BRANCH]: USER_PERMISSIONS,
   [ROLES.LEAD]: LEAD_PERMISSIONS,
   [ROLES.BRANCH_MANAGER]: BRANCH_MANAGER_PERMISSIONS,
   [ROLES.PROVINCE_MANAGER]: PROVINCE_MANAGER_PERMISSIONS,

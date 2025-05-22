@@ -1,23 +1,23 @@
 import React from 'react';
 import { Routes, Route, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Layout, Card, Alert, Typography } from 'antd';
+import { Layout, Card, Alert } from 'antd';
 import { useAuth } from 'contexts/AuthContext';
-import { usePermissions } from 'hooks/usePermissions';
 import { hasProvinceAccess } from '../../utils/permissions';
-import { ROLES } from '../../constants/roles';
+import { ROLES, RoleType, UserRole } from '../../constants/roles';
 import { PERMISSIONS } from '../../constants/Permissions';
-
-// Import screens
 import Overview from './Overview';
 import Income from './Income/index';
 import Expense from './Expense/index';
 import InputPrice from './InputPrice/index';
 import { isMobile } from 'react-device-detect';
-import PageTitle from 'components/common/PageTitle';
+import PermissionProtectedRoute from '../../components/auth/PermissionProtectedRoute';
 
 const { Content } = Layout;
-const { Title } = Typography;
+
+const isRoleType = (role: any): role is UserRole => {
+  return Object.values(UserRole).includes(role);
+};
 
 /**
  * Main Account router component
@@ -26,28 +26,30 @@ const Account: React.FC = () => {
   const { t } = useTranslation();
   const { provinceId } = useParams<{ provinceId: string }>();
   const { userProfile } = useAuth();
-  const { hasPermission, hasRole } = usePermissions();
 
   // Check if user has access to the province
   const checkProvinceAccess = () => {
     if (!provinceId) return true; // If no province context, allow access
-    return hasProvinceAccess(provinceId);
+    return hasProvinceAccess(userProfile, provinceId);
   };
 
   // Check if user has any accounting-related permissions
   const hasAnyAccountingPermission = () => {
+    const allowedRoles: UserRole[] = [
+      UserRole.SUPER_ADMIN,
+      UserRole.DEVELOPER,
+      UserRole.PRIVILEGE,
+      UserRole.PROVINCE_MANAGER,
+      UserRole.PROVINCE_ADMIN,
+      UserRole.GENERAL_MANAGER
+    ];
+    const roleAllowed = userProfile?.role && isRoleType(userProfile.role) && allowedRoles.includes(userProfile.role);
+    const perms = userProfile?.permissions as Record<string, boolean> | undefined;
     return (
-      hasPermission(PERMISSIONS.VIEW_ACCOUNTS) ||
-      hasPermission(PERMISSIONS.VIEW_INCOME) ||
-      hasPermission(PERMISSIONS.VIEW_EXPENSE) ||
-      hasRole([
-        ROLES.SUPER_ADMIN,
-        ROLES.DEVELOPER,
-        ROLES.PRIVILEGE,
-        ROLES.PROVINCE_MANAGER,
-        ROLES.PROVINCE_ADMIN,
-        ROLES.GENERAL_MANAGER
-      ])
+      (perms?.[PERMISSIONS.VIEW_ACCOUNTS] ?? false) ||
+      (perms?.[PERMISSIONS.VIEW_INCOME] ?? false) ||
+      (perms?.[PERMISSIONS.VIEW_EXPENSE] ?? false) ||
+      !!roleAllowed
     );
   };
 
@@ -97,114 +99,81 @@ const Account: React.FC = () => {
 
   return (
     <div className={`${isMobile ? 'p-0' : 'p-2'} h-full`}>
-      {/* <Title level={3}>{t('account:title', 'Accounting')}</Title> */}
       <Routes>
         <Route
           path='/'
           element={
-            hasPermission(PERMISSIONS.VIEW_ACCOUNTS) ||
-            hasRole([
-              ROLES.SUPER_ADMIN,
-              ROLES.DEVELOPER,
-              ROLES.PRIVILEGE,
-              ROLES.PROVINCE_MANAGER,
-              ROLES.PROVINCE_ADMIN,
-              ROLES.GENERAL_MANAGER
-            ]) ? (
+            <PermissionProtectedRoute
+              requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
+              allowedRoles={[
+                UserRole.SUPER_ADMIN,
+                UserRole.DEVELOPER,
+                UserRole.PRIVILEGE,
+                UserRole.PROVINCE_MANAGER,
+                UserRole.PROVINCE_ADMIN,
+                UserRole.GENERAL_MANAGER
+              ]}
+              provinceCheck={provinceId ? () => checkProvinceAccess() : undefined}
+            >
               <Overview />
-            ) : (
-              <Alert
-                message={t('account:overviewRestricted.title', 'Overview Access Restricted')}
-                description={t(
-                  'account:overviewRestricted.message',
-                  'You do not have permission to view the accounting overview.'
-                )}
-                type='warning'
-                showIcon
-                className='dark:bg-gray-700'
-              />
-            )
+            </PermissionProtectedRoute>
           }
         />
         <Route
           path='/income/*'
           element={
-            hasPermission(PERMISSIONS.VIEW_INCOME) ||
-            hasRole([
-              ROLES.SUPER_ADMIN,
-              ROLES.DEVELOPER,
-              ROLES.PRIVILEGE,
-              ROLES.PROVINCE_MANAGER,
-              ROLES.PROVINCE_ADMIN,
-              ROLES.GENERAL_MANAGER
-            ]) ? (
+            <PermissionProtectedRoute
+              requiredPermission={PERMISSIONS.VIEW_INCOME}
+              allowedRoles={[
+                UserRole.SUPER_ADMIN,
+                UserRole.DEVELOPER,
+                UserRole.PRIVILEGE,
+                UserRole.PROVINCE_MANAGER,
+                UserRole.PROVINCE_ADMIN,
+                UserRole.GENERAL_MANAGER
+              ]}
+              provinceCheck={provinceId ? () => checkProvinceAccess() : undefined}
+            >
               <Income />
-            ) : (
-              <Alert
-                message={t('account:incomeRestricted.title', 'Income Access Restricted')}
-                description={t(
-                  'account:incomeRestricted.message',
-                  'You do not have permission to view income information.'
-                )}
-                type='warning'
-                showIcon
-                className='dark:bg-gray-700'
-              />
-            )
+            </PermissionProtectedRoute>
           }
         />
         <Route
           path='/expense/*'
           element={
-            hasPermission(PERMISSIONS.VIEW_EXPENSE) ||
-            hasRole([
-              ROLES.SUPER_ADMIN,
-              ROLES.DEVELOPER,
-              ROLES.PRIVILEGE,
-              ROLES.PROVINCE_MANAGER,
-              ROLES.PROVINCE_ADMIN,
-              ROLES.GENERAL_MANAGER
-            ]) ? (
+            <PermissionProtectedRoute
+              requiredPermission={PERMISSIONS.VIEW_EXPENSE}
+              allowedRoles={[
+                UserRole.SUPER_ADMIN,
+                UserRole.DEVELOPER,
+                UserRole.PRIVILEGE,
+                UserRole.PROVINCE_MANAGER,
+                UserRole.PROVINCE_ADMIN,
+                UserRole.GENERAL_MANAGER
+              ]}
+              provinceCheck={provinceId ? () => checkProvinceAccess() : undefined}
+            >
               <Expense />
-            ) : (
-              <Alert
-                message={t('account:expenseRestricted.title', 'Expense Access Restricted')}
-                description={t(
-                  'account:expenseRestricted.message',
-                  'You do not have permission to view expense information.'
-                )}
-                type='warning'
-                showIcon
-                className='dark:bg-gray-700'
-              />
-            )
+            </PermissionProtectedRoute>
           }
         />
         <Route
           path='/input-price/*'
           element={
-            hasPermission(PERMISSIONS.VIEW_ACCOUNTS) ||
-            hasRole([
-              ROLES.SUPER_ADMIN,
-              ROLES.DEVELOPER,
-              ROLES.PRIVILEGE,
-              ROLES.PROVINCE_MANAGER,
-              ROLES.PROVINCE_ADMIN,
-              ROLES.GENERAL_MANAGER
-            ]) ? (
+            <PermissionProtectedRoute
+              requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
+              allowedRoles={[
+                UserRole.SUPER_ADMIN,
+                UserRole.DEVELOPER,
+                UserRole.PRIVILEGE,
+                UserRole.PROVINCE_MANAGER,
+                UserRole.PROVINCE_ADMIN,
+                UserRole.GENERAL_MANAGER
+              ]}
+              provinceCheck={provinceId ? () => checkProvinceAccess() : undefined}
+            >
               <InputPrice provinceId={provinceId || ''} departmentId={userProfile?.department || ''} />
-            ) : (
-              <Alert
-                message={t('account:inputPriceRestricted.title', 'Input Price Access Restricted')}
-                description={t(
-                  'account:inputPriceRestricted.message',
-                  'You do not have permission to access the price input system.'
-                )}
-                type='warning'
-                showIcon
-                className='dark:bg-gray-700'
-              />
-            )
+            </PermissionProtectedRoute>
           }
         />
       </Routes>

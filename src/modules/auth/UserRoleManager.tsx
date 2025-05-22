@@ -679,7 +679,6 @@ const UserRoleManager: React.FC = () => {
       [ROLES.BRANCH_MANAGER]: 'lime',
       [ROLES.LEAD]: 'green',
       [ROLES.USER]: 'cyan',
-      [ROLES.BRANCH]: 'blue',
       [ROLES.PENDING]: 'purple',
       [ROLES.GUEST]: 'default',
       [ROLES.DEVELOPER]: 'geekblue'

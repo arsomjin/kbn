@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import { collection, query, where, getDocs, doc, setDoc, deleteDoc, orderBy } from 'firebase/firestore';
 import { firestore as db } from '../services/firebase';
 import { Branch, BranchFormData } from '../types/branch';
-import { useProvinces } from '../hooks/useProvinces';
+import { useProvinceContext } from '../hooks/useProvinceContext';
 import { useTranslation } from 'react-i18next';
 import { notification } from 'antd';
 import { useLoading } from '../hooks/useLoading';
@@ -33,7 +33,7 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
   const [error, setError] = useState<string | null>(null);
   const [initialized, setInitialized] = useState(false);
   const { userProfile } = useAuth();
-  const { provinces, validateProvinceId } = useProvinces();
+  const { provinces, getProvinceName } = useProvinceContext();
   const { t } = useTranslation();
   const { showLoading, hideLoading } = useLoading();
 
@@ -68,7 +68,7 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
       return;
     }
     const targetProvinceId = options?.provinceId || selectedProvinceId;
-    if (!targetProvinceId || !validateProvinceId(targetProvinceId)) {
+    if (!targetProvinceId) {
       setError(t('branches.noProvinceSelected'));
       return;
     }
@@ -108,13 +108,13 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
   };
 
   useEffect(() => {
-    if (selectedProvinceId && validateProvinceId(selectedProvinceId)) {
+    if (selectedProvinceId) {
       refreshBranches();
     }
   }, [selectedProvinceId]);
 
   const createBranch = async (data: BranchFormData) => {
-    if (!selectedProvinceId || !validateProvinceId(selectedProvinceId)) {
+    if (!selectedProvinceId) {
       throw new Error(t('branches.noProvinceSelected'));
     }
 
@@ -153,7 +153,7 @@ export const BranchProvider: React.FC<BranchProviderProps> = ({ children }) => {
   };
 
   const updateBranch = async (id: string, data: BranchFormData) => {
-    if (!selectedProvinceId || !validateProvinceId(selectedProvinceId)) {
+    if (!selectedProvinceId) {
       throw new Error(t('branches.noProvinceSelected'));
     }
 

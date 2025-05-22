@@ -48,31 +48,41 @@ export const hasPrivilegedAccess = (userProfile: UserProfile | null, userPermiss
  * Determines the appropriate landing page for a user based on their role/permissions
  *
  * @param userProfile The user's profile
- * @param userPermissions Array of permission strings assigned to the user
  * @returns string path to the appropriate landing page
  */
 export const getLandingPage = (userProfile: UserProfile): string => {
+  console.log('getLandingPage', userProfile);
   if (!userProfile) return '/';
-
-  switch (userProfile.role) {
-    case ROLES.SUPER_ADMIN:
-    case ROLES.PRIVILEGE:
-    case ROLES.DEVELOPER:
-      return '/overview';
-    case ROLES.GENERAL_MANAGER:
-      return '/dashboard';
-    case ROLES.PROVINCE_MANAGER:
-    case ROLES.PROVINCE_ADMIN:
-      return '/province-dashboard';
-    case ROLES.BRANCH_MANAGER:
-      return '/branch-dashboard';
-    case ROLES.USER:
-    case ROLES.BRANCH:
-    case ROLES.LEAD:
-      return '/landing';
-    default:
-      return '/landing';
+  const role = userProfile.role;
+  if (role === ROLES.PRIVILEGE || role === ROLES.DEVELOPER) {
+    return '/overview';
   }
+  if (role === ROLES.SUPER_ADMIN || role === ROLES.GENERAL_MANAGER) {
+    return '/dashboard';
+  }
+  if (role === ROLES.PROVINCE_MANAGER || role === ROLES.PROVINCE_ADMIN) {
+    const provinceId = userProfile.provinceId || userProfile.province;
+    if (provinceId) {
+      return `/${provinceId}/dashboard`;
+    }
+    return '/landing';
+  }
+  if (role === ROLES.LEAD || role === ROLES.USER || role === ROLES.BRANCH_MANAGER) {
+    const provinceId = userProfile.provinceId || userProfile.province;
+    const branchCode = userProfile.employeeInfo?.branch || userProfile.branch || userProfile.branchCode;
+    if (provinceId && branchCode) {
+      return `/${provinceId}/${branchCode}/dashboard`;
+    }
+    return '/landing';
+  }
+  if (role === ROLES.GUEST) {
+    return '/landing';
+  }
+  if (role === ROLES.PENDING) {
+    return '/pending';
+  }
+  // fallback
+  return '/landing';
 };
 
 /**
@@ -86,7 +96,6 @@ export const getRoleDisplayName = (role: string): string => {
     [ROLES.GUEST]: 'Guest',
     [ROLES.USER]: 'Standard User',
     [ROLES.PENDING]: 'Pending Approval',
-    [ROLES.BRANCH]: 'Branch User',
     [ROLES.LEAD]: 'Team Lead',
     [ROLES.BRANCH_MANAGER]: 'Branch Manager',
     [ROLES.PROVINCE_MANAGER]: 'Province Manager',
@@ -175,9 +184,6 @@ export const getPrivilegeLevel = (role: string): number => {
       return 30;
     case ROLES.USER:
       return 20;
-    case ROLES.BRANCH:
-      return 10;
-
     // Limited access levels
     case ROLES.PENDING:
       return 5;
@@ -216,7 +222,6 @@ export const getRoleColor = (role: string): string => {
     [ROLES.BRANCH_MANAGER]: 'lime',
     [ROLES.LEAD]: 'green',
     [ROLES.USER]: 'cyan',
-    [ROLES.BRANCH]: 'blue',
     [ROLES.PENDING]: 'purple',
     [ROLES.GUEST]: 'default',
     [ROLES.DEVELOPER]: 'geekblue'

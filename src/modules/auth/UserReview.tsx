@@ -57,11 +57,6 @@ const DEFAULT_ROLES = [
     description: 'roles.user.description'
   },
   {
-    value: ROLES.BRANCH,
-    label: 'roles.branch.label',
-    description: 'roles.branch.description'
-  },
-  {
     value: ROLES.LEAD,
     label: 'roles.lead.label',
     description: 'roles.lead.description'
@@ -101,7 +96,6 @@ const DEFAULT_ROLES = [
 // Permission sets based on role (fallback if Firestore access fails)
 const DEFAULT_ROLE_PERMISSIONS: Record<string, string[]> = {
   [ROLES.USER]: [PERMISSIONS.DATA_VIEW, PERMISSIONS.CONTENT_VIEW],
-  [ROLES.BRANCH]: [PERMISSIONS.DATA_VIEW, PERMISSIONS.CONTENT_VIEW],
   [ROLES.LEAD]: [PERMISSIONS.DATA_VIEW, PERMISSIONS.DATA_EDIT, PERMISSIONS.CONTENT_VIEW],
   [ROLES.BRANCH_MANAGER]: [
     PERMISSIONS.DATA_VIEW,

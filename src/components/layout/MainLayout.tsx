@@ -1,5 +1,5 @@
 import React, { useState, useEffect, ReactElement } from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
+import { Outlet, useLocation, useParams } from 'react-router-dom';
 import { Layout, Menu, Button, Badge, Avatar, Dropdown, Drawer, Space } from 'antd';
 import type { MenuProps } from 'antd';
 import {
@@ -26,6 +26,7 @@ import { useAuth } from 'contexts/AuthContext';
 import { useTheme } from 'hooks/useTheme';
 import { useNotifications } from 'hooks/useNotifications';
 import { usePermissions } from 'hooks/usePermissions';
+import { useAccountMenuChildren } from './useAccountMenuChildren';
 
 // Components
 import NotificationCenter from '../notifications/NotificationCenter';
@@ -72,35 +73,140 @@ interface ValidMenuNavItem {
   children?: ValidMenuNavItem[];
 }
 
+/**
+ * Returns the correct account base path depending on context.
+ */
+const useAccountBasePath = (): string => {
+  const params = useParams();
+  return params.provinceId && params.branchCode ? `/${params.provinceId}/${params.branchCode}/account` : '/account';
+};
+
+/**
+ * Returns the correct home menu config based on user role.
+ */
+const useHomeMenu = (userProfile: any, t: any): { key: string; label: string; path: string; icon: React.ReactNode } => {
+  if (!userProfile) {
+    return { key: 'home', label: t('common:home') || 'Home', path: '/', icon: <DashboardOutlined /> };
+  }
+  if (userProfile.role === ROLES.PROVINCE_MANAGER || userProfile.role === ROLES.GENERAL_MANAGER) {
+    return {
+      key: 'dashboard',
+      label: t('dashboard:title') || 'Dashboard',
+      path: '/dashboard',
+      icon: <DashboardOutlined />
+    };
+  }
+  if (userProfile.role === ROLES.BRANCH_MANAGER) {
+    return {
+      key: 'branch-dashboard',
+      label: t('dashboard:branchDashboard') || 'Branch Dashboard',
+      path: '/branch-dashboard',
+      icon: <DashboardOutlined />
+    };
+  }
+  if (hasPrivilegedAccess(userProfile)) {
+    return {
+      key: 'overview',
+      label: t('overview:title') || 'Overview',
+      path: '/overview',
+      icon: <DashboardOutlined />
+    };
+  }
+  return { key: 'home', label: t('common:home') || 'Home', path: '/', icon: <DashboardOutlined /> };
+};
+
+/**
+ * Returns the selected menu key based on the current location.
+ */
+const getSelectedKey = (
+  location: any,
+  isBranchContext: boolean,
+  openKeys: string[],
+  setOpenKeys: (keys: string[]) => void
+): string => {
+  const pathname = location.pathname;
+  if (pathname === '/' || pathname.startsWith('/landing')) return 'home';
+  if (pathname.startsWith('/overview')) return 'overview';
+  if (pathname.startsWith('/dashboard')) return 'dashboard';
+  if (pathname.startsWith('/branch-dashboard')) return 'branch-dashboard';
+  if (isBranchContext && pathname.includes('/account')) {
+    if (pathname.endsWith('/account') || pathname.endsWith('/account/')) return 'account-overview';
+    if (pathname.includes('/account/income')) return 'account-income';
+    if (pathname.includes('/account/expense')) return 'account-expense';
+    if (pathname.includes('/account/input-price')) return 'account-price-input';
+    return 'account';
+  }
+  if (pathname.startsWith('/account')) {
+    if (pathname === '/account') return 'account-overview';
+    if (pathname.startsWith('/account/income')) return 'account-income';
+    if (pathname.startsWith('/account/expense')) return 'account-expense';
+    if (pathname.startsWith('/account/input-price')) return 'account-price-input';
+    return 'account';
+  }
+  if (pathname.startsWith('/admin/review-users')) return 'user-review';
+  if (pathname.startsWith('/admin/send-notification')) return 'send-notification';
+  if (pathname.startsWith('/developer')) return 'developer';
+  if (pathname.startsWith('/admin/content')) return 'content';
+  if (pathname.startsWith('/admin/users')) {
+    if (!openKeys.includes('settings')) setOpenKeys(['settings']);
+    return 'user-management';
+  }
+  if (pathname.startsWith('/admin/employees')) {
+    if (!openKeys.includes('settings')) setOpenKeys(['settings']);
+    return 'employee-management';
+  }
+  if (pathname.startsWith('/admin/settings')) {
+    if (!openKeys.includes('settings')) setOpenKeys(['settings']);
+    return 'system-settings';
+  }
+  if (pathname.startsWith('/admin/provinces')) {
+    if (!openKeys.includes('settings')) setOpenKeys(['settings']);
+    return 'provinces';
+  }
+  if (pathname.startsWith('/admin/branches')) {
+    if (!openKeys.includes('settings')) setOpenKeys(['settings']);
+    return 'branches';
+  }
+  if (pathname.startsWith('/about/system-overview')) {
+    return 'system-overview';
+  }
+  return '';
+};
+
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
+  // State
   const [collapsed, setCollapsed] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [openKeys, setOpenKeys] = useState<string[]>(['settings']);
+  const [mobileHeaderFade, setMobileHeaderFade] = useState(1);
+
+  // Hooks
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user, userProfile, logout } = useAuth();
-  const { theme, toggleTheme } = useTheme();
+  const { theme } = useTheme();
   const { hasRole, hasPermission } = usePermissions();
+  const location = useLocation();
+  const params = useParams();
+  const isBranchContext = Boolean(params.provinceId && params.branchCode);
+  const accountBasePath = useAccountBasePath();
+  const accountMenuChildren = useAccountMenuChildren(accountBasePath);
   const photoURL =
     user?.photoURL || (userProfile && 'photoURL' in userProfile ? (userProfile as any).photoURL : undefined);
-  const location = useLocation();
 
-  // Handle responsive behavior
+  // Responsive behavior
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      if (!mobile && drawerVisible) {
-        setDrawerVisible(false);
-      }
+      if (!mobile && drawerVisible) setDrawerVisible(false);
     };
-
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, [drawerVisible]);
 
-  // Fade effect for mobile top bar
-  const [mobileHeaderFade, setMobileHeaderFade] = useState(1);
+  // Mobile header fade effect
   useEffect(() => {
     if (!isMobile) {
       setMobileHeaderFade(1);
@@ -109,21 +215,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     const handleScroll = () => {
       const scrollY = window.scrollY || document.documentElement.scrollTop;
       let opacity = 1;
-      if (scrollY > 32) {
-        opacity = Math.max(0, 1 - (scrollY - 32) / 64);
-      }
+      if (scrollY > 32) opacity = Math.max(0, 1 - (scrollY - 32) / 64);
       setMobileHeaderFade(opacity);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isMobile]);
 
-  // Handle language change
-  const changeLanguage = (language: string) => {
-    i18n.changeLanguage(language);
-  };
+  // Language change
+  const changeLanguage = (language: string) => i18n.changeLanguage(language);
 
-  // Handle logout
+  // Logout handler
   const handleLogout = async () => {
     try {
       await logout();
@@ -141,12 +243,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: t('profile', { ns: 'common' }),
       onClick: () => navigate('/personal-profile')
     },
-    // {
-    //   key: 'settings',
-    //   icon: <SettingOutlined />,
-    //   label: t('settings', { ns: 'common' }),
-    //   onClick: () => navigate('/settings')
-    // },
     {
       key: 'language',
       icon: <TranslationOutlined />,
@@ -164,9 +260,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         }
       ]
     },
-    {
-      type: 'divider'
-    },
+    { type: 'divider' },
     {
       key: 'logout',
       icon: <LogoutOutlined />,
@@ -175,95 +269,44 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     }
   ];
 
-  // Determine landing page and label for the main sidebar item
-  let homeKey = 'home';
-  let homeLabel = t('common:home') || 'Home';
-  let homePath = userProfile ? getLandingPage(userProfile) : '/';
-  const homeIcon = <DashboardOutlined />;
+  // Home menu config
+  const homeMenu = useHomeMenu(userProfile, t);
 
-  if (userProfile?.role === ROLES.PROVINCE_MANAGER || userProfile?.role === ROLES.GENERAL_MANAGER) {
-    homeKey = 'dashboard';
-    homeLabel = t('dashboard:title') || 'Dashboard';
-    homePath = '/dashboard';
-  } else if (userProfile?.role === ROLES.PROVINCE_MANAGER) {
-    homeKey = 'province-dashboard';
-    homeLabel = t('provinceDashboard:title') || 'Province Dashboard';
-    homePath = '/province-dashboard';
-  } else if (userProfile?.role === ROLES.BRANCH_MANAGER) {
-    homeKey = 'branch-dashboard';
-    homeLabel = t('branchDashboard:title') || 'Branch Dashboard';
-    homePath = '/branch-dashboard';
-  } else if (hasPrivilegedAccess(userProfile)) {
-    homeKey = 'overview';
-    homeLabel = t('overview:title') || 'Overview';
-    homePath = '/overview';
-  }
-
-  // Main navigation items
+  // Navigation items
   const navItemsRaw = [
     {
-      key: homeKey,
-      icon: homeIcon,
-      label: homeLabel,
-      onClick: () => navigate(homePath)
+      key: homeMenu.key,
+      icon: homeMenu.icon,
+      label: homeMenu.label,
+      onClick: () => navigate(homeMenu.path)
     },
-    // Only add dashboard/branch-dashboard/overview if not the same as home
-    homeKey !== 'overview' &&
+    homeMenu.key !== 'overview' &&
       hasRole(ROLES.PRIVILEGE) && {
         key: 'overview',
         icon: <DashboardOutlined />,
         label: t('overview:title') || 'Overview',
         onClick: () => navigate('/overview')
       },
-    homeKey !== 'dashboard' &&
+    homeMenu.key !== 'dashboard' &&
       hasRole(ROLES.PROVINCE_MANAGER) && {
         key: 'dashboard',
         icon: <DashboardOutlined />,
         label: t('dashboard:title') || 'Dashboard',
         onClick: () => navigate('/dashboard')
       },
-    homeKey !== 'branch-dashboard' &&
+    homeMenu.key !== 'branch-dashboard' &&
       hasRole(ROLES.BRANCH_MANAGER) && {
         key: 'branch-dashboard',
         icon: <DashboardOutlined />,
         label: t('dashboard:branchDashboard') || 'Branch Dashboard',
         onClick: () => navigate('/branch-dashboard')
       },
-    // Add Account Management menu item
     hasPermission(PERMISSIONS.VIEW_ACCOUNTS) && {
       key: 'account',
       icon: <AccountBookOutlined />,
       label: t('account:title') || 'Account Management',
-      children: [
-        {
-          key: 'account-overview',
-          label: t('account:overview') || 'Overview',
-          onClick: () => navigate('/account')
-        },
-        {
-          key: 'account-income',
-          label: t('account:income') || 'Income',
-          onClick: () => navigate('/account/income')
-        },
-        {
-          key: 'account-expense',
-          label: t('account:expense') || 'Expense',
-          onClick: () => navigate('/account/expense')
-        },
-        {
-          key: 'account-price-input',
-          label: t('account:account-price-input') || 'บันทึกราคาสินค้า',
-          children: [
-            {
-              key: 'account-price-input-vehicle',
-              label: t('account:account-price-input-vehicle') || 'รถและอุปกรณ์',
-              onClick: () => navigate('/account/input-price')
-            }
-          ]
-        }
-      ]
+      children: accountMenuChildren
     },
-    // Add Employee Management menu item
     hasPermission(PERMISSIONS.USER_VIEW) && {
       key: 'employee-management',
       icon: <UsergroupAddOutlined />,
@@ -294,34 +337,29 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       label: t('content:title') || 'Content',
       onClick: () => navigate('/admin/content')
     },
-    // Settings submenu
     (hasPermission(PERMISSIONS.USER_VIEW) || hasPermission(PERMISSIONS.SYSTEM_SETTINGS_VIEW)) && {
       key: 'settings',
       icon: <SettingOutlined />,
       label: t('common:settings') || 'Settings',
       children: [
-        // User management
         hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.GENERAL_MANAGER, ROLES.DEVELOPER]) && {
           key: 'user-management',
           icon: <TeamOutlined />,
           label: t('userManagement:title') || 'User Management',
           onClick: () => navigate('/admin/users')
         },
-        // System settings
         hasPermission(PERMISSIONS.SYSTEM_SETTINGS_VIEW) && {
           key: 'system-settings',
           icon: <SettingOutlined />,
           label: t('systemSettings:title') || 'System Settings',
           onClick: () => navigate('/admin/settings')
         },
-        // Branch settings (only SUPER_ADMIN and PRIVILEGE)
         hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.BRANCH_MANAGER, ROLES.PROVINCE_ADMIN, ROLES.DEVELOPER]) && {
           key: 'branches',
           icon: <BankOutlined />,
           label: t('branches:title') || 'Branches',
           onClick: () => navigate('/admin/branches')
         },
-        // Province settings (only SUPER_ADMIN and PRIVILEGE)
         hasRole([ROLES.SUPER_ADMIN, ROLES.PRIVILEGE, ROLES.DEVELOPER]) && {
           key: 'provinces',
           icon: <SettingOutlined />,
@@ -338,29 +376,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     }
   ];
 
-  // Define valid nav item type
-  type NavItem = {
-    key: string;
-    icon?: React.ReactNode;
-    label: string | React.ReactNode;
-    onClick?: () => void | Promise<void>;
-    children?: Array<{
-      key: string;
-      icon?: React.ReactNode;
-      label: string | React.ReactNode;
-      onClick?: () => void | Promise<void>;
-    }>;
-  };
-
-  // Type-safe nav items
-  type MenuNavItem = {
-    key: string;
-    icon: React.ReactElement;
-    label: string;
-    onClick?: () => void | Promise<void>;
-    children?: MenuNavItem[];
-  };
-
   // Clean up nav items and ensure type safety
   const validNavItems = (navItemsRaw.filter(Boolean) as ValidMenuNavItem[]).map(item => ({
     ...item,
@@ -372,55 +387,10 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
     collapsed ? validNavItems.map(item => ({ ...item, children: undefined })) : validNavItems
   ) as MenuProps['items'];
 
-  // Map pathname to menu key and determine open menu keys
-  const [openKeys, setOpenKeys] = useState<string[]>(['settings']);
-
-  const getSelectedKey = () => {
-    if (location.pathname === '/' || location.pathname.startsWith('/landing')) return 'home';
-    if (location.pathname.startsWith('/overview')) return 'overview';
-    if (location.pathname.startsWith('/dashboard')) return 'dashboard';
-    if (location.pathname.startsWith('/branch-dashboard')) return 'branch-dashboard';
-    if (location.pathname.startsWith('/account')) {
-      if (location.pathname === '/account') return 'account-overview';
-      if (location.pathname.startsWith('/account/income')) return 'account-income';
-      if (location.pathname.startsWith('/account/expense')) return 'account-expense';
-      if (location.pathname.startsWith('/account/input-price')) return 'account-price-input-vehicle';
-      return 'account';
-    }
-    if (location.pathname.startsWith('/admin/review-users')) return 'user-review';
-    if (location.pathname.startsWith('/admin/send-notification')) return 'send-notification';
-    if (location.pathname.startsWith('/developer')) return 'developer';
-    if (location.pathname.startsWith('/admin/content')) return 'content';
-    // Settings submenu items
-    if (location.pathname.startsWith('/admin/users')) {
-      if (!openKeys.includes('settings')) setOpenKeys(['settings']);
-      return 'user-management';
-    }
-    if (location.pathname.startsWith('/admin/employees')) {
-      if (!openKeys.includes('settings')) setOpenKeys(['settings']);
-      return 'employee-management';
-    }
-    if (location.pathname.startsWith('/admin/settings')) {
-      if (!openKeys.includes('settings')) setOpenKeys(['settings']);
-      return 'system-settings';
-    }
-    if (location.pathname.startsWith('/admin/provinces')) {
-      if (!openKeys.includes('settings')) setOpenKeys(['settings']);
-      return 'provinces';
-    }
-    if (location.pathname.startsWith('/admin/branches')) {
-      if (!openKeys.includes('settings')) setOpenKeys(['settings']);
-      return 'branches';
-    }
-    if (location.pathname.startsWith('/about/system-overview')) {
-      return 'system-overview';
-    }
-    return '';
-  };
-
+  // --- Render ---
   return (
     <Layout className='min-h-screen'>
-      {/* Desktop Sidebar - hidden on mobile */}
+      {/* Desktop Sidebar */}
       {!isMobile && (
         <Sider
           trigger={null}
@@ -443,7 +413,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             <Menu
               theme={theme === 'dark' ? 'dark' : 'light'}
               mode='inline'
-              selectedKeys={[getSelectedKey()]}
+              selectedKeys={[getSelectedKey(location, isBranchContext, openKeys, setOpenKeys)]}
               openKeys={openKeys}
               onOpenChange={setOpenKeys}
               items={navItems}
@@ -454,8 +424,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </div>
         </Sider>
       )}
-
-      {/* Mobile sidebar drawer - Change placement to "right" */}
+      {/* Mobile Sidebar Drawer */}
       <Drawer
         title={
           <div className='flex items-center justify-between'>
@@ -484,27 +453,19 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         width={320}
         bodyStyle={{ padding: 0 }}
         className={theme === 'dark' ? 'kbn-dark-drawer' : ''}
-        style={{
-          background: theme === 'dark' ? '#111827' : '' // Darker background in dark mode (equivalent to gray-900)
-        }}
+        style={{ background: theme === 'dark' ? '#111827' : '' }}
       >
         <Menu
           theme={theme === 'dark' ? 'dark' : 'light'}
           mode='inline'
-          selectedKeys={[getSelectedKey()]}
+          selectedKeys={[getSelectedKey(location, isBranchContext, openKeys, setOpenKeys)]}
           openKeys={openKeys}
           onOpenChange={setOpenKeys}
           items={navItems}
           onClick={info => {
-            // Only close drawer when clicking a menu item without children
-            if (!info.keyPath.includes('settings')) {
-              setDrawerVisible(false);
-            }
+            if (!info.keyPath.includes('settings')) setDrawerVisible(false);
           }}
-          style={{
-            background: theme === 'dark' ? '#111827' : '', // Darker background in dark mode
-            borderRight: 'none'
-          }}
+          style={{ background: theme === 'dark' ? '#111827' : '', borderRight: 'none' }}
         />
         <div className={`p-4 border-t ${theme === 'dark' ? 'border-gray-800 bg-gray-900' : 'border-gray-200'}`}>
           <div className='flex items-center justify-center gap-6'>
@@ -513,10 +474,9 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           </div>
         </div>
       </Drawer>
-
       {/* Main content */}
       <Layout>
-        {/* Header - Redesigned for mobile UI */}
+        {/* Header */}
         <Header
           className='bg-white dark:bg-gray-800 p-0 flex items-center justify-between shadow'
           style={
@@ -537,7 +497,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         >
           {isMobile ? (
             <>
-              {/* Clean mobile header with NotificationCenter, profile in middle, burger menu on right */}
               <div className='flex items-center gap-4 ml-4' style={{ height: 40 }}>
                 <ThemeSwitch />
                 <NotificationCenter />
@@ -552,7 +511,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
                   </div>
                 </Dropdown>
               </div>
-              {/* Burger menu on right */}
               <Button
                 type='text'
                 icon={<MenuOutlined style={{ fontSize: 20 }} />}
@@ -588,8 +546,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
             </>
           )}
         </Header>
-
-        {/* Main content */}
         <Content
           className='p-3 sm:p-6 bg-background dark:bg-gray-900 min-h-[calc(100vh-64px)]'
           style={isMobile ? { paddingTop: 64 } : { marginLeft: collapsed ? 80 : 260, minHeight: 'calc(100vh - 64px)' }}

@@ -26,6 +26,12 @@ import ProvinceGuard from './router/ProvinceGuard';
 
 // Constants
 import { PERMISSIONS } from 'constants/Permissions';
+import { LoadingSpinner } from 'components/common/LoadingSpinner';
+import { ROLE_CATEGORIES, RoleCategory } from 'constants/roles';
+import BranchGuard from './router/BranchGuard';
+import BranchReports from 'modules/reports/provinceReports/BranchReports';
+import BranchLayout from 'modules/dashboard/BranchLayout';
+import InputPriceWrapper from 'modules/account/InputPrice/InputPriceWrapper';
 
 // Lazy-loaded components
 const LoginPage = lazy(() => import('modules/auth/LoginPage'));
@@ -42,54 +48,81 @@ const Dashboard = lazy(() => import('modules/dashboard/Dashboard'));
 const BranchDashboard = lazy(() => import('modules/dashboard/BranchDashboard'));
 const ProvinceDashboard = lazy(() => import('modules/dashboard/ProvinceDashboard'));
 const ProvinceSettings = lazy(() => import('modules/settings/ProvinceSettings'));
-const ProvinceReports = lazy(() => import('modules/dashboard/ProvinceReports'));
+const ProvinceReports = lazy(() => import('modules/reports/provinceReports/ProvinceReports'));
 const Account = lazy(() => import('modules/account'));
 const Income = lazy(() => import('modules/account/Income'));
 const Expense = lazy(() => import('modules/account/Expense'));
+const IncomeBranch = lazy(() => import('modules/account/branches/Income'));
+const ExpenseBranch = lazy(() => import('modules/account/branches/Expense'));
 const Landing = lazy(() => import('modules/dashboard/Landing'));
+const InputPrice = lazy(() => import('modules/account/InputPrice'));
+const AccountBranch = lazy(() => import('modules/account/branches/AccountBranch'));
 
 /**
  * Main application router for KBN.
  * Handles all route protection, redirection, and layout logic.
  * @returns {JSX.Element}
  */
-const LoadingSpinner: React.FC = () => (
-  <div className='flex items-center justify-center h-screen'>
-    <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
-  </div>
-);
 
 const AuthLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <div className='auth-layout'>{children}</div>
 );
 
 export const AppRouter: React.FC = () => {
-  const { userProfile, isLoading, isAuthenticated, hasRole, isProfileComplete } = useAuth();
+  const { userProfile, isLoading, isProfileComplete } = useAuth();
   const { t } = useTranslation();
   const location = useLocation();
 
-  console.log('[AppRouter] State:', {
-    userProfile,
-    isLoading,
-    isAuthenticated,
-    isProfileComplete
-  });
+  if (isLoading) return <LoadingSpinner />;
 
-  // Show loading spinner only during initial loading
-  if (isLoading) {
-    console.log('[AppRouter] Showing loading spinner due to initial loading');
-    return <LoadingSpinner />;
-  }
+  // Helper to map role strings to UserRole enum
+  const mapRoles = (roles: string[]) => roles.map(role => UserRole[role.toUpperCase() as keyof typeof UserRole]);
+
+  // Helper for PermissionProtectedRoute props
+  const getAllowedRoles = (category: RoleCategory) => mapRoles(ROLE_CATEGORIES[category]);
+
+  // Root redirect logic
+  const getRootRedirect = () => {
+    if (!isProfileComplete || !userProfile) return <Navigate to='/complete-profile' replace />;
+    const role = userProfile.role;
+    if (role === UserRole.PRIVILEGE || role === UserRole.DEVELOPER) {
+      return <Navigate to='/overview' replace />;
+    }
+    if (role === UserRole.SUPER_ADMIN || role === UserRole.GENERAL_MANAGER) {
+      return <Navigate to='/dashboard' replace />;
+    }
+    if (role === UserRole.PROVINCE_MANAGER || role === UserRole.PROVINCE_ADMIN) {
+      const provinceId = userProfile.provinceId;
+      if (provinceId) {
+        return <Navigate to={`/${provinceId}/dashboard`} replace />;
+      }
+      return <Navigate to='/landing' replace />;
+    }
+    if (role === UserRole.LEAD || role === UserRole.USER || role === UserRole.BRANCH_MANAGER) {
+      const provinceId = userProfile.provinceId;
+      const branchCode = userProfile.employeeInfo?.branch;
+      if (provinceId && branchCode) {
+        return <Navigate to={`/${provinceId}/${branchCode}/dashboard`} replace />;
+      }
+      return <Navigate to='/landing' replace />;
+    }
+    if (role === UserRole.GUEST) {
+      return <Navigate to='/landing' replace />;
+    }
+    if (role === UserRole.PENDING) {
+      return <Navigate to='/pending' replace />;
+    }
+    // fallback
+    return <Navigate to='/landing' replace />;
+  };
 
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <Routes>
-        {/* Redirect /login to /auth/login */}
+        {/* Auth and public routes */}
         <Route path='/login' element={<Navigate to='/auth/login' replace />} />
         <Route path='/signup' element={<Navigate to='/auth/signup' replace />} />
         <Route path='/reset-password' element={<Navigate to='/auth/reset-password' replace />} />
-
-        {/* Public routes */}
         <Route
           path='/auth'
           element={
@@ -107,10 +140,6 @@ export const AppRouter: React.FC = () => {
           <Route path='verification' element={<div>{t('auth.verificationPage')}</div>} />
         </Route>
 
-        {/* Role check route */}
-        <Route path='/role-check' element={<RoleCheck />} />
-
-        {/* Pending page */}
         <Route
           path='/pending'
           element={
@@ -119,8 +148,6 @@ export const AppRouter: React.FC = () => {
             </PendingGuard>
           }
         />
-
-        {/* Complete profile page */}
         <Route
           path='/complete-profile'
           element={
@@ -138,56 +165,39 @@ export const AppRouter: React.FC = () => {
             </ProtectedRoute>
           }
         >
-          {/* Root route - redirects based on user profile */}
-          <Route
-            index
-            element={(() => {
-              if (!userProfile) return <LoadingSpinner />;
-              if (hasRole(UserRole.PENDING)) return <Navigate to='/pending' replace />;
-              if (!isProfileComplete) return <Navigate to='/complete-profile' replace />;
-              const landingPage = getLandingPage(userProfile);
-              console.log('[AppRouter] landingPage:', landingPage, 'current:', location.pathname);
-              if (location.pathname === landingPage) {
-                // Already at landing page, render children
-                return null;
-              }
-              // Prevent redirect loop to root
-              if (landingPage === '/' && location.pathname === '/') {
-                return <Navigate to='/dashboard' replace />;
-              }
-              return <Navigate to={landingPage} replace />;
-            })()}
-          />
-
-          {/* Common routes */}
-          <Route path='/profile' element={<Profile />} />
+          {/* 1. Root path: / */}
+          <Route index element={getRootRedirect()} />
           <Route path='/personal-profile' element={<PersonalProfile />} />
-          <Route path='/landing' element={<Landing />} />
-          <Route path='/province-dashboard' element={<ProvinceDashboard />} />
-          <Route path='/branch-dashboard' element={<BranchDashboard />} />
-
-          {/* Overview route for privileged users */}
           <Route
             path='/overview'
             element={
               <PermissionProtectedRoute
-                // requiredPermission={PERMISSIONS.SYSTEM_SETTINGS_VIEW}
                 fallbackPath='/dashboard'
-                allowedRoles={[UserRole.SUPER_ADMIN, UserRole.DEVELOPER, UserRole.PRIVILEGE]}
+                allowedRoles={getAllowedRoles(RoleCategory.PRIVILEGE)}
               >
                 <Overview />
               </PermissionProtectedRoute>
             }
           />
-
-          {/* Account routes */}
+          <Route
+            path='/dashboard'
+            element={
+              <PermissionProtectedRoute
+                fallbackPath='/dashboard'
+                allowedRoles={getAllowedRoles(RoleCategory.GENERAL_MANAGER)}
+              >
+                <Dashboard />
+              </PermissionProtectedRoute>
+            }
+          />
+          <Route path='/landing' element={<Landing />} />
           <Route
             path='/account/*'
             element={
               <PermissionProtectedRoute
                 requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
                 fallbackPath='/dashboard'
-                allowedRoles={[UserRole.SUPER_ADMIN, UserRole.DEVELOPER, UserRole.PRIVILEGE]}
+                allowedRoles={getAllowedRoles(RoleCategory.GENERAL_MANAGER)}
               >
                 <Account />
               </PermissionProtectedRoute>
@@ -197,10 +207,23 @@ export const AppRouter: React.FC = () => {
             <Route path='income/*' element={<Income />} />
             <Route path='expense/*' element={<Expense />} />
           </Route>
-
-          {/* Province routes */}
           <Route
-            path='/province/:provinceId'
+            path='/reports'
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.REPORT_VIEW}
+                fallbackPath='/dashboard'
+                provinceCheck={() => true}
+                allowedRoles={getAllowedRoles(RoleCategory.GENERAL_MANAGER)}
+              >
+                <ProvinceReports />
+              </PermissionProtectedRoute>
+            }
+          />
+
+          {/* 2. Province path: /:provinceId */}
+          <Route
+            path='/:provinceId'
             element={
               <ProvinceGuard>
                 <ProvinceLayout />
@@ -209,14 +232,26 @@ export const AppRouter: React.FC = () => {
           >
             <Route
               index
+              path='dashboard'
               element={
                 <PermissionProtectedRoute
-                  requiredPermission={PERMISSIONS.PROVINCE_ANALYTICS_VIEW}
                   fallbackPath='/dashboard'
-                  provinceCheck={() => true}
-                  allowedRoles={[UserRole.SUPER_ADMIN, UserRole.DEVELOPER, UserRole.PRIVILEGE]}
+                  allowedRoles={getAllowedRoles(RoleCategory.PROVINCE_MANAGER)}
                 >
                   <ProvinceDashboard />
+                </PermissionProtectedRoute>
+              }
+            />
+            <Route
+              path='reports'
+              element={
+                <PermissionProtectedRoute
+                  requiredPermission={PERMISSIONS.REPORT_VIEW}
+                  fallbackPath='/dashboard'
+                  provinceCheck={() => true}
+                  allowedRoles={getAllowedRoles(RoleCategory.PROVINCE_MANAGER)}
+                >
+                  <ProvinceReports />
                 </PermissionProtectedRoute>
               }
             />
@@ -227,38 +262,72 @@ export const AppRouter: React.FC = () => {
                   requiredPermission={PERMISSIONS.SYSTEM_SETTINGS_VIEW}
                   fallbackPath='/dashboard'
                   provinceCheck={() => true}
-                  allowedRoles={[UserRole.SUPER_ADMIN, UserRole.DEVELOPER, UserRole.PRIVILEGE]}
+                  allowedRoles={getAllowedRoles(RoleCategory.PROVINCE_MANAGER)}
                 >
                   <ProvinceSettings />
                 </PermissionProtectedRoute>
               }
             />
+
+            {/* 3. Branch path: /:provinceId/:branchCode */}
             <Route
-              path='reports'
+              path=':branchCode'
               element={
-                <PermissionProtectedRoute
-                  requiredPermission={PERMISSIONS.PROVINCE_REPORTS_VIEW}
-                  fallbackPath='/dashboard'
-                  provinceCheck={() => true}
-                  allowedRoles={[UserRole.SUPER_ADMIN, UserRole.DEVELOPER, UserRole.PRIVILEGE]}
-                >
-                  <ProvinceReports />
-                </PermissionProtectedRoute>
+                <BranchGuard>
+                  <BranchLayout />
+                </BranchGuard>
               }
-            />
+            >
+              <Route
+                index
+                path='dashboard'
+                element={
+                  <PermissionProtectedRoute
+                    fallbackPath='/dashboard'
+                    allowedRoles={getAllowedRoles(RoleCategory.BRANCH_MANAGER)}
+                  >
+                    <BranchDashboard />
+                  </PermissionProtectedRoute>
+                }
+              />
+              <Route
+                path='account'
+                element={
+                  <PermissionProtectedRoute
+                    requiredPermission={PERMISSIONS.DOCUMENT_VIEW}
+                    fallbackPath='/dashboard'
+                    allowedRoles={getAllowedRoles(RoleCategory.BRANCH_MANAGER)}
+                  >
+                    <AccountBranch />
+                  </PermissionProtectedRoute>
+                }
+              >
+                <Route index element={<Overview />} />
+                <Route path='income/*' element={<IncomeBranch />} />
+                <Route path='expense/*' element={<ExpenseBranch />} />
+                <Route path='input-price/*' element={<InputPriceWrapper />} />
+              </Route>
+
+              <Route
+                path='reports'
+                element={
+                  <PermissionProtectedRoute
+                    requiredPermission={PERMISSIONS.REPORT_VIEW}
+                    fallbackPath='/dashboard'
+                    provinceCheck={() => true}
+                    allowedRoles={getAllowedRoles(RoleCategory.BRANCH_MANAGER)}
+                  >
+                    <BranchReports />
+                  </PermissionProtectedRoute>
+                }
+              />
+            </Route>
           </Route>
 
-          {/* Admin routes */}
           <Route path='/admin/*'>{AdminRoutes}</Route>
-
-          {/* Private routes */}
           <Route path='/*'>{PrivateRoutes}</Route>
-
-          {/* System Overview Documentation Route */}
           <Route path='/about/system-overview' element={<SystemOverview />} />
         </Route>
-
-        {/* Not found route */}
         <Route path='/not-found' element={<NotFound />} />
         <Route path='*' element={<Navigate to='/not-found' replace />} />
       </Routes>

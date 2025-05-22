@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { getRoleColor } from '../utils/roleUtils';
 import styles from './PersonalProfile.module.css';
 import dayjs from 'dayjs';
+import { Timestamp, FieldValue } from 'firebase/firestore';
 
 const { Title, Text } = Typography;
 
@@ -28,9 +29,17 @@ const PersonalProfile: React.FC = () => {
     );
   }
 
-  const formatDate = (date: string | Date | number | undefined) => {
+  const formatDate = (date: string | Date | number | Timestamp | FieldValue | undefined) => {
     if (!date) return '-';
-    return dayjs(date).format('YYYY-MM-DD HH:mm');
+    // Handle Firestore Timestamp
+    if (typeof date === 'object' && date !== null && 'toDate' in date && typeof (date as any).toDate === 'function') {
+      return dayjs((date as Timestamp).toDate()).format('YYYY-MM-DD HH:mm');
+    }
+    // Handle Firestore FieldValue (serverTimestamp)
+    if (typeof date === 'object' && date !== null && date.constructor && date.constructor.name === 'FieldValue') {
+      return '-';
+    }
+    return dayjs(date as string | number | Date).format('YYYY-MM-DD HH:mm');
   };
 
   return (

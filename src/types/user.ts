@@ -1,6 +1,9 @@
 import { Timestamp } from 'firebase/firestore';
 import { Province, ProvinceAccess } from './province';
 import { Permission } from '../constants/Permissions';
+import type { UserProfile } from '../services/authService';
+
+export type { UserProfile };
 
 /**
  * Core user authentication information
@@ -82,42 +85,3 @@ export interface User {
 }
 
 export type FirestoreUserData = Omit<User, 'id'>;
-
-/**
- * User profile interface for forms and UI
- * Contains only the fields that can be edited through the UI
- */
-export interface UserProfile {
-  uid: string;
-  accessibleProvinceIds: string[];
-  permissions: Permission[];
-  deleted: boolean;
-  status: UserStatus;
-  type: UserType;
-  provinceId: string;
-  role: RoleType;
-  created: string;
-  updated: string;
-  inputBy: string;
-  auth: {
-    displayName: string;
-    email: string;
-    emailVerified: boolean;
-    firstName: string;
-    lastName: string;
-    isAnonymous: boolean;
-    lastLogin: string | null;
-    phoneNumber: string;
-    photoURL: string;
-  };
-  employeeInfo?: {
-    branch: string;
-    department: string;
-    employeeCode: string;
-    employeeId: string;
-    workBegin: string | null;
-  };
-  requestedType?: UserRequestType;
-  company: string;
-  purpose: string;
-}

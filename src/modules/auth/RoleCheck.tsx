@@ -5,6 +5,8 @@ import { useAuth } from 'contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
 import { hasPrivilegedAccess } from '../../utils/roleUtils';
 import { ROLES } from '../../constants/roles';
+import { useResponsive } from 'hooks/useResponsive';
+import { LoadingSpinner } from 'components/common/LoadingSpinner';
 
 /**
  * RoleCheck component
@@ -14,30 +16,14 @@ import { ROLES } from '../../constants/roles';
  */
 const RoleCheck: React.FC = () => {
   const { isAuthenticated, userProfile, isLoading, isProfileComplete } = useAuth();
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  // Handle responsive behavior
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowWidth(window.innerWidth);
-    };
-
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const isMobile = windowWidth < 480;
+  const { isMobile } = useResponsive();
 
   // Use hasPrivilegedAccess utility for privilege check
   const isPrivileged = hasPrivilegedAccess(userProfile);
 
   if (isLoading) {
-    return (
-      <div className='flex flex-col justify-center items-center h-screen'>
-        <Spin indicator={<LoadingOutlined style={{ fontSize: isMobile ? 36 : 48 }} spin />} />
-        <p className={`mt-4 ${isMobile ? 'text-base' : 'text-lg'}`}>Checking your account...</p>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   if (!isAuthenticated) {
@@ -48,15 +34,26 @@ const RoleCheck: React.FC = () => {
     return <Navigate to='/complete-profile' replace />;
   }
 
-  if (userProfile?.role === ROLES.PENDING) {
-    return <Navigate to='/pending' replace />;
+  switch (userProfile?.role) {
+    case ROLES.PENDING:
+      return <Navigate to='/pending' replace />;
+    case ROLES.PRIVILEGE:
+    case ROLES.DEVELOPER:
+      return <Navigate to='/overview' replace />;
+    case ROLES.SUPER_ADMIN:
+    case ROLES.GENERAL_MANAGER:
+      return <Navigate to='/dashboard' replace />;
+    case ROLES.PROVINCE_MANAGER:
+    case ROLES.PROVINCE_ADMIN:
+      return <Navigate to='/province-dashboard' replace />;
+    case ROLES.BRANCH_MANAGER:
+      return <Navigate to='/branch-dashboard' replace />;
+    case ROLES.USER:
+    case ROLES.LEAD:
+      return <Navigate to='/landing' replace />;
+    default:
+      return <Navigate to='/landing' replace />;
   }
-
-  if (isPrivileged) {
-    return <Navigate to='/overview' replace />;
-  }
-
-  return <Navigate to='/dashboard' replace />;
 };
 
 export default RoleCheck;

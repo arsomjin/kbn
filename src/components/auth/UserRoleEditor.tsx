@@ -6,7 +6,7 @@ import { RoleType, ROLES, ROLE_PERMISSIONS, isInRoleCategory, RoleCategory } fro
 import { PERMISSIONS, PermissionValue } from '../../constants/Permissions';
 import { Province } from '../../types/province';
 import { getPrivilegeLevel } from '../../utils/roleUtils';
-import { useProvinces } from 'hooks/useProvinces';
+import { useProvinceContext } from 'hooks/useProvinceContext';
 import { useResponsive } from 'hooks/useResponsive';
 import styles from './UserRoleEditor.module.css';
 
@@ -59,7 +59,7 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
   namespace = 'userRoleManager'
 }) => {
   const { t } = useTranslation([namespace, 'common', 'roles', 'provinces']);
-  const { provinces } = useProvinces();
+  const { provinces } = useProvinceContext();
   const { isMobile, isTablet } = useResponsive();
   const [editingUser, setEditingUser] = useState<EditableUser | null>(null);
   const [activeTabKey, setActiveTabKey] = useState<string>('role');

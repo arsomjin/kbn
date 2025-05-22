@@ -9,14 +9,3 @@ export const useBranchContext = () => {
 
   return context;
 };
-
-export const useBranchesForProvince = (provinceId?: string) => {
-  const { branchesByProvince, loading, error, initialized } = useBranchContext();
-  
-  return {
-    branches: provinceId ? branchesByProvince[provinceId] || [] : [],
-    loading,
-    error,
-    initialized
-  };
-};

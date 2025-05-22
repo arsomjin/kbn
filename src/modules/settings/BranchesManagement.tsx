@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Table, Button, Modal, Form, Input, Select, Badge } from 'antd';
 import { Branch, BranchFormData } from '../../types/branch';
 import { useLoading } from 'hooks/useLoading';
-import { useProvinces } from 'hooks/useProvinces';
+import { useProvinceContext } from 'hooks/useProvinceContext';
 import { useBranchContext } from 'hooks/useBranchContext';
 import AccessDenied from '../../components/common/AccessDenied';
 import { usePermissions } from 'hooks/usePermissions';
@@ -21,7 +21,7 @@ const BranchesManagement: React.FC = () => {
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [pendingSubmit, setPendingSubmit] = useState<null | (() => void)>(null);
   const { withLoading } = useLoading();
-  const { provinces } = useProvinces();
+  const { provinces } = useProvinceContext();
   const { refreshBranches, branches, createBranch, updateBranch, deleteBranch } = useBranchContext();
   const { hasRole } = usePermissions();
   const { message } = AntdApp.useApp();

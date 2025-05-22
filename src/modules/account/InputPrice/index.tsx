@@ -4,7 +4,6 @@ import { getFirestore, collection, doc, getDocs, query, where, setDoc } from 'fi
 import { useMergeState } from 'hooks/useMergeState';
 
 import { CheckOutlined, SearchOutlined } from '@ant-design/icons';
-import { useSelector } from 'react-redux';
 import { showWarn, arrayForEach, firstKey, sortArr, useErrorHandler } from 'utils/functions';
 import PageTitle from 'components/common/PageTitle';
 import { createNewId } from 'utils';

@@ -24,9 +24,7 @@ const Expense: React.FC = () => {
       <Row gutter={[16, 16]}>
         <Col xs={24}>
           <Card>
-            <div className='text-center p-8'>
-              {t('expense:underConstruction', 'Expense management page is under construction')}
-            </div>
+            <div className='text-center p-8'>Expense for branch user is under construction</div>
           </Card>
         </Col>
       </Row>

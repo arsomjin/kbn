@@ -1,6 +1,5 @@
 import {
   User,
-  UserProfile,
   RoleType,
   UserStatus,
   UserType,
@@ -9,6 +8,7 @@ import {
   UserAuth,
   UserRequestType
 } from '../types/user';
+import type { UserProfile } from '../services/authService';
 
 /**
  * Form data interface for user registration/update
@@ -119,25 +119,10 @@ export const transformToUserProfile = (user: User): UserProfile => {
     uid: user.id,
     accessibleProvinceIds: [],
     permissions: [],
-    deleted: user.deleted,
-    status: user.status,
-    type: user.type,
-    provinceId: user.provinceId,
+    province: user.provinceId, // Map provinceId from User to province in UserProfile
     role: user.role,
-    created: user.created ? new Date(user.created).toISOString() : '',
-    updated: user.updated ? new Date(user.updated).toISOString() : '',
-    inputBy: user.inputBy,
-    auth: {
-      displayName: user.auth.displayName,
-      email: user.auth.email,
-      emailVerified: user.auth.emailVerified || false,
-      firstName: user.auth.firstName || '',
-      lastName: user.auth.lastName || '',
-      isAnonymous: user.auth.isAnonymous || false,
-      lastLogin: user.auth.lastLogin ? new Date(user.auth.lastLogin).toISOString() : null,
-      phoneNumber: user.auth.phoneNumber || '',
-      photoURL: user.auth.photoURL || ''
-    },
+    createdAt: user.created ? new Date(user.created) : undefined,
+    updatedAt: user.updated ? new Date(user.updated) : undefined,
     company: '',
     purpose: ''
   };

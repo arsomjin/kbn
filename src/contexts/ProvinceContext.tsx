@@ -7,12 +7,14 @@ import { message } from 'antd';
 export interface Province {
   id: string;
   name: string;
+  nameEn: string;
   code: string;
-  active: boolean;
+  status: string;
   createdAt?: Date;
   updatedAt?: Date;
   createdBy?: string;
   updatedBy?: string;
+  region?: string;
 }
 
 export interface ProvinceContextType {

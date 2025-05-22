@@ -6,6 +6,8 @@ import { LoadingOutlined } from '@ant-design/icons';
 import { Permission, PermissionValue } from '../../constants/Permissions';
 import { UserRole } from '../../constants/roles';
 import { getUserPermissions } from '../../utils/permissions';
+import { hasProvinceAccess } from 'utils/permissions';
+import { usePermissions } from 'hooks/usePermissions';
 
 interface PermissionProtectedRouteProps {
   children: React.ReactNode;
@@ -34,11 +36,12 @@ interface PermissionProtectedRouteProps {
 const PermissionProtectedRoute: React.FC<PermissionProtectedRouteProps> = ({
   children,
   requiredPermission,
-  fallbackPath = '/dashboard',
+  fallbackPath = '/landing',
   provinceCheck,
   allowedRoles
 }) => {
   const { isAuthenticated, userProfile, isLoading } = useAuth();
+  const { hasProvinceAccess } = usePermissions();
   const location = useLocation();
 
   console.log('PermissionProtectedRoute', {
@@ -80,7 +83,7 @@ const PermissionProtectedRoute: React.FC<PermissionProtectedRouteProps> = ({
   }
 
   // If province check is required, verify user has access to the province
-  if (provinceCheck && !provinceCheck()) {
+  if (provinceCheck && !hasProvinceAccess) {
     return <Navigate to={fallbackPath} replace />;
   }
 
