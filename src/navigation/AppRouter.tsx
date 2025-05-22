@@ -294,7 +294,7 @@ export const AppRouter: React.FC = () => {
                 path='account'
                 element={
                   <PermissionProtectedRoute
-                    requiredPermission={PERMISSIONS.DOCUMENT_VIEW}
+                    requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
                     fallbackPath='/dashboard'
                     allowedRoles={getAllowedRoles(RoleCategory.BRANCH_MANAGER)}
                   >

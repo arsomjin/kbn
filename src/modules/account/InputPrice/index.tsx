@@ -108,12 +108,19 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
   if (canReview) activeStep = 1;
   if (canApprove) activeStep = 2;
   // Department access check
-  const isGeneralManagerOrHigher =
-    userProfile && getPrivilegeLevel(userProfile.role) >= getPrivilegeLevel(ROLES.GENERAL_MANAGER);
-  const canAccessDepartment = isGeneralManagerOrHigher || userProfile?.department === departmentId;
-  // RBAC: Only allow if user has MANAGE_EXPENSE and province access, or is general manager or higher
-  const canAccess =
-    isGeneralManagerOrHigher || (hasPermission(PERMISSIONS.MANAGE_EXPENSE) && hasProvinceAccess(provinceId));
+  // RBAC: Determine privilege level and access rights
+  const userRole = userProfile?.role;
+  const userPermissions = userProfile?.permissions || [];
+  const isManager = !!userRole && getPrivilegeLevel(userRole) >= getPrivilegeLevel(ROLES.BRANCH_MANAGER);
+
+  // Department access: allow if manager, has explicit permission, or matches department
+  const canAccessDepartment =
+    isManager ||
+    userPermissions.includes(PERMISSIONS.VIEW_ACCOUNTS) ||
+    (!!userProfile?.department && userProfile.department === departmentId);
+
+  // Province-level access: allow if manager or has permission + province access
+  const canAccess = isManager || (hasPermission(PERMISSIONS.MANAGE_EXPENSE) && hasProvinceAccess(provinceId));
 
   const onConfirm = useCallback(
     async (mValues: InputPriceFormValues) => {

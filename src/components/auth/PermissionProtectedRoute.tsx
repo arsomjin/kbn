@@ -5,7 +5,6 @@ import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { Permission, PermissionValue } from '../../constants/Permissions';
 import { UserRole } from '../../constants/roles';
-import { getUserPermissions } from '../../utils/permissions';
 import { hasProvinceAccess } from 'utils/permissions';
 import { usePermissions } from 'hooks/usePermissions';
 
@@ -76,8 +75,8 @@ const PermissionProtectedRoute: React.FC<PermissionProtectedRouteProps> = ({
 
   // If user doesn't have an allowed role, check permissions and province access
   if (requiredPermission) {
-    const userPermissions = getUserPermissions(userProfile);
-    if (!userPermissions.includes(requiredPermission)) {
+    const userPermissions = userProfile?.permissions;
+    if (!(userPermissions || []).includes(requiredPermission)) {
       return <Navigate to={fallbackPath} replace />;
     }
   }

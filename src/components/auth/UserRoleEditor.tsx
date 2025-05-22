@@ -97,7 +97,14 @@ const UserRoleEditor: React.FC<UserRoleEditorProps> = ({
     if (!editingUser) return;
 
     // Get default permissions for the selected role
-    const defaultPermissions = rolePermissions[role] || [];
+    let defaultPermissions = rolePermissions[role] || [];
+
+    // Add VIEW_ACCOUNTS permission for account department
+    if (['dep0005', 'dep0012'].includes(editingUser.departmentId || '')) {
+      if (!defaultPermissions.includes(PERMISSIONS.VIEW_ACCOUNTS)) {
+        defaultPermissions = [...defaultPermissions, PERMISSIONS.VIEW_ACCOUNTS];
+      }
+    }
 
     // Set default selectedProvinceIds based on role privilege level
     const defaultProvinceIds =

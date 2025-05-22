@@ -3,7 +3,6 @@ import { useAuth } from 'contexts/AuthContext';
 import { Province } from 'types/province';
 import { Permission, PermissionValue } from 'constants/Permissions';
 import { ROLES, isInRoleCategory, RoleCategory } from 'constants/roles';
-import { getUserPermissions } from '../utils/permissions';
 
 interface PermissionContextType {
   hasPermission: (permission: PermissionValue) => boolean;
@@ -19,7 +18,7 @@ export const PermissionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const { userProfile, hasRole: authHasRole } = useAuth();
 
   // Get all user permissions
-  const userPermissions = getUserPermissions(userProfile);
+  const userPermissions = userProfile?.permissions || [];
 
   // Function to check if the user has a specific permission
   const hasPermission = (permission: PermissionValue): boolean => {
