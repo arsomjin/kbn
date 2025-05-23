@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Table, Button, Input, Select, Space, Card, Tag, Tooltip, Popconfirm, message, Empty } from 'antd';
+import { Table, Button, Input, Select, Space, Card, Tag, Tooltip, Popconfirm, message, Empty, Row, Col } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined, FileExcelOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
@@ -293,47 +293,56 @@ export const EmployeeList: React.FC = () => {
 
       <Card>
         <div className={`mb-4 flex ${isMobile ? 'flex-col' : 'flex-row flex-wrap'} gap-4`}>
-          <Input
-            placeholder={t('search.placeholder')}
-            prefix={<SearchOutlined />}
-            value={filters.search}
-            onChange={e => setFilters({ ...filters, search: e.target.value })}
-            className={isMobile ? 'w-full' : 'max-w-xs'}
-            size='middle'
-          />
-          <Select
-            placeholder={t('filters.status')}
-            allowClear
-            value={filters.status}
-            onChange={value => setFilters({ ...filters, status: value })}
-            className={isMobile ? 'w-full' : 'min-w-[200px]'}
-          >
-            {Object.values(EmployeeStatus).map(status => (
-              <Option key={status} value={status}>
-                {t(`status.${status.toLowerCase()}`)}
-              </Option>
-            ))}
-          </Select>
-          <DepartmentSelector
-            value={filters.department}
-            onChange={(value: string) => setFilters({ ...filters, department: value })}
-            placeholder={t('filters.department')}
-            className={isMobile ? 'w-full' : 'min-w-[200px]'}
-            size='middle'
-          />
-          <Select
-            placeholder={t('filters.position')}
-            allowClear
-            value={filters.position}
-            onChange={value => setFilters({ ...filters, position: value })}
-            className={isMobile ? 'w-full' : 'min-w-[200px]'}
-          >
-            {positionOptions.map(position => (
-              <Option key={position} value={position}>
-                {position}
-              </Option>
-            ))}
-          </Select>
+          <Row gutter={[16, 16]} className='mb-4'>
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Input
+                placeholder={t('search.placeholder')}
+                prefix={<SearchOutlined />}
+                value={filters.search}
+                onChange={e => setFilters({ ...filters, search: e.target.value })}
+                size='middle'
+              />
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Select
+                placeholder={t('filters.status')}
+                allowClear
+                value={filters.status}
+                onChange={value => setFilters({ ...filters, status: value })}
+                className='w-full'
+              >
+                {Object.values(EmployeeStatus).map(status => (
+                  <Option key={status} value={status}>
+                    {t(`status.${status.toLowerCase()}`)}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <DepartmentSelector
+                value={filters.department}
+                onChange={(value: string) => setFilters({ ...filters, department: value })}
+                placeholder={t('filters.department')}
+                className='w-full'
+                size='middle'
+              />
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Select
+                placeholder={t('filters.position')}
+                allowClear
+                value={filters.position}
+                onChange={value => setFilters({ ...filters, position: value })}
+                className='w-full'
+              >
+                {positionOptions.map(position => (
+                  <Option key={position} value={position}>
+                    {position}
+                  </Option>
+                ))}
+              </Select>
+            </Col>
+          </Row>
         </div>
 
         <MTable

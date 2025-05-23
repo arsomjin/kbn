@@ -5,6 +5,8 @@
   "edit": "Edit",
   "create": "Create",
   "created": "Created",
+  "saveSuccess": "Data saved successfully",
+  "saveSuccessDescription": "Your data has been saved successfully.",
   "search": "Search",
   "filter": "Filter",
   "back": "Back",

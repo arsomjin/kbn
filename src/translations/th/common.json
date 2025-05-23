@@ -5,6 +5,8 @@
   "edit": "แก้ไข",
   "create": "สร้าง",
   "created": "สร้างแล้ว",
+  "saveSuccess": "บันทึกข้อมูลสำเร็จ",
+  "saveSuccessDescription": "ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว",
   "search": "ค้นหา",
   "filter": "กรอง",
   "back": "ย้อนกลับ",

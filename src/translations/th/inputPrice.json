@@ -4,6 +4,7 @@
   "pleaseEnterPrice": "กรุณากรอกราคาทุกรายการ",
   "save": "บันทึก",
   "saveSuccess": "บันทึกข้อมูลสำเร็จ",
+  "saveSuccessDescription": "ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว",
   "searchByReceipt": "ค้นหาจาก เลขที่ใบรับสินค้า",
   "searchByReceiptNumber": "ค้นหาจาก เลขที่ใบรับสินค้า",
   "taxInvoiceNo": "เลขที่ใบกำกับภาษี",

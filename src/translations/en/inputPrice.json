@@ -4,6 +4,7 @@
   "pleaseEnterPrice": "Please enter price for all items.",
   "save": "Save",
   "saveSuccess": "Data saved successfully",
+  "saveSuccessDescription": "Your data has been saved successfully.",
   "searchByReceipt": "Search by Receipt No.",
   "searchByReceiptNumber": "Search by Receipt No.",
   "taxInvoiceNo": "Tax Invoice Number",

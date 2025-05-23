@@ -12,6 +12,12 @@ export type ModalContextType = {
     onCancel?: () => void;
   }) => void;
   showSuccess: (content: string, duration?: number, onClose?: () => void) => void;
+  showSuccessModal: (options: {
+    title?: string;
+    content: React.ReactNode;
+    onOk?: () => void;
+    onCancel?: () => void;
+  }) => void;
   showWarning: (content: string, duration?: number, onClose?: () => void) => void;
   showActionSheet: (options: {
     title?: string;
@@ -50,6 +56,17 @@ export const ModalProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           icon: <span style={{ color: '#52c41a', fontSize: 20 }}>✔️</span>,
           key: 'global-success',
           onClose
+        });
+      },
+      showSuccessModal: ({ title = t('common:confirm', 'ยืนยัน'), content, onOk, onCancel }) => {
+        modal.success({
+          title,
+          content,
+          onOk,
+          onCancel,
+          okText: t('common:confirm', 'ตกลง'),
+          centered: true,
+          maskClosable: false
         });
       },
       showWarning: (content, duration = 5, onClose) => {

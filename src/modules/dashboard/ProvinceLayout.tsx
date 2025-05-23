@@ -1,12 +1,8 @@
 import React from 'react';
-import { Layout, Breadcrumb } from 'antd';
 import { Outlet, useParams } from 'react-router-dom';
-import { useAuth } from 'contexts/AuthContext';
 import { useProvinceContext } from 'hooks/useProvinceContext';
 import { useTranslation } from 'react-i18next';
 import { useBranchesForProvince } from 'hooks/useBranchesForProvince';
-
-const { Header } = Layout;
 
 interface ProvinceLayoutProps {
   children?: React.ReactNode;
@@ -24,14 +20,12 @@ const ProvinceLayout: React.FC<ProvinceLayoutProps> = ({ children }) => {
   const provinceName = lang === 'th' ? province?.name : province?.nameEn;
 
   return (
-    <Layout>
-      <Header style={{ padding: '0 24px' }}>
-        <label>
-          {`${provinceName || 'Province'}${branchCode ? ` / ${branches?.find(b => b.branchCode === branchCode)?.branchName || branchCode}` : ''}`}
-        </label>
-      </Header>
+    <div>
+      <label style={{ padding: '0 24px' }}>
+        {`${provinceName || 'Province'}${branchCode ? ` / ${branches?.find(b => b.branchCode === branchCode)?.branchName || branchCode}` : ''}`}
+      </label>
       {children || <Outlet />}
-    </Layout>
+    </div>
   );
 };
 

@@ -59,6 +59,8 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
   const { user, userProfile } = useAuth();
   const [cState, setCState] = useMergeState<InputPriceState>(initMergeState);
   const [form] = Form.useForm<InputPriceFormValues>();
+  // const [showSuccessModal, setShowSuccessModal] = useState(false); // Removed: will use useModal
+
   const resetToInitial = useCallback(() => {
     form.resetFields();
     setCState(initMergeState);
@@ -82,7 +84,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
     const billTotal = afterDepositDeduct + billVAT;
     return { afterDiscount, afterDepositDeduct, billVAT, billTotal };
   }, [cState.total, cState.billDiscount, cState.deductDeposit, cState.priceType]);
-  const { showConfirm, showSuccess, showWarning } = useModal();
+  const { showConfirm, showSuccess, showSuccessModal } = useModal();
   // Placeholder: get document status from props, form, or API
   // Replace this with real status logic as needed
   // Derive document status from form or loaded document, fallback to 'draft'
@@ -270,9 +272,14 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
               });
             }
 
-            message.success(t('saveSuccess'));
-            resetToInitial();
-            setItems(initialValues.items); // <-- Add this line
+            showSuccessModal({
+              title: t('saveSuccess', 'Data Saved Successfully'),
+              content: t('saveSuccessDescription', 'Your information has been recorded.'),
+              onOk: () => {
+                resetToInitial();
+                setItems(initialValues.items);
+              }
+            });
           } catch (error) {
             console.error('[Firestore Save] error:', error);
             errorHandler(error instanceof Error ? error : new Error(String(error)));
@@ -289,7 +296,6 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
       resetToInitial,
       t,
       showConfirm,
-      showSuccess,
       errorHandler,
       form
     ]
@@ -691,6 +697,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
         </Form>
       </Card>
       <PageDoc />
+      {/* Removed ActionStatusModal component usage */}
     </div>
   );
 };
