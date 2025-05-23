@@ -1,13 +1,14 @@
-import React, { forwardRef, useRef, useImperativeHandle, useState } from "react";
-import { Select } from "antd";
-import type { SelectProps } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { collection, doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { firestore } from "services/firebase";
-import { showWarn, showSuccess } from "utils/functions";
-import { createNewId } from "utils/functions";
-import ExpenseSubCategoryDetails from "./ExpenseSubCategoryDetails";
-import type { ExpenseSubCategoryFormValues } from "./ExpenseSubCategoryDetails";
+import React, { forwardRef, useRef, useImperativeHandle, useState } from 'react';
+import { Select } from 'antd';
+import type { SelectProps } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { collection, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { firestore } from 'services/firebase';
+import { showWarn } from 'utils/functions';
+import { createNewId } from 'utils/functions';
+import ExpenseSubCategoryDetails from './ExpenseSubCategoryDetails';
+import type { ExpenseSubCategoryFormValues } from './ExpenseSubCategoryDetails';
+import { message } from 'hooks/useAntdUi';
 
 const { Option } = Select;
 
@@ -21,7 +22,7 @@ interface ExpenseSubCategory {
   [key: string]: any;
 }
 
-interface ExpenseSubCategorySelectorProps extends Omit<SelectProps, "ref"> {
+interface ExpenseSubCategorySelectorProps extends Omit<SelectProps, 'ref'> {
   onChange?: (value: string | string[]) => void;
   placeholder?: string;
   noAddable?: boolean;
@@ -42,7 +43,7 @@ const ExpenseSubCategorySelector = forwardRef<ExpenseSubCategorySelectorRef, Exp
     const { user } = useSelector((state: any) => state.auth);
     const [showAddNew, setShowAddNew] = useState(false);
     const [mValue, setValue] = useState<string | string[] | null>(null);
-    const [searchTxt, setSearchTxt] = useState("");
+    const [searchTxt, setSearchTxt] = useState('');
 
     const dispatch = useDispatch();
     const selectRef = useRef<any>(null);
@@ -70,7 +71,7 @@ const ExpenseSubCategorySelector = forwardRef<ExpenseSubCategorySelectorRef, Exp
     );
 
     const handleChange = (value: string | string[]) => {
-      if (value === "addNew") {
+      if (value === 'addNew') {
         return showModal();
       }
       setValue(value);
@@ -82,8 +83,8 @@ const ExpenseSubCategorySelector = forwardRef<ExpenseSubCategorySelectorRef, Exp
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Enter" && allowNotInList) {
-        if (["multiple", "tags"].includes(props.mode || "")) {
+      if (event.key === 'Enter' && allowNotInList) {
+        if (['multiple', 'tags'].includes(props.mode || '')) {
           handleChange(Array.isArray(mValue) ? [...mValue, searchTxt] : [searchTxt]);
           setValue([]);
         } else {
@@ -96,14 +97,14 @@ const ExpenseSubCategorySelector = forwardRef<ExpenseSubCategorySelectorRef, Exp
       setShowAddNew(true);
     };
 
-    const handleOk = async (values: ExpenseSubCategoryFormValues, type: "add" | "edit" | "delete") => {
+    const handleOk = async (values: ExpenseSubCategoryFormValues, type: 'add' | 'edit' | 'delete') => {
       try {
         let mExpenseSubCategories = JSON.parse(JSON.stringify(expenseSubCategories));
-        const expenseSubCategoriesRef = collection(firestore, "data/company/expenseSubCategories");
+        const expenseSubCategoriesRef = collection(firestore, 'data/company/expenseSubCategories');
         let expenseSubCategoryId: string;
 
-        if (type === "add") {
-          expenseSubCategoryId = createNewId("EXPS");
+        if (type === 'add') {
+          expenseSubCategoryId = createNewId('EXPS');
           await setDoc(doc(expenseSubCategoriesRef, expenseSubCategoryId), {
             ...values,
             expenseSubCategoryId,
@@ -116,8 +117,8 @@ const ExpenseSubCategorySelector = forwardRef<ExpenseSubCategorySelectorRef, Exp
             created: Date.now(),
             inputBy: user.uid
           };
-        } else if (type === "edit") {
-          expenseSubCategoryId = values.expenseSubCategoryId || "";
+        } else if (type === 'edit') {
+          expenseSubCategoryId = values.expenseSubCategoryId || '';
           await updateDoc(doc(expenseSubCategoriesRef, expenseSubCategoryId), {
             ...values,
             expenseSubCategoryId,
@@ -131,15 +132,17 @@ const ExpenseSubCategorySelector = forwardRef<ExpenseSubCategorySelectorRef, Exp
             updateBy: user.uid
           };
         } else {
-          expenseSubCategoryId = values.expenseSubCategoryId || "";
+          expenseSubCategoryId = values.expenseSubCategoryId || '';
           await deleteDoc(doc(expenseSubCategoriesRef, expenseSubCategoryId));
           mExpenseSubCategories = Object.fromEntries(
-            Object.entries(mExpenseSubCategories).filter(([_, l]: [string, any]) => l.expenseSubCategoryId !== expenseSubCategoryId)
+            Object.entries(mExpenseSubCategories).filter(
+              ([_, l]: [string, any]) => l.expenseSubCategoryId !== expenseSubCategoryId
+            )
           );
         }
 
-        dispatch({ type: "SET_EXPENSE_SUB_CATEGORIES", payload: mExpenseSubCategories });
-        showSuccess(undefined, "บันทึกข้อมูลสำเร็จ");
+        dispatch({ type: 'SET_EXPENSE_SUB_CATEGORIES', payload: mExpenseSubCategories });
+        message.success('บันทึกข้อมูลสำเร็จ');
         setShowAddNew(false);
       } catch (e) {
         showWarn((e as Error).message);
@@ -150,7 +153,7 @@ const ExpenseSubCategorySelector = forwardRef<ExpenseSubCategorySelectorRef, Exp
       setShowAddNew(false);
     };
 
-    const Options = Object.keys(expenseSubCategories).map((it) => (
+    const Options = Object.keys(expenseSubCategories).map(it => (
       <Option key={it} value={it}>
         {expenseSubCategories[it].expenseSubCategory}
       </Option>
@@ -161,8 +164,8 @@ const ExpenseSubCategorySelector = forwardRef<ExpenseSubCategorySelectorRef, Exp
         <Select
           ref={selectRef}
           showSearch
-          placeholder={placeholder || "พิมพ์ชื่อหมวดหมู่ย่อยรายจ่าย"}
-          optionFilterProp="children"
+          placeholder={placeholder || 'พิมพ์ชื่อหมวดหมู่ย่อยรายจ่าย'}
+          optionFilterProp='children'
           filterOption={(input, option) => {
             if (!option || !option.children) return false;
             return option.children.toString().toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -175,7 +178,7 @@ const ExpenseSubCategorySelector = forwardRef<ExpenseSubCategorySelectorRef, Exp
         >
           {Options}
           {!noAddable && (
-            <Option key="addNew" value="addNew" className="text-light">
+            <Option key='addNew' value='addNew' className='text-light'>
               เพิ่ม/แก้ไข รายชื่อ...
             </Option>
           )}
@@ -186,6 +189,6 @@ const ExpenseSubCategorySelector = forwardRef<ExpenseSubCategorySelectorRef, Exp
   }
 );
 
-ExpenseSubCategorySelector.displayName = "ExpenseSubCategorySelector";
+ExpenseSubCategorySelector.displayName = 'ExpenseSubCategorySelector';
 
-export default ExpenseSubCategorySelector; 
+export default ExpenseSubCategorySelector;

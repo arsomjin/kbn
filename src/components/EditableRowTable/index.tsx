@@ -5,12 +5,14 @@ import { PlusOutlined } from '@ant-design/icons';
 import { EditableCell } from 'api/Table/EditableCell';
 import { GetColumns } from 'api/Table';
 import { h } from 'api/Dimension';
-import { showWarn, waitFor } from 'utils/functions';
+import { useAntdUi } from '../../hooks/useAntdUi';
+import { waitFor } from 'utils/functions';
 import { Button } from 'elements';
 import { TableBaseRecord, TableColumnConfig as OrigTableColumnConfig } from 'types/table';
 
 // Override TableColumnConfig to enforce title: React.ReactElement
-export interface TableColumnConfig<T extends TableBaseRecord> extends Omit<OrigTableColumnConfig<T>, 'title' | 'children'> {
+export interface TableColumnConfig<T extends TableBaseRecord>
+  extends Omit<OrigTableColumnConfig<T>, 'title' | 'children'> {
   title: React.ReactElement;
   children?: TableColumnConfig<any>[] | TableColumnConfig<T>[];
 }
@@ -67,6 +69,7 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
   deletedButtonAtEnd,
   ...tableProps
 }) => {
+  const { message } = useAntdUi();
   const [form] = Form.useForm();
   const [data, setData] = useState<TableBaseRecord[]>(dataSource);
   const [editingKey, setEditingKey] = useState<string>('');
@@ -97,7 +100,7 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
       });
       handleSave(dArr.data, undefined, rowIndex.toString());
     } catch (e) {
-      showWarn(e);
+      message.warning(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -105,9 +108,7 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
     new Promise<{ item: TableBaseRecord; data: TableBaseRecord[]; rowIndex: string }>(async (resolve, reject) => {
       try {
         const shouldValidate = forceValidate === true || forceValidate === 0;
-        const row = shouldValidate && !isDelete
-          ? await form.validateFields()
-          : await form.getFieldsValue();
+        const row = shouldValidate && !isDelete ? await form.validateFields() : await form.getFieldsValue();
 
         const newData = [...data];
         const index = newData.findIndex(item => key === item.key);
@@ -139,7 +140,7 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
       const dArr = await save(editingKey);
       onAdd?.(dArr.data);
     } catch (e) {
-      showWarn(e);
+      message.warning(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -149,7 +150,7 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
       await waitFor(400);
       setEditingKey('');
     } catch (e) {
-      showWarn(e);
+      message.warning(e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -187,7 +188,7 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
     const changedField = Object.keys(changedValues)[0];
     lastEditedField.current = changedField;
     const rowIndex = data.findIndex(item => item.key === editingKey);
-    const newData = data.map((item) => {
+    const newData = data.map(item => {
       if (item.key === editingKey) {
         return { ...item, ...allValues };
       }
@@ -239,9 +240,7 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
         bordered
         dataSource={data}
         columns={mColumns}
-        scroll={
-          noScroll ? undefined : scroll ? { ...scroll, x: tableWidth } : { x: tableWidth, y: h(40) }
-        }
+        scroll={noScroll ? undefined : scroll ? { ...scroll, x: tableWidth } : { x: tableWidth, y: h(40) }}
         size={size || 'small'}
         locale={locale || { emptyText: 'ไม่มีข้อมูล' }}
         rowClassName={
@@ -278,9 +277,9 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
                   <Button
                     onClick={handleAdd}
                     ghost
-                    type="primary"
-                    size="small"
-                    className="mt-1"
+                    type='primary'
+                    size='small'
+                    className='mt-1'
                     disabled={disabled || readOnly}
                     icon={<PlusOutlined />}
                   >
@@ -295,4 +294,4 @@ const EditableRowTable: React.FC<EditableRowTableProps> = ({
   );
 };
 
-export default EditableRowTable; 
+export default EditableRowTable;

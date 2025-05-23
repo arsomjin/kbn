@@ -163,24 +163,6 @@ export const ROLE_CATEGORIES: Record<RoleCategory, Array<RoleType>> = {
 };
 
 /**
- * Helper function to check if a role has permission based on hierarchy
- * @param userRole - Current user's role
- * @param requiredRole - Required role for an action
- * @returns boolean indicating if user has sufficient role
- * @deprecated Use hasRolePrivilege instead
- */
-
-/**
- * Helper function to check if a user belongs to a specific role category
- * @param userRole - Current user's role
- * @param category - Category to check membership in
- * @returns boolean indicating if the role is in the category
- */
-export const isInRoleCategory = (userRole: RoleType, category: RoleCategory): boolean => {
-  return ROLE_CATEGORIES[category].includes(userRole);
-};
-
-/**
  * Helper function to check if a role has higher or equal privileges than another
  * @param userRole - The role of the current user
  * @param requiredRole - The role being checked against

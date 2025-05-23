@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Form, Input, Select, InputNumber, Button, Card, Space, Upload, Avatar, Typography } from 'antd';
-import { UploadOutlined, UserOutlined } from '@ant-design/icons';
+import { UploadOutlined, UserOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { EmployeeFormData, EmployeeStatus } from '../types';
 import { useProvince } from 'hooks/useProvince';
 import { useAuth } from 'contexts/AuthContext';
 import { employeeService } from '../services/employeeService';
 import { useNavigate } from 'react-router-dom';
-import { message } from 'antd';
 import { DatePicker } from 'elements';
+import { useResponsive } from 'hooks/useResponsive';
+import dayjs from 'dayjs';
+import { useAntdUi } from 'hooks/useAntdUi';
 
 const { Title } = Typography;
 
@@ -18,27 +20,29 @@ interface EmployeeFormProps {
 }
 
 export const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialValues, employeeId }) => {
-  const { t } = useTranslation('employees');
+  const { t } = useTranslation(['employees', 'common']);
+  const { message } = useAntdUi();
   const [form] = Form.useForm();
   const { currentProvince } = useProvince();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [photoUrl, setPhotoUrl] = useState<string | undefined>(initialValues?.photoUrl);
+  const { isMobile, isTablet, isDesktop } = useResponsive();
 
   const onFinish = async (values: EmployeeFormData) => {
     try {
       setLoading(true);
       if (employeeId) {
         await employeeService.updateEmployee(employeeId, values, user!.uid);
-        message.success(t('success.updated'));
+        message.success(t('success', { ns: 'common' }));
       } else {
         await employeeService.createEmployee({ ...values, provinceId: currentProvince!.id }, user!.uid);
-        message.success(t('success.created'));
+        message.success(t('created', { ns: 'common' }));
       }
       navigate('/admin/employees');
     } catch (error) {
-      message.error(t('error.saving'));
+      message.success(t('errors.saving', { ns: 'common' }));
     } finally {
       setLoading(false);
     }
@@ -52,18 +56,24 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialValues, emplo
   };
 
   return (
-    <Card className='p-6 max-w-4xl mx-auto'>
-      <Button type='link' onClick={() => navigate('/admin/employees')}>
-        {t('form.back')}
+    <Card className={isMobile ? 'p-4 max-w-4xl mx-auto' : 'p-6 max-w-4xl mx-auto'}>
+      <Button
+        icon={<ArrowLeftOutlined />}
+        onClick={() => navigate('/admin/employees')}
+        className={isMobile ? 'w-full mb-4' : 'mb-4'}
+      >
+        {t('back', { ns: 'common' }) || t('form.back')}
       </Button>
-      <Title level={4} className='mb-4'>
+      <Title level={isMobile ? 5 : 4} className='mb-4'>
         {t('form.personalInfo')}
       </Title>
-      <div className='flex flex-col md:flex-row gap-8 mb-8'>
-        <div className='flex flex-col items-center w-full md:w-1/3'>
-          <Avatar size={120} src={photoUrl} icon={<UserOutlined />} />
+      <div className={isDesktop ? 'flex flex-row gap-8 mb-8' : 'flex flex-col gap-4 mb-6'}>
+        <div className={isDesktop ? 'flex flex-col items-center w-1/3' : 'flex flex-col items-center w-full'}>
+          <Avatar size={isMobile ? 80 : 120} src={photoUrl} icon={<UserOutlined />} />
           <Upload showUploadList={false} onChange={handlePhotoChange} className='mt-2'>
-            <Button icon={<UploadOutlined />}>{t('form.uploadPhoto')}</Button>
+            <Button icon={<UploadOutlined />}>
+              {isMobile ? t('actions.upload', { ns: 'common' }) || 'Upload' : t('form.uploadPhoto')}
+            </Button>
           </Upload>
           <div className='mt-4 text-center font-bold'>
             {initialValues?.prefix || ''}
@@ -71,9 +81,11 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialValues, emplo
           </div>
           <div className='text-center text-gray-500'>{initialValues?.position || ''}</div>
         </div>
-        <div className='w-full md:w-2/3'>
+        <div className={isDesktop ? 'w-2/3' : 'w-full'}>
           <Form form={form} layout='vertical' initialValues={initialValues} onFinish={onFinish}>
-            <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <div
+              className={`grid grid-cols-1 ${isTablet || isDesktop ? 'md:grid-cols-2' : ''} ${isMobile ? 'gap-4' : 'gap-6'}`}
+            >
               <Form.Item
                 name='prefix'
                 label={
@@ -226,10 +238,12 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialValues, emplo
               </Form.Item>
             </div>
             <Form.Item name='details' label={t('fields.details')}>
-              <Input.TextArea rows={3} />
+              <Input.TextArea rows={isMobile ? 2 : 3} />
             </Form.Item>
-            <Card title={t('fields.emergencyContact')} className='mb-6'>
-              <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+            <Card title={t('fields.emergencyContact.title')} className='mb-6' size={isMobile ? 'small' : 'default'}>
+              <div
+                className={`grid grid-cols-1 ${isTablet || isDesktop ? 'md:grid-cols-2' : ''} ${isMobile ? 'gap-4' : 'gap-6'}`}
+              >
                 <Form.Item
                   name={['emergencyContact', 'name']}
                   label={
@@ -267,14 +281,18 @@ export const EmployeeForm: React.FC<EmployeeFormProps> = ({ initialValues, emplo
             </Card>
             <Form.Item name='documents' label={t('fields.documents')}>
               <Upload multiple>
-                <Button icon={<UploadOutlined />}>{t('form.uploadDocument')}</Button>
+                <Button icon={<UploadOutlined />}>
+                  {isMobile ? t('actions.upload', { ns: 'common' }) || 'Upload' : t('form.uploadDocument')}
+                </Button>
               </Upload>
             </Form.Item>
-            <Form.Item className='text-right'>
-              <Space>
-                <Button onClick={() => navigate('/admin/employees')}>{t('form.cancel')}</Button>
-                <Button type='primary' htmlType='submit' loading={loading}>
-                  {t('form.save')}
+            <Form.Item className={isMobile ? 'text-center' : 'text-right'}>
+              <Space direction={isMobile ? 'vertical' : 'horizontal'} style={{ width: isMobile ? '100%' : 'auto' }}>
+                <Button onClick={() => navigate('/admin/employees')} className={isMobile ? 'w-full' : ''}>
+                  {t('cancel', { ns: 'common' }) || t('form.cancel')}
+                </Button>
+                <Button type='primary' htmlType='submit' loading={loading} className={isMobile ? 'w-full' : ''}>
+                  {t('save', { ns: 'common' }) || t('form.save')}
                 </Button>
               </Space>
             </Form.Item>

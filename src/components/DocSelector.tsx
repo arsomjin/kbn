@@ -1,5 +1,6 @@
 import React, { useRef, forwardRef, useImperativeHandle, useEffect } from 'react';
-import { showWarn, showLog, errorHandler, arrayForEach, distinctArr } from 'utils/functions';
+import { useAntdUi } from '../hooks/useAntdUi';
+import { showLog, errorHandler, arrayForEach, distinctArr } from 'utils/functions';
 import DebounceSelect from 'components/DebounceSelect';
 import { createOptionsFromFirestore, createOptionsFromFirestoreKeywords } from 'utils';
 import { hasNameAndSurnamePattern } from 'utils/RegEx';
@@ -65,6 +66,7 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
 
     const controlledValue = typeof value !== 'undefined' ? value : ['multiple', 'tags'].includes(mode) ? [] : '';
     const selectRef = useRef<any>(null);
+    const { message } = useAntdUi();
 
     useImperativeHandle(
       ref,
@@ -116,7 +118,7 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
 
     // Memoize _fetchSearchList to avoid debounce issues
     const _fetchSearchList = React.useCallback(
-      async (search: string): Promise<Option[]> => {
+      async (search: string) => {
         try {
           console.log('DocSelector: _fetchSearchList called with search:', search);
           if (!search || (search && search.length < (startSearchAt || 4))) {
@@ -148,7 +150,7 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
           const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
           const customError = new Error(errorMessage) as ErrorWithMessage;
           customError.snap = { function: '_fetchSearchList' };
-          showWarn(errorMessage);
+          message.warning(errorMessage);
           errorHandler(customError);
           return [];
         }
@@ -189,7 +191,7 @@ const DocSelector = forwardRef<SelectRef, DocSelectorProps>(
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         const customError = new Error(errorMessage) as ErrorWithMessage;
         customError.snap = { function: 'fetchSearchList' };
-        showWarn(errorMessage);
+        message.warning(errorMessage);
         errorHandler(customError);
         return [];
       }

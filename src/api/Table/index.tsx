@@ -53,7 +53,7 @@ import PaymentTypeSelector from 'components/PaymentTypeSelector';
 import PaymentMethodSelector from 'components/PaymentMethodSelector';
 import CustomerSelector from 'components/CustomerSelector';
 import { removeAllNonAlphaNumericCharacters } from 'utils/RegEx';
-import { showLog, isDateTypeField, validateMobileNumber, Numb, parser, showWarning } from 'utils/functions';
+import { showLog, isDateTypeField, validateMobileNumber, Numb, parser } from 'utils/functions';
 import BooleanSelector from 'components/BooleanSelector';
 import { createArrOfLength } from 'utils/functions';
 import ServiceSelector from 'components/ServiceSelector/';

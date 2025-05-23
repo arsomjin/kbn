@@ -4,6 +4,7 @@ import { showConfirm } from 'utils/functions';
 import BankNameSelector from 'components/BankNameSelector';
 import { Input } from 'elements';
 import { getRules } from 'api/Table';
+import { useModal } from 'contexts/ModalContext';
 
 interface Bank {
   bankName: string;
@@ -19,6 +20,7 @@ interface BankDetailsProps {
 }
 
 const BankDetails: React.FC<BankDetailsProps> = ({ onOk, onCancel, visible }) => {
+  const { showConfirm } = useModal();
   const [form] = Form.useForm<Bank>();
 
   const onConfirm = useCallback(
@@ -31,17 +33,18 @@ const BankDetails: React.FC<BankDetailsProps> = ({ onOk, onCancel, visible }) =>
 
   const onPreConfirm = useCallback(
     (values: Bank) => {
-      showConfirm(
-        () => onConfirm(values),
-        `เพิ่มธนาคาร ${values.bankName}`
-      );
+      showConfirm({
+        title: `เพิ่มธนาคาร ${values.bankName}`,
+        content: `คุณต้องการเพิ่มธนาคาร ${values.bankName} ใช่หรือไม่?`,
+        onOk: () => onConfirm(values)
+      });
     },
     [onConfirm]
   );
 
   return (
     <Modal
-      title="เพิ่มธนาคาร"
+      title='เพิ่มธนาคาร'
       open={visible}
       onOk={() => {
         form
@@ -54,13 +57,13 @@ const BankDetails: React.FC<BankDetailsProps> = ({ onOk, onCancel, visible }) =>
           });
       }}
       onCancel={onCancel}
-      okText="ยืนยัน"
-      cancelText="ยกเลิก"
+      okText='ยืนยัน'
+      cancelText='ยกเลิก'
     >
       <Form
         form={form}
-        layout="horizontal"
-        className="mt-2"
+        layout='horizontal'
+        className='mt-2'
         onFinish={onPreConfirm}
         initialValues={{
           bankName: '',
@@ -75,21 +78,21 @@ const BankDetails: React.FC<BankDetailsProps> = ({ onOk, onCancel, visible }) =>
           span: 14
         }}
       >
-        <Form.Item name="bankName" rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]} label="ธนาคาร">
+        <Form.Item name='bankName' rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]} label='ธนาคาร'>
           <BankNameSelector />
         </Form.Item>
-        <Form.Item name="accNo" label="เลขที่บัญชี" rules={getRules(['required'])}>
-          <Input placeholder="กรุณาป้อน เลขบัญชีธนาคาร" />
+        <Form.Item name='accNo' label='เลขที่บัญชี' rules={getRules(['required'])}>
+          <Input placeholder='กรุณาป้อน เลขบัญชีธนาคาร' />
         </Form.Item>
-        <Form.Item name="name" label="ชื่อบัญชี" rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}>
-          <Input placeholder="พิมพ์ชื่อบัญชี" />
+        <Form.Item name='name' label='ชื่อบัญชี' rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}>
+          <Input placeholder='พิมพ์ชื่อบัญชี' />
         </Form.Item>
-        <Form.Item name="branch" label="สาขา">
-          <Input placeholder="สาขา" />
+        <Form.Item name='branch' label='สาขา'>
+          <Input placeholder='สาขา' />
         </Form.Item>
       </Form>
     </Modal>
   );
 };
 
-export default BankDetails; 
+export default BankDetails;

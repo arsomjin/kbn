@@ -12,8 +12,8 @@ import {
 import { callFunction } from '../utils/firestoreUtils';
 import { UserProfile } from '../services/authService';
 import { Timestamp } from 'firebase/firestore';
-import { isInRoleCategory, RoleCategory, ROLES, RoleType } from '../constants/roles';
-import { useAuth } from 'contexts/AuthContext';
+import { ROLES, RoleType } from '../constants/roles';
+import { hasRolePrivilege } from 'utils/roleUtils';
 
 /**
  * Basic interface for notification objects with province-aware properties
@@ -320,7 +320,7 @@ export const notificationController = {
     // Check if user has permissions to access this province's notifications
 
     // Users with GENERAL_MANAGER role category and higher can access all provinces
-    if (isInRoleCategory(userProfile.role as RoleType, RoleCategory.GENERAL_MANAGER)) {
+    if (hasRolePrivilege(userProfile.role as RoleType, ROLES.GENERAL_MANAGER)) {
       return true;
     }
 

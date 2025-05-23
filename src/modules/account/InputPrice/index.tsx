@@ -38,6 +38,7 @@ import './inputPrice.css';
 import { isMobile } from 'react-device-detect';
 import { useAuth } from 'contexts/AuthContext';
 import { DocumentStatusActions, DocumentStatusWatermark } from 'components/DocumentStatusActions';
+import { message } from 'hooks/useAntdUi';
 
 const initMergeState: InputPriceState = {
   mReceiveNo: null,
@@ -269,7 +270,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
               });
             }
 
-            showSuccess(t('saveSuccess'));
+            message.success(t('saveSuccess'));
             resetToInitial();
             setItems(initialValues.items); // <-- Add this line
           } catch (error) {

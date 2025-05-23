@@ -9,6 +9,7 @@ import { __DEV__ } from '../utils';
 import { isVerySmallNumber } from './number';
 import type { ModalFuncProps } from 'antd/es/modal/interface';
 import { message } from 'antd';
+import { useAntdUi } from '../hooks/useAntdUi';
 // import { useLoading } from 'hooks/useLoading';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import {
@@ -182,6 +183,12 @@ export const showWarn = (...args: any[]) => {
   }
 };
 
+export const showError = (...args: any[]) => {
+  if (process.env.NODE_ENV === 'development') {
+    console.error(...args);
+  }
+};
+
 /**
  * Create new ID with prefix
  * @param prefix - ID prefix
@@ -191,38 +198,6 @@ export const createNewId = (prefix: string): string => {
   const timestamp = Date.now().toString();
   const random = Math.random().toString(36).substring(2, 8);
   return `${prefix}${timestamp}${random}`;
-};
-
-// Message utilities
-export const showSuccess = (callback?: () => void, message = 'บันทึกข้อมูลสำเร็จ') => {
-  Modal.success({
-    content: message,
-    onOk: callback
-  });
-};
-
-export const showWarning = (config: MessageConfig): void => {
-  message.warning({
-    content: config.content,
-    style: {
-      marginTop: isMobile ? 32 : 64
-    },
-    duration: config.duration || 5,
-    onClick: config.onClick
-  });
-};
-
-export const showAlert = (config: AlertConfig): void => {
-  Modal.confirm({
-    title: config.title,
-    content: config.content,
-    onOk: config.onOk,
-    onCancel: config.onCancel,
-    okText: 'ตกลง',
-    cancelText: 'ยกเลิก',
-    centered: true,
-    maskClosable: false
-  });
 };
 
 // Array utilities
@@ -237,7 +212,6 @@ export async function arrayForEach<T>(
 
 export function chunkArray<T>(array: T[], chunkLength: number): T[][] {
   if (!(Array.isArray(array) && chunkLength > 0)) {
-    showWarn('Input Error at chunkArray function!', 'Invalid input');
     return [];
   }
 
@@ -331,12 +305,6 @@ export const errorHandler = (error: Error, showAlertFn?: (config: { title: strin
       title: 'ไม่สำเร็จ',
       content: msg
     });
-  } else {
-    // Fallback: static Modal (not theme/context-aware)
-    showAlert({
-      title: 'ไม่สำเร็จ',
-      content: msg
-    });
   }
   showLog('Error', { error, msg });
   addErrorLogs({ ...error, msg });
@@ -362,25 +330,10 @@ export const getErrorMessage = (eMsg: string): string => {
   return 'กรุณาทำรายการใหม่อีกครั้ง';
 };
 
-// Success utilities
-export const showSuccess2 = (onClick?: () => void, info?: string, unDismiss?: boolean): void => {
-  message.success({
-    content: info || 'สำเร็จ',
-    style: {
-      marginTop: isMobile ? 32 : 64
-    },
-    duration: unDismiss ? 0 : 5,
-    onClick
-  });
-};
-
-export const hideSuccess = (): void => {
-  // No need for this function as Ant Design's message handles its own lifecycle
-};
-
 // Action sheet utilities
-export const showActionSheet = (onClick?: () => void, title?: string, info?: string): void => {
-  Modal.confirm({
+// DEPRECATED: Use modal.confirm from useAntdUi hook instead
+export const showActionSheet = (modal: any, onClick?: () => void, title?: string, info?: string): void => {
+  modal.confirm({
     title: title || 'ยืนยัน',
     content: info,
     onOk: onClick,
@@ -396,13 +349,16 @@ export const hideActionSheet = (): void => {
 };
 
 // Message bar utilities
+// DEPRECATED: Use modal.info/warning/error from useAntdUi hook instead
 export const showMessageBar2 = (
+  modal: any, // Added modal parameter
   title?: string,
   info?: string,
   theme?: string,
   link?: string,
   linkLabel?: string
 ): void => {
+  // const { modal } = useAntdUi(); // Removed hook call
   const modalProps: ModalFuncProps = {
     title,
     content: link ? `${info}\n\n${linkLabel || 'คลิกที่นี่'}: ${link}` : info,
@@ -412,11 +368,11 @@ export const showMessageBar2 = (
   };
 
   if (theme === 'warning') {
-    Modal.warning(modalProps);
+    modal.warning(modalProps);
   } else if (theme === 'error') {
-    Modal.error(modalProps);
+    modal.error(modalProps);
   } else {
-    Modal.info(modalProps);
+    modal.info(modalProps);
   }
 };
 
@@ -425,17 +381,21 @@ export const hideMessageBar = (): void => {
 };
 
 export const showMessageBar = (
+  modal: any, // Added modal parameter
   title?: string,
   info?: string,
   theme?: string,
   link?: string,
   linkLabel?: string
 ): void => {
-  showMessageBar2(title, info, theme, link, linkLabel);
+  showMessageBar2(modal, title, info, theme, link, linkLabel);
 };
 
 // Alert utilities
-export const showAlert2 = (title?: string, info?: string, theme?: string, onOk?: () => void): void => {
+// DEPRECATED: Use modal.info/warning/error from useAntdUi hook instead
+export const showAlert2 = (modal: any, title?: string, info?: string, theme?: string, onOk?: () => void): void => {
+  // Added modal parameter
+  // const { modal } = useAntdUi(); // Removed hook call
   const modalProps: ModalFuncProps = {
     title,
     content: info,
@@ -446,11 +406,11 @@ export const showAlert2 = (title?: string, info?: string, theme?: string, onOk?:
   };
 
   if (theme === 'warning') {
-    Modal.warning(modalProps);
+    modal.warning(modalProps);
   } else if (theme === 'error') {
-    Modal.error(modalProps);
+    modal.error(modalProps);
   } else {
-    Modal.info(modalProps);
+    modal.info(modalProps);
   }
 };
 
@@ -459,10 +419,13 @@ export const hideAlert = (): void => {
 };
 
 // Confirm utilities
-export const showConfirm = (onOk: () => void, message: string) => {
-  Modal.confirm({
+// DEPRECATED: Use modal.confirm from useAntdUi hook instead
+export const showConfirm = (modal: any, onOk: () => void, messageText: string) => {
+  // Added modal parameter, renamed message to messageText to avoid conflict
+  // const { modal } = useAntdUi(); // Removed hook call
+  modal.confirm({
     title: 'ยืนยัน',
-    content: message,
+    content: messageText, // Used messageText
     onOk
   });
 };
@@ -541,8 +504,14 @@ export const showToBeContinue = (): void => {
   });
 };
 
-export const showConfirmDelete = (deleteAction?: () => void, itemName?: string, unRecoverable?: boolean): void => {
+export const showConfirmDelete = (
+  modal: any,
+  deleteAction?: () => void,
+  itemName?: string,
+  unRecoverable?: boolean
+): void => {
   showActionSheet(
+    modal,
     deleteAction,
     'ยืนยันการลบ',
     `คุณต้องการลบ${itemName ? ` ${itemName}` : ''} ใช่หรือไม่?${unRecoverable ? ' (ไม่สามารถกู้คืนได้)' : ''}`
@@ -831,7 +800,8 @@ export const isValidDate = (d: unknown): boolean => {
   return !isNaN(d.getTime());
 };
 
-export const isDateTypeField = (field: string): boolean => {
+export const isDateTypeField = (field: unknown): boolean => {
+  if (typeof field !== 'string') return false;
   return (
     field.toLowerCase().includes('date') || field.toLowerCase().includes('day') || field.toLowerCase().includes('time')
   );

@@ -1,4 +1,17 @@
-import { getFirestore, collection, doc, query, where, getDocs, DocumentData, QuerySnapshot, DocumentReference, Query, CollectionReference, getDoc } from 'firebase/firestore';
+import {
+  getFirestore,
+  collection,
+  doc,
+  query,
+  where,
+  getDocs,
+  DocumentData,
+  QuerySnapshot,
+  DocumentReference,
+  Query,
+  CollectionReference,
+  getDoc
+} from 'firebase/firestore';
 import { app } from 'services/firebase';
 import { showWarn, getChanges, Numb } from 'utils/functions';
 import { DateTime } from 'luxon';
@@ -99,16 +112,22 @@ interface Branches {
 }
 
 interface DataState {
-  branches: Record<string, {
-    branchName: string;
-    [key: string]: any;
-  }>;
-  dealers: Record<string, {
-    dealerName: string;
-    prefix?: string;
-    lastName?: string;
-    [key: string]: any;
-  }>;
+  branches: Record<
+    string,
+    {
+      branchName: string;
+      [key: string]: any;
+    }
+  >;
+  dealers: Record<
+    string,
+    {
+      dealerName: string;
+      prefix?: string;
+      lastName?: string;
+      [key: string]: any;
+    }
+  >;
   [key: string]: any;
 }
 
@@ -124,7 +143,10 @@ interface Store {
 const getDb = () => getFirestore(app);
 
 // Helper functions to replace the removed legacy Firebase API functions
-const checkCollection = async (collectionPath: string, wheres?: [string, string, any][]): Promise<QuerySnapshot<DocumentData>> => {
+const checkCollection = async (
+  collectionPath: string,
+  wheres?: [string, string, any][]
+): Promise<QuerySnapshot<DocumentData>> => {
   try {
     const db = getDb();
     let collectionRef: CollectionReference<DocumentData> = collection(db, collectionPath);
@@ -157,12 +179,11 @@ const checkDoc = async (collectionPath: string, docId: string): Promise<Document
 const getMonths = ([startDate, stopDate]: [string, string]): string[] => {
   const monthArray: string[] = [];
   let currentDate = startDate;
-  while (DateTime.fromFormat(currentDate, 'yyyy-MM-dd').toMillis() <= 
-         DateTime.fromFormat(stopDate, 'yyyy-MM-dd').toMillis()) {
+  while (
+    DateTime.fromFormat(currentDate, 'yyyy-MM-dd').toMillis() <= DateTime.fromFormat(stopDate, 'yyyy-MM-dd').toMillis()
+  ) {
     monthArray.push(DateTime.fromFormat(currentDate, 'yyyy-MM-dd').toFormat('yyyy-MM'));
-    currentDate = DateTime.fromFormat(currentDate, 'yyyy-MM-dd')
-                  .plus({ months: 1 })
-                  .toFormat('yyyy-MM-dd');
+    currentDate = DateTime.fromFormat(currentDate, 'yyyy-MM-dd').plus({ months: 1 }).toFormat('yyyy-MM-dd');
   }
   return monthArray;
 };
@@ -213,7 +234,7 @@ export const getWhenToBuyRange = (wtb: string, TS?: string): WhenToBuyRange => {
   return { range, months };
 };
 
-export const updateNewOrderCustomer = ({ values, firestore }: { values: any, firestore: any }) =>
+export const updateNewOrderCustomer = ({ values, firestore }: { values: any; firestore: any }) =>
   new Promise<string | boolean>(async (r, j) => {
     try {
       const { prefix, firstName, lastName, phoneNumber, address } = values;
@@ -259,7 +280,19 @@ export const updateNewOrderCustomer = ({ values, firestore }: { values: any, fir
     }
   });
 
-export const updateNewOrderReferrer = ({ values, firestore, api, dispatch, user }: { values: any, firestore: any, api: any, dispatch: any, user: any }) =>
+export const updateNewOrderReferrer = ({
+  values,
+  firestore,
+  api,
+  dispatch,
+  user
+}: {
+  values: any;
+  firestore: any;
+  api: any;
+  dispatch: any;
+  user: any;
+}) =>
   new Promise<string | boolean>(async (r, j) => {
     try {
       if (!values.referrer) {
@@ -311,7 +344,7 @@ export const updateNewOrderReferrer = ({ values, firestore, api, dispatch, user 
     }
   });
 
-export const getNameFromUid = ({ uid, users, employees }: { uid: string, users: any, employees: any }) => {
+export const getNameFromUid = ({ uid, users, employees }: { uid: string; users: any; employees: any }) => {
   let employeesArr = Object.keys(employees).map((k: string) => employees[k]);
   let eIndex = employeesArr.findIndex((l: any) => l.uid && l.uid === uid);
   let iName =
@@ -332,20 +365,23 @@ export const getNameFromUid = ({ uid, users, employees }: { uid: string, users: 
             nickName: users[uid]?.nickName || null,
             lastname: users[uid]?.lastname
           };
-  showLog(JSON.stringify({
-    eIndex,
-    user: users[uid],
-    employee: employeesArr[eIndex],
-    iName,
-    users,
-    employees,
-    uid
-  }));
+  showLog(
+    JSON.stringify({
+      eIndex,
+      user: users[uid],
+      employee: employeesArr[eIndex],
+      iName,
+      users,
+      employees,
+      uid
+    })
+  );
 
   let eName = iName?.firstName ? `${iName.firstName}${iName.nickName ? ` (${iName.nickName || ''})` : ''}` : '';
   return eName;
 };
-export const getNameFromEmployeeCode = ({ employeeCode, employees }: { employeeCode: string, employees: any }) => {
+export const getNameFromEmployeeCode = ({ employeeCode, employees }: { employeeCode: string; employees: any }) => {
+  if (!employees || typeof employees !== 'object') return '-';
   let employeesArr = Object.keys(employees).map((k: string) => employees[k]);
   let eIndex = employeesArr.findIndex((l: any) => l.employeeCode && l.employeeCode === employeeCode);
   let iName =
@@ -358,9 +394,7 @@ export const getNameFromEmployeeCode = ({ employeeCode, employees }: { employeeC
       : null;
 
   let eName = !!iName
-    ? `${iName.firstName}${!!iName.nickName ? ` (${iName.nickName})` : ''} ${
-        !isMobile ? (iName.lastName || '') : ''
-      }`.trim()
+    ? `${iName.firstName}${!!iName.nickName ? ` (${iName.nickName})` : ''} ${!isMobile ? iName.lastName || '' : ''}`.trim()
     : '-';
   return eName;
 };
@@ -373,7 +407,13 @@ export const getFullName = (values: any = {}) => {
   return `${prefix}${firstName}${nickName}${lastName}`;
 };
 
-export const getEmployeesFromUsers = ({ users, employees }: { users: Record<string, User>, employees: Record<string, Employee> }): Record<string, Employee> => {
+export const getEmployeesFromUsers = ({
+  users,
+  employees
+}: {
+  users: Record<string, User>;
+  employees: Record<string, Employee>;
+}): Record<string, Employee> => {
   let employeesArr: Employee[] = Object.keys(employees).map(k => employees[k]);
   let usersArr: User[] = Object.keys(users).map(k => users[k]);
   let arr1 = usersArr.map(u => {
@@ -427,7 +467,9 @@ export const checkEditRecord = (row: any, data: any[], user: User, cKey: string)
   return newValues;
 };
 
-export const getPathFromCollectionName = (collectionName: string): [string, string] | [string, string, string] | null => {
+export const getPathFromCollectionName = (
+  collectionName: string
+): [string, string] | [string, string, string] | null => {
   switch (collectionName) {
     case 'banks':
       return ['data', 'company/banks'];
@@ -477,7 +519,13 @@ export const getPathFromCollectionName = (collectionName: string): [string, stri
   }
 };
 
-export const getSumData = (values: { beforeVAT: number; VAT: number; whTax: number; netTotal: number; hasWHTax?: string }): Array<{ item: string; value: number }> => {
+export const getSumData = (values: {
+  beforeVAT: number;
+  VAT: number;
+  whTax: number;
+  netTotal: number;
+  hasWHTax?: string;
+}): Array<{ item: string; value: number }> => {
   const { beforeVAT, VAT, whTax, netTotal, hasWHTax } = values;
   return [
     {
@@ -537,7 +585,11 @@ export const getAllVehicles = (expenseId: string): Promise<Record<string, Vehicl
     }
   });
 
-export const formatVehicleItemData = (arr: VehicleItem[], dataIndex: string | number, rowIndex: number): Promise<VehicleItem[]> =>
+export const formatVehicleItemData = (
+  arr: VehicleItem[],
+  dataIndex: string | number,
+  rowIndex: number
+): Promise<VehicleItem[]> =>
   new Promise(async (resolve, reject) => {
     try {
       if (!Array.isArray(arr)) {
@@ -1169,7 +1221,5 @@ const parser = (str: string): string => {
 
 // Add type for distinctArr function
 function distinctArr<T extends Record<string, any>>(arr: T[], keys: string[]): T[] {
-  return arr.filter((item, index, self) =>
-    index === self.findIndex((t) => keys.every(key => t[key] === item[key]))
-  );
+  return arr.filter((item, index, self) => index === self.findIndex(t => keys.every(key => t[key] === item[key])));
 }

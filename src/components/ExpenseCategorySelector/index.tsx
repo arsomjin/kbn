@@ -2,8 +2,8 @@ import React, { forwardRef, useRef, useImperativeHandle, useState, useEffect } f
 import { Select } from 'antd';
 import { useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
-import { showSuccess, showWarn } from 'utils/functions';
 import { getDocumentsWithCompoundQuery, createDocument } from 'utils/firestoreUtils';
+import { useAntdUi } from 'hooks/useAntdUi';
 import { useProvince } from 'hooks/useProvince';
 import { usePermission } from 'hooks/usePermission';
 import ExpenseCategoryDetails from './ExpenseCategoryDetails';
@@ -17,6 +17,7 @@ const ExpenseCategorySelector = forwardRef<ExpenseCategorySelectorRef, ExpenseCa
     const { currentProvince } = useProvince();
     const { hasPermission } = usePermission();
     const { user } = useSelector((state: any) => state.auth);
+    const { message, modal } = useAntdUi();
     const [showAddNew, setShowAddNew] = useState(false);
     const [data, setData] = useState<Record<string, ExpenseCategory> | null>(null);
 
@@ -39,7 +40,7 @@ const ExpenseCategorySelector = forwardRef<ExpenseCategorySelectorRef, ExpenseCa
 
         setData(categoryMap);
       } catch (error) {
-        showWarn(error instanceof Error ? error.message : 'Failed to fetch categories');
+        message.warning(error instanceof Error ? error.message : 'Failed to fetch categories');
       }
     };
 
@@ -76,10 +77,12 @@ const ExpenseCategorySelector = forwardRef<ExpenseCategorySelectorRef, ExpenseCa
         await createDocument('data/account/expenseCategory', categoryData, values.expenseCategoryId);
 
         await _getData();
-        showSuccess(t('common.saveSuccess'));
+        modal.success({
+          content: t('common.saveSuccess')
+        });
         setShowAddNew(false);
       } catch (error) {
-        showWarn(error instanceof Error ? error.message : 'Failed to save category');
+        message.warning(error instanceof Error ? error.message : 'Failed to save category');
       }
     };
 

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Button, Tabs, Form, Select, Transfer, Alert, Tag, Typography } from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
-import { RoleType, ROLES, ROLE_PERMISSIONS, isInRoleCategory, RoleCategory } from '../../constants/roles';
+import { RoleType, ROLES } from '../../constants/roles';
 import { PERMISSIONS, PermissionValue } from '../../constants/Permissions';
 import { Province } from '../../types/province';
 import { getPrivilegeLevel } from '../../utils/roleUtils';

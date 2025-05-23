@@ -1,13 +1,13 @@
-import React, { forwardRef, useRef, useImperativeHandle, useState } from "react";
-import { Select } from "antd";
-import type { SelectProps } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { collection, doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { firestore } from "services/firebase";
-import { showWarn, showSuccess } from "utils/functions";
-import { createNewId } from "utils/functions";
-import DealerDetails from "./DealerDetails";
-import type { DealerFormValues } from "./DealerDetails";
+import React, { forwardRef, useRef, useImperativeHandle, useState } from 'react';
+import { Select } from 'antd';
+import type { SelectProps } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { collection, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { firestore } from 'services/firebase';
+import { useAntdUi } from 'hooks/useAntdUi';
+import { createNewId } from 'utils/functions';
+import DealerDetails from './DealerDetails';
+import type { DealerFormValues } from './DealerDetails';
 
 const { Option } = Select;
 
@@ -22,7 +22,7 @@ interface Dealer {
   [key: string]: any;
 }
 
-interface DealerSelectorProps extends Omit<SelectProps, "ref"> {
+interface DealerSelectorProps extends Omit<SelectProps, 'ref'> {
   onChange?: (value: string | string[]) => void;
   placeholder?: string;
   noAddable?: boolean;
@@ -35,7 +35,8 @@ const DealerSelector = forwardRef<any, DealerSelectorProps>(
     const { user } = useSelector((state: any) => state.auth);
     const [showAddNew, setShowAddNew] = useState(false);
     const [mValue, setValue] = useState<string | string[] | null>(null);
-    const [searchTxt, setSearchTxt] = useState("");
+    const [searchTxt, setSearchTxt] = useState('');
+    const { message } = useAntdUi();
 
     const dispatch = useDispatch();
     const selectRef = useRef<any>(null);
@@ -63,7 +64,7 @@ const DealerSelector = forwardRef<any, DealerSelectorProps>(
     );
 
     const handleChange = (value: string | string[]) => {
-      if (value === "addNew") {
+      if (value === 'addNew') {
         return showModal();
       }
       setValue(value);
@@ -75,8 +76,8 @@ const DealerSelector = forwardRef<any, DealerSelectorProps>(
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Enter" && allowNotInList) {
-        if (["multiple", "tags"].includes(props.mode || "")) {
+      if (event.key === 'Enter' && allowNotInList) {
+        if (['multiple', 'tags'].includes(props.mode || '')) {
           handleChange(Array.isArray(mValue) ? [...mValue, searchTxt] : [searchTxt]);
           setValue([]);
         } else {
@@ -89,14 +90,14 @@ const DealerSelector = forwardRef<any, DealerSelectorProps>(
       setShowAddNew(true);
     };
 
-    const handleOk = async (values: DealerFormValues, type: "add" | "edit" | "delete") => {
+    const handleOk = async (values: DealerFormValues, type: 'add' | 'edit' | 'delete') => {
       try {
         let mDealers = JSON.parse(JSON.stringify(dealers));
-        const dealersRef = collection(firestore, "data/sales/dealers");
+        const dealersRef = collection(firestore, 'data/company/dealers');
         let dealerId: string;
 
-        if (type === "add") {
-          dealerId = createNewId("DEAL");
+        if (type === 'add') {
+          dealerId = createNewId('DEAL');
           await setDoc(doc(dealersRef, dealerId), {
             ...values,
             dealerId,
@@ -109,8 +110,8 @@ const DealerSelector = forwardRef<any, DealerSelectorProps>(
             created: Date.now(),
             inputBy: user.uid
           };
-        } else if (type === "edit") {
-          dealerId = values.dealerId || "";
+        } else if (type === 'edit') {
+          dealerId = values.dealerId || '';
           await updateDoc(doc(dealersRef, dealerId), {
             ...values,
             dealerId,
@@ -124,18 +125,18 @@ const DealerSelector = forwardRef<any, DealerSelectorProps>(
             updateBy: user.uid
           };
         } else {
-          dealerId = values.dealerId || "";
+          dealerId = values.dealerId || '';
           await deleteDoc(doc(dealersRef, dealerId));
           mDealers = Object.fromEntries(
             Object.entries(mDealers).filter(([_, l]: [string, any]) => l.dealerId !== dealerId)
           );
         }
 
-        dispatch({ type: "SET_DEALERS", payload: mDealers });
-        showSuccess(undefined, "บันทึกข้อมูลสำเร็จ");
+        dispatch({ type: 'SET_DEALERS', payload: mDealers });
+        message.success('บันทึกข้อมูลสำเร็จ');
         setShowAddNew(false);
       } catch (e) {
-        showWarn((e as Error).message);
+        message.warning((e as Error).message);
       }
     };
 
@@ -154,8 +155,8 @@ const DealerSelector = forwardRef<any, DealerSelectorProps>(
         <Select
           ref={selectRef}
           showSearch
-          placeholder={placeholder || "พิมพ์ชื่อ/รหัสผู้จำหน่าย"}
-          optionFilterProp="children"
+          placeholder={placeholder || 'พิมพ์ชื่อ/รหัสผู้จำหน่าย'}
+          optionFilterProp='children'
           filterOption={(input, option) => {
             if (!option || !option.children) return false;
             return option.children.toString().toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -168,7 +169,7 @@ const DealerSelector = forwardRef<any, DealerSelectorProps>(
         >
           {Options}
           {!noAddable && (
-            <Option key="addNew" value="addNew" className="text-light">
+            <Option key='addNew' value='addNew' className='text-light'>
               เพิ่ม/แก้ไข รายชื่อ...
             </Option>
           )}
@@ -179,6 +180,6 @@ const DealerSelector = forwardRef<any, DealerSelectorProps>(
   }
 );
 
-DealerSelector.displayName = "DealerSelector";
+DealerSelector.displayName = 'DealerSelector';
 
-export default DealerSelector; 
+export default DealerSelector;

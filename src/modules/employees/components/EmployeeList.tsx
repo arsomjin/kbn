@@ -17,6 +17,9 @@ import PageTitle from 'components/common/PageTitle';
 import DepartmentSelector from '../../../components/DepartmentSelector';
 import { useDepartments } from 'hooks/useDepartments';
 import PageDoc from '../../../components/PageDoc';
+import MTable from 'components/Table';
+import { useSelector } from 'react-redux';
+import { useResponsive } from 'hooks/useResponsive';
 
 const { Option } = Select;
 
@@ -45,14 +48,18 @@ function toJSDate(date: any): Date | null {
   return null;
 }
 
+// For table compatibility, extend Employee with key
+export type EmployeeTableRow = Employee & { key: string };
+
 export const EmployeeList: React.FC = () => {
-  const { t } = useTranslation('employees');
+  const { t } = useTranslation(['employees', 'common']);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { currentProvince, loading: provinceLoading } = useProvince();
-  const { departments } = useDepartments();
+  const departments = useSelector((state: any) => state.departments?.departments || {});
+  const { isMobile, isTablet, isDesktop } = useResponsive();
   const [loading, setLoading] = useState(true);
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employees, setEmployees] = useState<EmployeeTableRow[]>([]);
   const [filters, setFilters] = useState({
     search: '',
     status: undefined as EmployeeStatus | undefined,
@@ -71,19 +78,44 @@ export const EmployeeList: React.FC = () => {
     try {
       setLoading(true);
       const querySnapshot = await getDocs(collection(db, 'data/company/employees'));
-      const data = querySnapshot.docs.map(doc => {
+      const data: EmployeeTableRow[] = querySnapshot.docs.map(doc => {
         const docData = doc.data();
         let status = docData.status;
         if (statusMap[status]) {
           status = statusMap[status];
         }
+        // Ensure all required Employee fields are present
         return {
           ...docData,
           status,
-          id: doc.id
+          id: doc.id,
+          key: doc.id,
+          employeeCode: docData.employeeCode || '',
+          provinceId: docData.provinceId || '',
+          branchId: docData.branchId || '',
+          employeeId: docData.employeeId || '',
+          firstName: docData.firstName || '',
+          lastName: docData.lastName || '',
+          position: docData.position || '',
+          department: docData.department || '',
+          email: docData.email || '',
+          phone: docData.phone || '',
+          address: docData.address || '',
+          startDate: docData.startDate,
+          endDate: docData.endDate,
+          salary: docData.salary || 0,
+          bankAccount: docData.bankAccount || '',
+          bankName: docData.bankName || '',
+          emergencyContact: docData.emergencyContact || { name: '', relationship: '', phone: '' },
+          documents: docData.documents || [],
+          createdAt: docData.createdAt,
+          updatedAt: docData.updatedAt,
+          createdBy: docData.createdBy || '',
+          updatedBy: docData.updatedBy || '',
+          deleted: docData.deleted || false
         };
       });
-      setEmployees(data as Employee[]);
+      setEmployees(data);
     } catch (error) {
       message.error(t('messages.error.loading'));
     } finally {
@@ -142,31 +174,20 @@ export const EmployeeList: React.FC = () => {
   // Generate unique, sorted position options from employees
   const positionOptions = Array.from(new Set(employees.map(e => e.position).filter(Boolean))).sort();
 
-  const columns: ColumnsType<Employee> = [
+  // Responsive columns
+  const columns: ColumnsType<EmployeeTableRow> = [
     {
-      title: t('fields.employeeCode', { ns: 'employees' }),
+      title: t('fields.name', { ns: 'employees' }),
       dataIndex: 'employeeCode',
       key: 'employeeCode',
       sorter: (a, b) => (a.employeeCode || '').localeCompare(b.employeeCode || '')
     },
     {
-      title: t('fields.name'),
-      key: 'name',
-      render: (_, record) => <span>{`${record.firstName || ''} ${record.lastName || ''}`.trim()}</span>,
-      sorter: (a, b) =>
-        `${a.firstName || ''} ${a.lastName || ''}`.localeCompare(`${b.firstName || ''} ${b.lastName || ''}`)
-    },
-    {
-      title: t('fields.nickName'),
-      dataIndex: 'nickName',
-      key: 'nickName',
-      render: nickName => nickName || '-'
-    },
-    {
       title: t('fields.position'),
       dataIndex: 'position',
       key: 'position',
-      sorter: (a, b) => (a.position || '').localeCompare(b.position || '')
+      sorter: (a, b) => (a.position || '').localeCompare(b.position || ''),
+      ...(isMobile && { width: 100 })
     },
     {
       title: t('fields.department'),
@@ -174,48 +195,52 @@ export const EmployeeList: React.FC = () => {
       key: 'department',
       sorter: (a, b) => (a.department || '').localeCompare(b.department || ''),
       render: (departmentId: string) => {
-        console.log('departmentId', departmentId);
-        console.log('departments', departments);
-        const dept = departments.find(d => d.id === departmentId);
-        return dept ? dept.name : '-';
-      }
-    },
-    {
-      title: t('fields.status'),
-      dataIndex: 'status',
-      key: 'status',
-      render: (status: EmployeeStatus) => {
-        if (!status) return <Tag color='default'>-</Tag>;
-        const statusColors = {
-          [EmployeeStatus.ACTIVE]: 'success',
-          [EmployeeStatus.INACTIVE]: 'default',
-          [EmployeeStatus.ON_LEAVE]: 'warning',
-          [EmployeeStatus.TERMINATED]: 'error'
-        };
-        const color = statusColors[status] || 'default';
-        const key = typeof status === 'string' ? status.toLowerCase() : '';
-        return <Tag color={color}>{t(`status.${key}`) || status}</Tag>;
+        const dept = Object.values(departments).find((d: any) => d.id === departmentId);
+        return dept && typeof dept === 'object' && 'department' in dept ? (dept as any).department : '-';
       },
-      filters: Object.values(EmployeeStatus).map(status => ({
-        text: t(`status.${status.toLowerCase()}`),
-        value: status
-      })),
-      onFilter: (value, record) => record.status === value
+      width: isMobile ? 100 : 120
     },
-    {
-      title: t('fields.startDate'),
-      dataIndex: 'startDate',
-      key: 'startDate',
-      render: date => {
-        const d = toJSDate(date);
-        return d && dayjs(d).isValid() ? dayjs(d).format('YYYY-MM-DD') : '-';
-      },
-      sorter: (a, b) => {
-        const aDate = toJSDate(a.startDate);
-        const bDate = toJSDate(b.startDate);
-        return dayjs(aDate).unix() - dayjs(bDate).unix();
-      }
-    },
+    // Only show status and startDate on tablet/desktop
+    ...(isTablet || isDesktop
+      ? [
+          {
+            title: t('fields.status'),
+            dataIndex: 'status',
+            key: 'status',
+            render: (status: EmployeeStatus) => {
+              if (!status) return <Tag color='default'>-</Tag>;
+              const statusColors = {
+                [EmployeeStatus.ACTIVE]: 'success',
+                [EmployeeStatus.INACTIVE]: 'default',
+                [EmployeeStatus.ON_LEAVE]: 'warning',
+                [EmployeeStatus.TERMINATED]: 'error'
+              };
+              const color = statusColors[status] || 'default';
+              const key = typeof status === 'string' ? status.toLowerCase() : '';
+              return <Tag color={color}>{t(`status.${key}`) || status}</Tag>;
+            },
+            filters: Object.values(EmployeeStatus).map((status: EmployeeStatus) => ({
+              text: t(`status.${status.toLowerCase()}`),
+              value: status
+            })),
+            onFilter: (value: React.Key | boolean, record: EmployeeTableRow) => String(record.status) === String(value)
+          },
+          {
+            title: t('fields.startDate'),
+            dataIndex: 'startDate',
+            key: 'startDate',
+            render: (date: unknown) => {
+              const d = toJSDate(date);
+              return d && dayjs(d).isValid() ? dayjs(d).format('YYYY-MM-DD') : '-';
+            },
+            sorter: (a: EmployeeTableRow, b: EmployeeTableRow) => {
+              const aDate = toJSDate(a.startDate);
+              const bDate = toJSDate(b.startDate);
+              return dayjs(aDate).unix() - dayjs(bDate).unix();
+            }
+          }
+        ]
+      : []),
     {
       title: t('actions', { ns: 'common' }) || t('actions'),
       key: 'actions',
@@ -235,7 +260,8 @@ export const EmployeeList: React.FC = () => {
             </Tooltip>
           </Popconfirm>
         </Space>
-      )
+      ),
+      width: isMobile ? 80 : undefined
     }
   ];
 
@@ -244,26 +270,35 @@ export const EmployeeList: React.FC = () => {
   }
 
   return (
-    <div className='p-6'>
+    <div className='p-0 md:p-6'>
       <PageDoc />
       <Card className='mb-6'>
         <PageTitle title={t('title')} />
-        <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
-          <ExcelImportExport columns={excelColumns} data={employees} onImport={loadEmployees} templateDownload />
-          <Button type='primary' icon={<PlusOutlined />} onClick={() => navigate('/admin/employees/new')}>
+        <div
+          className={`flex ${isMobile ? 'flex-col' : 'flex-row'} justify-between items-${isMobile ? 'stretch' : 'center'} gap-4`}
+        >
+          <div className={isMobile ? 'w-full' : ''}>
+            <ExcelImportExport columns={excelColumns} data={employees} onImport={loadEmployees} templateDownload />
+          </div>
+          <Button
+            type='primary'
+            icon={<PlusOutlined />}
+            onClick={() => navigate('/admin/employees/new')}
+            className={isMobile ? 'w-full' : ''}
+          >
             {t('actions.add')}
           </Button>
         </div>
       </Card>
 
       <Card>
-        <div className='mb-4 flex flex-row md:flex-row gap-4'>
+        <div className={`mb-4 flex ${isMobile ? 'flex-col' : 'flex-row flex-wrap'} gap-4`}>
           <Input
             placeholder={t('search.placeholder')}
             prefix={<SearchOutlined />}
             value={filters.search}
             onChange={e => setFilters({ ...filters, search: e.target.value })}
-            className='max-w-xs'
+            className={isMobile ? 'w-full' : 'max-w-xs'}
             size='middle'
           />
           <Select
@@ -271,7 +306,7 @@ export const EmployeeList: React.FC = () => {
             allowClear
             value={filters.status}
             onChange={value => setFilters({ ...filters, status: value })}
-            className='min-w-[200px]'
+            className={isMobile ? 'w-full' : 'min-w-[200px]'}
           >
             {Object.values(EmployeeStatus).map(status => (
               <Option key={status} value={status}>
@@ -283,7 +318,7 @@ export const EmployeeList: React.FC = () => {
             value={filters.department}
             onChange={(value: string) => setFilters({ ...filters, department: value })}
             placeholder={t('filters.department')}
-            className='min-w-[200px]'
+            className={isMobile ? 'w-full' : 'min-w-[200px]'}
             size='middle'
           />
           <Select
@@ -291,7 +326,7 @@ export const EmployeeList: React.FC = () => {
             allowClear
             value={filters.position}
             onChange={value => setFilters({ ...filters, position: value })}
-            className='min-w-[200px]'
+            className={isMobile ? 'w-full' : 'min-w-[200px]'}
           >
             {positionOptions.map(position => (
               <Option key={position} value={position}>
@@ -301,19 +336,25 @@ export const EmployeeList: React.FC = () => {
           </Select>
         </div>
 
-        <Table
+        <MTable
           columns={columns}
           dataSource={employees}
-          rowKey='id'
-          pagination={{
-            showSizeChanger: true,
-            showTotal: total => t('common.total', { total, ns: 'common' })
+          rowKey='key'
+          loading={loading || provinceLoading}
+          tableProps={{
+            pagination: {
+              showSizeChanger: !isMobile,
+              showTotal: total => t('total', { total, ns: 'common' }),
+              size: isMobile ? 'small' : 'default',
+              responsive: true
+            },
+            className: 'overflow-x-auto',
+            locale: {
+              emptyText: <Empty description={t('messages.empty')} />
+            }
+            // size: isMobile ? 'small' : 'middle',
+            // scroll: { x: isMobile ? 300 : 800 }
           }}
-          className='overflow-x-auto'
-          locale={{
-            emptyText: <Empty description={t('messages.empty')} />
-          }}
-          size='small'
         />
       </Card>
     </div>

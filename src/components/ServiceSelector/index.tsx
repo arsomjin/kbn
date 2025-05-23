@@ -1,13 +1,13 @@
-import React, { forwardRef, useRef, useImperativeHandle, useState } from "react";
-import { Select } from "antd";
-import type { SelectProps } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { collection, doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { firestore } from "services/firebase";
-import { showWarn, showSuccess } from "utils/functions";
-import { createNewId } from "utils/functions";
-import ServiceDetails from "./ServiceDetails";
-import type { ServiceFormValues } from "./ServiceDetails";
+import React, { forwardRef, useRef, useImperativeHandle, useState } from 'react';
+import { Select } from 'antd';
+import type { SelectProps } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { collection, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { firestore } from 'services/firebase';
+import { createNewId } from 'utils/functions';
+import { useAntdUi } from 'hooks/useAntdUi';
+import ServiceDetails from './ServiceDetails';
+import type { ServiceFormValues } from './ServiceDetails';
 
 const { Option } = Select;
 
@@ -22,7 +22,7 @@ interface Service {
   [key: string]: any;
 }
 
-interface ServiceSelectorProps extends Omit<SelectProps, "ref"> {
+interface ServiceSelectorProps extends Omit<SelectProps, 'ref'> {
   onChange?: (value: string | string[]) => void;
   placeholder?: string;
   noAddable?: boolean;
@@ -43,7 +43,8 @@ const ServiceSelector = forwardRef<ServiceSelectorRef, ServiceSelectorProps>(
     const { user } = useSelector((state: any) => state.auth);
     const [showAddNew, setShowAddNew] = useState(false);
     const [mValue, setValue] = useState<string | string[] | null>(null);
-    const [searchTxt, setSearchTxt] = useState("");
+    const [searchTxt, setSearchTxt] = useState('');
+    const { message, modal } = useAntdUi();
 
     const dispatch = useDispatch();
     const selectRef = useRef<any>(null);
@@ -71,7 +72,7 @@ const ServiceSelector = forwardRef<ServiceSelectorRef, ServiceSelectorProps>(
     );
 
     const handleChange = (value: string | string[]) => {
-      if (value === "addNew") {
+      if (value === 'addNew') {
         return showModal();
       }
       setValue(value);
@@ -83,8 +84,8 @@ const ServiceSelector = forwardRef<ServiceSelectorRef, ServiceSelectorProps>(
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Enter" && allowNotInList) {
-        if (["multiple", "tags"].includes(props.mode || "")) {
+      if (event.key === 'Enter' && allowNotInList) {
+        if (['multiple', 'tags'].includes(props.mode || '')) {
           handleChange(Array.isArray(mValue) ? [...mValue, searchTxt] : [searchTxt]);
           setValue([]);
         } else {
@@ -97,14 +98,14 @@ const ServiceSelector = forwardRef<ServiceSelectorRef, ServiceSelectorProps>(
       setShowAddNew(true);
     };
 
-    const handleOk = async (values: ServiceFormValues, type: "add" | "edit" | "delete") => {
+    const handleOk = async (values: ServiceFormValues, type: 'add' | 'edit' | 'delete') => {
       try {
         let mServices = JSON.parse(JSON.stringify(services));
-        const servicesRef = collection(firestore, "data/sales/services");
+        const servicesRef = collection(firestore, 'data/sales/services');
         let serviceId: string;
 
-        if (type === "add") {
-          serviceId = createNewId("SERV");
+        if (type === 'add') {
+          serviceId = createNewId('SERV');
           await setDoc(doc(servicesRef, serviceId), {
             ...values,
             serviceId,
@@ -117,8 +118,8 @@ const ServiceSelector = forwardRef<ServiceSelectorRef, ServiceSelectorProps>(
             created: Date.now(),
             inputBy: user.uid
           };
-        } else if (type === "edit") {
-          serviceId = values.serviceId || "";
+        } else if (type === 'edit') {
+          serviceId = values.serviceId || '';
           await updateDoc(doc(servicesRef, serviceId), {
             ...values,
             serviceId,
@@ -132,18 +133,20 @@ const ServiceSelector = forwardRef<ServiceSelectorRef, ServiceSelectorProps>(
             updateBy: user.uid
           };
         } else {
-          serviceId = values.serviceId || "";
+          serviceId = values.serviceId || '';
           await deleteDoc(doc(servicesRef, serviceId));
           mServices = Object.fromEntries(
             Object.entries(mServices).filter(([_, l]: [string, any]) => l.serviceId !== serviceId)
           );
         }
 
-        dispatch({ type: "SET_SERVICES", payload: mServices });
-        showSuccess(undefined, "บันทึกข้อมูลสำเร็จ");
+        dispatch({ type: 'SET_SERVICES', payload: mServices });
+        modal.success({
+          content: 'บันทึกข้อมูลสำเร็จ'
+        });
         setShowAddNew(false);
       } catch (e) {
-        showWarn((e as Error).message);
+        message.warning((e as Error).message);
       }
     };
 
@@ -151,7 +154,7 @@ const ServiceSelector = forwardRef<ServiceSelectorRef, ServiceSelectorProps>(
       setShowAddNew(false);
     };
 
-    const Options = Object.keys(services).map((it) => (
+    const Options = Object.keys(services).map(it => (
       <Option key={it} value={it}>
         {`${services[it].serviceCode} / ${services[it].serviceName}`}
       </Option>
@@ -162,8 +165,8 @@ const ServiceSelector = forwardRef<ServiceSelectorRef, ServiceSelectorProps>(
         <Select
           ref={selectRef}
           showSearch
-          placeholder={placeholder || "พิมพ์ชื่อ/รหัสบริการ"}
-          optionFilterProp="children"
+          placeholder={placeholder || 'พิมพ์ชื่อ/รหัสบริการ'}
+          optionFilterProp='children'
           filterOption={(input, option) => {
             if (!option || !option.children) return false;
             return option.children.toString().toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -176,7 +179,7 @@ const ServiceSelector = forwardRef<ServiceSelectorRef, ServiceSelectorProps>(
         >
           {Options}
           {!noAddable && (
-            <Option key="addNew" value="addNew" className="text-light">
+            <Option key='addNew' value='addNew' className='text-light'>
               เพิ่ม/แก้ไข รายชื่อ...
             </Option>
           )}
@@ -187,6 +190,6 @@ const ServiceSelector = forwardRef<ServiceSelectorRef, ServiceSelectorProps>(
   }
 );
 
-ServiceSelector.displayName = "ServiceSelector";
+ServiceSelector.displayName = 'ServiceSelector';
 
-export default ServiceSelector; 
+export default ServiceSelector;

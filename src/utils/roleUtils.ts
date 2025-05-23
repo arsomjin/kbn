@@ -1,5 +1,5 @@
 import { UserProfile } from '../services/authService';
-import { ROLES, isInRoleCategory, RoleCategory, RoleType, UserRole } from '../constants/roles';
+import { ROLES, RoleCategory, RoleType, UserRole } from '../constants/roles';
 import { PERMISSIONS } from '../constants/Permissions';
 
 /**
@@ -17,9 +17,9 @@ import { PERMISSIONS } from '../constants/Permissions';
 export const hasAdminAccess = (role?: string): boolean => {
   if (!role) return false;
   return (
-    isInRoleCategory(role as RoleType, RoleCategory.PRIVILEGE) ||
-    isInRoleCategory(role as RoleType, RoleCategory.SUPER_ADMIN) ||
-    isInRoleCategory(role as RoleType, RoleCategory.DEVELOPER)
+    hasRolePrivilege(role as RoleType, ROLES.PRIVILEGE) ||
+    hasRolePrivilege(role as RoleType, ROLES.SUPER_ADMIN) ||
+    hasRolePrivilege(role as RoleType, ROLES.DEVELOPER)
   );
 };
 

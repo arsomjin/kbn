@@ -1,36 +1,47 @@
-import React, { useState, useEffect } from "react";
-import { Table, Popconfirm, Button } from "antd";
-import type { TableProps, ColumnType } from "antd/es/table";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { useSelector } from "react-redux";
-import { EditableRow } from "./EditableRow";
-import EditableCell from "./EditableCell";
-import { getRenderColumns } from "./helper";
+import React, { useState, useEffect, useMemo } from 'react';
+import { Table, Popconfirm, Button } from 'antd';
+import type { TableProps, ColumnType } from 'antd/es/table';
+import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
+import { useSelector } from 'react-redux';
+import { EditableRow } from './EditableRow';
+import EditableCell from './EditableCell';
+import { getRenderColumns } from './helper';
+import './table.css';
+import { useBranchesForProvince } from 'hooks/useBranchesForProvince';
+import { useResponsive } from 'hooks/useResponsive';
 
-import "./table.css";
-
-interface TableData {
+/**
+ * Base table row type for MTable. Extend this in your module for stricter typing.
+ */
+export interface TableData {
   key: string;
   _key?: string;
-  id?: number;
+  id?: number | string;
   deleted?: boolean;
   rejected?: boolean;
   completed?: boolean;
   [key: string]: any;
 }
 
-interface ReusableEditableTableProps {
-  columns?: ColumnType<TableData>[];
-  dataSource?: TableData[];
-  onChange?: (data: TableData[], dataIndex: string | null, rowIndex: number) => void;
-  defaultRowItem?: Record<string, any>;
+/**
+ * Props for the reusable MTable component.
+ * @template T - Row data type (should extend TableData)
+ */
+export interface MTableProps<T extends TableData = TableData> {
+  columns?: ColumnType<T>[];
+  dataSource?: T[];
+  onChange?: (data: T[], dataIndex: string | null, rowIndex: number) => void;
+  defaultRowItem?: Partial<T>;
   readOnly?: boolean;
-  canDelete?: boolean | ((key: string) => Promise<TableData[]>);
-  canAdd?: boolean | ((data: TableData[]) => Promise<TableData[]>);
-  canEdit?: boolean | ((record: TableData, dataIndex: string | null, rowIndex: number) => void);
+  canDelete?: boolean | ((key: string) => Promise<T[]>);
+  canAdd?: boolean | ((data: T[]) => Promise<T[]>);
+  canEdit?: boolean | ((record: T, dataIndex: string | null, rowIndex: number) => void);
   permanentDelete?: boolean;
   disabled?: boolean;
-  tableProps?: Partial<TableProps<TableData>>;
+  tableProps?: Partial<TableProps<T>>;
+  rowKey?: string | ((record: T) => string);
+  loading?: boolean;
+  footer?: React.ReactNode | (() => React.ReactNode);
 }
 
 interface RootState {
@@ -49,36 +60,40 @@ interface RootState {
 
 const defaultNewRow: Record<string, any> = {};
 
-const ReusableEditableTable: React.FC<ReusableEditableTableProps> = ({
+/**
+ * Professional, robust, and reusable Ant Design Table wrapper with editable row/cell support.
+ *
+ * @template T - Row data type (should extend TableData)
+ */
+const MTable = <T extends TableData = TableData>({
   columns = [],
   dataSource = [],
   onChange,
-  defaultRowItem = defaultNewRow,
+  defaultRowItem = {} as Partial<T>, // fix type error
   readOnly = false,
   canDelete = false,
   canAdd = false,
   canEdit = false,
   permanentDelete = false,
   disabled = false,
-  tableProps = {}
-}) => {
+  tableProps = {},
+  rowKey = 'key',
+  loading = false,
+  footer
+}: MTableProps<T>) => {
+  const { isMobile } = useResponsive();
   const [editingCell, setEditingCell] = useState<{ key: string; dataIndex: string } | null>(null);
-  const [data, setData] = useState<TableData[]>([]);
-  
-  const {
-    branches,
-    departments,
-    userGroups,
-    dealers,
-    banks,
-    expenseCategories,
-    employees,
-    executives,
-    expenseAccountNames
-  } = useSelector((state: RootState) => state.data);
+  const [data, setData] = useState<T[]>([]);
+
+  const employees = useSelector((state: any) => state.employees?.employees || {});
+  const { branches } = useBranchesForProvince({ includeAll: true });
+  const departments = useSelector((state: any) => state.departments?.departments || {});
+
+  const { userGroups, dealers, banks, expenseCategories, executives, expenseAccountNames } = useSelector(
+    (state: RootState) => state.data
+  );
 
   useEffect(() => {
-    console.log({ dataSource });
     const initData = dataSource.map((item, idx) => ({
       ...item,
       key: item.key || idx.toString()
@@ -86,7 +101,7 @@ const ReusableEditableTable: React.FC<ReusableEditableTableProps> = ({
     setData(initData);
   }, [dataSource]);
 
-  const handleSave = (record: TableData) => {
+  const handleSave = (record: T) => {
     const newData = [...data];
     const index = newData.findIndex(row => row.key === record.key);
     if (index > -1) {
@@ -98,7 +113,7 @@ const ReusableEditableTable: React.FC<ReusableEditableTableProps> = ({
 
   const handleAdd = async () => {
     if (disabled) return;
-    if (typeof canAdd === "function") {
+    if (typeof canAdd === 'function') {
       try {
         const newData = await canAdd(data);
         setData(newData);
@@ -108,12 +123,11 @@ const ReusableEditableTable: React.FC<ReusableEditableTableProps> = ({
       }
     } else {
       const newKey = `${Date.now()}`;
-      const newRow: TableData = {
+      const newRow: T = {
         ...defaultRowItem,
         _key: newKey,
-        key: data.length.toString(),
-        id: data.length
-      };
+        key: data.length.toString()
+      } as T;
       const newData = [...data, newRow];
       setData(newData);
       onChange?.(newData, null, -1);
@@ -121,15 +135,13 @@ const ReusableEditableTable: React.FC<ReusableEditableTableProps> = ({
   };
 
   const handleDelete = async (key: string) => {
-    if (typeof canDelete === "function") {
+    if (typeof canDelete === 'function') {
       const newData = await canDelete(key);
       setData(newData);
       onChange?.(newData, null, -1);
       return;
     }
-
     let newData = [...data];
-
     if (!permanentDelete) {
       const index = newData.findIndex(item => item.key === key);
       if (index > -1) {
@@ -138,64 +150,68 @@ const ReusableEditableTable: React.FC<ReusableEditableTableProps> = ({
     } else {
       newData = data.filter(item => item.key !== key);
     }
-
     setData(newData);
     onChange?.(newData, null, -1);
   };
 
-  const handleEdit = async (record: TableData) => {
+  const handleEdit = async (record: T) => {
     const cannotEdit = record?.deleted || record?.rejected || record?.completed;
     const rowIndex = data.findIndex(r => r.key === record.key);
-    if (!cannotEdit && typeof canEdit === "function") {
+    if (!cannotEdit && typeof canEdit === 'function') {
       canEdit(record, null, rowIndex);
     }
   };
 
-  const db = {
-    branches,
-    departments,
-    userGroups,
-    dealers,
-    banks,
-    expenseCategories,
-    employees,
-    executives,
-    expenseAccountNames
-  };
+  // Memoize columns for performance
+  const db = useMemo(
+    () => ({
+      branches,
+      departments,
+      userGroups,
+      dealers,
+      banks,
+      expenseCategories,
+      employees,
+      executives,
+      expenseAccountNames
+    }),
+    [branches, departments, userGroups, dealers, banks, expenseCategories, employees, executives, expenseAccountNames]
+  );
 
-  const mergedCols = getRenderColumns(columns, db, handleSave, editingCell, setEditingCell);
+  const mergedCols = useMemo(
+    () => getRenderColumns(columns, db, handleSave, editingCell, setEditingCell),
+    [columns, db, handleSave, editingCell]
+  );
 
+  // Add delete/edit columns if enabled
   if (canDelete && !readOnly && !disabled) {
     mergedCols.push({
-      title: "ลบ",
-      dataIndex: "__delete__",
-      align: "center",
-      render: (_: any, record: TableData) => (
+      title: 'ลบ',
+      dataIndex: '__delete__',
+      align: 'center',
+      render: (_: any, record: T) => (
         <Popconfirm
-          title="ยืนยันการลบ?"
+          title='ยืนยันการลบ?'
           onConfirm={() => handleDelete(record.key)}
-          okText="ตกลง"
-          cancelText="ยกเลิก"
-          overlayClassName="my-popconfirm"
+          okText='ตกลง'
+          cancelText='ยกเลิก'
+          overlayClassName='my-popconfirm'
         >
-          <DeleteOutlined className="text-danger mb-2" />
+          <DeleteOutlined className='text-danger mb-2' />
         </Popconfirm>
       )
-    } as ColumnType<TableData>);
+    } as ColumnType<T>);
   }
 
   if (canEdit && !(disabled || readOnly)) {
-    const editCol: ColumnType<TableData> = {
-      title: "🖊",
-      dataIndex: "__edit__",
-      render: (_: any, record: TableData) => (
-        <Button type="link" icon={<EditOutlined />} onClick={() => handleEdit(record)} />
-      ),
-      align: "center",
+    const editCol: ColumnType<T> = {
+      title: '🖊',
+      dataIndex: '__edit__',
+      render: (_: any, record: T) => <Button type='link' icon={<EditOutlined />} onClick={() => handleEdit(record)} />,
+      align: 'center',
       width: 50
     };
-
-    const idIndex = mergedCols.findIndex(col => ["id", "key"].includes(col.dataIndex as string));
+    const idIndex = mergedCols.findIndex(col => ['id', 'key'].includes(col.dataIndex as string));
     if (idIndex > -1) {
       mergedCols.splice(idIndex + 1, 0, editCol);
     } else {
@@ -210,7 +226,7 @@ const ReusableEditableTable: React.FC<ReusableEditableTableProps> = ({
           + เพิ่มรายการ
         </Button>
       )}
-      <Table<TableData>
+      <Table<T>
         dataSource={data}
         columns={mergedCols}
         components={{
@@ -219,13 +235,16 @@ const ReusableEditableTable: React.FC<ReusableEditableTableProps> = ({
             cell: EditableCell
           }
         }}
-        pagination={false}
-        tableLayout="auto"
-        size="small"
+        rowKey={rowKey}
+        loading={loading}
+        footer={typeof footer === 'function' ? (footer as any) : footer ? () => footer : undefined}
+        tableLayout='auto'
+        size={tableProps?.size || (isMobile ? 'small' : 'middle')}
+        scroll={tableProps?.scroll || { x: 'max-content', y: 'max-content' }}
         {...tableProps}
       />
     </div>
   );
 };
 
-export default ReusableEditableTable; 
+export default MTable;

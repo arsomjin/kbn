@@ -1,13 +1,13 @@
-import React, { forwardRef, useRef, useImperativeHandle, useState } from "react";
-import { Select } from "antd";
-import type { SelectProps } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import { collection, doc, setDoc, updateDoc, deleteDoc } from "firebase/firestore";
-import { firestore } from "services/firebase";
-import { showWarn, showSuccess } from "utils/functions";
-import { createNewId } from "utils/functions";
-import EmployeeDetails from "./EmployeeDetails";
-import type { EmployeeFormValues } from "./types";
+import React, { forwardRef, useRef, useImperativeHandle, useState } from 'react';
+import { Select } from 'antd';
+import type { SelectProps } from 'antd';
+import { useDispatch, useSelector } from 'react-redux';
+import { collection, doc, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { firestore } from 'services/firebase';
+import { useAntdUi } from 'hooks/useAntdUi';
+import { createNewId } from 'utils/functions';
+import EmployeeDetails from './EmployeeDetails';
+import type { EmployeeFormValues } from './types';
 
 const { Option } = Select;
 
@@ -22,7 +22,7 @@ interface Employee {
   [key: string]: any;
 }
 
-interface EmployeeSelectorProps extends Omit<SelectProps, "ref"> {
+interface EmployeeSelectorProps extends Omit<SelectProps, 'ref'> {
   onChange?: (value: string | string[]) => void;
   placeholder?: string;
   noAddable?: boolean;
@@ -38,12 +38,13 @@ export interface EmployeeSelectorRef {
 }
 
 const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
-  ({ onChange, placeholder, noAddable=true, allowNotInList, ...props }, ref) => {
+  ({ onChange, placeholder, noAddable = true, allowNotInList, ...props }, ref) => {
     const employees = useSelector((state: any) => state.employees?.employees || {});
     const { user } = useSelector((state: any) => state.auth);
     const [showAddNew, setShowAddNew] = useState(false);
     const [mValue, setValue] = useState<string | string[] | null>(null);
-    const [searchTxt, setSearchTxt] = useState("");
+    const [searchTxt, setSearchTxt] = useState('');
+    const { message } = useAntdUi();
 
     const dispatch = useDispatch();
     const selectRef = useRef<any>(null);
@@ -71,7 +72,7 @@ const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
     );
 
     const handleChange = (value: string | string[]) => {
-      if (value === "addNew") {
+      if (value === 'addNew') {
         return showModal();
       }
       setValue(value);
@@ -83,8 +84,8 @@ const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
     };
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-      if (event.key === "Enter" && allowNotInList) {
-        if (["multiple", "tags"].includes(props.mode || "")) {
+      if (event.key === 'Enter' && allowNotInList) {
+        if (['multiple', 'tags'].includes(props.mode || '')) {
           handleChange(Array.isArray(mValue) ? [...mValue, searchTxt] : [searchTxt]);
           setValue([]);
         } else {
@@ -97,14 +98,14 @@ const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
       setShowAddNew(true);
     };
 
-    const handleOk = async (values: EmployeeFormValues, type: "add" | "edit" | "delete") => {
+    const handleOk = async (values: EmployeeFormValues, type: 'add' | 'edit' | 'delete') => {
       try {
         let mEmployees = JSON.parse(JSON.stringify(employees));
-        const employeesRef = collection(firestore, "data/company/employees");
+        const employeesRef = collection(firestore, 'data/company/employees');
         let employeeId: string;
 
-        if (type === "add") {
-          employeeId = createNewId("EMP");
+        if (type === 'add') {
+          employeeId = createNewId('EMP');
           await setDoc(doc(employeesRef, employeeId), {
             ...values,
             employeeId,
@@ -117,8 +118,8 @@ const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
             created: Date.now(),
             inputBy: user.uid
           };
-        } else if (type === "edit") {
-          employeeId = values.employeeId || "";
+        } else if (type === 'edit') {
+          employeeId = values.employeeId || '';
           await updateDoc(doc(employeesRef, employeeId), {
             ...values,
             employeeId,
@@ -132,18 +133,18 @@ const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
             updateBy: user.uid
           };
         } else {
-          employeeId = values.employeeId || "";
+          employeeId = values.employeeId || '';
           await deleteDoc(doc(employeesRef, employeeId));
           mEmployees = Object.fromEntries(
             Object.entries(mEmployees).filter(([_, l]: [string, any]) => l.employeeId !== employeeId)
           );
         }
 
-        dispatch({ type: "SET_EMPLOYEES", payload: mEmployees });
-        showSuccess(undefined, "บันทึกข้อมูลสำเร็จ");
+        dispatch({ type: 'SET_EMPLOYEES', payload: mEmployees });
+        message.success('บันทึกข้อมูลสำเร็จ');
         setShowAddNew(false);
       } catch (e) {
-        showWarn((e as Error).message);
+        message.warning((e as Error).message);
       }
     };
 
@@ -152,7 +153,7 @@ const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
     };
 
     const safeEmployees = employees || {};
-    const Options = Object.keys(safeEmployees).map((it) => (
+    const Options = Object.keys(safeEmployees).map(it => (
       <Option key={it} value={it}>
         {`${safeEmployees[it].employeeCode} / ${safeEmployees[it].firstName} ${safeEmployees[it].lastName}`}
       </Option>
@@ -163,8 +164,8 @@ const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
         <Select
           ref={selectRef}
           showSearch
-          placeholder={placeholder || "พิมพ์ชื่อ/รหัสพนักงาน"}
-          optionFilterProp="children"
+          placeholder={placeholder || 'พิมพ์ชื่อ/รหัสพนักงาน'}
+          optionFilterProp='children'
           filterOption={(input, option) => {
             if (!option || !option.children) return false;
             return option.children.toString().toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -177,7 +178,7 @@ const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
         >
           {Options}
           {!noAddable && (
-            <Option key="addNew" value="addNew" className="text-light">
+            <Option key='addNew' value='addNew' className='text-light'>
               เพิ่ม/แก้ไข รายชื่อ...
             </Option>
           )}
@@ -188,6 +189,6 @@ const EmployeeSelector = forwardRef<EmployeeSelectorRef, EmployeeSelectorProps>(
   }
 );
 
-EmployeeSelector.displayName = "EmployeeSelector";
+EmployeeSelector.displayName = 'EmployeeSelector';
 
-export default EmployeeSelector; 
+export default EmployeeSelector;

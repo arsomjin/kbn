@@ -2,7 +2,7 @@ import React, { createContext, useContext } from 'react';
 import { useAuth } from 'contexts/AuthContext';
 import { Province } from 'types/province';
 import { Permission, PermissionValue } from 'constants/Permissions';
-import { ROLES, isInRoleCategory, RoleCategory } from 'constants/roles';
+import { ROLES, hasRolePrivilege, RoleType } from 'constants/roles';
 
 interface PermissionContextType {
   hasPermission: (permission: PermissionValue) => boolean;
@@ -30,7 +30,7 @@ export const PermissionProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     if (!userProfile || !provinceId) return false;
 
     // Users with GENERAL_MANAGER role category and higher can access all provinces
-    if (isInRoleCategory(userProfile.role as any, RoleCategory.GENERAL_MANAGER)) {
+    if (hasRolePrivilege(userProfile.role as RoleType, ROLES.GENERAL_MANAGER)) {
       return true;
     }
 

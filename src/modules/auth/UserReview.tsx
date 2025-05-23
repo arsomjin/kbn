@@ -30,7 +30,7 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { firestore } from '../../services/firebase';
-import { ROLES, RoleType, ROLE_PERMISSIONS, isInRoleCategory, RoleCategory } from '../../constants/roles';
+import { ROLES, RoleType, ROLE_PERMISSIONS } from '../../constants/roles';
 import { PERMISSIONS, PermissionValue } from '../../constants/Permissions';
 import { notificationController } from '../../controllers/notificationController';
 import { NotificationType } from '../../services/notificationService';
@@ -103,7 +103,7 @@ interface PendingUser extends EditableUser {
 const UserReview: React.FC = () => {
   const { t } = useTranslation(['userReview', 'roles', 'common']);
   const { theme } = useTheme();
-  const { showWarning, showConfirm, showSuccess } = useModal();
+  const { showWarning } = useModal();
 
   const [users, setUsers] = useState<PendingUser[]>([]);
   const [loading, setLoading] = useState(false);

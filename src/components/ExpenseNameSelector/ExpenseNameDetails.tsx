@@ -1,9 +1,9 @@
-import React, { useCallback, useState } from "react";
-import { Modal, Form } from "antd";
-import { default as EInput } from "elements/Input";
-import { showConfirm } from "utils/functions";
-import ExpenseNameSelector from ".";
-import { useSelector } from "react-redux";
+import React, { useCallback, useState } from 'react';
+import { Modal, Form } from 'antd';
+import { default as EInput } from 'elements/Input';
+import ExpenseNameSelector from '.';
+import { useSelector } from 'react-redux';
+import { useModal } from 'contexts/ModalContext';
 
 export interface ExpenseNameFormValues {
   expenseNameId: string | null;
@@ -11,7 +11,7 @@ export interface ExpenseNameFormValues {
 }
 
 interface ExpenseNameDetailsProps {
-  onOk: (values: ExpenseNameFormValues, type: "add" | "edit" | "delete") => void;
+  onOk: (values: ExpenseNameFormValues, type: 'add' | 'edit' | 'delete') => void;
   onCancel: () => void;
   visible: boolean;
 }
@@ -22,8 +22,9 @@ const initialValues: ExpenseNameFormValues = {
 };
 
 const ExpenseNameDetails: React.FC<ExpenseNameDetailsProps> = ({ onOk, onCancel, visible }) => {
+  const { showConfirm } = useModal();
   const { expenseNames } = useSelector((state: any) => state.data);
-  const [type, setType] = useState<"add" | "edit" | "delete">("add");
+  const [type, setType] = useState<'add' | 'edit' | 'delete'>('add');
 
   const [expenseNameForm] = Form.useForm<ExpenseNameFormValues>();
 
@@ -37,20 +38,21 @@ const ExpenseNameDetails: React.FC<ExpenseNameDetailsProps> = ({ onOk, onCancel,
 
   const onPreConfirm = useCallback(
     (values: ExpenseNameFormValues) => {
-      showConfirm(
-        () => onConfirm(values),
-        `${type === "add" ? "สร้าง" : "บันทึก"}รายชื่อรายจ่าย ${values.expenseName}`
-      );
+      showConfirm({
+        onOk: () => onConfirm(values),
+        title: `${type === 'add' ? 'สร้าง' : 'บันทึก'}รายชื่อรายจ่าย`,
+        content: `คุณต้องการ${type === 'add' ? 'สร้าง' : 'บันทึก'}รายชื่อรายจ่าย "${values.expenseName}" หรือไม่?`
+      });
     },
     [onConfirm, type]
   );
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setType(e.target.value as "add" | "edit" | "delete");
+    setType(e.target.value as 'add' | 'edit' | 'delete');
   };
 
   const onSelect = (it: string | string[]) => {
-    if (typeof it === "string") {
+    if (typeof it === 'string') {
       const expenseName = { ...initialValues, ...expenseNames[it] };
       expenseNameForm.setFieldsValue(expenseName);
     }
@@ -58,33 +60,30 @@ const ExpenseNameDetails: React.FC<ExpenseNameDetailsProps> = ({ onOk, onCancel,
 
   return (
     <Modal
-      title="รายชื่อรายจ่าย"
+      title='รายชื่อรายจ่าย'
       open={visible}
       onOk={() => {
         expenseNameForm
           .validateFields()
-          .then((values) => {
+          .then(values => {
             onPreConfirm(values);
           })
-          .catch((info) => {
-            console.log("Validate Failed:", info);
+          .catch(info => {
+            console.log('Validate Failed:', info);
           });
       }}
       onCancel={onCancel}
-      okText={type === "add" ? "สร้างรายชื่อ" : type === "edit" ? "บันทึก" : "ลบ"}
-      cancelText="ยกเลิก"
-      okType={type === "delete" ? "danger" : "primary"}
+      okText={type === 'add' ? 'สร้างรายชื่อ' : type === 'edit' ? 'บันทึก' : 'ลบ'}
+      cancelText='ยกเลิก'
+      okType={type === 'delete' ? 'danger' : 'primary'}
     >
-      <Form form={expenseNameForm} layout="horizontal" initialValues={initialValues}>
-        <Form.Item name="expenseNameId" noStyle>
-          <EInput type="hidden" />
+      <Form form={expenseNameForm} layout='horizontal' initialValues={initialValues}>
+        <Form.Item name='expenseNameId' noStyle>
+          <EInput type='hidden' />
         </Form.Item>
-        <Form.Item
-          name="expenseName"
-          rules={[{ required: true, message: "กรุณาป้อนข้อมูล" }]}
-        >
-          {type === "add" ? (
-            <EInput placeholder="ชื่อรายจ่าย" />
+        <Form.Item name='expenseName' rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}>
+          {type === 'add' ? (
+            <EInput placeholder='ชื่อรายจ่าย' />
           ) : (
             <ExpenseNameSelector onChange={onSelect} noAddable />
           )}

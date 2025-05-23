@@ -35,7 +35,7 @@ import LanguageSwitcher from '../common/LanguageSwitcher';
 import UserAvatar from '../common/UserAvatar';
 
 // Utils
-import { hasPrivilegedAccess, getUserHomePath } from '../../utils/roleUtils';
+import { getUserHomePath } from '../../utils/roleUtils';
 
 // Constants
 import { ROLES, RoleCategory } from '../../constants/roles';

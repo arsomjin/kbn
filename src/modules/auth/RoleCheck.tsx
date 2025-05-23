@@ -1,11 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { Spin } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
+import React from 'react';
 import { useAuth } from 'contexts/AuthContext';
 import { Navigate } from 'react-router-dom';
-import { hasPrivilegedAccess } from '../../utils/roleUtils';
 import { ROLES } from '../../constants/roles';
-import { useResponsive } from 'hooks/useResponsive';
 import { LoadingSpinner } from 'components/common/LoadingSpinner';
 
 /**
@@ -16,11 +12,6 @@ import { LoadingSpinner } from 'components/common/LoadingSpinner';
  */
 const RoleCheck: React.FC = () => {
   const { isAuthenticated, userProfile, isLoading, isProfileComplete } = useAuth();
-
-  const { isMobile } = useResponsive();
-
-  // Use hasPrivilegedAccess utility for privilege check
-  const isPrivileged = hasPrivilegedAccess(userProfile);
 
   if (isLoading) {
     return <LoadingSpinner />;

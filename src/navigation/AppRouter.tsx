@@ -53,13 +53,13 @@ const ProvinceReports = lazy(() => import('modules/reports/provinceReports/Provi
 const Account = lazy(() => import('modules/account'));
 const Income = lazy(() => import('modules/account/Income'));
 const Expense = lazy(() => import('modules/account/Expense'));
+const AccountBranch = lazy(() => import('modules/account/branches/AccountBranch'));
 const IncomeBranch = lazy(() => import('modules/account/branches/Income'));
 const ExpenseBranch = lazy(() => import('modules/account/branches/Expense'));
 const IncomeProvince = lazy(() => import('modules/account/provinces/Income'));
 const ExpenseProvince = lazy(() => import('modules/account/provinces/Expense'));
 const Landing = lazy(() => import('modules/dashboard/Landing'));
 const InputPrice = lazy(() => import('modules/account/InputPrice'));
-const AccountBranch = lazy(() => import('modules/account/branches/AccountBranch'));
 
 /**
  * Main application router for KBN.
@@ -176,7 +176,7 @@ export const AppRouter: React.FC = () => {
               </PermissionProtectedRoute>
             }
           >
-            <Route index element={<Overview />} />
+            <Route index element={<Account />} />
             <Route path='income/*' element={<Income />} />
             <Route path='expense/*' element={<Expense />} />
           </Route>
@@ -227,7 +227,7 @@ export const AppRouter: React.FC = () => {
                 </PermissionProtectedRoute>
               }
             >
-              <Route index element={<Overview />} />
+              <Route index element={<AccountProvince />} />
               <Route path='income/*' element={<IncomeProvince />} />
               <Route path='expense/*' element={<ExpenseProvince />} />
               <Route path='input-price/*' element={<InputPriceWrapper />} />
@@ -292,7 +292,7 @@ export const AppRouter: React.FC = () => {
                   </PermissionProtectedRoute>
                 }
               >
-                <Route index element={<Overview />} />
+                <Route index element={<AccountBranch />} />
                 <Route path='income/*' element={<IncomeBranch />} />
                 <Route path='expense/*' element={<ExpenseBranch />} />
                 <Route path='input-price/*' element={<InputPriceWrapper />} />

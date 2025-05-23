@@ -5,6 +5,7 @@
   "weekly": "Weekly",
   "monthly": "Monthly",
   "yearly": "Yearly",
+  "overview": "Overview",
   "financialReport": "Financial Report",
   "financialDistribution": "Financial Distribution",
   "date": "Date",
@@ -76,4 +77,4 @@
     "title": "Expense Access Restricted",
     "message": "You do not have permission to view expense information."
   }
-} 
+}

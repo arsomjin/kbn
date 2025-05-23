@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Route } from 'react-router-dom';
 import NotFound from '../../components/common/NotFound';
 import UserReview from '../../modules/auth/UserReview';
@@ -11,9 +11,10 @@ import { PERMISSIONS } from '../../constants/Permissions';
 import ProvincesManagement from '../../modules/settings/ProvincesManagement';
 import BranchesManagement from '../../modules/settings/BranchesManagement';
 import { EmployeeList } from '../../modules/employees/components/EmployeeList';
-import { EmployeeForm } from '../../modules/employees/components/EmployeeForm';
 import { EmployeeDetails } from '../../modules/employees/components/EmployeeDetails';
 import Settings from '../../modules/settings/Settings';
+import { EmployeeForm } from 'modules/employees/components/EmployeeForm';
+import EmployeeFormWithData from '../../modules/employees/components/EmployeeFormWithData';
 
 /**
  * Admin routes configuration
@@ -152,7 +153,7 @@ export const AdminRoutes = [
     path='employees/:id/edit'
     element={
       <PermissionProtectedRoute requiredPermission={PERMISSIONS.USER_VIEW} fallbackPath='/dashboard'>
-        <EmployeeForm />
+        <EmployeeFormWithData />
       </PermissionProtectedRoute>
     }
   />,
