@@ -1,0 +1,20 @@
+.userRoleEditorModal {
+  max-width: 90vw;
+}
+
+.userRoleEditorTabs {
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .userRoleEditorModal {
+    width: 100vw !important;
+    margin: 0;
+    top: 0;
+    padding: 0;
+  }
+
+  .userRoleEditorTabs {
+    font-size: 14px;
+  }
+}

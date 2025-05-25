@@ -1,0 +1,22 @@
+/* Table Header Styles */
+.ant-table-thead > tr > th {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-height: 57px;
+  line-height: 1.5;
+}
+
+/* Add title attribute on hover for truncated headers */
+.ant-table-thead > tr > th[title] {
+  cursor: help;
+}
+
+/* Optional: Add a slight transition for better UI */
+.ant-table {
+  --header-transition-time: 0.2s;
+}
+
+.ant-table-thead > tr > th {
+  transition: background var(--header-transition-time) ease;
+}

@@ -10,11 +10,11 @@ module.exports = {
       md: '768px',
       lg: '1024px',
       xl: '1280px',
-      '2xl': '1536px'
+      '2xl': '1536px',
     },
     extend: {
       fontSize: {
-        custom: 'var(--font-size-custom)'
+        custom: 'var(--font-size-custom)',
       },
       colors: {
         primary: 'var(--colors-primary)',
@@ -53,62 +53,62 @@ module.exports = {
         primary: {
           DEFAULT: '#4B6043', // Deep olive green
           light: '#7A8450', // Muted olive
-          dark: '#2E3D27' // Dark forest
+          dark: '#2E3D27', // Dark forest
         },
         secondary: {
           DEFAULT: '#A67C52', // Earthy brown
           light: '#D9B382', // Sand
-          dark: '#7C5A36' // Deep brown
+          dark: '#7C5A36', // Deep brown
         },
         accent: {
           DEFAULT: '#6C8E7B', // Muted teal
           light: '#A3C1AD', // Pale green
-          dark: '#46685B' // Dark teal
+          dark: '#46685B', // Dark teal
         },
         background: {
           DEFAULT: '#F5F3EB', // Light beige
-          dark: '#E9E5D6' // Slightly darker beige
+          dark: '#E9E5D6', // Slightly darker beige
         },
         surface: {
           DEFAULT: '#FFFFFF', // Card/Panel backgrounds
-          dark: '#F0EEE7'
+          dark: '#F0EEE7',
         },
         border: {
-          DEFAULT: '#D6CFC2' // Subtle border
+          DEFAULT: '#D6CFC2', // Subtle border
         },
         text: {
           DEFAULT: '#2E3D27', // Main text
-          muted: '#6B705C' // Muted text
+          muted: '#6B705C', // Muted text
         },
         error: {
           light: '#FDECEA', // Soft error background
-          DEFAULT: '#B85C38' // Main error color
-        }
+          DEFAULT: '#B85C38', // Main error color
+        },
       },
       backgroundColor: {
         'group-header-light': 'var(--colors-group-header-light)',
-        'group-header-dark': 'var(--colors-group-header-dark)'
+        'group-header-dark': 'var(--colors-group-header-dark)',
       },
       borderColor: {
         DEFAULT: 'var(--colors-border-base)',
-        split: 'var(--colors-border-split)'
+        split: 'var(--colors-border-split)',
       },
       fontWeight: {
-        'group-header': '700' // Bold text for group header
+        'group-header': '700', // Bold text for group header
       },
       boxShadow: {
         card: 'var(--shadow-card)',
         dropdown: 'var(--shadow-dropdown)',
         hover: 'var(--shadow-hover)',
         soft: '0 4px 12px rgba(166, 123, 91, 0.08)',
-        natural: '0 6px 24px rgba(122, 169, 127, 0.1)'
+        natural: '0 6px 24px rgba(122, 169, 127, 0.1)',
       },
       borderRadius: {
         natural: '0.85rem', // Slightly softer corners for a natural feel
-        DEFAULT: '0.5rem' // Modern rounded corners
+        DEFAULT: '0.5rem', // Modern rounded corners
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui']
+        sans: ['Inter', 'ui-sans-serif', 'system-ui'],
       },
       variables: {
         DEFAULT: {
@@ -146,17 +146,17 @@ module.exports = {
             bark: '#8C6E54', // tree bark
             soil: '#A67B5B', // rich soil
             stone: '#BFB8AB', // weathered stone
-            forest: '#5A7D5A' // forest green
+            forest: '#5A7D5A', // forest green
           },
           font_size_custom: '1.7rem',
           shadow_card: '0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02)',
           shadow_dropdown:
             '0 3px 16px -4px rgba(0, 0, 0, 0.08), 0 6px 16px 0 rgba(0, 0, 0, 0.05), 0 9px 28px 8px rgba(0, 0, 0, 0.03)',
-          shadow_hover: '0 6px 16px rgba(166, 123, 91, 0.1), 0 3px 6px rgba(127, 169, 127, 0.05)'
+          shadow_hover: '0 6px 16px rgba(166, 123, 91, 0.1), 0 3px 6px rgba(127, 169, 127, 0.05)',
         },
         '.card': {
-          font_size_custom: '2rem'
-        }
+          font_size_custom: '2rem',
+        },
       },
       darkVariables: {
         DEFAULT: {
@@ -194,25 +194,24 @@ module.exports = {
             bark: '#6E5544', // night bark
             soil: '#6E5544', // night soil
             stone: '#78756D', // moonlit stone
-            forest: '#4A6749' // midnight forest
+            forest: '#4A6749', // midnight forest
           },
           font_size_custom: '1rem',
           shadow_card: '0 2px 8px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.1)',
           shadow_dropdown:
             '0 3px 6px -4px rgba(0, 0, 0, 0.48), 0 6px 16px 0 rgba(0, 0, 0, 0.32), 0 9px 28px 8px rgba(0, 0, 0, 0.2)',
-          shadow_hover: '0 6px 16px rgba(0, 0, 0, 0.25), 0 3px 6px rgba(163, 201, 168, 0.1)'
+          shadow_hover: '0 6px 16px rgba(0, 0, 0, 0.25), 0 3px 6px rgba(163, 201, 168, 0.1)',
         },
         '.card': {
-          font_size_custom: '1.3rem'
-        }
-      }
-    }
+          font_size_custom: '1.3rem',
+        },
+      },
+    },
   },
   variants: {},
   plugins: [
     require('@mertasan/tailwindcss-variables')({
-      darkToRoot: true
-    })
-  ]
+      darkToRoot: true,
+    }),
+  ],
 };
-

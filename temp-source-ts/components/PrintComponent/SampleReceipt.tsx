@@ -1,0 +1,2 @@
+// Sample Receipt Component
+export {};

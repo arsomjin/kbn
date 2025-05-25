@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { onSnapshot, collection, query, where, orderBy } from 'firebase/firestore';
-import { db } from 'services/firebase';
+import { firestore as db } from 'services/firebase';
 import { message } from 'antd';
 
 /**

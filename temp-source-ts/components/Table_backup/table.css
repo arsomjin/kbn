@@ -1,0 +1,36 @@
+.my-popconfirm .ant-popover-buttons {
+  display: flex !important;
+  flex-direction: row !important;
+  white-space: nowrap;
+  /* ensures they don't wrap */
+}
+
+.my-popconfirm .ant-popover-buttons button {
+  margin-right: 8px;
+}
+
+/* Table Header Styles - Force single line */
+.ant-table-thead > tr > th {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-height: 57px !important;
+}
+
+/* Make sure the content is shown as tooltip when truncated */
+.ant-table-thead > tr > th .ant-table-column-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+/* Add ellipsis to cell content */
+.ant-table-cell {
+  position: relative;
+}
+
+.ant-table-cell.ant-table-cell-ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}

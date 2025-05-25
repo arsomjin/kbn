@@ -1,4 +1,4 @@
-import { PERMISSIONS, Permission } from './Permissions';
+import { PERMISSIONS } from './Permissions';
 
 /**
  * User role enum defining all possible roles in the system
@@ -48,9 +48,6 @@ export const ROLES = {
   USER: 'user',
   GUEST: 'guest',
   PENDING: 'pending',
-  ADMIN: 'ADMIN',
-  MANAGER: 'MANAGER',
-  STAFF: 'STAFF',
 };
 
 /**
@@ -62,19 +59,16 @@ export const ROLE_HIERARCHY = {
   // developer -> super_admin -> executive -> general_manager ->
   // province_admin -> province_manager -> branch_manager -> lead -> user -> branch -> pending -> guest
   [ROLES.DEVELOPER]: 0,
-  [ROLES.SUPER_ADMIN]: 4,
+  [ROLES.SUPER_ADMIN]: 1,
   [ROLES.EXECUTIVE]: 2,
   [ROLES.GENERAL_MANAGER]: 3,
-  [ROLES.PROVINCE_ADMIN]: 1,
+  [ROLES.PROVINCE_ADMIN]: 4,
   [ROLES.PROVINCE_MANAGER]: 5,
   [ROLES.BRANCH_MANAGER]: 6,
   [ROLES.LEAD]: 7,
   [ROLES.USER]: 8,
   [ROLES.PENDING]: 9,
   [ROLES.GUEST]: 10,
-  [ROLES.ADMIN]: 3,
-  [ROLES.MANAGER]: 2,
-  [ROLES.STAFF]: 1,
 };
 
 /**
@@ -306,7 +300,4 @@ export const ROLE_PERMISSIONS = {
   [ROLES.EXECUTIVE]: Object.values(PERMISSIONS),
   [ROLES.SUPER_ADMIN]: Object.values(PERMISSIONS),
   [ROLES.DEVELOPER]: Object.values(PERMISSIONS),
-  [ROLES.ADMIN]: [PERMISSIONS.MANAGE_USERS, PERMISSIONS.VIEW_REPORTS, PERMISSIONS.EDIT_REPORTS],
-  [ROLES.MANAGER]: [PERMISSIONS.VIEW_REPORTS, PERMISSIONS.EDIT_REPORTS],
-  [ROLES.STAFF]: [PERMISSIONS.VIEW_REPORTS],
 };

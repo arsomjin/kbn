@@ -1,0 +1,65 @@
+{
+  "title": "Branches",
+  "selectBranch": "Select branch",
+  "noBranchFound": "No branches found",
+  "loading": "Loading branches...",
+  "error": "Error loading branches",
+  "addBranch": "Add branch",
+  "editBranch": "Edit branch",
+  "deleteBranch": "Delete branch",
+  "branchCode": "Branch code",
+  "branchName": "Branch name",
+  "branchNameEn": "Branch name (English)",
+  "branchManager": "Branch manager",
+  "address": "Address",
+  "addressEn": "Address (English)",
+  "province": "Province",
+  "status": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "closed": "Closed"
+  },
+  "filter": {
+    "all": "All branches",
+    "active": "Active branches",
+    "inactive": "Inactive branches",
+    "byProvince": "Filter by province"
+  },
+  "validation": {
+    "required": "Please enter {{field}}",
+    "uniqueCode": "Branch code must be unique",
+    "invalidCode": "Invalid branch code format"
+  },
+  "confirmation": {
+    "delete": "Are you sure you want to delete this branch?",
+    "statusChange": "Are you sure you want to change the branch status?",
+    "success": {
+      "create": "Branch created successfully",
+      "update": "Branch updated successfully",
+      "delete": "Branch deleted successfully"
+    }
+  },
+  "modal": {
+    "addTitle": "Add Branch",
+    "editTitle": "Edit Branch",
+    "deleteTitle": "Delete Branch",
+    "deleteConfirmation": "Are you sure you want to delete this branch?",
+    "editConfirmation": "Are you sure you want to save changes to this branch?"
+  },
+  "pagination": {
+    "total": "Total: {{total}} items",
+    "itemsPerPage": "Items per page"
+  },
+  "messages": {
+    "createSuccess": "Branch created successfully",
+    "updateSuccess": "Branch updated successfully",
+    "deleteSuccess": "Branch deleted successfully"
+  },
+  "errors": {
+    "fetchFailed": "Failed to fetch branches",
+    "saveFailed": "Failed to save branch",
+    "deleteFailed": "Failed to delete branch",
+    "duplicateCode": "Branch code already exists"
+  }
+}

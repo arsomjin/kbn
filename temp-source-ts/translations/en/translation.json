@@ -1,0 +1,53 @@
+{
+  "details": {
+    "title": "Employee Details"
+  },
+  "form": {
+    "personalInfo": "Personal Information",
+    "uploadPhoto": "Upload Photo",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "uploadDocument": "Upload Document"
+  },
+  "fields": {
+    "employeeCode": "Employee Code",
+    "name": "Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "prefix": "Prefix",
+    "nickName": "Nickname",
+    "status": "Status",
+    "position": "Position",
+    "department": "Department",
+    "branch": "Branch",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "workBegin": "Work Begin",
+    "workEnd": "Work End",
+    "salary": "Salary",
+    "bankName": "Bank Name",
+    "bankAccount": "Bank Account",
+    "details": "Additional Details",
+    "emergencyContact": "Emergency Contact",
+    "emergencyContactName": "Contact Name",
+    "emergencyContactRelationship": "Relationship",
+    "emergencyContactPhone": "Contact Phone",
+    "documents": "Documents"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address"
+  },
+  "success": {
+    "created": "Employee created successfully",
+    "updated": "Employee updated successfully"
+  },
+  "error": {
+    "notFound": "Employee not found",
+    "loading": "Error loading employee",
+    "downloading": "Error downloading document",
+    "invalidId": "Invalid employee ID",
+    "saving": "Error saving employee"
+  }
+}

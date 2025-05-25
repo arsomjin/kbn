@@ -1,29 +1,77 @@
-import { useState } from 'react'
-import kbnLogo from './assets/logo/favicon.ico'
-import './App.css'
+import React, { Suspense } from 'react';
+import { BrowserRouter } from 'react-router-dom';
+import { ConfigProvider, App as AntdApp } from 'antd';
 
-function App() {
-  const [count, setCount] = useState(0)
+import { AuthProvider } from './contexts/AuthContext';
+import AppRouter from './navigation/AppRouter';
+import { LoadingSpinner } from './components/common/LoadingSpinner';
+import EnterKeyNavigationProvider from 'components/EnterKeyNavigationProvider';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import { useSelector } from 'react-redux';
+import { useNotifications } from 'hooks/useNotifications';
+import { ModalProvider } from 'contexts/ModalContext';
+import { PermissionProvider } from 'contexts/PermissionContext';
+
+import { getAntDesignConfig } from './theme/themeConfig';
+// Redux store
+import { store } from './store';
+import { Provider } from 'react-redux';
+
+import { I18nextProvider } from 'react-i18next';
+import i18n from 'translations/i18n';
+
+import NotificationProvider from 'components/notifications';
+import { LoadingProvider } from './contexts/LoadingContext';
+
+// import './App.css';
+import FirestoreSyncManager from 'components/FirestoreSyncManager';
+
+const ThemeAppContent = () => {
+  // Get current theme from Redux store
+  const theme = useSelector((state) => state.theme.theme);
+  const isDarkMode = theme === 'dark';
+
+  // Get appropriate Ant Design theme based on current theme state
+  const antdTheme = getAntDesignConfig(isDarkMode ? 'dark' : 'light');
+
+  useNotifications();
 
   return (
-    <>
-      <div>
-        <img src={kbnLogo} className="logo" alt="KBN logo" />
-      </div>
-      <h1>KBN</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Welcome to KBN - Your Business Management Platform
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Enterprise-level business management platform
-      </p>
-    </>
-  )
-}
+    <ConfigProvider theme={antdTheme}>
+      <AntdApp notification={{ placement: 'topRight' }}>
+        <ModalProvider>
+          <NotificationProvider>
+            <PermissionProvider>
+              <EnterKeyNavigationProvider>
+                <BrowserRouter>
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <AppRouter />
+                  </Suspense>
+                </BrowserRouter>
+              </EnterKeyNavigationProvider>
+            </PermissionProvider>
+          </NotificationProvider>
+        </ModalProvider>
+      </AntdApp>
+    </ConfigProvider>
+  );
+};
 
-export default App
+const App = () => {
+  return (
+    <Provider store={store}>
+      <ErrorBoundary>
+        <LoadingProvider>
+          <I18nextProvider i18n={i18n}>
+            <AuthProvider>
+              <FirestoreSyncManager />
+              <ThemeAppContent />
+            </AuthProvider>
+          </I18nextProvider>
+        </LoadingProvider>
+      </ErrorBoundary>
+    </Provider>
+  );
+};
+
+export default App;

@@ -1,0 +1,420 @@
+/* Ant Design Style Overrides */
+
+/* Light mode styling adjustments */
+.ant-btn {
+  @apply transition-all duration-200;
+}
+
+.ant-card {
+  @apply transition-all duration-200;
+}
+
+.ant-layout {
+  @apply transition-all duration-200;
+}
+
+.ant-input,
+.ant-select-selector {
+  @apply transition-all duration-200;
+}
+
+/* Add spacing between input prefix icons and text */
+.ant-input-prefix {
+  margin-right: 8px !important;
+}
+
+/* Light mode customizations */
+:root {
+  --ant-btn-primary-bg: var(--color-primary);
+  --ant-btn-primary-color: white;
+  --ant-link-color: var(--color-primary);
+  --ant-primary-color: var(--color-primary);
+  --ant-primary-color-hover: var(--color-primary-light);
+  --ant-primary-color-active: var(--color-primary-dark);
+  --color-primary: #4b6043;
+  --color-primary-light: #7a8450;
+  --color-primary-dark: #2e3d27;
+  --color-secondary: #a67c52;
+  --color-secondary-light: #d9b382;
+  --color-secondary-dark: #7c5a36;
+  --color-accent: #6c8e7b;
+  --color-accent-light: #a3c1ad;
+  --color-accent-dark: #46685b;
+  --color-bg: #f5f3eb;
+  --color-paper: #ffffff;
+  --color-surface: #f0eee7;
+  --color-border: #d6cfc2;
+  --color-text: #2e3d27;
+  --color-textSecondary: #6b705c;
+  --color-on-primary: #fff;
+}
+
+/* Custom button styles to align with earth tones */
+.ant-btn-primary {
+  background-color: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: white !important;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: var(--color-primary-light) !important;
+  border-color: var(--color-primary-light) !important;
+}
+
+.ant-btn-primary:active {
+  background-color: var(--color-primary-dark) !important;
+  border-color: var(--color-primary-dark) !important;
+}
+
+/* Dark mode specific overrides */
+.dark .ant-btn {
+  @apply bg-gray-700 text-gray-100 border-gray-600;
+}
+
+.dark .ant-btn-primary {
+  @apply bg-primary-dark border-primary-dark text-white hover:bg-primary hover:border-primary;
+}
+
+.dark .ant-btn-default:not(.ant-btn-dangerous) {
+  @apply hover:text-primary hover:border-primary;
+}
+
+.dark .ant-input,
+.dark .ant-input-affix-wrapper,
+.dark .ant-select:not(.ant-select-customize-input) .ant-select-selector,
+.dark .ant-picker,
+.dark .ant-input-number,
+.dark .ant-input-password,
+.dark .ant-mentions,
+.dark .ant-cascader-picker {
+  @apply bg-gray-700 border-gray-600 text-gray-100;
+}
+
+.dark .ant-input-affix-wrapper > input.ant-input {
+  @apply bg-transparent border-0;
+}
+
+.dark .ant-checkbox-wrapper,
+.dark .ant-radio-wrapper,
+.dark .ant-form-item-label > label {
+  @apply text-gray-100;
+}
+
+.dark .ant-form-item-explain,
+.dark .ant-form-item-extra {
+  @apply text-gray-400;
+}
+
+.dark .ant-dropdown-menu,
+.dark .ant-select-dropdown {
+  @apply bg-gray-700 border-gray-600;
+}
+
+.dark .ant-dropdown-menu-item,
+.dark .ant-select-item {
+  @apply text-gray-100;
+}
+
+.dark .ant-dropdown-menu-item:hover,
+.dark .ant-select-item:hover {
+  @apply bg-gray-600;
+}
+
+.dark .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  @apply bg-primary-dark text-white;
+}
+
+.dark .ant-tabs-tab {
+  @apply text-gray-400;
+}
+
+.dark .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  @apply text-primary-light;
+}
+
+.dark .ant-tabs-ink-bar {
+  @apply bg-primary-light;
+}
+
+.dark .ant-modal-content,
+.dark .ant-modal-header {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .ant-modal-title {
+  @apply text-gray-100;
+}
+
+.dark .ant-modal-close-x {
+  @apply text-gray-400 hover:text-gray-200;
+}
+
+.dark .ant-pagination-item {
+  @apply bg-gray-700 border-gray-600;
+}
+
+.dark .ant-pagination-item a {
+  @apply text-gray-300;
+}
+
+.dark .ant-pagination-item-active {
+  @apply border-primary-light;
+}
+
+.dark .ant-pagination-item-active a {
+  @apply text-primary-light;
+}
+
+/* Badge styling in dark mode */
+.dark .ant-badge-count {
+  @apply bg-error-light text-gray-900;
+}
+
+/* Fix for Notification component */
+.dark .ant-notification-notice {
+  @apply bg-gray-800 border-gray-700 text-gray-100;
+}
+
+/* Menu adjustments */
+.dark .ant-menu.ant-menu-dark {
+  @apply bg-gray-800;
+}
+
+.dark .ant-menu.ant-menu-dark .ant-menu-item-selected {
+  @apply bg-primary-dark;
+}
+
+.dark .ant-menu:not(.ant-menu-dark) {
+  @apply bg-gray-800 text-gray-100;
+}
+
+.dark .ant-menu:not(.ant-menu-dark) .ant-menu-item:hover {
+  @apply bg-gray-700 text-gray-100;
+}
+
+.dark .ant-menu:not(.ant-menu-dark) .ant-menu-item-selected {
+  @apply bg-primary-dark text-white;
+}
+
+/* Table adjustments */
+.dark .ant-table {
+  @apply bg-gray-800 text-gray-100;
+}
+
+.dark .ant-table-thead > tr > th {
+  @apply bg-gray-700 text-gray-100 border-gray-600;
+}
+
+.dark .ant-table-tbody > tr > td {
+  @apply border-gray-600;
+}
+
+.dark .ant-table-tbody > tr.ant-table-row:hover > td {
+  @apply bg-gray-700;
+}
+
+/* Fix for empty state */
+.dark .ant-empty-description {
+  @apply text-gray-400;
+}
+
+/* DatePicker and TimePicker */
+.dark .ant-picker-panel {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .ant-picker-header {
+  @apply text-gray-100 border-gray-700;
+}
+
+.dark .ant-picker-header button {
+  @apply text-gray-300;
+}
+
+.dark .ant-picker-content th {
+  @apply text-gray-400;
+}
+
+.dark .ant-picker-cell {
+  @apply text-gray-300;
+}
+
+.dark .ant-picker-cell-in-view {
+  @apply text-gray-100;
+}
+
+.dark .ant-picker-cell:hover .ant-picker-cell-inner {
+  @apply bg-gray-700;
+}
+
+.dark .ant-picker-cell-selected .ant-picker-cell-inner {
+  @apply bg-primary-dark text-white;
+}
+
+/* Steps component */
+.dark .ant-steps .ant-steps-item-process .ant-steps-item-icon {
+  @apply bg-primary-dark border-primary-dark;
+}
+
+.dark .ant-steps .ant-steps-item-finish .ant-steps-item-icon {
+  @apply border-primary-dark text-primary-dark;
+}
+
+.dark .ant-steps-item-title {
+  @apply text-gray-100;
+}
+
+.dark .ant-steps .ant-steps-item-finish .ant-steps-item-title::after {
+  @apply bg-primary-dark;
+}
+
+/* Tooltips and Popovers */
+.dark .ant-tooltip-inner {
+  @apply bg-gray-700;
+}
+
+.dark .ant-popover-inner {
+  @apply bg-gray-800 border-gray-700;
+}
+
+.dark .ant-popover-title {
+  @apply border-gray-700 text-gray-100;
+}
+
+.dark .ant-popover-inner-content {
+  @apply text-gray-100;
+}
+
+/* Dark mode customizations */
+html.dark {
+  /* General */
+  --ant-primary-color: var(--color-primary-light);
+  --ant-component-background: var(--color-paper);
+
+  /* Typography */
+  --ant-text-color: var(--color-text);
+  --ant-text-color-secondary: var(--color-textSecondary);
+
+  /* Layout components */
+  --ant-layout-body-background: var(--color-bg);
+  --ant-layout-header-background: var(--color-paper);
+  --ant-layout-sider-background: var(--color-paper);
+
+  /* Form controls */
+  --ant-input-bg: var(--color-surface);
+  --ant-input-border-color: var(--color-border);
+
+  /* Card */
+  --ant-card-background: var(--color-paper);
+  --ant-card-actions-background: var(--color-surface);
+
+  /* Tables */
+  --ant-table-bg: var(--color-paper);
+  --ant-table-header-bg: var(--color-surface);
+  --ant-table-row-hover-bg: var(--color-surface);
+
+  /* Modal and Drawer */
+  --ant-modal-content-bg: var(--color-paper);
+  --ant-drawer-bg: var(--color-paper);
+  --color-primary: #7fa97f;
+  --color-primary-light: #a3c9a8;
+  --color-primary-dark: #5a7d5a;
+  --color-secondary: #8c6e54;
+  --color-secondary-light: #a68b76;
+  --color-secondary-dark: #6e5544;
+  --color-accent: #5a7a6f;
+  --color-accent-light: #a3cda6;
+  --color-accent-dark: #46685b;
+  --color-bg: #23241e;
+  --color-paper: #2e2c26;
+  --color-surface: #39382d;
+  --color-border: #434239;
+  --color-text: #e9e5dd;
+  --color-textSecondary: #b9b5ad;
+  --color-on-primary: #fff;
+}
+
+/* Additional customizations for specific Ant Design components */
+.ant-btn {
+  border-radius: 4px;
+}
+
+.ant-card {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ant-table {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+html.dark .ant-dropdown-menu {
+  background-color: var(--color-paper);
+}
+
+html.dark .ant-select-dropdown {
+  background-color: var(--color-paper);
+}
+
+html.dark .ant-picker-dropdown {
+  background-color: var(--color-paper);
+}
+
+/* Transitions for smooth theme switching */
+.ant-layout,
+.ant-layout-header,
+.ant-layout-sider,
+.ant-layout-content,
+.ant-card,
+.ant-table,
+.ant-btn,
+.ant-input,
+.ant-select-selector,
+.ant-menu {
+  transition: all 0.3s ease;
+}
+
+/* Button hover and focus states with earth tones */
+.btn,
+.ant-btn {
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+/* Default button hover states */
+.ant-btn:hover,
+.ant-btn:focus {
+  border-color: var(--color-primary) !important;
+  color: var(--color-primary) !important;
+}
+
+/* Primary button hover states */
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: var(--color-primary-light) !important;
+  border-color: var(--color-primary-light) !important;
+  color: white !important;
+}
+
+/* Secondary earth tone button */
+.btn-secondary,
+.ant-btn-secondary {
+  background-color: var(--color-secondary) !important;
+  border-color: var(--color-secondary) !important;
+  color: white !important;
+}
+
+.btn-secondary:hover,
+.ant-btn-secondary:hover,
+.btn-secondary:focus,
+.ant-btn-secondary:focus {
+  background-color: var(--color-secondary-light) !important;
+  border-color: var(--color-secondary-light) !important;
+  color: white !important;
+}
+
+/* Dark mode button adjustments already handled by existing styles */

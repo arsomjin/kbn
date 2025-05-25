@@ -1,0 +1,10 @@
+/* InputNumber style fixes */
+.ant-input-number-input::placeholder {
+  opacity: 0.5;
+}
+
+/* Add custom styling for empty-but-focused state */
+.ant-input-number-focused .ant-input-number-input:not([value]),
+.ant-input-number-focused .ant-input-number-input[value=''] {
+  cursor: text;
+}

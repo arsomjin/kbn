@@ -1,0 +1,156 @@
+/* Custom styles for InputPrice summary component */
+
+:root {
+  /* Light theme variables (default) */
+  --color-bg-primary: transparent;
+  --color-bg-secondary: transparent;
+  --color-text-primary: inherit;
+  --color-text-secondary: inherit;
+  --color-border-light: #e5e7eb;
+  --color-border-medium: #f0f0f0;
+  --color-blue-primary: inherit;
+  --color-blue-light: transparent;
+  --color-blue-border: #d1e2fc;
+  --color-neutral-gray: inherit;
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.1);
+  --step-active-color: #4e73df;
+  --step-inactive-color: #a0aec0;
+}
+
+:root.dark-theme {
+  /* Dark theme variables */
+  --color-bg-primary: transparent;
+  --color-bg-secondary: transparent;
+  --color-text-primary: inherit;
+  --color-text-secondary: inherit;
+  --color-border-light: #333331;
+  --color-border-medium: #444442;
+  --color-blue-primary: inherit;
+  --color-blue-light: transparent;
+  --color-blue-border: transparent;
+  --color-neutral-gray: inherit;
+  --shadow-card: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.summary-card {
+  border-radius: 8px;
+  box-shadow: var(--shadow-card);
+  border: 1px solid var(--color-border-light);
+  overflow: hidden;
+  background-color: transparent;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+.summary-card .ant-card-body {
+  padding: 0;
+}
+
+.summary-descriptions.ant-descriptions {
+  font-size: 15px;
+  color: inherit;
+}
+
+.summary-descriptions .ant-descriptions-item {
+  padding: 0 !important;
+}
+
+.summary-descriptions .ant-descriptions-item-label {
+  background-color: transparent !important;
+  border-right: none !important;
+  padding: 8px 12px !important;
+  color: inherit !important;
+  transition: color 0.3s;
+}
+
+.summary-descriptions .ant-descriptions-item-content {
+  background-color: transparent !important;
+  padding: 8px 12px !important;
+  color: inherit;
+  transition: color 0.3s;
+}
+
+.summary-descriptions .ant-descriptions-row {
+  border-bottom: 1px solid var(--color-border-medium);
+  transition: border-color 0.3s;
+}
+
+.summary-descriptions .ant-descriptions-row:last-child {
+  border-bottom: none;
+}
+
+.summary-descriptions .ant-descriptions-item-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Remove borders from InputNumber in the summary */
+.summary-descriptions .ant-input-number {
+  box-shadow: none;
+  background-color: transparent;
+  color: inherit;
+}
+
+.summary-descriptions .ant-input-number:focus,
+.summary-descriptions .ant-input-number-focused {
+  box-shadow: none;
+  border-color: transparent;
+}
+
+.summary-descriptions .ant-input-number-handler-wrap {
+  background-color: transparent;
+}
+
+/* Fix the width to match original design */
+.summary-descriptions {
+  width: min(480px, 100%);
+  margin: 0 auto;
+}
+
+/* Fix text alignment for right column */
+.summary-descriptions .ant-descriptions-item-content {
+  text-align: right;
+}
+
+/* Add custom styles for active step in stepper */
+.custom-blue-stepper .ant-steps-item-icon {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: inherit !important;
+}
+
+.custom-blue-stepper .ant-steps-item-title {
+  color: inherit !important;
+}
+
+.custom-blue-stepper .ant-steps-item-active .ant-steps-item-icon {
+  background-color: transparent !important;
+}
+
+/* Form and table styles */
+.form-card {
+  background-color: transparent;
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-card);
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+/* Save button */
+.save-button {
+  background-color: transparent;
+  border-color: var(--color-border-light);
+  color: inherit;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+
+.save-button:hover {
+  background-color: transparent;
+  filter: none;
+  border-color: var(--color-border-light);
+}

@@ -1,0 +1,18 @@
+.theme-switch-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  color: var(--color-text);
+}
+
+.theme-switch-btn:hover {
+  background-color: var(--color-bg-hover);
+  transform: scale(1.1);
+}
+
+.theme-switch-btn .anticon {
+  font-size: 20px;
+}
