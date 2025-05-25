@@ -1,0 +1,80 @@
+{
+  "title": "บัญชี",
+  "allBranches": "ทุกสาขา",
+  "daily": "รายวัน",
+  "weekly": "รายสัปดาห์",
+  "monthly": "รายเดือน",
+  "yearly": "รายปี",
+  "overview": "ภาพรวม",
+  "financialReport": "รายงานการเงิน",
+  "financialDistribution": "สรุปการเงิน",
+  "date": "วันที่",
+  "amount": "จำนวนเงิน",
+  "income": "รายรับ",
+  "expense": "รายจ่าย",
+  "tax": "ภาษี",
+  "total": "รวม",
+  "account-price-input": "บันทึกราคาสินค้า",
+  "account-price-input-vehicle": "รถและอุปกรณ์",
+  "incomeCategories": {
+    "title": "หมวดหมู่รายรับ",
+    "vehicle": "ขายรถ",
+    "service": "บริการ",
+    "parts": "อะไหล่",
+    "other": "อื่นๆ"
+  },
+  "expenseCategories": {
+    "title": "หมวดหมู่รายจ่าย",
+    "vehicle": "ค่าใช้จ่ายรถยนต์",
+    "service": "บริการ",
+    "parts": "อะไหล่",
+    "other": "อื่นๆ"
+  },
+  "actions": {
+    "title": "การดำเนินการ",
+    "add": "เพิ่มรายการ",
+    "edit": "แก้ไขรายการ",
+    "delete": "ลบรายการ",
+    "view": "ดูรายละเอียด",
+    "export": "ส่งออกข้อมูล"
+  },
+  "status": {
+    "status": "สถานะ",
+    "pending": "รอดำเนินการ",
+    "approved": "อนุมัติแล้ว",
+    "rejected": "ปฏิเสธแล้ว"
+  },
+  "validation": {
+    "required": "กรุณากรอกข้อมูล",
+    "invalidAmount": "จำนวนเงินไม่ถูกต้อง",
+    "invalidDate": "วันที่ไม่ถูกต้อง",
+    "futureDate": "ไม่สามารถเลือกวันที่ในอนาคตได้"
+  },
+  "messages": {
+    "addSuccess": "เพิ่มรายการสำเร็จ",
+    "editSuccess": "อัปเดตรายการสำเร็จ",
+    "deleteSuccess": "ลบรายการสำเร็จ",
+    "deleteConfirm": "คุณแน่ใจหรือไม่ที่จะลบรายการนี้?",
+    "noData": "ไม่มีข้อมูล"
+  },
+  "unauthorized": {
+    "title": "การเข้าถึงถูกจำกัด",
+    "message": "คุณไม่มีสิทธิ์ในการดูข้อมูลบัญชี กรุณาติดต่อผู้ดูแลระบบเพื่อขอสิทธิ์การเข้าถึง"
+  },
+  "provinceAccess": {
+    "title": "การเข้าถึงจังหวัดถูกจำกัด",
+    "message": "คุณไม่มีสิทธิ์ในการดูข้อมูลบัญชีของจังหวัดนี้"
+  },
+  "overviewRestricted": {
+    "title": "การเข้าถึงภาพรวมถูกจำกัด",
+    "message": "คุณไม่มีสิทธิ์ในการดูภาพรวมบัญชี"
+  },
+  "incomeRestricted": {
+    "title": "การเข้าถึงรายรับถูกจำกัด",
+    "message": "คุณไม่มีสิทธิ์ในการดูข้อมูลรายรับ"
+  },
+  "expenseRestricted": {
+    "title": "การเข้าถึงรายจ่ายถูกจำกัด",
+    "message": "คุณไม่มีสิทธิ์ในการดูข้อมูลรายจ่าย"
+  }
+}

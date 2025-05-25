@@ -1,0 +1,27 @@
+{
+  "title": "Dashboard",
+  "welcome": "Welcome",
+  "totalUsers": "Total Users",
+  "notifications": "Notifications",
+  "completedTasks": "Completed Tasks",
+  "pendingTasks": "Pending Tasks",
+  "recentActivity": "Recent Activity",
+  "noRecentActivity": "No recent activity to display",
+  "adminSection": "Administrator Section",
+  "adminNote": "Welcome to the administrator section. Here you can manage system-wide settings and configurations.",
+  "branchDashboard": "Branch Dashboard",
+  "branchWelcome": "Welcome back, {{name}}. Here's your branch overview.",
+  "branchUsers": "Branch Users",
+  "pendingDocuments": "Pending Documents",
+  "upcomingDeadlines": "Upcoming Deadlines",
+  "branchPerformance": "Branch Performance",
+  "branchPerformanceNote": "Your branch is performing well with {{count}} completed tasks this month.",
+  "recentActivities": "Recent Activities",
+  "noBranchActivities": "No recent branch activities to display",
+  "province": {
+    "title": "Province Dashboard",
+    "totalBranches": "Total Branches",
+    "totalEmployees": "Total Employees",
+    "totalCustomers": "Total Customers"
+  }
+}

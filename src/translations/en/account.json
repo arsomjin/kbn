@@ -1,0 +1,80 @@
+{
+  "title": "Accounting",
+  "allBranches": "All Branches",
+  "daily": "Daily",
+  "weekly": "Weekly",
+  "monthly": "Monthly",
+  "yearly": "Yearly",
+  "overview": "Overview",
+  "financialReport": "Financial Report",
+  "financialDistribution": "Financial Distribution",
+  "date": "Date",
+  "amount": "Amount",
+  "income": "Income",
+  "expense": "Expense",
+  "tax": "Tax",
+  "total": "Total",
+  "account-price-input": "Product Price Entry",
+  "account-price-input-vehicle": "Vehicle & Equipment",
+  "incomeCategories": {
+    "title": "Income Category",
+    "vehicle": "Vehicle Sales",
+    "service": "Service",
+    "parts": "Parts",
+    "other": "Other"
+  },
+  "expenseCategories": {
+    "title": "Expense Category",
+    "vehicle": "Vehicle Expense",
+    "service": "Service",
+    "parts": "Parts",
+    "other": "Other"
+  },
+  "actions": {
+    "title": "Actions",
+    "add": "Add Record",
+    "edit": "Edit Record",
+    "delete": "Delete Record",
+    "view": "View Details",
+    "export": "Export Data"
+  },
+  "status": {
+    "status": "Status",
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected"
+  },
+  "validation": {
+    "required": "This field is required",
+    "invalidAmount": "Invalid amount",
+    "invalidDate": "Invalid date",
+    "futureDate": "Cannot select future date"
+  },
+  "messages": {
+    "addSuccess": "Record added successfully",
+    "editSuccess": "Record updated successfully",
+    "deleteSuccess": "Record deleted successfully",
+    "deleteConfirm": "Are you sure you want to delete this record?",
+    "noData": "No data available"
+  },
+  "unauthorized": {
+    "title": "Access Restricted",
+    "message": "You do not have permission to view accounting information. Please contact your administrator for access."
+  },
+  "provinceAccess": {
+    "title": "Province Access Restricted",
+    "message": "You do not have access to view accounting information for this province."
+  },
+  "overviewRestricted": {
+    "title": "Overview Access Restricted",
+    "message": "You do not have permission to view the accounting overview."
+  },
+  "incomeRestricted": {
+    "title": "Income Access Restricted",
+    "message": "You do not have permission to view income information."
+  },
+  "expenseRestricted": {
+    "title": "Expense Access Restricted",
+    "message": "You do not have permission to view expense information."
+  }
+}

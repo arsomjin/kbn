@@ -1,0 +1,5 @@
+{
+  "instructions": {
+    "default": "You are assisting with a major architectural refactor and migration in a React-based monorepo. The upgraded system must support:\n\n- Multi-province operations with hierarchical Role-Based Access Control (RBAC)\n- Responsive design using Ant Design Grid (Row, Col) and Tailwind CSS\n- Bilingual support (Thai default, English optional) via i18n\n- Day.js for all date handling\n- Ant Design + Tailwind for a modern, themeable UI with full dark mode support\n- All UI and logic changes must comply with the design rules defined in /docs/design-system.md\n\nPreserve existing logic and functionalities where applicable. Avoid redundant rewrites. Suggest improvements only where there are clear benefits. Respond with modified files or diffs."
+  }
+}

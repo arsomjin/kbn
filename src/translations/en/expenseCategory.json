@@ -1,0 +1,13 @@
+{
+  "addTitle": "Add Expense Category",
+  "idLabel": "Category ID",
+  "nameLabel": "Category Name",
+  "idRequired": "Please enter category ID",
+  "nameRequired": "Please enter category name",
+  "namePlaceholder": "Enter category name",
+  "placeholder": "Select expense category",
+  "addNew": "Add new category...",
+  "alreadyExists": "Already exists",
+  "alreadyExistsMessage": "Category ID {{id}} already exists with name \"{{name}}\"",
+  "confirmAdd": "Add category {{name}}"
+}

@@ -1,0 +1,101 @@
+{
+  "createProfile": "Create Profile",
+  "completeYourProfile": "Complete your profile to continue",
+  "completeProfileTitle": "Before we proceed, we would like to know you more",
+  "completeProfileSubtitle": "Please complete your profile information below.",
+  "completeProfile": "Complete Profile",
+  "displayName": "Display Name",
+  "role": "Role",
+  "branch": "Branch",
+  "department": "Department",
+  "selectDepartment": "Select Department",
+  "requestedType": "Type",
+  "employee": "Employee",
+  "visitor": "Visitor",
+  "province": "Province",
+  "phoneNumber": "Phone Number",
+  "selectUserType": "Please select your user type:",
+  "employeeId": "Employee ID",
+  "company": "Company",
+  "purpose": "Purpose of Visit",
+  "greeting": "👋 Hello, {{name}}!",
+  "greetingWelcome": "Welcome! Please complete your profile below.",
+  "firstName": "First Name",
+  "lastName": "Last Name",
+  "confirmSubmitTitle": "Confirm Profile Submission",
+  "confirmSubmitContent": "Are you sure you want to submit your profile information?",
+  "title": "User Profile",
+  "noName": "No Name",
+  "noEmail": "No Email",
+  "noStatus": "No Status",
+  "adminTitle": "New User Approved",
+  "adminDescription": "User {{user}} has been approved with role {{role}}",
+  "tabs": {
+    "personal": "Personal Information",
+    "work": "Work Information",
+    "security": "Security"
+  },
+  "fields": {
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "phone": "Phone Number",
+    "branch": "Branch",
+    "department": "Department",
+    "role": "Role",
+    "status": "Status",
+    "noStatus": "No Status",
+    "noBranch": "No Branch Assigned",
+    "noDepartment": "No Department Assigned"
+  },
+  "security": {
+    "emailVerification": "Email Verification",
+    "verified": "Verified",
+    "notVerified": "Not Verified",
+    "verify": "Verify Email",
+    "password": "Password",
+    "lastChanged": "Last changed: Never",
+    "changePassword": "Change Password",
+    "securitySettings": "Security Settings",
+    "emailStatus": "Email Status",
+    "passwordStatus": "Password Status"
+  },
+  "actions": {
+    "edit": "Edit Profile",
+    "save": "Save Changes",
+    "cancel": "Cancel",
+    "verify": "Verify Email",
+    "changePassword": "Change Password"
+  },
+  "messages": {
+    "loading": "Loading profile information...",
+    "error": "Error loading profile",
+    "success": "Profile updated successfully",
+    "verifyEmailSent": "Verification email sent",
+    "passwordResetSent": "Password reset email sent"
+  },
+  "personalProfile": {
+    "title": "Personal Profile",
+    "personalInfo": "Personal Information",
+    "organizationInfo": "Organization Information",
+    "accountInfo": "Account Information",
+    "email": "Email",
+    "phone": "Phone Number",
+    "employeeId": "Employee ID",
+    "department": "Department",
+    "branch": "Branch",
+    "province": "Province",
+    "memberSince": "Member Since",
+    "lastLogin": "Last Login",
+    "verified": "Verified",
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending"
+    },
+    "loading": "Loading profile information...",
+    "error": {
+      "loadingProfile": "Error loading profile information"
+    }
+  }
+}

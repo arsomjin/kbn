@@ -1,0 +1,16 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: Code style rules
+globs: ["**/*"]
+alwaysApply: true
+---
+
+- Use double quotes for all strings.
+- Use arrow functions and functional components.
+- Add explicit return types to all functions.
+- Avoid `any`; use `TODO` for unknown types with explanation.
+- Convert all relative imports (`../../utils`) to `utils` absolute paths.

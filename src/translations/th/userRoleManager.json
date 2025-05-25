@@ -1,0 +1,249 @@
+{
+  "editModal": {
+    "title": "แก้ไข[Role]ผู้ใช้",
+    "tabs": {
+      "role": "[Role]",
+      "permissions": "สิทธิ์",
+      "provinces": "จังหวัด",
+      "summary": "สรุป"
+    },
+    "roleTitle": "เลือก[Role]ผู้ใช้",
+    "roleLabel": "[Role]",
+    "roleDescription": "เลือก[Role]เพื่อกำหนดสิทธิ์การเข้าถึงและการทำงานของผู้ใช้",
+    "roleInfo": "รายละเอียด[Role]",
+    "roleInfoDescription": "[Role]ที่เลือก: {{role}}",
+    "permissionsTitle": "กำหนดสิทธิ์ผู้ใช้",
+    "permissionsDescription": "เลือกสิทธิ์ที่ต้องการกำหนดให้กับผู้ใช้",
+    "availablePermissions": "สิทธิ์ที่มีให้เลือก",
+    "assignedPermissions": "สิทธิ์ที่ได้รับ",
+    "resetPermissions": "รีเซ็ตสิทธิ์เป็นค่าเริ่มต้น",
+    "moveButtons": {
+      "toRight": "เพิ่มสิทธิ์ที่เลือก",
+      "toLeft": "ลบสิทธิ์ที่เลือก",
+      "allToRight": "เพิ่มสิทธิ์ทั้งหมด",
+      "allToLeft": "ลบสิทธิ์ทั้งหมด"
+    },
+    "search": {
+      "permissions": "ค้นหาสิทธิ์..."
+    },
+    "provincesTitle": "กำหนดสิทธิ์การเข้าถึงจังหวัด",
+    "provincesDescription": "เลือกจังหวัดที่ผู้ใช้สามารถเข้าถึงและจัดการข้อมูลได้",
+    "selectProvinces": "เลือกจังหวัด",
+    "provincesExtra": "สามารถเลือกได้หลายจังหวัด สำหรับผู้ใช้ที่ต้องดูแลหลายจังหวัด",
+    "selectProvincesPlaceholder": "เลือกจังหวัด...",
+    "noProvincesWarning": "ยังไม่ได้เลือกจังหวัด กรุณาเลือกอย่างน้อยหนึ่งจังหวัด",
+    "autoProvinceAccess": "สิทธิ์เข้าถึงจังหวัดอัตโนมัติ",
+    "autoProvinceAccessDescription": "[Role]นี้จะสามารถเข้าถึงทุกจังหวัดได้โดยอัตโนมัติ",
+    "employeeProvinceNote": "พนักงานจะถูกกำหนดให้กับจังหวัด: {{province}}",
+    "summaryTitle": "สรุปข้อมูลผู้ใช้",
+    "columns": {
+      "name": "ชื่อ",
+      "email": "อีเมล",
+      "provinces": "จังหวัด",
+      "permissions": "สิทธิ์"
+    },
+    "permissionCount": "{{count}} สิทธิ์",
+    "noPermissions": "ไม่มีสิทธิ์",
+    "noProvince": "ไม่มีจังหวัด",
+    "unnamed": "ไม่มีชื่อผู้ใช้",
+    "userType": "ประเภทผู้ใช้",
+    "branch": "สาขา",
+    "department": "แผนก",
+    "confirmChanges": "โปรดตรวจสอบและยืนยันการเปลี่ยนแปลงก่อนบันทึก",
+    "employeeProvinceWarning": "เนื่องจากเป็นพนักงาน ผู้ใช้นี้ถูกกำหนดให้กับ {{provinceName}} สามารถกำหนดสิทธิ์การเข้าถึงจังหวัดเพิ่มเติมได้ที่นี่",
+    "searchPlaceholder": "ค้นหา...",
+    "selectedRole": "[Role]ที่เลือก",
+    "selectedPermissions": "สิทธิ์ที่เลือก",
+    "selectedProvinces": "จังหวัดที่เลือก",
+    "userDetails": "รายละเอียดผู้ใช้",
+    "email": "อีเมล",
+    "displayName": "ชื่อที่แสดง",
+    "type": {
+      "employee": "พนักงาน",
+      "visitor": "ผู้เยี่ยมชม"
+    },
+    "summarySection": {
+      "roleInfo": "ข้อมูล[Role]ผู้ใช้",
+      "permissions": "สิทธิ์ที่ได้รับทั้งหมด",
+      "provinces": "จังหวัดที่สามารถเข้าถึง",
+      "userInfo": "ข้อมูลรายละเอียดผู้ใช้"
+    }
+  },
+  "title": "จัดการ[Role]ผู้ใช้",
+  "pageTitle": "จัดการ[Role]ผู้ใช้",
+  "description": "จัดการ[Role]และสิทธิ์ของผู้ใช้ในแต่ละจังหวัด",
+  "tooltip": "กำหนดค่า[Role] สิทธิ์ และการเข้าถึงจังหวัดสำหรับผู้ใช้",
+  "filters": {
+    "search": "ค้นหาผู้ใช้...",
+    "searchPlaceholder": "ค้นหาตามชื่อหรืออีเมล...",
+    "role": "กรองตาม[Role]",
+    "filterByRole": "กรองตาม[Role]",
+    "province": "กรองตามจังหวัด",
+    "filterByProvince": "กรองตามจังหวัด",
+    "resetFilters": "รีเซ็ตตัวกรอง",
+    "allRoles": "ทุก[Role]",
+    "allProvinces": "ทุกจังหวัด",
+    "department": "กรองตามแผนก",
+    "branch": "กรองตามสาขา",
+    "status": "กรองตามสถานะ",
+    "type": "กรองตามประเภท",
+    "clear": "ล้างตัวกรอง",
+    "clearAll": "ล้างตัวกรองทั้งหมด",
+    "applyFilters": "ใช้ตัวกรอง",
+    "moreFilters": "ตัวกรองเพิ่มเติม",
+    "activeOnly": "แสดงเฉพาะที่ใช้งานอยู่",
+    "dateRange": "ช่วงวันที่"
+  },
+  "tooltips": {
+    "editDisabled": "คุณไม่มีสิทธิ์แก้ไข[Role]ผู้ใช้",
+    "deleteDisabled": "คุณไม่มีสิทธิ์ลบผู้ใช้",
+    "multipleProvinces": "ผู้ใช้มีสิทธิ์เข้าถึงหลายจังหวัด",
+    "noProvinces": "ผู้ใช้ไม่มีสิทธิ์เข้าถึงจังหวัดใด",
+    "lastActive": "ใช้งานล่าสุด: {{date}}",
+    "superAdmin": "ผู้ดูแลระบบสูงสุดมีสิทธิ์เข้าถึงทุกจังหวัด",
+    "developer": "[Role]นักพัฒนามีสิทธิ์เข้าถึงระบบทั้งหมด",
+    "roleInfo": "คลิกเพื่อดูรายละเอียด[Role]",
+    "provinceAccess": "การเข้าถึงจังหวัด: {{provinces}}",
+    "noPermissions": "ไม่มีสิทธิ์พิเศษที่กำหนด"
+  },
+  "export": {
+    "title": "ส่งออกผู้ใช้",
+    "description": "เลือกรูปแบบการส่งออกและตัวกรอง",
+    "formats": {
+      "csv": "CSV",
+      "excel": "Excel",
+      "pdf": "PDF"
+    },
+    "includeColumns": "เลือกคอลัมน์ที่ต้องการ",
+    "dateRange": "ช่วงวันที่",
+    "success": "ส่งออกผู้ใช้สำเร็จ",
+    "error": "ไม่สามารถส่งออกผู้ใช้"
+  },
+  "import": {
+    "title": "นำเข้าผู้ใช้",
+    "description": "อัพโหลดไฟล์ข้อมูลผู้ใช้",
+    "dropzone": "ลากไฟล์ CSV มาวางที่นี่หรือคลิกเพื่ออัพโหลด",
+    "template": "ดาวน์โหลดเทมเพลต",
+    "validation": {
+      "invalidFormat": "รูปแบบไฟล์ไม่ถูกต้อง กรุณาใช้ไฟล์ CSV",
+      "missingColumns": "คอลัมน์ที่จำเป็นหายไป: {{columns}}",
+      "invalidData": "ข้อมูลไม่ถูกต้องในแถวที่ {{row}}: {{error}}"
+    }
+  },
+  "advancedFilters": {
+    "title": "ตัวกรองขั้นสูง",
+    "type": "กรองตามประเภท",
+    "department": "กรองตามแผนก",
+    "branch": "กรองตามสาขา",
+    "clearAll": "ล้างตัวกรองทั้งหมด",
+    "applyFilters": "ใช้ตัวกรอง",
+    "moreFilters": "ตัวกรองเพิ่มเติม",
+    "activeOnly": "แสดงเฉพาะที่ใช้งานอยู่",
+    "dateRange": "ช่วงวันที่"
+  },
+  "status": {
+    "loading": "กำลังโหลดข้อมูลผู้ใช้...",
+    "noUsers": "ไม่พบข้อมูลผู้ใช้",
+    "noMatchingUsers": "ไม่พบผู้ใช้ที่ตรงกับเกณฑ์การค้นหา",
+    "active": "ใช้งานอยู่",
+    "inactive": "ไม่ได้ใช้งาน",
+    "pending": "รอการเปิดใช้งาน",
+    "disabled": "ปิดการใช้งาน"
+  },
+  "columns": {
+    "name": "ชื่อ",
+    "role": "[Role]",
+    "province": "จังหวัด",
+    "provinces": "จังหวัด",
+    "permissions": "สิทธิ์",
+    "status": "สถานะ",
+    "actions": "การดำเนินการ",
+    "lastActive": "ใช้งานล่าสุด",
+    "email": "อีเมล",
+    "user": "ผู้ใช้",
+    "type": "ประเภท",
+    "department": "แผนก",
+    "branch": "สาขา"
+  },
+  "table": {
+    "empty": "ไม่พบข้อมูลผู้ใช้",
+    "loading": "กำลังโหลดข้อมูลผู้ใช้..."
+  },
+  "actions": {
+    "edit": "แก้ไข",
+    "delete": "ลบผู้ใช้",
+    "activate": "เปิดใช้งานผู้ใช้",
+    "deactivate": "ปิดใช้งานผู้ใช้",
+    "view": "ดูรายละเอียด",
+    "enable": "เปิดใช้งาน",
+    "disable": "ปิดใช้งาน",
+    "editUserRole": "แก้ไข[Role]ผู้ใช้"
+  },
+  "buttons": {
+    "addUser": "เพิ่มผู้ใช้ใหม่",
+    "import": "นำเข้าผู้ใช้",
+    "export": "ส่งออกผู้ใช้",
+    "save": "บันทึกการเปลี่ยนแปลง",
+    "cancel": "ยกเลิก",
+    "confirm": "ยืนยัน",
+    "delete": "ลบ",
+    "configure": "กำหนดค่า"
+  },
+  "messages": {
+    "success": {
+      "update": "อัพเดท[Role]ผู้ใช้สำเร็จ",
+      "delete": "ลบผู้ใช้สำเร็จ",
+      "activate": "เปิดใช้งานผู้ใช้สำเร็จ",
+      "deactivate": "ปิดใช้งานผู้ใช้สำเร็จ",
+      "import": "นำเข้าผู้ใช้สำเร็จ",
+      "updateUserDescription": "อัพเดทผู้ใช้สำเร็จ {{user}}"
+    },
+    "error": {
+      "update": "ไม่สามารถอัพเดท[Role]ผู้ใช้",
+      "delete": "ไม่สามารถลบผู้ใช้",
+      "activate": "ไม่สามารถเปิดใช้งานผู้ใช้",
+      "deactivate": "ไม่สามารถปิดใช้งานผู้ใช้",
+      "import": "ไม่สามารถนำเข้าผู้ใช้",
+      "permission": "คุณไม่มีสิทธิ์ดำเนินการนี้"
+    }
+  },
+  "notifications": {
+    "updateConfirm": "คุณแน่ใจหรือไม่ที่จะอัพเดท[Role]ของผู้ใช้นี้?",
+    "deleteConfirm": "คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้?",
+    "activateConfirm": "คุณแน่ใจหรือไม่ที่จะเปิดใช้งานผู้ใช้นี้?",
+    "deactivateConfirm": "คุณแน่ใจหรือไม่ที่จะปิดใช้งานผู้ใช้นี้?",
+    "unsavedChanges": "คุณมีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก คุณแน่ใจหรือไม่ที่จะออก?",
+    "roleUpdated": "อัพเดท[Role]ผู้ใช้สำเร็จ",
+    "userDeleted": "ลบผู้ใช้สำเร็จ",
+    "userEnabled": "เปิดใช้งานผู้ใช้สำเร็จ",
+    "userDisabled": "ปิดใช้งานผู้ใช้สำเร็จ",
+    "error": {
+      "updateFailed": "ไม่สามารถอัพเดท[Role]ผู้ใช้",
+      "deleteFailed": "ไม่สามารถลบผู้ใช้",
+      "enableFailed": "ไม่สามารถเปิดใช้งานผู้ใช้",
+      "disableFailed": "ไม่สามารถปิดใช้งานผู้ใช้"
+    }
+  },
+  "confirmations": {
+    "delete": {
+      "title": "ลบผู้ใช้?",
+      "message": "คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้? การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+      "ok": "ใช่, ลบ",
+      "cancel": "ไม่, เก็บไว้"
+    },
+    "disable": {
+      "title": "ปิดใช้งานผู้ใช้?",
+      "message": "คุณแน่ใจหรือไม่ที่จะปิดใช้งานผู้ใช้นี้? ผู้ใช้จะไม่สามารถเข้าถึงระบบได้",
+      "ok": "ใช่, ปิดใช้งาน",
+      "cancel": "ไม่, ยกเลิก"
+    },
+    "enable": {
+      "title": "เปิดใช้งานผู้ใช้?",
+      "message": "คุณแน่ใจหรือไม่ที่จะเปิดใช้งานผู้ใช้นี้? ผู้ใช้จะสามารถเข้าถึงระบบได้อีกครั้ง",
+      "ok": "ใช่, เปิดใช้งาน",
+      "cancel": "ไม่, ยกเลิก"
+    }
+  },
+  "unnamed": "ไม่มีชื่อ",
+  "defaultPermissions": "สิทธิ์เริ่มต้น"
+}
