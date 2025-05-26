@@ -2,7 +2,6 @@ import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { Form, Card, Row, Col, Modal, Alert, Timeline, Collapse, Divider, Tooltip } from 'antd';
 import { getFirestore, collection, doc, getDocs, query, where, setDoc } from 'firebase/firestore';
 import { useMergeState } from 'hooks/useMergeState';
-
 import { CheckOutlined, SearchOutlined } from '@ant-design/icons';
 import { showWarn, arrayForEach, firstKey, sortArr, useErrorHandler } from 'utils/functions';
 import PageTitle from 'components/common/PageTitle';
@@ -12,68 +11,85 @@ import InputItems from './InputItems';
 import { cleanValuesBeforeSave } from 'utils/functions';
 import { Numb } from 'utils/number';
 import { renderHeader, checkItemsUpdated, RenderSummary, initialValues } from './api';
-import { InputPriceState, InputPriceFormValues, InputPriceProps, InputPriceItem } from './types';
 import { useTranslation } from 'react-i18next';
 import { Button, Stepper } from 'elements';
 import DocSelector from 'components/DocSelector';
 import { Input, InputNumber } from 'antd';
 import PriceTypeSelector from 'components/PriceTypeSelector';
 import { DatePicker } from 'elements';
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { isString, isNumber, isDayjs } from '../../../utils/validation';
 import { useModal } from '../../../contexts/ModalContext';
 import { PERMISSIONS } from '../../../constants/Permissions';
 import { usePermissions } from 'hooks/usePermissions';
-import { RootState } from '../../../store';
-import EmployeeSelector from 'components/EmployeeSelector';
-import DocumentAuditTrail, { DocumentAuditTrailValue } from 'components/DocumentAuditTrail';
-import AuditHistory from '../../../components/AuditHistory';
-import { ROLES, RoleType } from '../../../constants/roles';
-import { getPrivilegeLevel } from '../../../utils/roleUtils';
-import AuditTrailSection from '../../../components/AuditTrailSection';
-import PageDoc from 'components/PageDoc';
-
-// Add custom styles for the summary component
-import './inputPrice.css';
-import { isMobile } from 'react-device-detect';
 import { useAuth } from 'contexts/AuthContext';
 import { DocumentStatusActions, DocumentStatusWatermark } from 'components/DocumentStatusActions';
 import { message } from 'hooks/useAntdUi';
+import { ROLES } from '../../../constants/roles';
+import { getPrivilegeLevel } from '../../../utils/roleUtils';
+import AuditTrailSection from '../../../components/AuditTrailSection';
+import PageDoc from 'components/PageDoc';
+import { isMobile } from 'react-device-detect';
 
-const initMergeState: InputPriceState = {
+// Add custom styles for the summary component
+import './inputPrice.css';
+
+/**
+ * @typedef {Object} InputPriceState
+ * @property {string|null} mReceiveNo - Receive number
+ * @property {boolean} noItemUpdated - Item update status
+ * @property {number|null} deductDeposit - Deposit deduction
+ * @property {number|null} billDiscount - Bill discount
+ * @property {string|null} priceType - Price type
+ * @property {number|null} total - Total amount
+ */
+
+/**
+ * @typedef {Object} InputPriceProps
+ * @property {boolean} [grant] - Optional grant flag
+ * @property {boolean} [readOnly] - Optional read-only flag
+ * @property {string} provinceId - Province ID
+ * @property {string} departmentId - Department ID
+ */
+
+const initMergeState = {
   mReceiveNo: null,
   noItemUpdated: false,
   deductDeposit: null,
   billDiscount: null,
   priceType: null,
-  total: null
+  total: null,
 };
 
 /**
  * InputPrice screen component for account module
+ * @param {InputPriceProps} props - Component props
  */
-const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, provinceId, departmentId }) => {
+const InputPrice = ({ grant, readOnly: readOnlyProp, provinceId, departmentId }) => {
   const { t } = useTranslation('inputPrice');
   const firestore = getFirestore();
   const { hasPermission, hasProvinceAccess } = usePermissions();
   const { user, userProfile } = useAuth();
-  const [cState, setCState] = useMergeState<InputPriceState>(initMergeState);
-  const [form] = Form.useForm<InputPriceFormValues>();
-  // const [showSuccessModal, setShowSuccessModal] = useState(false); // Removed: will use useModal
+  const [cState, setCState] = useMergeState(initMergeState);
+  const [form] = Form.useForm();
 
   const resetToInitial = useCallback(() => {
     form.resetFields();
     setCState(initMergeState);
   }, [form, setCState]);
-  const [items, setItems] = useState<InputPriceItem[]>(initialValues.items);
+
+  const [items, setItems] = useState(initialValues.items);
+
   useEffect(() => {
     const total = items.reduce(
       (sum, elem) => sum + (Numb(elem.qty) * Numb(elem.unitPrice) - Numb(elem.discount || 0)),
-      0
+      0,
     );
     setCState({ total: Number(total.toFixed(4)) });
   }, [items, setCState]);
+
   const errorHandler = useErrorHandler();
+
   const summary = useMemo(() => {
     const safeTotal = Numb(cState.total);
     const safeDiscount = Numb(cState.billDiscount);
@@ -84,15 +100,18 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
     const billTotal = afterDepositDeduct + billVAT;
     return { afterDiscount, afterDepositDeduct, billVAT, billTotal };
   }, [cState.total, cState.billDiscount, cState.deductDeposit, cState.priceType]);
+
   const { showConfirm, showSuccess, showSuccessModal } = useModal();
-  // Placeholder: get document status from props, form, or API
-  // Replace this with real status logic as needed
+
   // Derive document status from form or loaded document, fallback to 'draft'
-  const loadedDoc = form.getFieldsValue(); // Replace with actual loaded document if available
-  const docStatus: 'draft' | 'reviewed' | 'approved' | 'rejected' =
-    loadedDoc?.status === 'reviewed' || loadedDoc?.status === 'approved' || loadedDoc?.status === 'rejected'
+  const loadedDoc = form.getFieldsValue();
+  const docStatus =
+    loadedDoc?.status === 'reviewed' ||
+    loadedDoc?.status === 'approved' ||
+    loadedDoc?.status === 'rejected'
       ? loadedDoc.status
       : 'draft';
+
   // Permission checks for edit, review, approve, reject, etc.
   const canEdit = hasPermission(PERMISSIONS.DOCUMENT_EDIT) && hasProvinceAccess(provinceId);
   const canReview = hasPermission(PERMISSIONS.DOCUMENT_REVIEW) && hasProvinceAccess(provinceId);
@@ -105,16 +124,19 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
     (docStatus === 'reviewed' && !canReview && !canApprove) ||
     (docStatus === 'approved' && !canApprove) ||
     (!canEdit && !canReview && !canApprove);
+
   // Stepper logic by permission
   let activeStep = 0;
   if (canEdit) activeStep = 0;
   if (canReview) activeStep = 1;
   if (canApprove) activeStep = 2;
+
   // Department access check
   // RBAC: Determine privilege level and access rights
   const userRole = userProfile?.role;
   const userPermissions = userProfile?.permissions || [];
-  const isManager = !!userRole && getPrivilegeLevel(userRole) >= getPrivilegeLevel(ROLES.BRANCH_MANAGER);
+  const isManager =
+    !!userRole && getPrivilegeLevel(userRole) >= getPrivilegeLevel(ROLES.BRANCH_MANAGER);
 
   // Department access: allow if manager, has explicit permission, or matches department
   const canAccessDepartment =
@@ -123,46 +145,60 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
     (!!userProfile?.department && userProfile.department === departmentId);
 
   // Province-level access: allow if manager or has permission + province access
-  const canAccess = isManager || (hasPermission(PERMISSIONS.MANAGE_EXPENSE) && hasProvinceAccess(provinceId));
+  const canAccess =
+    isManager || (hasPermission(PERMISSIONS.MANAGE_EXPENSE) && hasProvinceAccess(provinceId));
 
   const onConfirm = useCallback(
-    async (mValues: InputPriceFormValues) => {
+    async (mValues) => {
       console.log(`[mValues]`, mValues);
       const expensesRef = collection(firestore, 'sections', 'account', 'expenses');
       // Find existing expense by billNoSKC
       const expenseQ = query(expensesRef, where('billNoSKC', '==', mValues.billNoSKC));
       const expenseSnap = await getDocs(expenseQ);
       let expenseId = createNewId('ACC-EXP');
-      let prevDoc: any = undefined;
+      let prevDoc = undefined;
       let isUpdate = false;
       if (!expenseSnap.empty) {
         prevDoc = expenseSnap.docs[0].data();
         expenseId = expenseSnap.docs[0].id;
         isUpdate = true;
       }
+
       showConfirm({
         content: t('confirmSubmit', 'Are you sure you want to submit?'),
         onOk: async () => {
           try {
-            let dueDate: string | undefined = undefined;
-            let taxInvoiceDate: string | undefined = undefined;
+            let dueDate = undefined;
+            let taxInvoiceDate = undefined;
             if (mValues.dueDate) {
-              const due = typeof mValues.dueDate === 'string' ? dayjs(mValues.dueDate) : mValues.dueDate;
-              if (due && typeof (due as any).format === 'function') {
+              const due =
+                typeof mValues.dueDate === 'string' ? dayjs(mValues.dueDate) : mValues.dueDate;
+              if (due && typeof due.format === 'function') {
                 dueDate = due.format('YYYY-MM-DD');
               } else {
-                errorHandler(new Error(t('invalidDueDate', 'Due date is invalid. Please select a valid date.')));
+                errorHandler(
+                  new Error(
+                    t('invalidDueDate', 'Due date is invalid. Please select a valid date.'),
+                  ),
+                );
                 return;
               }
             }
             if (mValues.taxInvoiceDate) {
               const taxDate =
-                typeof mValues.taxInvoiceDate === 'string' ? dayjs(mValues.taxInvoiceDate) : mValues.taxInvoiceDate;
-              if (taxDate && typeof (taxDate as any).format === 'function') {
+                typeof mValues.taxInvoiceDate === 'string'
+                  ? dayjs(mValues.taxInvoiceDate)
+                  : mValues.taxInvoiceDate;
+              if (taxDate && typeof taxDate.format === 'function') {
                 taxInvoiceDate = taxDate.format('YYYY-MM-DD');
               } else {
                 errorHandler(
-                  new Error(t('invalidTaxInvoiceDate', 'Tax invoice date is invalid. Please select a valid date.'))
+                  new Error(
+                    t(
+                      'invalidTaxInvoiceDate',
+                      'Tax invoice date is invalid. Please select a valid date.',
+                    ),
+                  ),
                 );
                 return;
               }
@@ -183,10 +219,11 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
               date: dayjs().format('YYYY-MM-DD'),
               time: Date.now(),
               inputBy: user?.uid,
-              isPart: false
+              isPart: false,
             };
+
             // --- Audit Trail Logic ---
-            let auditTrailArr = (prevDoc?.auditTrail as any[]) || [];
+            let auditTrailArr = prevDoc?.auditTrail || [];
             // Compute changes
             const getChangesFn = (await import('utils/functions')).getChangesDeep;
             const changes = getChangesFn(prevDoc || {}, expense);
@@ -200,14 +237,14 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
                   name: userProfile?.displayName || user?.email,
                   email: user?.email,
                   department: userProfile?.department,
-                  role: userProfile?.role
+                  role: userProfile?.role,
                 },
                 documentInfo: {
                   expenseId,
                   billNoSKC: mValues.billNoSKC,
                   taxInvoiceNo: mValues.taxInvoiceNo,
-                  total: expense.total
-                }
+                  total: expense.total,
+                },
               };
               auditTrailArr = [...auditTrailArr, auditEntry];
             }
@@ -224,8 +261,8 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
                   name: userProfile?.displayName || user?.email,
                   email: user?.email,
                   department: userProfile?.department,
-                  role: userProfile?.role
-                }
+                  role: userProfile?.role,
+                },
               });
             }
 
@@ -243,10 +280,11 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
                   name: userProfile?.displayName || user?.email,
                   email: user?.email,
                   department: userProfile?.department,
-                  role: userProfile?.role
-                }
-              }
+                  role: userProfile?.role,
+                },
+              },
             });
+
             console.log('[Firestore Save] expenseId:', expenseId);
             console.log('[Firestore Save] expenseItem:', expenseItem);
             await setDoc(doc(expensesRef, expenseId), expenseItem);
@@ -256,7 +294,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
             const importVehiclesRef = collection(firestore, 'sections', 'stocks', 'importVehicles');
             const latestItems = form.getFieldValue('items') || [];
             if (latestItems.length > 0) {
-              await arrayForEach(latestItems, async (item: InputPriceItem) => {
+              await arrayForEach(latestItems, async (item) => {
                 if (item._key) {
                   await setDoc(
                     doc(importVehiclesRef, item._key),
@@ -264,9 +302,9 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
                       ...item,
                       total: Numb(item.unitPrice) * Numb(item.qty),
                       processed: true,
-                      lastExpenseId: expenseId
+                      lastExpenseId: expenseId,
                     },
-                    { merge: true }
+                    { merge: true },
                   );
                 }
               });
@@ -278,13 +316,13 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
               onOk: () => {
                 resetToInitial();
                 setItems(initialValues.items);
-              }
+              },
             });
           } catch (error) {
             console.error('[Firestore Save] error:', error);
             errorHandler(error instanceof Error ? error : new Error(String(error)));
           }
-        }
+        },
       });
     },
     [
@@ -297,18 +335,21 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
       t,
       showConfirm,
       errorHandler,
-      form
-    ]
+      form,
+    ],
   );
 
   if (!canAccessDepartment) {
     return (
       <Alert
         message={t('accessDenied', 'Access Denied')}
-        description={t('noDepartmentAccess', 'You do not have permission to access this department.')}
-        type='error'
+        description={t(
+          'noDepartmentAccess',
+          'You do not have permission to access this department.',
+        )}
+        type="error"
         showIcon
-        className='my-8'
+        className="my-8"
       />
     );
   }
@@ -316,10 +357,13 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
     return (
       <Alert
         message={t('accessDenied', 'Access Denied')}
-        description={t('noPermissionProvince', 'You do not have permission to manage expenses for this province.')}
-        type='error'
+        description={t(
+          'noPermissionProvince',
+          'You do not have permission to manage expenses for this province.',
+        )}
+        type="error"
         showIcon
-        className='my-8'
+        className="my-8"
       />
     );
   }
@@ -327,10 +371,10 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
   const defaultSteps = [
     t('inputPrice.step.record', 'บันทึกรายการ'),
     t('inputPrice.step.review', 'ตรวจสอบ'),
-    t('inputPrice.step.approve', 'อนุมัติ')
+    t('inputPrice.step.approve', 'อนุมัติ'),
   ];
 
-  const _onValuesChange = async (val: Partial<InputPriceFormValues>) => {
+  const _onValuesChange = async (val) => {
     try {
       const changeKey = firstKey(val);
       console.log(changeKey);
@@ -340,10 +384,10 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
         const snap = await getDocs(q);
         console.log(snap.empty);
         if (!snap.empty) {
-          const arr: InputPriceItem[] = [];
-          snap.forEach(docSnap => {
-            const data = docSnap.data() as Partial<InputPriceItem>;
-            const item: InputPriceItem = {
+          const arr = [];
+          snap.forEach((docSnap) => {
+            const data = docSnap.data();
+            const item = {
               ...data,
               id: arr.length,
               key: arr.length.toString(),
@@ -358,24 +402,24 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
               unitPrice: data?.unitPrice || 0,
               total: data?.total || 0,
               status: data?.status || 'pending',
-              _key: docSnap.id
+              _key: docSnap.id,
             };
             arr.push(item);
           });
 
           if (arr.length > 0) {
-            const mArr: InputPriceItem[] = [];
+            const mArr = [];
             await arrayForEach(
-              arr.filter(l => !l.deleted),
-              async (it: InputPriceItem) => {
+              arr.filter((l) => !l.deleted),
+              async (it) => {
                 const productPCode = removeAllNonAlphaNumericCharacters(it.productCode);
                 const vehicleListRef = collection(firestore, 'data', 'products', 'vehicleList');
                 const lpQuery = query(vehicleListRef, where('productPCode', '==', productPCode));
                 const lpSnap = await getDocs(lpQuery);
-                let lp: any = null;
+                let lp = null;
 
                 if (!lpSnap.empty) {
-                  lpSnap.forEach(lpDoc => {
+                  lpSnap.forEach((lpDoc) => {
                     lp = { ...lpDoc.data(), _id: lpDoc.id };
                   });
                 }
@@ -386,27 +430,27 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
                     creditTerm: lp.creditTerm,
                     unitPrice: lp.listPrice,
                     unitPrice_original: lp.listPrice,
-                    total: Numb(lp.listPrice) * Numb(it.qty)
+                    total: Numb(lp.listPrice) * Numb(it.qty),
                   });
                 } else {
                   mArr.push(it);
                 }
-              }
+              },
             );
-            const sortedArr = sortArr(mArr as unknown as Record<string, unknown>[], 'importTime').map((od, id) => ({
+            const sortedArr = sortArr(mArr, 'importTime').map((od, id) => ({
               ...od,
               id,
-              key: id.toString()
-            })) as InputPriceItem[];
+              key: id.toString(),
+            }));
 
             form.setFieldsValue({
-              items: sortedArr as any,
+              items: sortedArr,
               priceType: sortedArr[0]?.priceType,
-              creditDays: sortedArr[0]?.creditTerm
+              creditDays: sortedArr[0]?.creditTerm,
             });
             setItems(sortedArr);
             setCState({
-              total: (sortedArr || []).reduce((sum, elem) => sum + Numb(elem?.total || 0), 0)
+              total: (sortedArr || []).reduce((sum, elem) => sum + Numb(elem?.total || 0), 0),
             });
           }
         }
@@ -425,15 +469,15 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
               ...restDocData,
               billDiscount: restDocData.billDiscount ?? 0,
               deductDeposit: restDocData.deductDeposit ?? 0,
-              auditTrail: docData.auditTrail || undefined
+              auditTrail: docData.auditTrail || undefined,
             });
             setCState({
               total: (restDocData.items || []).reduce(
-                (sum: number, elem: InputPriceItem) => sum + Numb(elem?.total || 0),
-                0
+                (sum, elem) => sum + Numb(elem?.total || 0),
+                0,
               ),
               billDiscount: restDocData.billDiscount ?? 0,
-              deductDeposit: restDocData.deductDeposit ?? 0
+              deductDeposit: restDocData.deductDeposit ?? 0,
             });
             return;
           }
@@ -444,11 +488,11 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
         if (!isNumber(creditDays)) return;
         if (isDayjs(taxInvoiceDate)) {
           form.setFieldsValue({
-            dueDate: taxInvoiceDate.add(Number(creditDays), 'day')
+            dueDate: taxInvoiceDate.add(Number(creditDays), 'day'),
           });
         } else {
           form.setFieldsValue({
-            dueDate: dayjs().add(Number(creditDays), 'day')
+            dueDate: dayjs().add(Number(creditDays), 'day'),
           });
         }
       }
@@ -461,7 +505,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
 
   const { billDiscount, deductDeposit, priceType, total } = cState;
 
-  const onBillDiscountChange = (value: number | null) => {
+  const onBillDiscountChange = (value) => {
     if (value === null || isNaN(value)) {
       setCState({ billDiscount: 0 });
       return;
@@ -469,7 +513,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
     setCState({ billDiscount: value });
   };
 
-  const onDeductDepositChange = (value: number | null) => {
+  const onDeductDepositChange = (value) => {
     if (value === null || isNaN(value)) {
       setCState({ deductDeposit: 0 });
       return;
@@ -477,11 +521,11 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
     setCState({ deductDeposit: value });
   };
 
-  const onPriceTypeChange = (priceType: string) => {
-    const items = form.getFieldValue('items') as InputPriceItem[];
+  const onPriceTypeChange = (priceType) => {
+    const items = form.getFieldValue('items');
     if (!items) return;
 
-    const arr = items.map((it: InputPriceItem) => {
+    const arr = items.map((it) => {
       const unitPrice =
         priceType === 'separateVat'
           ? Number((Numb(it.unitPrice_original || 0) / 1.07).toFixed(3))
@@ -490,16 +534,16 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
     });
 
     const total = (arr || []).reduce(
-      (sum: number, elem: InputPriceItem) => sum + (Numb(elem.qty) * Numb(elem.unitPrice) - Numb(elem.discount || 0)),
-      0
+      (sum, elem) => sum + (Numb(elem.qty) * Numb(elem.unitPrice) - Numb(elem.discount || 0)),
+      0,
     );
 
-    form.setFieldsValue({ priceType, items: arr as any });
+    form.setFieldsValue({ priceType, items: arr });
     setCState({ priceType, total: Number(total.toFixed(4)) });
   };
 
   const summaryContent = (
-    <div className='flex flex-col justify-between h-full'>
+    <div className="flex flex-col justify-between h-full">
       <RenderSummary
         total={total || 0}
         afterDiscount={summary.afterDiscount}
@@ -514,13 +558,13 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
     </div>
   );
 
-  // Wire audit trail data from loaded document (replace 'loadedDoc' with actual variable if different)
-  const editedBy = (loadedDoc as any)?.editedBy ?? '';
-  const reviewedBy = (loadedDoc as any)?.reviewedBy ?? '';
-  const approvedBy = (loadedDoc as any)?.approvedBy ?? '';
-  const editedDate = (loadedDoc as any)?.editedDate ?? undefined;
-  const reviewedDate = (loadedDoc as any)?.reviewedDate ?? undefined;
-  const approvedDate = (loadedDoc as any)?.approvedDate ?? undefined;
+  // Wire audit trail data from loaded document
+  const editedBy = loadedDoc?.editedBy ?? '';
+  const reviewedBy = loadedDoc?.reviewedBy ?? '';
+  const approvedBy = loadedDoc?.approvedBy ?? '';
+  const editedDate = loadedDoc?.editedDate ?? undefined;
+  const reviewedDate = loadedDoc?.reviewedDate ?? undefined;
+  const approvedDate = loadedDoc?.approvedDate ?? undefined;
 
   // Determine enabled/disabled state for each block based on permissions
   const canEditEditedBy = canEdit;
@@ -528,7 +572,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
   const canEditApprovedBy = canApprove;
 
   return (
-    <div className='space-y-6' style={{ marginTop: isMobile ? '60px' : '0px' }}>
+    <div className="space-y-6" style={{ marginTop: isMobile ? '60px' : '0px' }}>
       <PageTitle
         title={t('title')}
         subtitle={t('subtitle', 'รถและอุปกรณ์')}
@@ -539,7 +583,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
 
       <Card size={isMobile ? 'small' : 'default'}>
         <Form
-          id='input-price-form'
+          id="input-price-form"
           form={form}
           onValuesChange={(changed, all) => {
             _onValuesChange(changed);
@@ -548,7 +592,7 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
           }}
           onFinish={onConfirm}
           initialValues={initialValues}
-          layout='vertical'
+          layout="vertical"
           disabled={isReadOnly}
         >
           <Form.Item
@@ -557,16 +601,16 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
                 <SearchOutlined /> {t('searchByReceiptNumber')}
               </span>
             }
-            name='billNoSKC'
+            name="billNoSKC"
           >
             <DocSelector
-              collection='sections/stocks/importVehicles'
+              collection="sections/stocks/importVehicles"
               orderBy={['billNoSKC']}
               wheres={[
-                ['warehouseChecked', '!=', null]
+                ['warehouseChecked', '!=', null],
                 // ['total', '==', null]
               ]}
-              size='middle'
+              size="middle"
               placeholder={t('receiptNumber')}
               hasKeywords
             />
@@ -576,8 +620,8 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
           <Row gutter={16}>
             <Col xs={24} md={8}>
               <Form.Item
-                name='taxInvoiceNo'
-                label={<span className='font-medium'>* {t('taxInvoiceNo')}</span>}
+                name="taxInvoiceNo"
+                label={<span className="font-medium">* {t('taxInvoiceNo')}</span>}
                 rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
               >
                 <Input placeholder={t('taxInvoiceNo')} />
@@ -585,8 +629,8 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
             </Col>
             <Col xs={24} md={8}>
               <Form.Item
-                name='taxInvoiceDate'
-                label={<span className='font-medium'>* {t('taxInvoiceDate')}</span>}
+                name="taxInvoiceDate"
+                label={<span className="font-medium">* {t('taxInvoiceDate')}</span>}
                 rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
               >
                 <DatePicker placeholder={t('taxInvoiceDate')} style={{ width: '100%' }} />
@@ -594,8 +638,8 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
             </Col>
             <Col xs={24} md={8}>
               <Form.Item
-                name='priceType'
-                label={<span className='font-medium'>* {t('priceType')}</span>}
+                name="priceType"
+                label={<span className="font-medium">* {t('priceType')}</span>}
                 rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
               >
                 <PriceTypeSelector onChange={onPriceTypeChange} />
@@ -606,8 +650,8 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
           <Row gutter={16}>
             <Col xs={24} md={8}>
               <Form.Item
-                name='taxFiledPeriod'
-                label={<span className='font-medium'>* {t('taxFiledPeriod')}</span>}
+                name="taxFiledPeriod"
+                label={<span className="font-medium">* {t('taxFiledPeriod')}</span>}
                 rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
               >
                 <Input placeholder={t('taxFiledPeriod')} />
@@ -615,17 +659,21 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
             </Col>
             <Col xs={24} md={8}>
               <Form.Item
-                name='creditDays'
-                label={<span className='font-medium'>* {t('credit')}</span>}
+                name="creditDays"
+                label={<span className="font-medium">* {t('credit')}</span>}
                 rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
               >
-                <InputNumber placeholder={t('credit')} addonAfter={t('days')} style={{ width: '100%' }} />
+                <InputNumber
+                  placeholder={t('credit')}
+                  addonAfter={t('days')}
+                  style={{ width: '100%' }}
+                />
               </Form.Item>
             </Col>
             <Col xs={24} md={8}>
               <Form.Item
-                name='dueDate'
-                label={<span className='font-medium'>* {t('dueDate')}</span>}
+                name="dueDate"
+                label={<span className="font-medium">* {t('dueDate')}</span>}
                 rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
               >
                 <DatePicker placeholder={t('dueDate')} style={{ width: '100%' }} />
@@ -634,21 +682,19 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
           </Row>
 
           {/* Table */}
-          <div className='mt-4'>
+          <div className="mt-4">
             <InputItems
               items={items || []}
-              onChange={newItems => {
+              onChange={(newItems) => {
                 setItems(newItems);
-                form.setFieldsValue({ items: newItems as any });
+                form.setFieldsValue({ items: newItems });
               }}
               grant={grant}
               readOnly={isReadOnly}
-              footer={footer}
-              noItemUpdated={cState.noItemUpdated}
             />
           </div>
 
-          <div className='w-full mt-4' style={{ width: '100%' }}>
+          <div className="w-full mt-4" style={{ width: '100%' }}>
             {summaryContent}
           </div>
 
@@ -658,20 +704,15 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
             canEditReviewedBy={canEditReviewedBy}
             canEditApprovedBy={canEditApprovedBy}
           />
-          {/* Change History and Status History (outside Form.Item, so errors don't overlap) */}
-          <AuditHistory
-            auditTrail={form.getFieldValue('auditTrail') || []}
-            statusHistory={form.getFieldValue('statusHistory') || []}
-          />
 
           {/* Save Button at Bottom Center */}
-          <div className='flex justify-center mt-10'>
+          <div className="flex justify-center mt-10">
             <Button
-              type='primary'
-              htmlType='submit'
+              type="primary"
+              htmlType="submit"
               icon={<CheckOutlined />}
-              form='input-price-form'
-              className='save-button'
+              form="input-price-form"
+              className="save-button"
               style={{ minWidth: 160, fontSize: 16, height: 40 }}
               disabled={isReadOnly}
             >
@@ -697,7 +738,6 @@ const InputPrice: React.FC<InputPriceProps> = ({ grant, readOnly: readOnlyProp, 
         </Form>
       </Card>
       <PageDoc />
-      {/* Removed ActionStatusModal component usage */}
     </div>
   );
 };

@@ -8,10 +8,6 @@ import { PERMISSIONS } from '../constants/Permissions';
 import { getAllowedRolesByCategory, getUserHomePath } from 'utils/roleUtils';
 import { useTranslation } from 'react-i18next';
 import { LoadingSpinner } from 'components/common/LoadingSpinner';
-import LoginPage from '../modules/auth/LoginPage';
-import RegisterPage from '../modules/auth/RegisterPage';
-import ForgotPasswordPage from '../modules/auth/ForgotPasswordPage';
-import CompleteProfilePage from '../modules/auth/CompleteProfilePage';
 
 // Layouts
 import MainLayout from '../components/layout/MainLayout';
