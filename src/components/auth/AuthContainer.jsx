@@ -17,6 +17,7 @@ const AuthContainer = ({
   showLanguageSwitcher = true,
   animationKey = 'default',
   showAnimatedBackground = false,
+  style,
 }) => {
   const [isMobile, setIsMobile] = useState(false);
 
@@ -63,6 +64,7 @@ const AuthContainer = ({
         backgroundColor: 'var(--color-bg)',
         overflow: 'auto',
         paddingTop: isMobile ? 64 : 88, // Add top padding to prevent overlap (logo/toggles height + margin)
+        ...style,
       }}
     >
       {/* Blurred background image overlay (fixed) */}

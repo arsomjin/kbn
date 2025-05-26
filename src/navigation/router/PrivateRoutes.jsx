@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import NotFound from '../../components/common/NotFound';
+import NotFound from '../../pages/NotFound';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { UserRole } from '../../constants/roles';
 import Dashboard from '../../modules/dashboard/Dashboard';

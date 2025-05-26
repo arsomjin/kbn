@@ -1,30 +1,37 @@
 import React from 'react';
-import { Card, Row, Col, Statistic } from 'antd';
+import { Card, Row, Col, Statistic, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from 'hooks/useTheme';
+import { UserOutlined, TeamOutlined } from '@ant-design/icons';
+
+const { Title } = Typography;
 
 const Dashboard = () => {
   const { t } = useTranslation();
   const { theme } = useTheme();
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-6">{t('dashboard:title')}</h1>
-      <Row gutter={[16, 16]}>
+    <div className="p-6">
+      <Title level={2} className="mb-6">
+        {t('dashboard:title')}
+      </Title>
+      <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} md={8} lg={6}>
-          <Card className="shadow-sm">
+          <Card hoverable className="shadow-sm">
             <Statistic
               title={t('dashboard:totalUsers')}
               value={0}
+              prefix={<UserOutlined />}
               className={theme === 'dark' ? 'text-white' : ''}
             />
           </Card>
         </Col>
         <Col xs={24} sm={12} md={8} lg={6}>
-          <Card className="shadow-sm">
+          <Card hoverable className="shadow-sm">
             <Statistic
               title={t('dashboard:activeUsers')}
               value={0}
+              prefix={<TeamOutlined />}
               className={theme === 'dark' ? 'text-white' : ''}
             />
           </Card>

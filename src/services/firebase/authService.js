@@ -330,10 +330,10 @@ export const hasRole = async (user, requiredRole) => {
     if (!userProfile) return false;
 
     if (Array.isArray(requiredRole)) {
-      return requiredRole.includes(userProfile.role);
+      return requiredRole.includes(userProfile?.role);
     }
 
-    return userProfile.role === requiredRole;
+    return userProfile?.role === requiredRole;
   } catch (error) {
     console.error('Error checking user role:', error);
     return false;

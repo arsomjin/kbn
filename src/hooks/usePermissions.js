@@ -3,6 +3,7 @@ import { useAuth } from 'contexts/AuthContext';
 export const usePermissions = () => {
   const {
     hasPermission,
+    hasAnyPermission,
     hasRole,
     hasPrivilege,
     shouldHideUserFromView,
@@ -14,6 +15,7 @@ export const usePermissions = () => {
 
   return {
     hasPermission,
+    hasAnyPermission,
     hasRole,
     hasPrivilege,
     shouldHideUserFromView,

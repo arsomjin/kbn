@@ -59,10 +59,18 @@ const useBasePath = (path) => {
  */
 const getSelectedKey = (location, isBranchContext, openKeys, setOpenKeys) => {
   const pathname = location.pathname;
-  if (pathname === '/' || pathname.startsWith('/landing')) return 'home';
-  if (pathname.startsWith('/overview')) return 'overview';
-  if (pathname.startsWith('/dashboard')) return 'dashboard';
-  if (pathname.startsWith('/branch-dashboard')) return 'branch-dashboard';
+  console.log('[getSelectedKey] pathname', pathname);
+  if (
+    pathname === '/' ||
+    pathname.match(/^\/\w+\/overview$/) ||
+    pathname.match(/^\/\w+\/landing$/) ||
+    pathname.match(/^\/\w+\/dashboard$/) ||
+    pathname.match(/^\/\w+-\w+\/\d{4}\/dashboard$/) ||
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/branch-dashboard')
+  ) {
+    return 'home';
+  }
   if (isBranchContext && pathname.includes('/account')) {
     if (pathname.endsWith('/account') || pathname.endsWith('/account/')) return 'account-overview';
     if (pathname.includes('/account/income')) return 'account-income';
@@ -126,6 +134,8 @@ const MainLayout = ({ children }) => {
   const isBranchContext = Boolean(params.provinceId && params.branchCode);
   const photoURL =
     user?.photoURL || (userProfile && 'photoURL' in userProfile ? userProfile.photoURL : undefined);
+
+  console.log('[MainLayout] isMobile', isMobile);
 
   // Responsive behavior
   useEffect(() => {
@@ -241,11 +251,29 @@ const MainLayout = ({ children }) => {
       label: t('content:title') || 'Content',
       onClick: () => navigate('/admin/content'),
     },
-    hasPermission(PERMISSIONS.SYSTEM_SETTINGS_VIEW) && {
+    (hasPermission(PERMISSIONS.SYSTEM_SETTINGS_VIEW) ||
+      hasPermission(PERMISSIONS.SPECIAL_SETTINGS_VIEW)) && {
       key: 'settings',
       icon: <SettingOutlined />,
       label: t('common:settings') || 'Settings',
       children: [
+        hasRole([ROLES.SUPER_ADMIN, ROLES.EXECUTIVE, ROLES.DEVELOPER]) && {
+          key: 'special-settings',
+          icon: <TeamOutlined />,
+          label: t('systemSettings:specialSettings') || 'Special Settings',
+          children: [
+            {
+              key: 'special-settings-provinces',
+              label: t('systemSettings:provinces') || 'จังหวัด',
+              onClick: () => navigate('/special-settings/provinces'),
+            },
+            {
+              key: 'special-settings-branches',
+              label: t('systemSettings:branches') || 'สาขา',
+              onClick: () => navigate('/special-settings/branches'),
+            },
+          ],
+        },
         hasRole([ROLES.SUPER_ADMIN, ROLES.EXECUTIVE, ROLES.GENERAL_MANAGER, ROLES.DEVELOPER]) && {
           key: 'user-management',
           icon: <TeamOutlined />,
@@ -257,24 +285,6 @@ const MainLayout = ({ children }) => {
           icon: <SettingOutlined />,
           label: t('systemSettings:title') || 'System Settings',
           onClick: () => navigate('/admin/settings'),
-        },
-        hasRole([
-          ROLES.SUPER_ADMIN,
-          ROLES.EXECUTIVE,
-          ROLES.BRANCH_MANAGER,
-          ROLES.PROVINCE_ADMIN,
-          ROLES.DEVELOPER,
-        ]) && {
-          key: 'branches',
-          icon: <BankOutlined />,
-          label: t('branches:title') || 'Branches',
-          onClick: () => navigate('/admin/branches'),
-        },
-        hasRole([ROLES.SUPER_ADMIN, ROLES.EXECUTIVE, ROLES.DEVELOPER]) && {
-          key: 'provinces',
-          icon: <SettingOutlined />,
-          label: t('provinces:title') || 'Provinces',
-          onClick: () => navigate('/admin/provinces'),
         },
       ].filter(Boolean),
     },
@@ -365,7 +375,10 @@ const MainLayout = ({ children }) => {
           onOpenChange={setOpenKeys}
           items={navItems}
           onClick={(info) => {
-            if (!info.keyPath.includes('settings')) setDrawerVisible(false);
+            // Find the clicked item in navItems
+            const clicked = navItems.find((item) => item.key === info.key);
+            // If the item has no children, close the drawer
+            if (!clicked?.children) setDrawerVisible(false);
           }}
           style={{ background: theme === 'dark' ? '#111827' : '', borderRight: 'none' }}
         />
@@ -460,7 +473,7 @@ const MainLayout = ({ children }) => {
           className="p-3 sm:p-6 bg-background dark:bg-gray-900 min-h-[calc(100vh-64px)]"
           style={
             isMobile
-              ? { paddingTop: 64 }
+              ? { marginTop: 64 }
               : { marginLeft: collapsed ? 80 : 260, minHeight: 'calc(100vh - 64px)' }
           }
         >

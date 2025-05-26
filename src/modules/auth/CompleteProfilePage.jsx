@@ -42,6 +42,7 @@ import { useLoading } from 'hooks/useLoading';
 import DepartmentSelector from 'components/common/DepartmentSelector';
 import PageDoc from '../../components/PageDoc';
 import { useModal } from 'contexts/ModalContext';
+import LoadingSpinner from '../../components/common/LoadingSpinner';
 
 const { Option } = Select;
 const { Text, Title } = Typography;
@@ -198,6 +199,21 @@ const CompleteProfilePage = () => {
     { label: t('profile:employee', 'Employee'), value: 'employee' },
     { label: t('profile:visitor', 'Visitor'), value: 'visitor' },
   ];
+
+  // Add loading spinner with delay
+  const [showSpinner, setShowSpinner] = React.useState(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSpinner(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (showSpinner) {
+    return <LoadingSpinner />;
+  }
 
   return (
     <>

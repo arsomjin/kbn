@@ -7,15 +7,15 @@ import { PERMISSIONS } from 'constants/Permissions';
 import { Layout, Card, Button, Typography, Space, Row, Col, Statistic } from 'antd';
 import {
   CheckCircleOutlined,
-  BankOutlined,
+  FileOutlined,
+  TaskOutlined,
   BarChartOutlined,
-  LineChartOutlined,
 } from '@ant-design/icons';
 
 const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
-const BranchDashboard = () => {
+const EmployeeDashboard = () => {
   const navigate = useNavigate();
   const { userProfile, logout } = useAuth();
   const { hasAnyPermission } = usePermissions();
@@ -33,25 +33,19 @@ const BranchDashboard = () => {
     }
   };
 
-  const canManageBranch = hasAnyPermission([
-    PERMISSIONS.BRANCH_MANAGE,
-    PERMISSIONS.BRANCH_VIEW,
-    PERMISSIONS.BRANCH_EDIT,
+  const canViewTasks = hasAnyPermission([PERMISSIONS.TASK_COMPLETE]);
+  const canViewDocuments = hasAnyPermission([
+    PERMISSIONS.DOCUMENT_VIEW,
+    PERMISSIONS.DOCUMENT_CREATE,
   ]);
-
-  const canViewReports = hasAnyPermission([
-    PERMISSIONS.BRANCH_REPORTS_VIEW,
-    PERMISSIONS.REPORT_VIEW,
-  ]);
-
-  const canViewAnalytics = hasAnyPermission([PERMISSIONS.BRANCH_ANALYTICS_VIEW]);
+  const canViewReports = hasAnyPermission([PERMISSIONS.REPORT_VIEW]);
 
   return (
     <Layout className="min-h-screen">
       <Header className="bg-white shadow-sm px-6 flex justify-between items-center">
         <div className="flex items-center">
           <Title level={4} className="m-0 text-primary-main">
-            KBN Branch
+            KBN Employee
           </Title>
         </div>
         <Space>
@@ -62,24 +56,40 @@ const BranchDashboard = () => {
       <Content className="p-6">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
-            <Title level={2}>Branch Dashboard</Title>
+            <Title level={2}>Employee Dashboard</Title>
             <Text className="text-lg text-secondary">
-              Manage your branch operations and view reports
+              Manage your tasks and access your workspace
             </Text>
           </div>
 
           <Row gutter={[24, 24]}>
-            {canManageBranch && (
+            {canViewTasks && (
               <Col xs={24} sm={12} lg={8}>
                 <Card hoverable>
-                  <Statistic title="Branch Management" value={null} prefix={<BankOutlined />} />
+                  <Statistic title="Tasks" value={null} prefix={<TaskOutlined />} />
                   <Button
                     type="primary"
                     block
                     className="mt-4"
-                    onClick={() => navigate('/branch/manage')}
+                    onClick={() => navigate('/employee/tasks')}
                   >
-                    Manage Branch
+                    View Tasks
+                  </Button>
+                </Card>
+              </Col>
+            )}
+
+            {canViewDocuments && (
+              <Col xs={24} sm={12} lg={8}>
+                <Card hoverable>
+                  <Statistic title="Documents" value={null} prefix={<FileOutlined />} />
+                  <Button
+                    type="primary"
+                    block
+                    className="mt-4"
+                    onClick={() => navigate('/employee/documents')}
+                  >
+                    View Documents
                   </Button>
                 </Card>
               </Col>
@@ -93,25 +103,9 @@ const BranchDashboard = () => {
                     type="primary"
                     block
                     className="mt-4"
-                    onClick={() => navigate('/branch/reports')}
+                    onClick={() => navigate('/employee/reports')}
                   >
                     View Reports
-                  </Button>
-                </Card>
-              </Col>
-            )}
-
-            {canViewAnalytics && (
-              <Col xs={24} sm={12} lg={8}>
-                <Card hoverable>
-                  <Statistic title="Analytics" value={null} prefix={<LineChartOutlined />} />
-                  <Button
-                    type="primary"
-                    block
-                    className="mt-4"
-                    onClick={() => navigate('/branch/analytics')}
-                  >
-                    View Analytics
                   </Button>
                 </Card>
               </Col>
@@ -136,4 +130,4 @@ const BranchDashboard = () => {
   );
 };
 
-export default BranchDashboard;
+export default EmployeeDashboard;

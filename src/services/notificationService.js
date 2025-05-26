@@ -151,13 +151,13 @@ export const getNotifications = async (userProfile, pageSize = 10, startAfterDoc
 
       // Check if user's role matches the notification's target roles
       let matchesRole = false;
-      if (data.targetRoles && userProfile.role && Array.isArray(data.targetRoles)) {
+      if (data.targetRoles && userProfile?.role && Array.isArray(data.targetRoles)) {
         matchesRole = data.targetRoles.some(
-          (targetRole) => targetRole.toUpperCase() === userProfile.role.toUpperCase(),
+          (targetRole) => targetRole.toUpperCase() === userProfile?.role.toUpperCase(),
         );
 
         // Special handling for province_admin - they should also see user registration notifications
-        if (!matchesRole && userProfile.role.toUpperCase() === 'PROVINCE_ADMIN') {
+        if (!matchesRole && userProfile?.role.toUpperCase() === 'PROVINCE_ADMIN') {
           // Check if this is a user registration notification (based on title pattern)
           const isUserRegistration =
             data.title === 'มีผู้ใช้ลงทะเบียนใหม่' ||
@@ -204,7 +204,7 @@ export const getNotifications = async (userProfile, pageSize = 10, startAfterDoc
       // For province_admin, check province match
       let provinceRelevant = true; // Default true for non-province notifications
       if (data.provinceId) {
-        if (userProfile.role === 'province_admin') {
+        if (userProfile?.role === 'province_admin') {
           // Province admin should see notifications for their province or system-wide
           provinceRelevant = !data.provinceId || data.provinceId === userProfile.province;
         } else if (
@@ -351,14 +351,14 @@ export const subscribeToNotifications = (userProfile, onNotification) => {
 
       // Check if user's role matches the notification's target roles
       let matchesRole = false;
-      if (data.targetRoles && userProfile.role && Array.isArray(data.targetRoles)) {
+      if (data.targetRoles && userProfile?.role && Array.isArray(data.targetRoles)) {
         // Direct role match - case insensitive
         matchesRole = data.targetRoles.some(
-          (targetRole) => targetRole.toUpperCase() === userProfile.role.toUpperCase(),
+          (targetRole) => targetRole.toUpperCase() === userProfile?.role.toUpperCase(),
         );
 
         // Special handling for province_admin - they should also see user registration notifications
-        if (!matchesRole && userProfile.role.toUpperCase() === 'PROVINCE_ADMIN') {
+        if (!matchesRole && userProfile?.role.toUpperCase() === 'PROVINCE_ADMIN') {
           // Check if this is a user registration notification (based on title pattern)
           const isUserRegistration =
             data.title === 'มีผู้ใช้ลงทะเบียนใหม่' ||
@@ -405,7 +405,7 @@ export const subscribeToNotifications = (userProfile, onNotification) => {
       // Check province relevance
       let provinceRelevant = true;
       if (data.provinceId) {
-        if (userProfile.role === 'province_admin') {
+        if (userProfile?.role === 'province_admin') {
           // Province admin should see notifications for their province or system-wide
           provinceRelevant = !data.provinceId || data.provinceId === userProfile.province;
         } else if (

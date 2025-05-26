@@ -26,20 +26,20 @@ const PermissionProtectedRoute = ({
   requiredPermission,
   fallbackPath = '/landing',
   provinceCheck,
-  allowedRoles
+  allowedRoles,
 }) => {
   const { isAuthenticated, userProfile, isLoading } = useAuth();
   const { hasProvinceAccess, hasAnyPermission } = usePermissions();
   const location = useLocation();
 
-  console.log('PermissionProtectedRoute', {
+  console.log('[PermissionProtectedRoute] - ', {
     isAuthenticated,
     userProfile,
     isLoading,
     requiredPermission,
     fallbackPath,
     provinceCheck,
-    allowedRoles
+    allowedRoles,
   });
 
   // Show loading spinner while checking authentication
@@ -57,7 +57,7 @@ const PermissionProtectedRoute = ({
   }
 
   // Check if user has required role
-  if (allowedRoles && userProfile && allowedRoles.includes(userProfile.role)) {
+  if (allowedRoles && userProfile && allowedRoles.includes(userProfile?.role)) {
     // If user has an allowed role, bypass permission and province checks
     return <>{children}</>;
   }
@@ -79,4 +79,4 @@ const PermissionProtectedRoute = ({
   return <>{children}</>;
 };
 
-export default PermissionProtectedRoute; 
+export default PermissionProtectedRoute;

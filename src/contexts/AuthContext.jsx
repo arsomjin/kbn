@@ -215,6 +215,21 @@ export const AuthProvider = ({ children }) => {
     return userProfile?.permissions?.includes(permission) ?? false;
   };
 
+  /**
+   * Checks if the user has any of the required permissions
+   *
+   * @param userPermissions Array of permission strings assigned to the user
+   * @param requiredPermissions Array of permissions to check for
+   * @returns boolean indicating if user has any of the required permissions
+   */
+  const hasAnyPermission = (requiredPermissions) => {
+    if (requiredPermissions.length === 0) {
+      return false;
+    }
+
+    return requiredPermissions.some((permission) => userProfile?.permissions?.includes(permission));
+  };
+
   const hasRole = (role) => {
     if (Array.isArray(role)) {
       return role.includes(userProfile?.role ?? '');
@@ -252,7 +267,7 @@ export const AuthProvider = ({ children }) => {
     }
 
     // If current user is not a developer but target user is a developer, hide the target user
-    const currentUserIsDev = isDev({ email: userProfile.email || '', role: userProfile.role });
+    const currentUserIsDev = isDev({ email: userProfile.email || '', role: userProfile?.role });
     const targetUserIsDev = isDev({ email: targetUser.email || '', role: targetUser.role });
 
     return !currentUserIsDev && targetUserIsDev;
@@ -298,6 +313,7 @@ export const AuthProvider = ({ children }) => {
     updateProfile,
     switchProvince,
     refreshUserData,
+    hasAnyPermission,
     hasPermission,
     hasRole,
     hasPrivilege,

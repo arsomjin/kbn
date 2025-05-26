@@ -1,3 +1,6 @@
 {
-  "title": "ตั้งค่าระบบ"
+  "title": "ตั้งค่าระบบ",
+  "specialSettings": "ตั้งค่าพิเศษ",
+  "provinces": "จังหวัด",
+  "branches": "สาขา"
 }

@@ -9,6 +9,10 @@ const __dirname = dirname(__filename);
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    port: 3000,
+    host: true,
+  },
   resolve: {
     alias: {
       // Add path aliases for absolute imports

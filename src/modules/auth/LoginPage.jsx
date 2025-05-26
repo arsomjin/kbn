@@ -258,7 +258,7 @@ const LoginPage = () => {
                 </Button>
               </Form.Item>
               <div className="text-center mt-4">
-                <p className={`text-secondary text-lg`}>
+                <p className={`text-secondary text-md`}>
                   {t('auth:dontHaveAccount')}{' '}
                   <Link to="/auth/signup" className="text-accent hover:underline font-medium">
                     {t('auth:register')}

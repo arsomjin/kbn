@@ -21,7 +21,7 @@ export const PermissionProvider = ({ children }) => {
     if (!userProfile || !provinceId) return false;
 
     // Users with GENERAL_MANAGER role category and higher can access all provinces
-    if (hasRolePrivilege(userProfile.role, ROLES.GENERAL_MANAGER)) {
+    if (hasRolePrivilege(userProfile?.role, ROLES.GENERAL_MANAGER)) {
       return true;
     }
 

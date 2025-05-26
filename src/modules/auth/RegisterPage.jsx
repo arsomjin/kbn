@@ -38,6 +38,7 @@ import DepartmentSelector from 'components/common/DepartmentSelector';
 import PageDoc from '../../components/PageDoc';
 import BranchSelector from '../../components/common/BranchSelector';
 import { useModal } from 'contexts/ModalContext';
+import ProvinceSelector from '../../components/common/ProvinceSelector';
 
 const { Option } = Select;
 const { Title, Text } = Typography;
@@ -205,7 +206,11 @@ const RegisterPage = () => {
 
   return (
     <>
-      <AuthContainer title={t('auth:createAccount')} animationKey="register">
+      <AuthContainer
+        title={t('auth:createAccount')}
+        animationKey="register"
+        style={{ marginTop: 60 }}
+      >
         {error && (
           <Alert
             message={t('auth:registerError')}
@@ -259,7 +264,7 @@ const RegisterPage = () => {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <Divider className="my-6 border-gray-700" />
+            <Divider />
           </motion.div>
 
           <motion.div variants={itemVariants}>
@@ -270,16 +275,6 @@ const RegisterPage = () => {
               layout="vertical"
               requiredMark={false}
             >
-              {/* Debug: Log form values on change */}
-              <Form.Item shouldUpdate>
-                {() => {
-                  // Log form values to console for debugging
-                  // Remove or comment out in production
-
-                  console.log('Register form values:', form.getFieldsValue());
-                  return null;
-                }}
-              </Form.Item>
               <Form.Item
                 name="email"
                 label={t('auth:email')}
@@ -377,7 +372,7 @@ const RegisterPage = () => {
                     label={t('profile:province')}
                     rules={[{ required: true, message: t('validation:required') }]}
                   >
-                    <InternalProvinceSelector
+                    <ProvinceSelector
                       onChange={() => {
                         // Clear branch when province changes
                         form.setFieldsValue({ branch: undefined });

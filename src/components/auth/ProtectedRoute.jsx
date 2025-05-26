@@ -3,6 +3,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from 'contexts/AuthContext';
 import { getLandingPage } from 'utils/roleUtils';
 import { LoadingSpinner } from 'components/common/LoadingSpinner';
+import { ROLES } from '../../constants/roles';
 
 export const ProtectedRoute = ({ children, allowedRoles }) => {
   const { isAuthenticated, loading, userProfile } = useAuth();
@@ -16,13 +17,21 @@ export const ProtectedRoute = ({ children, allowedRoles }) => {
     return <Navigate to="/auth/login" state={{ from: location }} replace />;
   }
 
+  if (userProfile?.role === ROLES.PENDING) {
+    return <Navigate to="/pending" replace />;
+  }
+
+  if (userProfile?.role === ROLES.GUEST) {
+    return <Navigate to="/visitor/dashboard" replace />;
+  }
+
   // If no allowed roles specified, allow access
   if (!allowedRoles) {
     return <>{children}</>;
   }
 
   // Check if user has an allowed role
-  if (userProfile && !allowedRoles.includes(userProfile.role)) {
+  if (userProfile && !allowedRoles.includes(userProfile?.role)) {
     // Get the appropriate landing page for the user's role
     const landingPage = getLandingPage(userProfile);
 

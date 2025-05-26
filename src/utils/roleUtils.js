@@ -1,4 +1,4 @@
-import { ROLES, ROLE_CATEGORIES, UserRole } from '../constants/roles';
+import { ROLES, ROLE_CATEGORIES, RoleCategory, UserRole } from '../constants/roles';
 
 /**
  * Determines if the user has privilege access based on their role and permissions
@@ -25,7 +25,7 @@ export const hasPrivilegedAccess = (userProfile) => {
   if (!userProfile) return false;
 
   // Only allow EXECUTIVE and SUPER_ADMIN roles
-  if (hasAdminAccess(userProfile.role)) {
+  if (hasAdminAccess(userProfile?.role)) {
     return true;
   }
 
@@ -51,7 +51,7 @@ export const hasPrivilegedAccess = (userProfile) => {
 export const getLandingPage = (userProfile) => {
   console.log('getLandingPage', userProfile);
   if (!userProfile) return '/';
-  const role = userProfile.role;
+  const role = userProfile?.role;
   if (role === ROLES.EXECUTIVE || role === ROLES.DEVELOPER) {
     return '/overview';
   }
@@ -125,35 +125,36 @@ export const getPathFromRole = (userProfile, pathName) => {
 export const getUserHomePath = (userProfile, isProfileComplete) => {
   // If profile is incomplete or missing, go to complete-profile
   if (!isProfileComplete || !userProfile) return '/complete-profile';
-  const role = userProfile.role;
+  const role = userProfile?.role;
   if (role === UserRole.EXECUTIVE || role === UserRole.DEVELOPER) {
     return '/overview';
   }
   if (role === UserRole.SUPER_ADMIN || role === UserRole.GENERAL_MANAGER) {
     return '/dashboard';
   }
+  const provinceId = userProfile.provinceId;
   if (role === UserRole.PROVINCE_MANAGER || role === UserRole.PROVINCE_ADMIN) {
-    const provinceId = userProfile.provinceId;
     if (provinceId) {
       return `/${provinceId}/dashboard`;
     }
     return '/landing';
   }
-  if (role === UserRole.LEAD || role === UserRole.USER || role === UserRole.BRANCH_MANAGER) {
-    const provinceId = userProfile.provinceId;
-    const branchCode = userProfile.employeeInfo?.branch;
-    if (provinceId && branchCode) {
-      return `/${provinceId}/${branchCode}/dashboard`;
-    } else if (provinceId) {
-      return `/${provinceId}/dashboard`;
-    }
-    return '/landing';
-  }
   if (role === UserRole.GUEST) {
-    return '/landing';
+    return '/visitor/dashboard';
   }
   if (role === UserRole.PENDING) {
     return '/pending';
+  }
+
+  const branchCode = userProfile?.employeeInfo?.branch;
+  if (provinceId || branchCode) {
+    switch (role) {
+      case UserRole.BRANCH_MANAGER:
+      case UserRole.LEAD:
+        return `/${provinceId ? `${provinceId}/` : ''}${branchCode ? `${branchCode}/` : ''}dashboard`;
+      default:
+        return `/${provinceId ? `${provinceId}/` : ''}${branchCode ? `${branchCode}/` : ''}landing`;
+    }
   }
   // fallback
   return '/landing';
@@ -200,21 +201,6 @@ export const hasAllPermissions = (userPermissions, requiredPermissions) => {
   }
 
   return requiredPermissions.every((permission) => userPermissions.includes(permission));
-};
-
-/**
- * Checks if the user has any of the required permissions
- *
- * @param userPermissions Array of permission strings assigned to the user
- * @param requiredPermissions Array of permissions to check for
- * @returns boolean indicating if user has any of the required permissions
- */
-export const hasAnyPermission = (userPermissions, requiredPermissions) => {
-  if (!userPermissions || userPermissions.length === 0) {
-    return false;
-  }
-
-  return requiredPermissions.some((permission) => userPermissions.includes(permission));
 };
 
 /**

@@ -4,6 +4,7 @@ import { firestore as db } from 'services/firebase';
 import { message } from 'antd';
 import { useDispatch } from 'react-redux';
 import { serializeTimestampsDeep } from 'utils/timestampUtils';
+import { processFirestoreDataForForm } from '../utils/dateHandling';
 
 /**
  * useFirestoreSync - A hook for syncing Firestore collections with Redux
@@ -51,7 +52,7 @@ const useFirestoreSync = (collectionPath, setReduxAction, queryConstraints = [])
           snapshot.forEach((doc) => {
             if (doc.exists()) {
               // Serialize each document's data before adding to the collection
-              data[doc.id] = serializeTimestampsDeep({ ...doc.data(), _key: doc.id });
+              data[doc.id] = processFirestoreDataForForm({ ...doc.data(), _key: doc.id });
             }
           });
 

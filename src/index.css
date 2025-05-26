@@ -1,5 +1,6 @@
 @import 'antd/dist/reset.css';
 @import '../src/theme/antDesignOverrides.css';
+@import '../src/theme/table.css';
 
 @tailwind base;
 @tailwind components;

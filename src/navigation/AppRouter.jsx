@@ -8,28 +8,44 @@ import { PERMISSIONS } from '../constants/Permissions';
 import { getAllowedRolesByCategory, getUserHomePath } from 'utils/roleUtils';
 import { useTranslation } from 'react-i18next';
 import { LoadingSpinner } from 'components/common/LoadingSpinner';
-import { PublicOnlyRoute } from './router/PublicOnlyRoute';
-import PendingGuard from './router/PendingGuard';
 import LoginPage from '../modules/auth/LoginPage';
 import RegisterPage from '../modules/auth/RegisterPage';
 import ForgotPasswordPage from '../modules/auth/ForgotPasswordPage';
 import CompleteProfilePage from '../modules/auth/CompleteProfilePage';
-import ProfileGuard from './router/ProfileGuard';
+
+// Layouts
 import MainLayout from '../components/layout/MainLayout';
+import ProvinceLayout from '../components/layout/ProvinceLayout';
+import BranchLayout from '../components/layout/BranchLayout';
+
+// Guards
+import PendingGuard from './router/PendingGuard';
+import ProfileGuard from './router/ProfileGuard';
+import ProvinceGuard from './router/ProvinceGuard';
+import BranchGuard from './router/BranchGuard';
+import { PublicOnlyRoute } from './router/PublicOnlyRoute';
+
 import PersonalProfile from '../pages/PersonalProfile';
+
+// Home pages
 import Overview from '../modules/dashboard/Overview';
 import Dashboard from '../modules/dashboard/Dashboard';
-import Landing from '../modules/dashboard/Landing';
+import LandingPage from '../modules/dashboard/Landing';
+import SystemOverview from '../pages/SystemOverview';
+import SpecialSettings from '../modules/settings/SpecialSettings';
 
 // Lazy load pages
 const Login = React.lazy(() => import('../modules/auth/LoginPage'));
 const Register = React.lazy(() => import('../modules/auth/RegisterPage'));
-const PendingPage = React.lazy(() => import('../modules/auth/PendingPage'));
-const LandingPage = React.lazy(() => import('../pages/LandingPage'));
-const AdminDashboard = React.lazy(() => import('../pages/admin/Dashboard'));
-const BranchDashboard = React.lazy(() => import('../pages/branch/Dashboard'));
-const EmployeeDashboard = React.lazy(() => import('../pages/employee/Dashboard'));
-const VisitorDashboard = React.lazy(() => import('../pages/visitor/Dashboard'));
+const ForgotPassword = React.lazy(() => import('../modules/auth/ForgotPasswordPage'));
+const CompleteProfile = React.lazy(() => import('../modules/auth/CompleteProfilePage'));
+const Pending = React.lazy(() => import('../modules/auth/PendingPage'));
+const Landing = React.lazy(() => import('../modules/dashboard/Landing'));
+const ProvinceDashboard = React.lazy(() => import('../modules/dashboard/ProvinceDashboard'));
+const BranchDashboard = React.lazy(() => import('../modules/dashboard/BranchDashboard'));
+const AdminDashboard = React.lazy(() => import('../modules/dashboard/admin/Dashboard'));
+const EmployeeDashboard = React.lazy(() => import('../modules/dashboard/employee/Dashboard'));
+const VisitorDashboard = React.lazy(() => import('../modules/dashboard/visitor/Dashboard'));
 const NotFound = React.lazy(() => import('../pages/NotFound'));
 
 /**
@@ -71,9 +87,9 @@ const AppRouter = () => {
           }
         >
           <Route index element={<Navigate to="/auth/login" replace />} />
-          <Route path="login" element={<LoginPage />} />
-          <Route path="signup" element={<RegisterPage />} />
-          <Route path="reset-password" element={<ForgotPasswordPage />} />
+          <Route path="login" element={<Login />} />
+          <Route path="signup" element={<Register />} />
+          <Route path="reset-password" element={<ForgotPassword />} />
           <Route path="verification" element={<div>{t('auth.verificationPage')}</div>} />
         </Route>
 
@@ -81,7 +97,7 @@ const AppRouter = () => {
           path="/pending"
           element={
             <PendingGuard>
-              <PendingPage />
+              <Pending />
             </PendingGuard>
           }
         />
@@ -90,7 +106,7 @@ const AppRouter = () => {
           path="/complete-profile"
           element={
             <ProfileGuard>
-              <CompleteProfilePage />
+              <CompleteProfile />
             </ProfileGuard>
           }
         />
@@ -118,6 +134,17 @@ const AppRouter = () => {
             }
           />
           <Route
+            path="/special-settings/*"
+            element={
+              <PermissionProtectedRoute
+                fallbackPath="/dashboard"
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.EXECUTIVE)}
+              >
+                <SpecialSettings />
+              </PermissionProtectedRoute>
+            }
+          />
+          <Route
             path="/dashboard"
             element={
               <PermissionProtectedRoute
@@ -128,8 +155,59 @@ const AppRouter = () => {
               </PermissionProtectedRoute>
             }
           />
+
+          {/* 2. Province path: /:provinceId */}
+          <Route
+            path="/:provinceId"
+            element={
+              <ProvinceGuard>
+                <ProvinceLayout />
+              </ProvinceGuard>
+            }
+          >
+            <Route
+              index
+              path="dashboard"
+              element={
+                <PermissionProtectedRoute
+                  fallbackPath="/dashboard"
+                  allowedRoles={getAllowedRolesByCategory(RoleCategory.PROVINCE_MANAGER)}
+                >
+                  <ProvinceDashboard />
+                </PermissionProtectedRoute>
+              }
+            />
+
+            {/* 3. Branch path: /:provinceId/:branchCode */}
+            <Route
+              path=":branchCode"
+              element={
+                <BranchGuard>
+                  <BranchLayout />
+                </BranchGuard>
+              }
+            >
+              <Route
+                index
+                path="dashboard"
+                element={
+                  <PermissionProtectedRoute
+                    fallbackPath="/dashboard"
+                    allowedRoles={getAllowedRolesByCategory(RoleCategory.LEAD)}
+                  >
+                    <BranchDashboard />
+                  </PermissionProtectedRoute>
+                }
+              />
+              <Route path="landing" element={<Landing />} />
+            </Route>
+          </Route>
+
           <Route path="/landing" element={<Landing />} />
+          <Route path="/about/system-overview" element={<SystemOverview />} />
         </Route>
+
+        <Route path="/visitor/dashboard" element={<VisitorDashboard />} />
 
         <Route path="/not-found" element={<NotFound />} />
         <Route path="*" element={<Navigate to="/not-found" replace />} />

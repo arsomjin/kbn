@@ -20,7 +20,7 @@ const BranchSelector = ({
 
   // Admin roles for access
   const adminRoles = [ROLES.SUPER_ADMIN, ROLES.DEVELOPER, ROLES.EXECUTIVE, ROLES.GENERAL_MANAGER];
-  const hasAdminAccess = userProfile?.role && adminRoles.includes(userProfile.role);
+  const hasAdminAccess = userProfile?.role && adminRoles.includes(userProfile?.role);
 
   // If you have a custom hook, use it. Otherwise, use Redux selector:
   // const { branches, loading } = useBranchesForProvince({ provinceId, skipCache: true, includeAll: hasAdminAccess || forceIncludeAll });

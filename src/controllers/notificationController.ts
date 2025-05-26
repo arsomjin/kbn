@@ -1,5 +1,9 @@
 import { store } from '../store';
-import { addNotification, markAsRead, updateNotifications } from '../store/slices/notificationsSlice';
+import {
+  addNotification,
+  markAsRead,
+  updateNotifications,
+} from '../store/slices/notificationsSlice';
 import {
   Notification,
   NotificationType,
@@ -7,7 +11,7 @@ import {
   markNotificationAsRead,
   markNotificationAsUnread,
   initializeNotifications,
-  getNotifications
+  getNotifications,
 } from '../services/notificationService';
 import { callFunction } from '../utils/firestoreUtils';
 import { UserProfile } from '../services/authService';
@@ -56,7 +60,7 @@ export const notificationController = {
    * @returns Promise<string> - The ID of the created notification
    */
   async createNotification(
-    notification: Omit<Notification, 'id' | 'createdAt' | 'isRead' | 'readBy'>
+    notification: Omit<Notification, 'id' | 'createdAt' | 'isRead' | 'readBy'>,
   ): Promise<string> {
     try {
       const notificationId = await createNotification(notification);
@@ -74,8 +78,10 @@ export const notificationController = {
               isRead: false,
               readBy: [],
               createdAt: Timestamp.now(),
-              expiresAt: notification.expiresAt || Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000))
-            })
+              expiresAt:
+                notification.expiresAt ||
+                Timestamp.fromDate(new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)),
+            }),
           );
         }
       }
@@ -95,13 +101,13 @@ export const notificationController = {
    */
   async sendPushNotification(
     notification: { title: string; body: string; data?: Record<string, string> },
-    userIds: string[]
+    userIds: string[],
   ): Promise<boolean> {
     try {
       // Call Firebase Cloud Function to send the push notification
       await callFunction('sendPushNotification', {
         notification,
-        userIds
+        userIds,
       });
 
       return true;
@@ -154,8 +160,11 @@ export const notificationController = {
    * @returns boolean - Whether the notification is relevant
    */
   isNotificationRelevantToUser(
-    notification: Pick<Notification, 'targetRoles' | 'targetBranch' | 'targetDepartment' | 'provinceId' | 'type'>,
-    userProfile: UserProfile
+    notification: Pick<
+      Notification,
+      'targetRoles' | 'targetBranch' | 'targetDepartment' | 'provinceId' | 'type'
+    >,
+    userProfile: UserProfile,
   ): boolean {
     // Explicitly check each condition and ensure boolean return type
     if (!notification || !userProfile) return false;
@@ -168,15 +177,17 @@ export const notificationController = {
 
     // Check for role matching with special handling for province_admin
     let matchesRole = false;
-    if (notification.targetRoles && userProfile.role && Array.isArray(notification.targetRoles)) {
+    if (notification.targetRoles && userProfile?.role && Array.isArray(notification.targetRoles)) {
       // Direct role match
-      matchesRole = notification.targetRoles.includes(userProfile.role);
+      matchesRole = notification.targetRoles.includes(userProfile?.role);
 
       // Special handling for province_admin - they should also see notifications for roles they manage
-      if (!matchesRole && userProfile.role === 'province_admin') {
+      if (!matchesRole && userProfile?.role === 'province_admin') {
         // province_admin should see notifications intended for province_manager, branch_manager, etc.
         const provinceAdminManagesRoles = ['province_manager', 'branch_manager', 'lead', 'user'];
-        const targetsManageableRole = provinceAdminManagesRoles.some(role => notification.targetRoles?.includes(role));
+        const targetsManageableRole = provinceAdminManagesRoles.some((role) =>
+          notification.targetRoles?.includes(role),
+        );
 
         if (targetsManageableRole) {
           matchesRole = true;
@@ -185,7 +196,9 @@ export const notificationController = {
     }
 
     const matchesBranch =
-      notification.targetBranch && userProfile.branch && notification.targetBranch === userProfile.branch;
+      notification.targetBranch &&
+      userProfile.branch &&
+      notification.targetBranch === userProfile.branch;
 
     const matchesDepartment =
       notification.targetDepartment &&
@@ -198,9 +211,9 @@ export const notificationController = {
         title: '', // Add required properties to satisfy the NotificationInterface
         description: '',
         type: notification.type || NotificationType.INFO,
-        provinceId: notification.provinceId
+        provinceId: notification.provinceId,
       },
-      userProfile
+      userProfile,
     );
 
     // Explicitly return a boolean value
@@ -208,7 +221,7 @@ export const notificationController = {
       hasNoTargeting ||
         (matchesRole && hasProvinceAccess) ||
         (matchesBranch && hasProvinceAccess) ||
-        (matchesDepartment && hasProvinceAccess)
+        (matchesDepartment && hasProvinceAccess),
     );
   },
 
@@ -223,7 +236,7 @@ export const notificationController = {
     options: {
       sendPush?: boolean;
       userIds?: string[];
-    } = {}
+    } = {},
   ): Promise<{ id: string; success: boolean }> {
     try {
       // Create in-app notification
@@ -238,10 +251,10 @@ export const notificationController = {
             data: {
               type: notification.type,
               link: notification.link || '/',
-              provinceId: notification.provinceId || '' // Convert null to empty string
-            }
+              provinceId: notification.provinceId || '', // Convert null to empty string
+            },
           },
-          options.userIds
+          options.userIds,
         );
       }
 
@@ -259,7 +272,11 @@ export const notificationController = {
    * @param action - The action taken (view, click, dismiss)
    * @returns Promise<void>
    */
-  async trackEngagement(notificationId: string, userId: string, action: 'view' | 'click' | 'dismiss'): Promise<void> {
+  async trackEngagement(
+    notificationId: string,
+    userId: string,
+    action: 'view' | 'click' | 'dismiss',
+  ): Promise<void> {
     try {
       // Implementation for tracking notification engagement
       // This would typically store the event in Firestore
@@ -291,7 +308,7 @@ export const notificationController = {
 
       await callFunction('markAllNotificationsAsRead', {
         userId,
-        provinceId
+        provinceId,
       });
 
       // Update local state by fetching fresh notifications
@@ -313,14 +330,17 @@ export const notificationController = {
    * @param userProfile - The user profile
    * @returns boolean - Whether the user has permission for the notification
    */
-  checkNotificationPermission(notification: NotificationInterface, userProfile: UserProfile): boolean {
+  checkNotificationPermission(
+    notification: NotificationInterface,
+    userProfile: UserProfile,
+  ): boolean {
     // If notification has no province ID, it's a system-wide notification
     if (!notification.provinceId) return true;
 
     // Check if user has permissions to access this province's notifications
 
     // Users with GENERAL_MANAGER role category and higher can access all provinces
-    if (hasRolePrivilege(userProfile.role as RoleType, ROLES.GENERAL_MANAGER)) {
+    if (hasRolePrivilege(userProfile?.role as RoleType, ROLES.GENERAL_MANAGER)) {
       return true;
     }
 
@@ -362,31 +382,32 @@ export const notificationController = {
 
       // Special handling for province_admin role - they should see all notifications
       // for their province plus any system-wide notifications (those with null provinceId)
-      if (options.provinceId && userProfile.role === 'province_admin') {
+      if (options.provinceId && userProfile?.role === 'province_admin') {
         notifications = notifications.filter(
           (notification: Notification) =>
             !notification.provinceId || // System-wide notifications (null provinceId)
-            notification.provinceId === options.provinceId // Province-specific notifications
+            notification.provinceId === options.provinceId, // Province-specific notifications
         );
       }
       // Standard province filtering for other roles
       else if (options.provinceId) {
         notifications = notifications.filter(
-          (notification: Notification) => !notification.provinceId || notification.provinceId === options.provinceId
+          (notification: Notification) =>
+            !notification.provinceId || notification.provinceId === options.provinceId,
         );
       }
 
       // Check each notification against user permissions
-      notifications = notifications.filter(notification => {
+      notifications = notifications.filter((notification) => {
         const hasPermission = this.checkNotificationPermission(
           {
             title: notification.title,
             description: notification.description,
             type: notification.type,
             provinceId: notification.provinceId,
-            targetRoles: notification.targetRoles
+            targetRoles: notification.targetRoles,
           },
-          userProfile
+          userProfile,
         );
 
         return hasPermission;
@@ -425,7 +446,7 @@ export const notificationController = {
         targetRoles,
         link: '/review-users',
         imageUrl: '/logo192.png', // Add default avatar/logo for user registration notifications
-        expiresAt: Timestamp.fromDate(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000))
+        expiresAt: Timestamp.fromDate(new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)),
       };
 
       return await this.sendNotification(notification);
@@ -441,7 +462,10 @@ export const notificationController = {
    * @param userProfile - User profile
    * @returns Promise<Notification[]> - Retrieved notifications
    */
-  async fetchPersonalNotifications(userId: string, userProfile: UserProfile): Promise<Notification[]> {
+  async fetchPersonalNotifications(
+    userId: string,
+    userProfile: UserProfile,
+  ): Promise<Notification[]> {
     try {
       if (!userProfile) {
         throw new Error('User profile is required');
@@ -451,13 +475,14 @@ export const notificationController = {
       const result = await getNotifications(userProfile, 10);
 
       // Filter to only include notifications where the user is the target
-      const notifications = result.notifications.filter(notification => {
+      const notifications = result.notifications.filter((notification) => {
         // Check if this is a personal notification (no targeting criteria)
-        const isPersonal = !notification.targetRoles && !notification.targetBranch && !notification.targetDepartment;
+        const isPersonal =
+          !notification.targetRoles && !notification.targetBranch && !notification.targetDepartment;
 
         // Check if user is explicitly targeted
         const isTargeted =
-          notification.targetRoles?.includes(userProfile.role) ||
+          notification.targetRoles?.includes(userProfile?.role) ||
           notification.targetBranch === userProfile.branch ||
           notification.targetDepartment === userProfile.department;
 
@@ -469,7 +494,7 @@ export const notificationController = {
       console.error('Error fetching personal notifications:', error);
       return [];
     }
-  }
+  },
 };
 
 export default notificationController;

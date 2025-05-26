@@ -68,8 +68,8 @@ const PersonalProfile = () => {
               {userProfile?.displayName || userProfile?.email}
             </Title>
             {userProfile?.role && (
-              <Tag color={getRoleColor(userProfile.role)} className={styles.roleTag}>
-                {t(`roles.${userProfile.role.toLowerCase()}`)}
+              <Tag color={getRoleColor(userProfile?.role)} className={styles.roleTag}>
+                {t(`roles.${userProfile?.role.toLowerCase()}`)}
               </Tag>
             )}
           </div>
