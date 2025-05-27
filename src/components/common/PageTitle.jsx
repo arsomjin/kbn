@@ -1,6 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
-import { Col, Typography } from 'antd';
+import { Row, Col, Typography } from 'antd';
+import { Stepper } from 'elements';
 
 const { Title, Text } = Typography;
 
@@ -25,35 +26,60 @@ const PageTitle = ({
   subtitle,
   className,
   editing,
-  // eslint-disable-next-line no-unused-vars
-  activeStep,
-  // eslint-disable-next-line no-unused-vars
-  showStepper,
-  // eslint-disable-next-line no-unused-vars
   steps,
+  activeStep = 0,
+  showStepper = false,
   ...attrs
 }) => {
-  const classes = classNames(className, 'text-center sm:text-left mb-0 sm:mb-0');
+  const classes = classNames(className, 'page-header bg-light mb-4', {
+    editing: editing,
+  });
 
+  // If no stepper is needed, return the simple version
+  if (!showStepper || !steps || steps.length === 0) {
+    return (
+      <div className={classes} {...attrs}>
+        <div className="px-4 py-3">
+          <span className="text-uppercase font-medium page-subtitle text-primary d-block">
+            {subtitle}
+          </span>
+          <Title level={3} className={`page-title m-0 ${editing ? 'text-warning' : ''}`}>
+            {title}
+          </Title>
+        </div>
+      </div>
+    );
+  }
+
+  // With stepper version (mobile and desktop responsive)
   return (
-    <Col xs={24} sm={8} className={classes} {...attrs}>
-      {subtitle && (
-        <Text
-          type="secondary"
-          className="uppercase text-xs tracking-wide block mb-1 dark:text-gray-400"
-        >
-          {subtitle}
-        </Text>
-      )}
-      <Title
-        level={3}
-        className={`m-0 dark:text-gray-100 ${
-          editing ? 'text-yellow-600 dark:text-yellow-400' : ''
-        }`}
-      >
-        {title}
-      </Title>
-    </Col>
+    <div className={classes} {...attrs}>
+      <Row>
+        {/* Mobile view - stacked layout */}
+        <Col xs={24} md={0}>
+          <div className="text-center py-3">
+            <h2 className="text-xl font-medium mb-0">{title}</h2>
+            {subtitle && <div className="text-muted text-sm">{subtitle}</div>}
+          </div>
+          <div className="px-2 pb-3">
+            <Stepper steps={steps} activeStep={activeStep} />
+          </div>
+        </Col>
+
+        {/* Desktop view - horizontal layout */}
+        <Col xs={0} md={24}>
+          <div className="flex items-center justify-between px-4 py-2">
+            <div>
+              <h2 className="text-xl font-medium mb-0">{title}</h2>
+              {subtitle && <div className="text-muted small">{subtitle}</div>}
+            </div>
+            <div style={{ minWidth: '50%' }}>
+              <Stepper steps={steps} activeStep={activeStep} />
+            </div>
+          </div>
+        </Col>
+      </Row>
+    </div>
   );
 };
 

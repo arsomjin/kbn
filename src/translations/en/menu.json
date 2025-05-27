@@ -1,0 +1,17 @@
+{
+  "account": {
+    "executive": {
+      "title": "Account (Executive)"
+    },
+    "province": {
+      "title": "Account (Province)"
+    },
+    "branch": {
+      "title": "Account (Branch)"
+    },
+    "overview": "Overview",
+    "income": "Income",
+    "expense": "Expense",
+    "inputPrice": "Input Price"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "account": {
+    "executive": {
+      "title": "บัญชี (ผู้บริหาร)"
+    },
+    "province": {
+      "title": "บัญชี (จังหวัด)"
+    },
+    "branch": {
+      "title": "บัญชี (สาขา)"
+    },
+    "overview": "ภาพรวม",
+    "income": "รายได้",
+    "expense": "รายจ่าย",
+    "inputPrice": "ป้อนราคา"
+  }
+}

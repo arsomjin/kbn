@@ -8,18 +8,18 @@ const RenderMonitor = ({ componentName = 'Unknown' }) => {
   renderCount.current += 1;
 
   useEffect(() => {
-    console.log(`[RenderMonitor] ${componentName} mounted`);
+    // console.log(`[RenderMonitor] ${componentName} mounted`);
     return () => {
-      console.log(`[RenderMonitor] ${componentName} unmounted`);
+      // console.log(`[RenderMonitor] ${componentName} unmounted`);
     };
   }, [componentName]);
 
-  console.log(`[RenderMonitor] ${componentName} render #${renderCount.current}`, {
-    hasUser: !!user,
-    hasProfile: !!userProfile,
-    loading,
-    timestamp: new Date().toISOString(),
-  });
+  // console.log(`[RenderMonitor] ${componentName} render #${renderCount.current}`, {
+  //   hasUser: !!user,
+  //   hasProfile: !!userProfile,
+  //   loading,
+  //   timestamp: new Date().toISOString(),
+  // });
 
   if (import.meta.env.DEV) {
     return (

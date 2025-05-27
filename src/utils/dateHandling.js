@@ -8,20 +8,166 @@
  * - ISO strings and other formats
  *
  * Key Features:
- * - Type-safe conversions
+ * - Intelligent value-based date detection (no longer relies on field names)
+ * - Type-safe conversions with comprehensive error handling
  * - Null/undefined handling
  * - Timezone awareness
- * - Error handling with fallbacks
- * - Support for nested objects and arrays
+ * - Support for nested objects and arrays at any depth
+ * - Universal data processing functions for any Firestore operations
+ * - Configurable output formats
  * - Optimized performance
  *
+ * Main Functions:
+ * - processFormDataForFirestore() - Convert data for Firestore saving
+ * - processFirestoreDataForForm() - Convert data from Firestore for forms
+ * - prepareDataForFirestore() - Moved to firestoreUtils.js
+ * - prepareDataFromFirestore() - Moved to firestoreUtils.js
+ *
  * @author KBN Development Team
- * @version 2.0.0
+ * @version 3.0.0
+ *
+ * @example
+ * // Basic usage - these functions work with ANY data structure
+ *
+ * // When saving to Firestore (converts dates to Timestamps):
+ * const processedData = prepareDataForFirestore(formData);
+ * await setDoc(docRef, processedData);
+ *
+ * // When loading from Firestore (converts Timestamps to dayjs for Antd):
+ * const docSnap = await getDoc(docRef);
+ * const formData = prepareDataFromFirestore(docSnap.data());
+ * form.setFieldsValue(formData);
+ *
+ * // Works with nested objects and arrays automatically:
+ * const complexData = {
+ *   user: {
+ *     createdAt: new Date(),
+ *     profile: {
+ *       birthDate: "1990-01-01",
+ *       lastLogin: dayjs()
+ *     }
+ *   },
+ *   events: [
+ *     { date: "2024-01-01", timestamp: 1704067200000 },
+ *     { date: "2024-02-01", timestamp: 1706745600000 }
+ *   ]
+ * };
+ *
+ * // All date values will be automatically detected and converted
+ * const firestoreReady = prepareDataForFirestore(complexData);
+ * const formReady = prepareDataFromFirestore(firestoreData);
  */
 
 import { Timestamp } from 'firebase/firestore';
 import dayjs from './dayjs';
 import { showWarn } from './functions';
+
+// ===== DATE VALUE DETECTION =====
+
+/**
+ * Check if a value appears to be a date/time value based on its content
+ * This is more reliable than checking field names
+ */
+export const isDateValue = (value) => {
+  if (!value) return false;
+
+  // Firestore Timestamp
+  if (
+    value &&
+    typeof value === 'object' &&
+    'toDate' in value &&
+    typeof value.toDate === 'function'
+  ) {
+    return true;
+  }
+
+  // Dayjs object
+  if (dayjs.isDayjs(value)) {
+    return true;
+  }
+
+  // JavaScript Date
+  if (value instanceof Date) {
+    return true;
+  }
+
+  // Unix timestamp (reasonable range: 1970-2100)
+  if (typeof value === 'number' && value > 0 && value < 4102444800000) {
+    // Additional check: if it's a small number, it might be seconds
+    if (value < 10000000000) {
+      // Seconds timestamp (1970-2286)
+      return value > 31536000; // After 1971 to avoid false positives
+    }
+    // Milliseconds timestamp
+    return true;
+  }
+
+  // String that looks like a date
+  if (typeof value === 'string' && value.trim()) {
+    // ISO date patterns
+    const isoPatterns = [
+      /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/, // ISO datetime
+      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/, // SQL datetime
+    ];
+
+    // Common date patterns
+    const datePatterns = [
+      /^\d{1,2}\/\d{1,2}\/\d{4}$/, // MM/DD/YYYY or DD/MM/YYYY
+      /^\d{1,2}-\d{1,2}-\d{4}$/, // MM-DD-YYYY or DD-MM-YYYY
+      /^\d{4}\/\d{1,2}\/\d{1,2}$/, // YYYY/MM/DD
+    ];
+
+    const allPatterns = [...isoPatterns, ...datePatterns];
+
+    // Check patterns first (faster)
+    if (allPatterns.some((pattern) => pattern.test(value.trim()))) {
+      // Verify it's actually parseable as a date
+      const parsed = new Date(value);
+      return !isNaN(parsed.getTime()) && parsed.getFullYear() > 1900 && parsed.getFullYear() < 2100;
+    }
+
+    // Try parsing with dayjs for more formats
+    const parsed = dayjs(value);
+    if (parsed.isValid() && parsed.year() > 1900 && parsed.year() < 2100) {
+      return true;
+    }
+  }
+
+  return false;
+};
+
+/**
+ * Check if a value should be converted to a date format
+ * More conservative than isDateValue - only converts obvious date types
+ */
+export const shouldConvertToDate = (value) => {
+  if (!value) return false;
+
+  // Always convert these obvious date types
+  if (
+    value instanceof Date ||
+    dayjs.isDayjs(value) ||
+    (value && typeof value === 'object' && typeof value.toDate === 'function')
+  ) {
+    return true;
+  }
+
+  // Be more conservative with strings and numbers
+  if (typeof value === 'string') {
+    // Only convert strings that look very much like dates
+    const isoPatterns = [/^\d{4}-\d{2}-\d{2}$/, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/];
+    return isoPatterns.some((pattern) => pattern.test(value.trim()));
+  }
+
+  // Only convert numbers that are clearly timestamps
+  if (typeof value === 'number' && value > 946684800000 && value < 4102444800000) {
+    // Between 2000 and 2100 in milliseconds
+    return true;
+  }
+
+  return false;
+};
 
 // ===== DATE FIELD DETECTION =====
 
@@ -197,14 +343,20 @@ export const toISOString = (input, options = {}) => {
 
 /**
  * Process form data before saving to Firestore
- * Converts all date fields to Firestore Timestamps
+ * Converts all date values to Firestore Timestamps based on value content, not field names
  */
 export const processFormDataForFirestore = (data, options = {}) => {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     return data;
   }
 
-  const { excludeFields = [], includeFields, processNested = true, dateOptions = {} } = options;
+  const {
+    excludeFields = [],
+    includeFields,
+    processNested = true,
+    dateOptions = {},
+    convertDates = true, // New option to disable date conversion if needed
+  } = options;
 
   const result = { ...data };
 
@@ -223,26 +375,16 @@ export const processFormDataForFirestore = (data, options = {}) => {
     // If include list is specified, only process those fields
     if (includeFields && !includeFields.includes(key)) return;
 
-    if (isDateField(key)) {
-      // Only convert if value is a valid date-like type
-      if (
-        value === null ||
-        typeof value === 'undefined' ||
-        value === '' ||
-        value instanceof Date ||
-        typeof value === 'string' ||
-        typeof value === 'number' ||
-        (typeof value === 'object' &&
-          value !== null &&
-          (typeof value.toDate === 'function' || // Firestore Timestamp
-            (typeof value.isValid === 'function' && value.isValid()))) // dayjs
-      ) {
-        const ts = toFirestoreTimestamp(value, dateOptions);
-        result[key] = ts ?? null;
-      } else {
-        // If not a valid date-like value, set to null
-        result[key] = null;
-      }
+    // Check if value should be converted to Firestore Timestamp
+    if (convertDates && shouldConvertToDate(value)) {
+      const ts = toFirestoreTimestamp(value, dateOptions);
+      result[key] = ts ?? null;
+      return;
+    }
+
+    // Handle null values (preserve them)
+    if (value === null) {
+      result[key] = null;
       return;
     }
 
@@ -254,11 +396,18 @@ export const processFormDataForFirestore = (data, options = {}) => {
 
     // Process arrays
     if (processNested && Array.isArray(value)) {
-      result[key] = value.map((item) =>
-        typeof item === 'object' && item !== null
-          ? processFormDataForFirestore(item, options)
-          : item,
-      );
+      result[key] = value.map((item) => {
+        // Convert date values in arrays
+        if (convertDates && shouldConvertToDate(item)) {
+          const ts = toFirestoreTimestamp(item, dateOptions);
+          return ts ?? null;
+        }
+        // Process nested objects in arrays
+        if (typeof item === 'object' && item !== null) {
+          return processFormDataForFirestore(item, options);
+        }
+        return item;
+      });
       return;
     }
   });
@@ -268,14 +417,21 @@ export const processFormDataForFirestore = (data, options = {}) => {
 
 /**
  * Process Firestore data for form components
- * Converts all Timestamp fields to Dayjs objects for Antd
+ * Converts all date values to appropriate format based on value content, not field names
  */
 export const processFirestoreDataForForm = (data, options = {}) => {
   if (!data || typeof data !== 'object' || Array.isArray(data)) {
     return data;
   }
 
-  const { excludeFields = [], includeFields, processNested = true, dateOptions = {} } = options;
+  const {
+    excludeFields = [],
+    includeFields,
+    processNested = true,
+    dateOptions = {},
+    convertDates = true, // New option to disable date conversion if needed
+    outputFormat = 'dayjs', // 'dayjs', 'iso', 'date' - format for converted dates
+  } = options;
 
   const result = { ...data };
 
@@ -288,26 +444,33 @@ export const processFirestoreDataForForm = (data, options = {}) => {
     // If include list is specified, only process those fields
     if (includeFields && !includeFields.includes(key)) return;
 
-    // Process date fields with value type check
-    if (isDateField(key)) {
+    // Check if value should be converted from Firestore format
+    if (convertDates && isDateValue(value)) {
       if (value === null || typeof value === 'undefined' || value === '') {
         result[key] = undefined;
-      } else if (
-        value instanceof Date ||
-        typeof value === 'string' ||
-        typeof value === 'number' ||
-        (typeof value === 'object' &&
-          value !== null &&
-          (typeof value.toDate === 'function' ||
-            (typeof value.isValid === 'function' && value.isValid())))
-      ) {
-        // Convert to ISO string (serializable)
-        const isoValue = toISOString(value, dateOptions);
-        result[key] = isoValue;
       } else {
-        // Not a valid date-like value
-        result[key] = undefined;
+        // Convert based on output format preference
+        switch (outputFormat) {
+          case 'dayjs':
+            result[key] = toDayjs(value, dateOptions);
+            break;
+          case 'iso':
+            result[key] = toISOString(value, dateOptions);
+            break;
+          case 'date':
+            result[key] = toJSDate(value, dateOptions);
+            break;
+          default:
+            // Default to dayjs for Antd compatibility
+            result[key] = toDayjs(value, dateOptions);
+        }
       }
+      return;
+    }
+
+    // Handle null values (preserve them as undefined for forms)
+    if (value === null) {
+      result[key] = undefined;
       return;
     }
 
@@ -319,16 +482,61 @@ export const processFirestoreDataForForm = (data, options = {}) => {
 
     // Process arrays
     if (processNested && Array.isArray(value)) {
-      result[key] = value.map((item) =>
-        typeof item === 'object' && item !== null
-          ? processFirestoreDataForForm(item, options)
-          : item,
-      );
+      result[key] = value.map((item) => {
+        // Convert date values in arrays
+        if (convertDates && isDateValue(item)) {
+          if (item === null || typeof item === 'undefined' || item === '') {
+            return undefined;
+          }
+          switch (outputFormat) {
+            case 'dayjs':
+              return toDayjs(item, dateOptions);
+            case 'iso':
+              return toISOString(item, dateOptions);
+            case 'date':
+              return toJSDate(item, dateOptions);
+            default:
+              return toDayjs(item, dateOptions);
+          }
+        }
+        // Process nested objects in arrays
+        if (typeof item === 'object' && item !== null) {
+          return processFirestoreDataForForm(item, options);
+        }
+        return item;
+      });
       return;
     }
   });
 
   return result;
+};
+
+// ===== ENHANCED UTILITY FUNCTIONS =====
+
+/**
+ * NOTE: The main convenience functions prepareDataForFirestore() and prepareDataFromFirestore()
+ * have been moved to ../utils/firestoreUtils.js for better integration with Firestore operations.
+ *
+ * Import them from there:
+ * import { prepareDataForFirestore, prepareDataFromFirestore } from '../utils/firestoreUtils';
+ */
+
+/**
+ * Process data with custom date field detection
+ * Useful when you want to specify exactly which fields are dates
+ */
+export const processDataWithDateFields = (data, dateFields = [], options = {}) => {
+  const { forFirestore = false } = options;
+
+  if (!data || typeof data !== 'object') return data;
+
+  const processFunc = forFirestore ? processFormDataForFirestore : processFirestoreDataForForm;
+
+  return processFunc(data, {
+    ...options,
+    includeFields: dateFields.length > 0 ? dateFields : undefined,
+  });
 };
 
 // ===== UTILITY FUNCTIONS =====
@@ -408,12 +616,12 @@ export const getDateRange = (start, end) => {
  * React hook for form date handling
  */
 export const useDateHandling = () => {
-  const prepareForSave = (formData) => {
-    return processFormDataForFirestore(formData);
+  const prepareForSave = (formData, options = {}) => {
+    return processFormDataForFirestore(formData, options);
   };
 
-  const prepareForForm = (firestoreData) => {
-    return processFirestoreDataForForm(firestoreData);
+  const prepareForForm = (firestoreData, options = {}) => {
+    return processFirestoreDataForForm(firestoreData, options);
   };
 
   const convertToDisplay = (date, format = 'DD/MM/YYYY') => {
@@ -427,6 +635,9 @@ export const useDateHandling = () => {
     toJSDate,
     toDayjs,
     toFirestoreTimestamp,
+    isDateValue,
+    shouldConvertToDate,
+    // Deprecated - kept for backward compatibility
     isDateField,
   };
 };
@@ -487,4 +698,5 @@ export {
   toJSDate as normalizeToDate,
   processFormDataForFirestore as cleanValuesBeforeSave,
   processFirestoreDataForForm as formatValuesBeforeLoad,
+  // NOTE: prepareDataForFirestore and prepareDataFromFirestore have been moved to firestoreUtils.js
 };

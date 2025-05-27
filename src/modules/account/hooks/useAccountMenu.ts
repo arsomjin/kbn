@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
-import { accountMenuConfig } from '../config/menuConfig';
+import { useAccountMenuConfig } from '../config/menuConfig';
 import { RoleCategory, UserRole } from '../../../constants/roles';
 import { useParams } from 'react-router-dom';
 import { MenuProps } from 'antd';
@@ -30,6 +30,9 @@ interface MenuGroup {
 export const useAccountMenu = () => {
   const { userProfile } = useAuth() as { userProfile: UserProfile };
   const { provinceId, branchCode } = useParams<{ provinceId?: string; branchCode?: string }>();
+  const accountMenuConfig = useAccountMenuConfig();
+
+  // console.log('[useAccountMenu] accountMenuConfig:', accountMenuConfig);
 
   const role = userProfile?.role;
 
@@ -44,10 +47,10 @@ export const useAccountMenu = () => {
       Array.isArray(permissions) ? permissions.includes(perm) : !!permissions?.[perm];
 
     // Executive level menu
-    if (getAllowedRolesByCategory(RoleCategory.EXECUTIVE).includes(role)) {
+    if (getAllowedRolesByCategory(RoleCategory.GENERAL_MANAGER).includes(role)) {
       const executiveMenu = accountMenuConfig.executive;
-      console.log('[useAccountMenu] Executive level menu', executiveMenu);
-      console.log('[useAccountMenu] user permissions', permissions);
+      // console.log('[useAccountMenu] Executive level menu', executiveMenu);
+      // console.log('[useAccountMenu] user permissions', permissions);
       const filteredChildren = executiveMenu.children.filter((item) =>
         hasPermission(item.permission),
       );
@@ -98,7 +101,7 @@ export const useAccountMenu = () => {
     }
 
     return items;
-  }, [userProfile, provinceId, branchCode]);
+  }, [userProfile, provinceId, branchCode, accountMenuConfig]);
 
   return menuItems;
 };

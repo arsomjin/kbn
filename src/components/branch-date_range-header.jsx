@@ -50,7 +50,6 @@ const BranchDateRangeHeader = ({
               className="bg-gray-50 dark:bg-gray-700 p-2 rounded"
               steps={steps}
               activeStep={activeStep}
-              alternativeLabel={!isMobile}
             />
           </Col>
         </Row>

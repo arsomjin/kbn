@@ -1,103 +1,106 @@
-import React, { forwardRef, useRef, useImperativeHandle, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Select, Spin } from 'antd';
-import { useTranslation } from 'react-i18next';
 import debounce from 'lodash/debounce';
 
-const DebounceSelect = forwardRef(
-  ({ value, fetchOptions, debounceTimeout = 800, mode, hasAll, ...props }, ref) => {
-    const { t } = useTranslation('components');
+function DebounceSelect({ fetchOptions, debounceTimeout = 800, hasAll, ...props }) {
+  const [fetching, setFetching] = useState(false);
+  const [options, setOptions] = useState([]);
+  const fetchRef = useRef(0);
 
-    const [fetching, setFetching] = React.useState(false);
-    const [options, setOptions] = React.useState([]);
+  const debounceFetcher = React.useMemo(() => {
+    const loadOptions = (value) => {
+      console.log('DebounceSelect: Loading options for value:', value);
+      fetchRef.current += 1;
+      const fetchId = fetchRef.current;
+      setOptions([]);
+      setFetching(true);
 
-    const selectRef = useRef();
+      fetchOptions(value).then((newOptions) => {
+        console.log('DebounceSelect: Received options:', newOptions);
+        if (fetchId !== fetchRef.current) {
+          console.log('DebounceSelect: Ignoring stale results');
+          return;
+        }
 
-    const isMounted = React.useRef(true);
-    useEffect(() => {
-      return () => {
-        isMounted.current = false;
-      };
-    }, []);
+        // Add "All" option if hasAll is true and options exist
+        let finalOptions = newOptions || [];
+        if (hasAll && finalOptions.length > 0) {
+          finalOptions = [{ label: 'All', value: 'all', key: 'all' }, ...finalOptions];
+        }
 
-    useImperativeHandle(
-      ref,
-      () => ({
-        focus: () => {
-          selectRef.current.focus();
-        },
+        setOptions(finalOptions);
+        setFetching(false);
+      });
+    };
 
-        blur: () => {
-          selectRef.current.blur();
-        },
+    return debounce(loadOptions, debounceTimeout);
+  }, [fetchOptions, debounceTimeout, hasAll]);
 
-        clear: () => {
-          selectRef.current.clear();
-        },
+  useEffect(() => {
+    console.log('DebounceSelect: Current options:', options);
+  }, [options]);
 
-        isFocused: () => {
-          return selectRef.current.isFocused();
-        },
+  // Transform value to ensure it's in the correct format for labelInValue
+  const transformValue = (value) => {
+    if (!value) return value;
 
-        setNativeProps(nativeProps) {
-          selectRef.current.setNativeProps(nativeProps);
-        },
-      }),
-      [],
-    );
+    // If labelInValue is not set, return as is
+    if (!props.labelInValue) return value;
 
-    useEffect(() => {
-      // Get initial options from default value.
-      props.value && debounceFetcher(props.value);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props.value]);
+    // Handle array values (multiple/tags mode)
+    if (Array.isArray(value)) {
+      return value.map((item) => {
+        // If already in correct format, return as is
+        if (typeof item === 'object' && item !== null && 'value' in item) {
+          return item;
+        }
 
-    const debounceFetcher = React.useMemo(() => {
-      return debounce((value) => {
-        if (!isMounted.current) return; // Check before any state update
-        setOptions([]);
-        setFetching(true);
-        fetchOptions(value).then((newOptions) => {
-          if (!isMounted.current) return; // Check again after async resolution
-          if (!newOptions) {
-            // for fetch callback order
-            setFetching(false);
-            return;
-          }
-          //  showLog({ newOptions });
-          setOptions(
-            hasAll ? [{ label: t('common.all'), value: 'all' }, ...newOptions] : newOptions,
-          );
-          setFetching(false);
-        });
-      }, debounceTimeout);
-    }, [debounceTimeout, fetchOptions, hasAll, t]);
+        // Find corresponding option to get the label
+        const option = options.find((opt) => opt.value === item);
+        return {
+          value: item,
+          label: option ? option.label : item,
+        };
+      });
+    }
 
-    // Cleanup: cancel the debounced function on unmount
-    useEffect(() => {
-      return () => {
-        debounceFetcher.cancel();
-      };
-    }, [debounceFetcher]);
+    // Handle single values
+    if (typeof value === 'object' && value !== null && 'value' in value) {
+      return value;
+    }
 
-    // showLog({ options });
+    // Find corresponding option to get the label
+    const option = options.find((opt) => opt.value === value);
+    return {
+      value: value,
+      label: option ? option.label : value,
+    };
+  };
 
-    return (
-      <Select
-        ref={selectRef}
-        showSearch
-        mode={mode}
-        // labelInValue
-        filterOption={false}
-        onSearch={debounceFetcher}
-        // loading={fetching}
-        notFoundContent={fetching ? <Spin size="small" /> : null}
-        options={options}
-        disabled={props?.disabled}
-        value={value || undefined}
-        {...props}
-      />
-    );
-  },
-);
+  // Extract hasAll and other non-DOM props to prevent them from being passed to Select
+  const { value, onChange, ...selectProps } = props;
+
+  const handleChange = (newValue) => {
+    console.log('DebounceSelect: onChange called with:', newValue);
+    if (onChange) {
+      onChange(newValue);
+    }
+  };
+
+  return (
+    <Select
+      showSearch
+      mode={selectProps.mode || undefined}
+      labelInValue
+      filterOption={false}
+      onSearch={debounceFetcher}
+      notFoundContent={fetching ? <Spin size="small" /> : null}
+      {...selectProps}
+      options={options}
+      value={transformValue(value)}
+      onChange={handleChange}
+    />
+  );
+}
 
 export default DebounceSelect;

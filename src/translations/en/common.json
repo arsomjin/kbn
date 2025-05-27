@@ -30,6 +30,7 @@
   "all": "All",
   "noData": "No Data",
   "toggleTheme": "Toggle Theme",
+  "noPermissionEdit": "You do not have permission to edit this field.",
   "errors": {
     "notFound": "Sorry, the page you are looking for does not exist.",
     "unexpectedError": "An unexpected error occurred",

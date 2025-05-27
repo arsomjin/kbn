@@ -6,6 +6,7 @@ import DebounceSelect from './DebounceSelect';
 import { createOptionsFromFirestore, createOptionsFromFirestoreKeywords } from 'utils';
 import { arrayForEach, distinctArr } from 'utils/functions';
 import { hasNameAndSurnamePattern } from 'utils/RegEx';
+import { errorHandler } from '../utils/functions';
 
 /**
  * DocSelector Component
@@ -28,7 +29,7 @@ import { hasNameAndSurnamePattern } from 'utils/RegEx';
  * @param {boolean} props.isUsed - Filter for used/unused items
  * @param {Object} ref - Component reference
  */
-export default forwardRef(
+const DocSelector = forwardRef(
   (
     {
       collection,
@@ -47,13 +48,14 @@ export default forwardRef(
       showAddNew,
       startSearchAt,
       isUsed,
+      firestore: firestoreProp,
       ...props
     },
     ref,
   ) => {
     const { t } = useTranslation('components');
     const { showWarning } = useModal();
-    const firestore = getFirestore();
+    const firestore = firestoreProp || getFirestore();
     const isMounted = useRef(true);
     useEffect(() => {
       return () => {
@@ -118,75 +120,124 @@ export default forwardRef(
     };
 
     const handleChange = (val) => {
+      // Extract the actual value from labelInValue format
+      let actualValue = val;
+      if (val && typeof val === 'object' && 'value' in val) {
+        // Single selection with labelInValue
+        actualValue = val.value;
+      } else if (Array.isArray(val)) {
+        // Multiple selection with labelInValue
+        actualValue = val.map((item) =>
+          item && typeof item === 'object' && 'value' in item ? item.value : item,
+        );
+      }
+
       // If the value is the special 'addNew' option, trigger showAddNew.
-      if (Array.isArray(val) ? val[val.length - 1] === 'addNew' : val === 'addNew') {
+      if (
+        Array.isArray(actualValue)
+          ? actualValue[actualValue.length - 1] === 'addNew'
+          : actualValue === 'addNew'
+      ) {
         return showAddNew && showAddNew();
       }
-      // Directly propagate the value change.
-      onChange && onChange(val);
+      // Directly propagate the actual value change.
+      onChange && onChange(actualValue);
     };
 
-    const _fetchSearchList = async (search) => {
-      try {
-        if (!search || (search && search.length < (startSearchAt || 3))) {
+    const fetchSearchList = React.useCallback(
+      async (search) => {
+        try {
+          const fProps = {
+            searchText: search,
+            searchCollection: collection,
+            orderBy,
+            wheres,
+            firestore,
+            labels,
+            startSearchAt,
+            isUsed,
+          };
+
+          let option = hasKeywords
+            ? await createOptionsFromFirestoreKeywords(fProps)
+            : await createOptionsFromFirestore(fProps);
+
+          if (showAddNew) {
+            option = [
+              ...option,
+              {
+                label: t('docSelector.addNew'),
+                value: 'addNew',
+                key: 'addNew',
+                className: 'text-light',
+              },
+            ];
+          }
+          return option;
+        } catch (e) {
+          console.error('[DocSelector] fetchSearchList error:', e);
+          showWarning(e.message || t('common.error'));
           return [];
         }
-        let list = [];
-        const sameNameCase =
-          ['data/sales/customers'].includes(collection) && hasNameAndSurnamePattern(search);
-        if (sameNameCase) {
-          let words = search.split(' ');
-          await arrayForEach(words, async (str) => {
-            if (str) {
-              let arr = await fetchSearchList(str);
-              list = list.concat(arr);
-            }
-          });
-          list = distinctArr(list, ['label', 'value']);
-        } else {
-          list = await fetchSearchList(search);
-        }
-        return isMounted.current ? list : [];
-      } catch (e) {
-        showWarning(e.message || t('common.error'));
-      }
-    };
+      },
+      [
+        collection,
+        orderBy,
+        wheres,
+        firestore,
+        labels,
+        startSearchAt,
+        isUsed,
+        hasKeywords,
+        showAddNew,
+        t,
+        showWarning,
+      ],
+    );
 
-    const fetchSearchList = async (search) => {
-      try {
-        const fProps = {
-          searchText: search,
-          searchCollection: collection,
-          orderBy,
-          wheres,
-          firestore,
-          labels,
-          startSearchAt,
-          isUsed,
-        };
-        let option = hasKeywords
-          ? await createOptionsFromFirestoreKeywords(fProps)
-          : await createOptionsFromFirestore(fProps);
-        if (showAddNew) {
-          option = [
-            ...option,
-            {
-              label: t('docSelector.addNew'),
-              value: 'addNew',
-              key: 'addNew',
-              className: 'text-light',
-            },
-          ];
+    // Memoize _fetchSearchList to avoid debounce issues
+    const _fetchSearchList = React.useCallback(
+      async (search) => {
+        try {
+          if (!search || (search && search.length < (startSearchAt || 4))) {
+            return [];
+          }
+          let list = [];
+          const sameNameCase =
+            ['data/sales/customers'].includes(collection) && hasNameAndSurnamePattern(search);
+          if (sameNameCase) {
+            let words = search.split(' ');
+            await arrayForEach(words, async (str) => {
+              if (str) {
+                let arr = await fetchSearchList(str);
+                list = list.concat(arr);
+              }
+            });
+            const distinctList = distinctArr(list, ['label', 'value'], []);
+            list = distinctList.map((item) => ({
+              ...item,
+              label: String(item.label),
+              value: String(item.value),
+            }));
+          } else {
+            list = await fetchSearchList(search);
+          }
+          return list;
+        } catch (error) {
+          const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+          const customError = new Error(errorMessage);
+          customError.snap = { function: '_fetchSearchList' };
+          console.warn(errorMessage);
+          errorHandler(customError);
+          return [];
         }
-        return option;
-      } catch (e) {
-        showWarning(e.message || t('common.error'));
-      }
-    };
+      },
+      [startSearchAt, collection, fetchSearchList],
+    );
 
     return (
       <DebounceSelect
-        ref={selectRef}
+        showSearch={true}
         mode={mode}
         hasAll={hasAll}
         value={controlledValue}
@@ -201,3 +252,5 @@ export default forwardRef(
     );
   },
 );
+
+export default DocSelector;

@@ -119,7 +119,6 @@ const BranchDateSpecificHeader = ({
               className="bg-gray-50 dark:bg-gray-700 rounded p-2"
               steps={steps}
               activeStep={activeStep}
-              alternativeLabel={false}
             />
           </Col>
         )}

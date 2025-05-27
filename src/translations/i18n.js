@@ -59,6 +59,8 @@ import enAbout from './en/about.json';
 import thAbout from './th/about.json';
 import enHr from './en/hr.json';
 import thHr from './th/hr.json';
+import enMenu from './en/menu.json';
+import thMenu from './th/menu.json';
 
 // Resources object containing translations
 const resources = {
@@ -90,7 +92,8 @@ const resources = {
     inputPrice: enInputPrice,
     time: enTime,
     about: enAbout,
-    hr: enHr
+    hr: enHr,
+    menu: enMenu,
   },
   th: {
     app: thApp,
@@ -120,8 +123,9 @@ const resources = {
     inputPrice: thInputPrice,
     time: thTime,
     about: thAbout,
-    hr: thHr
-  }
+    hr: thHr,
+    menu: thMenu,
+  },
 };
 
 i18n
@@ -162,15 +166,16 @@ i18n
       'inputPrice',
       'time',
       'about',
-      'hr'
+      'hr',
+      'menu',
     ],
     interpolation: {
-      escapeValue: false
+      escapeValue: false,
     },
     detection: {
       order: ['localStorage', 'navigator'],
-      caches: ['localStorage']
-    }
+      caches: ['localStorage'],
+    },
   });
 
-export default i18n; 
+export default i18n;

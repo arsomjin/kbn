@@ -39,7 +39,7 @@ const useFirestoreSync = (
       setError(null);
       return;
     }
-    console.log('[useFirestoreSync] Setting up listener for', collectionPath, 'enabled:', enabled);
+    // console.log('[useFirestoreSync] Setting up listener for', collectionPath, 'enabled:', enabled);
     if (!collectionPath || !setReduxAction) {
       setError('Invalid Firestore collection path or action creator.');
       setLoading(false);
@@ -83,9 +83,10 @@ const useFirestoreSync = (
 
     // Cleanup function
     return () => {
-      console.log('[useFirestoreSync] Cleaning up listener for', collectionPath);
+      // console.log('[useFirestoreSync] Cleaning up listener for', collectionPath);
       unsubscribe();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionPath, setReduxAction, queryConstraints, enabled]);
 
   return { loading: enabled ? loading : false, error: enabled ? error : null };

@@ -159,33 +159,28 @@ export const getEditArr = (editData, users) => {
   });
 };
 
-export const createSelectOptions = ({ arr, orderBy, labels }) =>
-  new Promise(async (r, j) => {
-    try {
-      const option = arr.map((item) => {
-        if (labels || Array.isArray(orderBy)) {
-          let label = '';
-          const items = Array.isArray(labels) ? labels : Array.isArray(orderBy) ? orderBy : [];
-          items.forEach((l, i) => {
-            label = `${label}${
-              item[l] && i > 0 ? (l === 'lastName' ? ' ' : l === 'firstName' ? '' : ' - ') : ''
-            }${item[l] || ''}${['saleNo', 'bookNo'].includes(l) ? ' ' : ''}`;
-          });
-          return {
-            label,
-            value: item[Array.isArray(orderBy) ? orderBy[0] : orderBy],
-          };
-        }
-        return {
-          label: item[orderBy],
-          value: item[orderBy],
-        };
+export const createSelectOptions = ({ arr, orderBy, labels }) => {
+  const option = arr.map((item) => {
+    if (labels || Array.isArray(orderBy)) {
+      let label = '';
+      const items = Array.isArray(labels) ? labels : Array.isArray(orderBy) ? orderBy : [];
+      items.forEach((l, i) => {
+        label = `${label}${
+          item[l] && i > 0 ? (l === 'lastName' ? ' ' : l === 'firstName' ? '' : ' - ') : ''
+        }${item[l] || ''}${['saleNo', 'bookNo'].includes(l) ? ' ' : ''}`;
       });
-      r(option);
-    } catch (e) {
-      j(e);
+      return {
+        label,
+        value: item[Array.isArray(orderBy) ? orderBy[0] : orderBy],
+      };
     }
+    return {
+      label: item[orderBy],
+      value: item[orderBy],
+    };
   });
+  return option;
+};
 
 // Set global search limit and minimum characters
 const GLOBAL_SEARCH_LIMIT = 20;
@@ -237,9 +232,9 @@ export const fetchFirestoreKeywords = async ({
     }
   });
   dataArr = distinctArr(dataArr, [Array.isArray(orderBy) ? orderBy[0] : orderBy], []);
-  console.log(`[fetchFirestoreKeywords] dataArr: ${JSON.stringify(dataArr)}`);
-  console.log(`[fetchFirestoreKeywords] array_length: ${dataArr.length}`);
-  console.log(`[fetchFirestoreKeywords] limit: ${limit}`);
+  // console.log(`[fetchFirestoreKeywords] dataArr: ${JSON.stringify(dataArr)}`);
+  // console.log(`[fetchFirestoreKeywords] array_length: ${dataArr.length}`);
+  // console.log(`[fetchFirestoreKeywords] limit: ${limit}`);
   // Add too many results message if needed
   if (dataArr.length === limit) {
     dataArr.push({ label: 'Too many results, please type more', value: '', disabled: true });
@@ -663,7 +658,7 @@ export const createNewId = (prefix = '') => {
   return `${prefix}${timestamp}${random}`.toUpperCase();
 };
 
-export const createOptionsFromFirestoreKeywords = ({
+export const createOptionsFromFirestoreKeywords = async ({
   searchText,
   searchCollection,
   orderBy,
@@ -672,47 +667,55 @@ export const createOptionsFromFirestoreKeywords = ({
   startSearchAt = GLOBAL_MIN_CHARS,
   labels,
   isUsed,
-}) =>
-  new Promise(async (r, j) => {
-    try {
-      // Only fetch up to GLOBAL_SEARCH_LIMIT results ONCE
-      let dataArr = await fetchFirestoreKeywords({
-        searchText,
-        searchCollection,
-        orderBy,
-        wheres,
-        firestore,
-        startSearchAt,
-        labels,
-        limit: GLOBAL_SEARCH_LIMIT,
-      });
-      if (dataArr.length === 0 && !!dataArr[0]?.productCode) {
-        let ArrIsUsed = dataArr.filter((l) => l.productCode.startsWith('2-'));
-        let ArrIsNew = dataArr.filter((l) => !l.productCode.startsWith('2-'));
-        let limit = 50;
-        while (ArrIsUsed.length > 0 && ArrIsNew.length === 0 && !isUsed) {
-          limit += 50;
-          dataArr = await fetchFirestoreKeywords({
-            searchText,
-            searchCollection,
-            orderBy,
-            wheres,
-            firestore,
-            startSearchAt,
-            labels,
-            limit,
-          });
-          ArrIsUsed = dataArr.filter((l) => l.productCode.startsWith('2-'));
-          ArrIsNew = dataArr.filter((l) => !l.productCode.startsWith('2-'));
-        }
-        dataArr = [...ArrIsNew, ...ArrIsUsed];
+}) => {
+  try {
+    console.log('[createOptionsFromFirestoreKeywords] Called with:', {
+      searchText,
+      searchCollection,
+    });
+    // Only fetch up to GLOBAL_SEARCH_LIMIT results ONCE
+    let dataArr = await fetchFirestoreKeywords({
+      searchText,
+      searchCollection,
+      orderBy,
+      wheres,
+      firestore,
+      startSearchAt,
+      labels,
+      limit: GLOBAL_SEARCH_LIMIT,
+    });
+    console.log('[createOptionsFromFirestoreKeywords] Initial dataArr length:', dataArr.length);
+
+    if (dataArr.length === 0 && !!dataArr[0]?.productCode) {
+      let ArrIsUsed = dataArr.filter((l) => l.productCode.startsWith('2-'));
+      let ArrIsNew = dataArr.filter((l) => !l.productCode.startsWith('2-'));
+      let limit = 50;
+      while (ArrIsUsed.length > 0 && ArrIsNew.length === 0 && !isUsed) {
+        limit += 50;
+        dataArr = await fetchFirestoreKeywords({
+          searchText,
+          searchCollection,
+          orderBy,
+          wheres,
+          firestore,
+          startSearchAt,
+          labels,
+          limit,
+        });
+        ArrIsUsed = dataArr.filter((l) => l.productCode.startsWith('2-'));
+        ArrIsNew = dataArr.filter((l) => !l.productCode.startsWith('2-'));
       }
-      const option = await createSelectOptions({ arr: dataArr, orderBy, labels });
-      r(option);
-    } catch (e) {
-      j(e);
+      dataArr = [...ArrIsNew, ...ArrIsUsed];
     }
-  });
+    const option = await createSelectOptions({ arr: dataArr, orderBy, labels });
+    console.log('[createOptionsFromFirestoreKeywords] Final options length:', option?.length);
+    console.log('[createOptionsFromFirestoreKeywords] Final options sample:', option?.slice(0, 2));
+    return option;
+  } catch (e) {
+    console.error('[createOptionsFromFirestoreKeywords] error:', e);
+    throw e;
+  }
+};
 
 export const createOptionsFromFirestore = ({
   searchText,

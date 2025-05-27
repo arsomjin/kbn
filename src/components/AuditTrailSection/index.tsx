@@ -14,7 +14,7 @@ const AuditTrailSection: React.FC<AuditTrailSectionProps> = ({
   canEditReviewedBy,
   canEditApprovedBy,
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['common']);
 
   return (
     <>

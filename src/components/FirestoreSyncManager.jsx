@@ -29,7 +29,7 @@ const FirestoreSyncManager = () => {
   // Memoize empty constraints arrays to prevent re-creation on every render
   const emptyConstraints = useMemo(() => [], []);
 
-  console.log('[FirestoreSyncManager] Render - user:', !!user, 'isAuth:', isAuth);
+  // console.log('[FirestoreSyncManager] Render - user:', !!user, 'isAuth:', isAuth);
 
   // --- No Authentication Required Listeners ---
   useFirestoreSync('data/company/branches', setBranches, emptyConstraints);

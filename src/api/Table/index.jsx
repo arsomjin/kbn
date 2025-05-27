@@ -708,7 +708,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
             orderBy={['pCode', 'name', 'model']}
             labels={['pCode', 'name', 'model']}
             size={size || 'small'}
-            dropdownStyle={{ minWidth: 420 }}
+            styles={{ popup: { root: { minWidth: 420 } } }}
             dropdownAlign={{ offset: [-80, 4] }}
             onKeyDown={(e) => handleEnterKey(e, ref, save)}
             {...selectProps}
@@ -727,7 +727,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
             collection={collection}
             orderBy={orderBy}
             size={size || 'small'}
-            dropdownStyle={{ minWidth: 300 }}
+            styles={{ popup: { root: { minWidth: 300 } } }}
             dropdownAlign={{ offset: [-80, 4] }}
             onKeyDown={(e) => handleEnterKey(e, ref, save)}
             {...selectProps}
@@ -924,7 +924,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
             size={size || 'small'}
             placeholder="ประเภท"
             optionData={ProductType}
-            dropdownStyle={{ minWidth: 220 }}
+            styles={{ popup: { root: { minWidth: 220 } } }}
             {...selectProps}
           />
         );
@@ -936,7 +936,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
             size={size || 'small'}
             placeholder="ประเภท"
             optionData={['SKC', 'KBN']}
-            dropdownStyle={{ minWidth: 120 }}
+            styles={{ popup: { root: { minWidth: 120 } } }}
             {...selectProps}
           />
         );
@@ -947,7 +947,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
           <CommonSelector
             size={size || 'small'}
             placeholder="ประเภท"
-            dropdownStyle={{ minWidth: 220 }}
+            styles={{ popup: { root: { minWidth: 220 } } }}
             optionData={isWarehouse ? WVehicleType : VehicleType}
             {...selectProps}
           />
@@ -960,7 +960,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
             optionData={['อะไหล่', 'บริการ']}
             size={size || 'small'}
             placeholder="ประเภท"
-            dropdownStyle={{ minWidth: 100 }}
+            styles={{ popup: { root: { minWidth: 100 } } }}
             {...selectProps}
           />
         );
@@ -973,7 +973,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
             optionData={returnOption}
             size={size || 'small'}
             placeholder="จำนวน"
-            dropdownStyle={{ minWidth: 80 }}
+            styles={{ popup: { root: { minWidth: 80 } } }}
             {...selectProps}
           />
         );

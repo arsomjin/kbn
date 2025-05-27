@@ -17,28 +17,98 @@ import {
   increment,
   Timestamp,
   arrayUnion,
-  arrayRemove
+  arrayRemove,
 } from 'firebase/firestore';
 import { firestore } from '../services/firebase';
+import { processFormDataForFirestore, processFirestoreDataForForm } from './dateHandling';
 
 /**
- * Convert Firestore document to an object with ID
+ * Firestore Utilities with Intelligent Date Handling
+ *
+ * All functions in this module automatically handle date conversion:
+ * - When saving: Converts dates to Firestore Timestamps
+ * - When loading: Converts Timestamps to dayjs objects (Antd compatible)
+ *
+ * Key Functions:
+ * - prepareDataForFirestore() - Convert any data for Firestore
+ * - prepareDataFromFirestore() - Convert any data from Firestore
+ * - All CRUD operations (create, update, get, etc.) include automatic date processing
+ *
+ * @version 2.0.0 - Enhanced with automatic date handling
  */
-export const convertDoc = (doc) => {
+
+// ===== DATE HANDLING UTILITIES =====
+
+/**
+ * Auto-process any data for Firestore saving with intelligent date detection
+ * This is the main function to use when saving any data to Firestore
+ *
+ * @param {any} data - The data to process
+ * @param {Object} options - Processing options
+ * @returns {any} Data with dates converted to Firestore Timestamps
+ *
+ * @example
+ * const dataToSave = prepareDataForFirestore(formData);
+ * await setDoc(docRef, dataToSave);
+ */
+export const prepareDataForFirestore = (data, options = {}) => {
+  return processFormDataForFirestore(data, {
+    processNested: true,
+    convertDates: true,
+    ...options,
+  });
+};
+
+/**
+ * Auto-process any data from Firestore for use in forms/UI
+ * This is the main function to use when loading any data from Firestore
+ *
+ * @param {any} data - The data from Firestore
+ * @param {Object} options - Processing options
+ * @returns {any} Data with Timestamps converted to appropriate format
+ *
+ * @example
+ * const docSnap = await getDoc(docRef);
+ * const formData = prepareDataFromFirestore(docSnap.data());
+ * form.setFieldsValue(formData);
+ */
+export const prepareDataFromFirestore = (data, options = {}) => {
+  return processFirestoreDataForForm(data, {
+    processNested: true,
+    convertDates: true,
+    outputFormat: 'dayjs', // Default for Antd compatibility
+    ...options,
+  });
+};
+
+// ===== DOCUMENT UTILITIES =====
+
+/**
+ * Convert Firestore document to an object with ID and optional date processing
+ */
+export const convertDoc = (doc, options = {}) => {
   if (!doc.exists()) {
     throw new Error(`Document doesn't exist: ${doc.id}`);
   }
 
-  return {
+  const docData = {
     id: doc.id,
-    ...doc.data()
+    ...doc.data(),
   };
+
+  // Process data from Firestore (handle date conversions)
+  const { processData = false } = options;
+  if (processData) {
+    return prepareDataFromFirestore(docData, options);
+  }
+
+  return docData;
 };
 
 /**
- * Fetch a document by ID
+ * Fetch a document by ID with automatic date processing
  */
-export const getDocById = async (collectionPath, id) => {
+export const getDocById = async (collectionPath, id, options = {}) => {
   try {
     const segments = collectionPath.split('/');
     const docRef = doc(firestore, ...segments, id);
@@ -48,7 +118,15 @@ export const getDocById = async (collectionPath, id) => {
       return null;
     }
 
-    return convertDoc(snapshot);
+    const docData = convertDoc(snapshot);
+
+    // Process data from Firestore (handle date conversions)
+    const { processData = true } = options;
+    if (processData) {
+      return prepareDataFromFirestore(docData, options);
+    }
+
+    return docData;
   } catch (error) {
     console.error(`Error fetching document ${id} from ${collectionPath}:`, error);
     return null;
@@ -56,17 +134,21 @@ export const getDocById = async (collectionPath, id) => {
 };
 
 /**
- * Create a new document with automatic timestamps
+ * Create a new document with automatic timestamps and date processing
  */
 export const createDocument = async (collectionPath, data, customId) => {
   try {
     const segments = collectionPath.split('/');
     const colRef = collection(firestore, ...segments);
     const docRef = customId ? doc(firestore, ...segments, customId) : doc(colRef);
+
+    // Process data for Firestore (handle date conversions)
+    const processedData = prepareDataForFirestore(data);
+
     const docData = {
-      ...data,
+      ...processedData,
       createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     };
     await setDoc(docRef, docData);
     return docRef.id;
@@ -77,16 +159,20 @@ export const createDocument = async (collectionPath, data, customId) => {
 };
 
 /**
- * Update an existing document
+ * Update an existing document with date processing
  */
 export const updateDocument = async (collectionPath, id, data) => {
   try {
     const segments = collectionPath.split('/');
     const docRef = doc(firestore, ...segments, id);
     const { id: _, ...updateData } = data;
+
+    // Process data for Firestore (handle date conversions)
+    const processedData = prepareDataForFirestore(updateData);
+
     const timestampedData = {
-      ...updateData,
-      updatedAt: serverTimestamp()
+      ...processedData,
+      updatedAt: serverTimestamp(),
     };
     await updateDoc(docRef, timestampedData);
   } catch (error) {
@@ -110,19 +196,18 @@ export const deleteDocument = async (collectionPath, id) => {
 };
 
 /**
- * Fetch documents with pagination support
+ * Fetch documents with pagination support and automatic date processing
  */
-export const getPaginatedDocuments = async (
-  collectionPath,
-  options = {}
-) => {
+export const getPaginatedDocuments = async (collectionPath, options = {}) => {
   try {
     const {
       whereConditions = [],
       orderByField = 'createdAt',
       orderDirection = 'desc',
       limitCount = 20,
-      startAfterDoc = null
+      startAfterDoc = null,
+      processData = true,
+      ...dateOptions
     } = options;
     const segments = collectionPath.split('/');
     const q = collection(firestore, ...segments);
@@ -141,7 +226,9 @@ export const getPaginatedDocuments = async (
     querySnapshot.forEach((doc) => {
       const index = items.length;
       if (index < limitCount) {
-        items.push(convertDoc(doc));
+        const docData = convertDoc(doc);
+        // Process data from Firestore (handle date conversions)
+        items.push(processData ? prepareDataFromFirestore(docData, dateOptions) : docData);
         lastVisible = doc;
       }
     });
@@ -149,20 +236,20 @@ export const getPaginatedDocuments = async (
     return {
       items,
       lastDoc: lastVisible,
-      hasMore
+      hasMore,
     };
   } catch (error) {
     console.error(`Error fetching paginated documents from ${collectionPath}:`, error);
     return {
       items: [],
       lastDoc: null,
-      hasMore: false
+      hasMore: false,
     };
   }
 };
 
 /**
- * Perform a batch write operation (create, update, delete)
+ * Perform a batch write operation (create, update, delete) with date processing
  */
 export const batchOperation = async (operations) => {
   try {
@@ -173,19 +260,25 @@ export const batchOperation = async (operations) => {
       const docRef = doc(firestore, ...segments, id);
 
       switch (type) {
-        case 'create':
+        case 'create': {
+          // Process data for Firestore (handle date conversions)
+          const processedCreateData = prepareDataForFirestore(data);
           batch.set(docRef, {
-            ...data,
+            ...processedCreateData,
             createdAt: serverTimestamp(),
-            updatedAt: serverTimestamp()
+            updatedAt: serverTimestamp(),
           });
           break;
-        case 'update':
+        }
+        case 'update': {
+          // Process data for Firestore (handle date conversions)
+          const processedUpdateData = prepareDataForFirestore(data);
           batch.update(docRef, {
-            ...data,
-            updatedAt: serverTimestamp()
+            ...processedUpdateData,
+            updatedAt: serverTimestamp(),
           });
           break;
+        }
         case 'delete':
           batch.delete(docRef);
           break;
@@ -208,29 +301,30 @@ export const subscribeToDocument = (collectionPath, id, callback) => {
 
   return onSnapshot(
     docRef,
-    snapshot => {
+    (snapshot) => {
       if (snapshot.exists()) {
         callback(convertDoc(snapshot));
       } else {
         callback(null);
       }
     },
-    error => {
+    (error) => {
       console.error(`Error subscribing to document ${id} in ${collectionPath}:`, error);
       callback(null);
-    }
+    },
   );
 };
 
 /**
  * Subscribe to real-time updates for a collection query
  */
-export const subscribeToQuery = (
-  collectionPath,
-  callback,
-  options = {}
-) => {
-  const { whereConditions = [], orderByField = 'createdAt', orderDirection = 'desc', limitCount = 20 } = options;
+export const subscribeToQuery = (collectionPath, callback, options = {}) => {
+  const {
+    whereConditions = [],
+    orderByField = 'createdAt',
+    orderDirection = 'desc',
+    limitCount = 20,
+  } = options;
   const segments = collectionPath.split('/');
   const q = collection(firestore, ...segments);
   let queryObj = query(q);
@@ -244,14 +338,14 @@ export const subscribeToQuery = (
 
   return onSnapshot(
     queryObj,
-    snapshot => {
-      const docs = snapshot.docs.map(doc => convertDoc(doc));
+    (snapshot) => {
+      const docs = snapshot.docs.map((doc) => convertDoc(doc));
       callback(docs);
     },
-    error => {
+    (error) => {
       console.error(`Error subscribing to query in ${collectionPath}:`, error);
       callback([]);
-    }
+    },
   );
 };
 
@@ -265,7 +359,7 @@ export const incrementField = async (collectionPath, id, field, value = 1) => {
 
     await updateDoc(docRef, {
       [field]: increment(value),
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
   } catch (error) {
     console.error(`Error incrementing field ${field} in document ${id}:`, error);
@@ -313,8 +407,8 @@ export const documentExists = async (collectionPath, id) => {
  */
 export const getDocumentsByIds = async (collectionPath, ids) => {
   try {
-    const docs = await Promise.all(ids.map(id => getDocById(collectionPath, id)));
-    return docs.filter(doc => doc !== null);
+    const docs = await Promise.all(ids.map((id) => getDocById(collectionPath, id)));
+    return docs.filter((doc) => doc !== null);
   } catch (error) {
     console.error(`Error fetching multiple documents from ${collectionPath}:`, error);
     throw error;
@@ -322,7 +416,7 @@ export const getDocumentsByIds = async (collectionPath, ids) => {
 };
 
 /**
- * Create or update a document (upsert)
+ * Create or update a document (upsert) with date processing
  */
 export const upsertDocument = async (collectionPath, id, data) => {
   try {
@@ -330,9 +424,14 @@ export const upsertDocument = async (collectionPath, id, data) => {
     const docRef = doc(firestore, ...segments, id);
     const exists = await documentExists(collectionPath, id);
 
+    // Process data for Firestore (handle date conversions)
+    const processedData = prepareDataForFirestore(data);
+
     const docData = {
-      ...data,
-      ...(exists ? { updatedAt: serverTimestamp() } : { createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
+      ...processedData,
+      ...(exists
+        ? { updatedAt: serverTimestamp() }
+        : { createdAt: serverTimestamp(), updatedAt: serverTimestamp() }),
     };
 
     await setDoc(docRef, docData);
@@ -353,7 +452,7 @@ export const softDeleteDocument = async (collectionPath, id) => {
     await updateDoc(docRef, {
       deleted: true,
       deletedAt: serverTimestamp(),
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
   } catch (error) {
     console.error(`Error soft deleting document ${id} from ${collectionPath}:`, error);
@@ -371,7 +470,7 @@ export const restoreDocument = async (collectionPath, id) => {
     await updateDoc(docRef, {
       deleted: false,
       deletedAt: null,
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
   } catch (error) {
     console.error(`Error restoring document ${id} in ${collectionPath}:`, error);
@@ -387,7 +486,7 @@ export const getDocumentsWithArrayContains = async (collectionPath, field, value
     const segments = collectionPath.split('/');
     const q = query(collection(firestore, ...segments), where(field, 'array-contains', value));
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => convertDoc(doc));
+    return querySnapshot.docs.map((doc) => convertDoc(doc));
   } catch (error) {
     console.error(`Error fetching documents with array contains from ${collectionPath}:`, error);
     throw error;
@@ -403,7 +502,7 @@ export const addToArray = async (collectionPath, id, field, value) => {
     const docRef = doc(firestore, ...segments, id);
     await updateDoc(docRef, {
       [field]: arrayUnion(value),
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
   } catch (error) {
     console.error(`Error adding to array field ${field} in document ${id}:`, error);
@@ -420,7 +519,7 @@ export const removeFromArray = async (collectionPath, id, field, value) => {
     const docRef = doc(firestore, ...segments, id);
     await updateDoc(docRef, {
       [field]: arrayRemove(value),
-      updatedAt: serverTimestamp()
+      updatedAt: serverTimestamp(),
     });
   } catch (error) {
     console.error(`Error removing from array field ${field} in document ${id}:`, error);
@@ -431,11 +530,7 @@ export const removeFromArray = async (collectionPath, id, field, value) => {
 /**
  * Get documents with compound queries
  */
-export const getDocumentsWithCompoundQuery = async (
-  collectionPath,
-  conditions,
-  options = {}
-) => {
+export const getDocumentsWithCompoundQuery = async (collectionPath, conditions, options = {}) => {
   try {
     const { orderByField, orderDirection = 'desc', limitCount } = options;
     const segments = collectionPath.split('/');
@@ -455,7 +550,7 @@ export const getDocumentsWithCompoundQuery = async (
     }
 
     const querySnapshot = await getDocs(queryRef);
-    return querySnapshot.docs.map(doc => convertDoc(doc));
+    return querySnapshot.docs.map((doc) => convertDoc(doc));
   } catch (error) {
     console.error(`Error fetching documents with compound query from ${collectionPath}:`, error);
     throw error;
@@ -465,10 +560,7 @@ export const getDocumentsWithCompoundQuery = async (
 /**
  * Get document count for a collection or query
  */
-export const getDocumentCount = async (
-  collectionPath,
-  conditions = []
-) => {
+export const getDocumentCount = async (collectionPath, conditions = []) => {
   try {
     const segments = collectionPath.split('/');
     const collectionRef = collection(firestore, ...segments);
@@ -484,4 +576,4 @@ export const getDocumentCount = async (
     console.error(`Error getting document count from ${collectionPath}:`, error);
     throw error;
   }
-}; 
+};

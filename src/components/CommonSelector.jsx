@@ -18,69 +18,80 @@ const { Option } = Select;
  * @param {Object} ref - Component reference for imperative methods
  * @returns {React.ForwardRefExoticComponent} Common selector component
  */
-export default forwardRef(({ placeholder, hasAll, optionData, ...props }, ref) => {
-  const { t } = useTranslation();
-  const selectRef = useRef();
+const CommonSelector = forwardRef(
+  ({ placeholder, hasAll, optionData, dropdownStyle, ...props }, ref) => {
+    const { t } = useTranslation();
+    const selectRef = useRef();
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      focus: () => {
-        selectRef.current.focus();
-      },
+    useImperativeHandle(
+      ref,
+      () => ({
+        focus: () => {
+          selectRef.current.focus();
+        },
 
-      blur: () => {
-        selectRef.current.blur();
-      },
+        blur: () => {
+          selectRef.current.blur();
+        },
 
-      clear: () => {
-        selectRef.current.clear();
-      },
+        clear: () => {
+          selectRef.current.clear();
+        },
 
-      isFocused: () => {
-        return selectRef.current.isFocused();
-      },
+        isFocused: () => {
+          return selectRef.current.isFocused();
+        },
 
-      setNativeProps(nativeProps) {
-        selectRef.current.setNativeProps(nativeProps);
-      },
-    }),
-    [],
-  );
+        setNativeProps(nativeProps) {
+          selectRef.current.setNativeProps(nativeProps);
+        },
+      }),
+      [],
+    );
 
-  const Options = Array.isArray(optionData)
-    ? optionData.map((it) => (
-        <Option value={it} key={it}>
-          {it}
-        </Option>
-      ))
-    : Object.keys(optionData || {}).map((k) => {
-        return (
-          <Option value={k} key={k}>
-            {optionData[k] || k}
+    const Options = Array.isArray(optionData)
+      ? optionData.map((it) => (
+          <Option value={it} key={it}>
+            {it}
           </Option>
-        );
-      });
+        ))
+      : Object.keys(optionData || {}).map((k) => {
+          return (
+            <Option value={k} key={k}>
+              {optionData[k] || k}
+            </Option>
+          );
+        });
 
-  return (
-    <Select
-      ref={selectRef}
-      placeholder={placeholder || t('components.commonSelector.placeholder')}
-      styles={{ popup: { root: { minWidth: 100, ...props.dropdownStyle } } }}
-      showSearch
-      filterOption={(input, option) =>
-        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-      }
-      {...props}
-    >
-      {hasAll
-        ? [
-            <Option key="all" value="all">
-              {t('common.all')}
-            </Option>,
-            ...Options,
-          ]
-        : Options}
-    </Select>
-  );
-});
+    return (
+      <Select
+        ref={selectRef}
+        placeholder={placeholder || t('components.commonSelector.placeholder')}
+        styles={{
+          popup: {
+            root: {
+              minWidth: 100,
+              ...(dropdownStyle || {}),
+              ...(props.styles?.popup?.root || {}),
+            },
+          },
+        }}
+        showSearch
+        filterOption={(input, option) =>
+          option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+        }
+        {...props}
+      >
+        {hasAll
+          ? [
+              <Option key="all" value="all">
+                {t('common.all')}
+              </Option>,
+              ...Options,
+            ]
+          : Options}
+      </Select>
+    );
+  },
+);
+export default CommonSelector;

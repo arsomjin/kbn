@@ -43,24 +43,13 @@ import { PERMISSIONS } from '../../constants/Permissions';
 const { Header, Sider, Content } = Layout;
 
 /**
- * Returns the correct account base path depending on context.
- */
-const useBasePath = (path) => {
-  const params = useParams();
-  if (params.provinceId && params.branchCode) {
-    return `/${params.provinceId}/${params.branchCode}/${path}`;
-  } else if (params.provinceId) {
-    return `/${params.provinceId}/${path}`;
-  }
-  return `/${path}`;
-};
-
-/**
  * Returns the selected menu key based on the current location.
  */
 const getSelectedKey = (location, isBranchContext, openKeys, setOpenKeys) => {
   const pathname = location.pathname;
-  console.log('[getSelectedKey] pathname', pathname);
+  // console.log('[getSelectedKey] pathname', pathname);
+
+  // Home/Dashboard routes
   if (
     pathname === '/' ||
     pathname.match(/^\/\w+\/overview$/) ||
@@ -72,24 +61,42 @@ const getSelectedKey = (location, isBranchContext, openKeys, setOpenKeys) => {
   ) {
     return 'home';
   }
-  if (isBranchContext && pathname.includes('/account')) {
-    if (pathname.endsWith('/account') || pathname.endsWith('/account/')) return 'account-overview';
-    if (pathname.includes('/account/income')) return 'account-income';
-    if (pathname.includes('/account/expense')) return 'account-expense';
-    if (pathname.includes('/account/input-price')) return 'account-price-input';
-    return 'account';
+
+  // Account routes - Branch context (/:provinceId/:branchCode/account/*)
+  if (pathname.match(/^\/[^/]+\/[^/]+\/account/)) {
+    if (pathname.includes('/account/overview')) return 'branch-account-overview';
+    if (pathname.includes('/account/income')) return 'branch-account-income';
+    if (pathname.includes('/account/expense')) return 'branch-account-expense';
+    if (pathname.includes('/account/input-price')) return 'branch-account-input-price';
+    return 'account-branch';
   }
+
+  // Account routes - Province context (/:provinceId/account/*)
+  if (pathname.match(/^\/[^/]+\/account/)) {
+    if (pathname.includes('/account/overview')) return 'province-account-overview';
+    if (pathname.includes('/account/income')) return 'province-account-income';
+    if (pathname.includes('/account/expense')) return 'province-account-expense';
+    if (pathname.includes('/account/input-price')) return 'province-account-input-price';
+    return 'account-province';
+  }
+
+  // Account routes - Executive context (/account/*)
   if (pathname.startsWith('/account')) {
-    if (pathname === '/account') return 'account-overview';
+    if (pathname === '/account' || pathname.startsWith('/account/overview'))
+      return 'account-overview';
     if (pathname.startsWith('/account/income')) return 'account-income';
     if (pathname.startsWith('/account/expense')) return 'account-expense';
-    if (pathname.startsWith('/account/input-price')) return 'account-price-input';
-    return 'account';
+    if (pathname.startsWith('/account/input-price')) return 'account-input-price';
+    return 'account-executive';
   }
+
+  // Admin routes
   if (pathname.startsWith('/admin/review-users')) return 'user-review';
   if (pathname.startsWith('/admin/send-notification')) return 'send-notification';
   if (pathname.startsWith('/developer')) return 'developer';
   if (pathname.startsWith('/admin/content')) return 'content';
+
+  // Settings routes (with submenu handling)
   if (pathname.startsWith('/admin/users')) {
     if (!openKeys.includes('settings')) setOpenKeys(['settings']);
     return 'user-management';
@@ -102,17 +109,23 @@ const getSelectedKey = (location, isBranchContext, openKeys, setOpenKeys) => {
     if (!openKeys.includes('settings')) setOpenKeys(['settings']);
     return 'system-settings';
   }
-  if (pathname.startsWith('/admin/provinces')) {
+  if (
+    pathname.startsWith('/admin/provinces') ||
+    pathname.startsWith('/special-settings/provinces')
+  ) {
     if (!openKeys.includes('settings')) setOpenKeys(['settings']);
-    return 'provinces';
+    return 'special-settings-provinces';
   }
-  if (pathname.startsWith('/admin/branches')) {
+  if (pathname.startsWith('/admin/branches') || pathname.startsWith('/special-settings/branches')) {
     if (!openKeys.includes('settings')) setOpenKeys(['settings']);
-    return 'branches';
+    return 'special-settings-branches';
   }
+
+  // About routes
   if (pathname.startsWith('/about/system-overview')) {
     return 'system-overview';
   }
+
   return '';
 };
 
@@ -146,7 +159,7 @@ const MainLayout = ({ children }) => {
     })),
   }));
 
-  console.log('[MainLayout] accountMenuItems', accountMenuItems);
+  // console.log('[MainLayout] accountMenuItems', accountMenuItems);
 
   // Responsive behavior
   useEffect(() => {
@@ -286,12 +299,8 @@ const MainLayout = ({ children }) => {
             },
           ],
         },
-        hasRole([ROLES.SUPER_ADMIN, ROLES.EXECUTIVE, ROLES.GENERAL_MANAGER, ROLES.DEVELOPER]) && {
-          key: 'user-management',
-          icon: <TeamOutlined />,
-          label: t('userManagement:title') || 'User Management',
-          onClick: () => navigate('/admin/users'),
-        },
+        // Menu for User Management limit acces to province manager or higher.
+        // Consist of: UserReview, UserRoleManagement
         {
           key: 'system-settings',
           icon: <SettingOutlined />,
