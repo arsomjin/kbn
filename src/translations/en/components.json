@@ -198,9 +198,9 @@
     "defaultMessage": "You have unsaved changes. Are you sure you want to leave?"
   },
   "footer": {
-    "confirmCancel": "Confirm cancellation?",
-    "confirmSave": "Confirm save?",
-    "save": "Save Data"
+    "companyName": "KBN",
+    "copyright": "Copyright ©",
+    "followUs": "Follow us on social media"
   },
   "technician": {
     "title": "Technician Information",

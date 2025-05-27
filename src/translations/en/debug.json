@@ -1,0 +1,29 @@
+{
+  "title": "Route Debug",
+  "currentPath": "Current Path",
+  "userRole": "User Role",
+  "accessLayer": "Access Layer",
+  "routePrefix": "Route Prefix",
+  "accessAllowed": "Access Allowed",
+  "province": "Province",
+  "branch": "Branch",
+  "displayName": "Display Name",
+  "environment": "Environment",
+  "yes": "Yes",
+  "no": "No",
+  "copyPath": "Copy path",
+  "copyPrefix": "Copy prefix",
+  "copied": "Copied!",
+  "provinceId": "Province ID",
+  "branchCode": "Branch Code",
+  "minimize": "Minimize",
+  "expandDebug": "Expand Route Debug",
+  "accessLayers": {
+    "guest": "Guest",
+    "executive": "Executive",
+    "generalManager": "General Manager",
+    "province": "Province",
+    "branchManager": "Branch Manager",
+    "branchStaff": "Branch Staff"
+  }
+}

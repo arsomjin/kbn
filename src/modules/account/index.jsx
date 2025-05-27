@@ -3,7 +3,7 @@ import { Routes, Route, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Layout, Card, Alert } from 'antd';
 import { useAuth } from 'contexts/AuthContext';
-import { hasProvinceAccess } from 'utils/permissions';
+import { usePermissions } from 'hooks/usePermissions';
 import { ROLES, UserRole } from 'constants/roles';
 import { PERMISSIONS } from 'constants/Permissions';
 import Overview from './Overview';
@@ -26,11 +26,12 @@ const Account = () => {
   const { t } = useTranslation();
   const { provinceId } = useParams();
   const { userProfile } = useAuth();
+  const { hasProvinceAccess } = usePermissions();
 
   // Check if user has access to the province
   const checkProvinceAccess = () => {
     if (!provinceId) return true; // If no province context, allow access
-    return hasProvinceAccess(userProfile, provinceId);
+    return hasProvinceAccess(provinceId);
   };
 
   // Check if user has any accounting-related permissions

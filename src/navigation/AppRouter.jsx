@@ -48,6 +48,7 @@ import AccountOverview from '../modules/account/Overview';
 import AccountIncome from '../modules/account/Income';
 import AccountExpense from '../modules/account/Expense';
 import AccountInputPrice from '../modules/account/InputPrice';
+import UserManagement from '../modules/userManagement';
 
 /**
  * Main application router for KBN.
@@ -338,6 +339,45 @@ const AppRouter = () => {
                 allowedRoles={getAllowedRolesByCategory(RoleCategory.BRANCH_MANAGER)}
               >
                 <AccountInputPrice />
+              </PermissionProtectedRoute>
+            }
+          />
+
+          {/* User Management Routes - Executive Level */}
+          <Route
+            path="/admin/*"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.USER_VIEW}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.GENERAL_MANAGER)}
+              >
+                <UserManagement />
+              </PermissionProtectedRoute>
+            }
+          />
+
+          {/* User Management Routes - Province Level */}
+          <Route
+            path=":provinceId/admin/*"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.USER_VIEW}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.PROVINCE_MANAGER)}
+              >
+                <UserManagement />
+              </PermissionProtectedRoute>
+            }
+          />
+
+          {/* User Management Routes - Branch Level */}
+          <Route
+            path=":provinceId/:branchCode/admin/*"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.USER_VIEW}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.BRANCH_MANAGER)}
+              >
+                <UserManagement />
               </PermissionProtectedRoute>
             }
           />

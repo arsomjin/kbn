@@ -13,5 +13,18 @@
     "income": "รายได้",
     "expense": "รายจ่าย",
     "inputPrice": "ป้อนราคา"
+  },
+  "userManagement": {
+    "executive": {
+      "title": "จัดการผู้ใช้ (ผู้บริหาร)"
+    },
+    "province": {
+      "title": "จัดการผู้ใช้ (จังหวัด)"
+    },
+    "branch": {
+      "title": "จัดการผู้ใช้ (สาขา)"
+    },
+    "userReview": "ทบทวนผู้ใช้",
+    "userRoleManager": "จัดการบทบาทผู้ใช้"
   }
 }

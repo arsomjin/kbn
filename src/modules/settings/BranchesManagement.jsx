@@ -40,7 +40,12 @@ const BranchesManagement = () => {
       const branchData = {};
       snapshot.docs.forEach((doc) => {
         if (doc.exists()) {
-          branchData[doc.id] = processFirestoreDataForForm({ ...doc.data(), _key: doc.id });
+          branchData[doc.id] = processFirestoreDataForForm(
+            { ...doc.data(), _key: doc.id },
+            {
+              outputFormat: 'iso',
+            },
+          );
         }
       });
       dispatch(setBranches([branchData, false]));
@@ -50,7 +55,12 @@ const BranchesManagement = () => {
       const data = {};
       snapshot.docs.forEach((doc) => {
         if (doc.exists()) {
-          data[doc.id] = processFirestoreDataForForm({ ...doc.data(), _key: doc.id });
+          data[doc.id] = processFirestoreDataForForm(
+            { ...doc.data(), _key: doc.id },
+            {
+              outputFormat: 'iso',
+            },
+          );
         }
       });
       dispatch(setProvinces([data, false]));

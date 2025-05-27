@@ -227,14 +227,12 @@ export const AuthProvider = ({ children }) => {
 
   /**
    * Checks if the user has any of the required permissions
-   *
-   * @param userPermissions Array of permission strings assigned to the user
    * @param requiredPermissions Array of permissions to check for
    * @returns boolean indicating if user has any of the required permissions
    */
   const hasAnyPermission = useCallback(
     (requiredPermissions) => {
-      if (requiredPermissions.length === 0) {
+      if (!requiredPermissions || requiredPermissions.length === 0) {
         return false;
       }
 

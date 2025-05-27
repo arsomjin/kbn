@@ -28,6 +28,7 @@ export const RoleCategory = {
   PROVINCE_ADMIN: 'province_admin',
   PROVINCE_MANAGER: 'province_manager',
   BRANCH_MANAGER: 'branch_manager',
+  BRANCH_STAFF: 'branch_staff', // For LEAD and USER roles at branch level
   LEAD: 'lead',
   USER: 'user',
   GUEST: 'guest',
@@ -118,6 +119,17 @@ export const ROLE_CATEGORIES = {
     ROLES.DEVELOPER,
   ],
   [RoleCategory.BRANCH_MANAGER]: [
+    ROLES.BRANCH_MANAGER,
+    ROLES.PROVINCE_MANAGER,
+    ROLES.GENERAL_MANAGER,
+    ROLES.PROVINCE_ADMIN,
+    ROLES.EXECUTIVE,
+    ROLES.SUPER_ADMIN,
+    ROLES.DEVELOPER,
+  ],
+  [RoleCategory.BRANCH_STAFF]: [
+    ROLES.LEAD,
+    ROLES.USER,
     ROLES.BRANCH_MANAGER,
     ROLES.PROVINCE_MANAGER,
     ROLES.GENERAL_MANAGER,

@@ -59,7 +59,13 @@ const useFirestoreSync = (
           snapshot.forEach((doc) => {
             if (doc.exists()) {
               // Serialize each document's data before adding to the collection
-              data[doc.id] = processFirestoreDataForForm({ ...doc.data(), _key: doc.id });
+              // Use ISO format for Redux state to ensure serializability
+              data[doc.id] = processFirestoreDataForForm(
+                { ...doc.data(), _key: doc.id },
+                {
+                  outputFormat: 'iso',
+                },
+              );
             }
           });
 

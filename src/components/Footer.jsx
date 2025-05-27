@@ -155,3 +155,5 @@ const Footer = ({
 };
 
 export default Footer;
+
+// Ensure all company name references use t('footer.companyName') and are set to 'KBN' in translations

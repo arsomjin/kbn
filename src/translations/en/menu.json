@@ -13,5 +13,18 @@
     "income": "Income",
     "expense": "Expense",
     "inputPrice": "Input Price"
+  },
+  "userManagement": {
+    "executive": {
+      "title": "User Management (Executive)"
+    },
+    "province": {
+      "title": "User Management (Province)"
+    },
+    "branch": {
+      "title": "User Management (Branch)"
+    },
+    "userReview": "User Review",
+    "userRoleManager": "User Role Manager"
   }
 }

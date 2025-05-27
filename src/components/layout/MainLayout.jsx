@@ -26,15 +26,23 @@ import { useAuth } from 'contexts/AuthContext';
 import { useTheme } from 'hooks/useTheme';
 import { usePermissions } from 'hooks/usePermissions';
 import { useAccountMenu } from '../../modules/account/hooks/useAccountMenu';
+import { useUserManagementMenu } from '../../modules/userManagement/hooks/useUserManagementMenu';
 
 // Components
 import NotificationCenter from '../notifications/NotificationCenter';
 import ThemeSwitch from '../common/ThemeSwitch';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import UserAvatar from '../common/UserAvatar';
+import RouteDebugInfo from '../common/RouteDebugInfo';
 
 // Utils
-import { getUserHomePath } from '../../utils/roleUtils';
+import {
+  getUserHomePath,
+  getUserRoutePrefix,
+  getUserAccessLayer,
+  shouldAllowRouteAccess,
+  getLayerRedirectPath,
+} from '../../utils/roleUtils';
 
 // Constants
 import { ROLES, RoleCategory } from '../../constants/roles';
@@ -92,9 +100,19 @@ const getSelectedKey = (location, isBranchContext, openKeys, setOpenKeys) => {
 
   // Admin routes
   if (pathname.startsWith('/admin/review-users')) return 'user-review';
+  if (pathname.startsWith('/admin/user-role-manager')) return 'user-role-manager';
   if (pathname.startsWith('/admin/send-notification')) return 'send-notification';
   if (pathname.startsWith('/developer')) return 'developer';
   if (pathname.startsWith('/admin/content')) return 'content';
+
+  // User Management routes - Province context (/:provinceId/admin/*)
+  if (pathname.match(/^\/[^/]+\/admin\/review-users/)) return 'province-user-review';
+  if (pathname.match(/^\/[^/]+\/admin\/user-role-manager/)) return 'province-user-role-manager';
+
+  // User Management routes - Branch context (/:provinceId/:branchCode/admin/*)
+  if (pathname.match(/^\/[^/]+\/[^/]+\/admin\/review-users/)) return 'branch-user-review';
+  if (pathname.match(/^\/[^/]+\/[^/]+\/admin\/user-role-manager/))
+    return 'branch-user-role-manager';
 
   // Settings routes (with submenu handling)
   if (pathname.startsWith('/admin/users')) {
@@ -121,8 +139,12 @@ const getSelectedKey = (location, isBranchContext, openKeys, setOpenKeys) => {
     return 'special-settings-branches';
   }
 
-  // About routes
-  if (pathname.startsWith('/about/system-overview')) {
+  // About routes - Handle both root and layer-based paths
+  if (
+    pathname.startsWith('/about/system-overview') ||
+    pathname.match(/^\/[^/]+\/about\/system-overview/) ||
+    pathname.match(/^\/[^/]+\/[^/]+\/about\/system-overview/)
+  ) {
     return 'system-overview';
   }
 
@@ -149,9 +171,40 @@ const MainLayout = ({ children }) => {
   const photoURL =
     user?.photoURL || (userProfile && 'photoURL' in userProfile ? userProfile.photoURL : undefined);
   const accountMenuItemsRaw = useAccountMenu();
+  const userManagementMenuItemsRaw = useUserManagementMenu();
+
+  // Layer-based navigation
+  const userRoutePrefix = getUserRoutePrefix(userProfile);
+  const userAccessLayer = getUserAccessLayer(userProfile);
+
+  // Helper function to create layer-aware navigation
+  const navigateWithLayerCheck = (targetPath) => {
+    if (!userProfile) {
+      navigate(targetPath);
+      return;
+    }
+
+    // Check if user should have access to this route
+    if (shouldAllowRouteAccess(userProfile, targetPath)) {
+      navigate(targetPath);
+    } else {
+      // Redirect to appropriate layer-based path
+      const redirectPath = getLayerRedirectPath(userProfile, targetPath);
+      navigate(redirectPath);
+    }
+  };
 
   // Add onClick to each child in accountMenuItems
   const accountMenuItems = accountMenuItemsRaw.map((group) => ({
+    ...group,
+    children: group.children.map((child) => ({
+      ...child,
+      onClick: () => navigate(child.path),
+    })),
+  }));
+
+  // Add onClick to each child in userManagementMenuItems
+  const userManagementMenuItems = userManagementMenuItemsRaw.map((group) => ({
     ...group,
     children: group.children.map((child) => ({
       ...child,
@@ -187,6 +240,39 @@ const MainLayout = ({ children }) => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, [isMobile]);
+
+  // Cross-layer access prevention
+  useEffect(() => {
+    if (!userProfile || !location.pathname) return;
+
+    // Skip check for certain paths that don't need layer enforcement
+    const skipPaths = [
+      '/login',
+      '/register',
+      '/forgot-password',
+      '/complete-profile',
+      '/pending',
+      '/landing',
+    ];
+    if (skipPaths.some((path) => location.pathname.startsWith(path))) return;
+
+    // Check if current route is allowed for user's layer
+    if (!shouldAllowRouteAccess(userProfile, location.pathname)) {
+      console.warn(
+        `[MainLayout] User at layer "${userAccessLayer}" attempted to access route outside their layer: ${location.pathname}`,
+      );
+
+      // Get the appropriate redirect path
+      const redirectPath = getLayerRedirectPath(userProfile, location.pathname);
+
+      if (redirectPath !== location.pathname) {
+        console.info(
+          `[MainLayout] Redirecting user to their layer-appropriate path: ${redirectPath}`,
+        );
+        navigate(redirectPath, { replace: true });
+      }
+    }
+  }, [userProfile, location.pathname, userAccessLayer, navigate]);
 
   // Language change
   const changeLanguage = (language) => i18n.changeLanguage(language);
@@ -243,6 +329,26 @@ const MainLayout = ({ children }) => {
     icon: <DashboardOutlined />,
   };
 
+  // Layer-aware navigation helper for admin/system routes
+  const getLayerAwarePath = (basePath) => {
+    // Only executive layer can access root-level admin routes
+    if (userAccessLayer === 'executive') {
+      return basePath;
+    }
+
+    // For non-executive users, prefix with their route prefix
+    // but only for certain modules that support layer-based access
+    const supportedModules = ['about', 'account'];
+    const module = basePath.split('/')[1];
+
+    if (supportedModules.includes(module)) {
+      return `${userRoutePrefix.slice(0, -1)}${basePath}`;
+    }
+
+    // For admin-only routes, restrict access
+    return null;
+  };
+
   // Navigation items
   const navItemsRaw = [
     {
@@ -252,68 +358,97 @@ const MainLayout = ({ children }) => {
       onClick: () => navigate(homeMenu.path),
     },
     ...accountMenuItems,
-    hasPermission(PERMISSIONS.USER_ROLE_EDIT) && {
-      key: 'user-review',
-      icon: <TeamOutlined />,
-      label: t('userReview:title'),
-      onClick: () => navigate('/admin/review-users'),
-    },
-    hasRole(ROLES.PROVINCE_ADMIN) && {
-      key: 'send-notification',
-      icon: <TeamOutlined />,
-      label: t('sendNotification:title') || 'Send Notification',
-      onClick: () => navigate('/admin/send-notification'),
-    },
+    ...userManagementMenuItems,
+
+    // Send Notification - Province admin and above
+    hasRole(ROLES.PROVINCE_ADMIN) &&
+      (['executive', 'general_manager'].includes(userAccessLayer) ||
+        userAccessLayer === 'province') && {
+        key: 'send-notification',
+        icon: <TeamOutlined />,
+        label: t('sendNotification:title') || 'Send Notification',
+        onClick: () => {
+          const path =
+            userAccessLayer === 'executive'
+              ? '/admin/send-notification'
+              : `${userRoutePrefix}admin/send-notification`;
+          navigateWithLayerCheck(path);
+        },
+      },
+
+    // Developer tools - Developer role only
     hasRole(ROLES.DEVELOPER) && {
       key: 'developer',
       icon: <DashboardOutlined />,
       label: t('developer:title') || 'Developer',
-      onClick: () => navigate('/developer'),
+      onClick: () => navigateWithLayerCheck('/developer'),
     },
-    hasPermission(PERMISSIONS.CONTENT_EDIT) && {
-      key: 'content',
-      icon: <DashboardOutlined />,
-      label: t('content:title') || 'Content',
-      onClick: () => navigate('/admin/content'),
-    },
+
+    // Content management - Executive layer only
+    hasPermission(PERMISSIONS.CONTENT_EDIT) &&
+      userAccessLayer === 'executive' && {
+        key: 'content',
+        icon: <DashboardOutlined />,
+        label: t('content:title') || 'Content',
+        onClick: () => navigateWithLayerCheck('/admin/content'),
+      },
+
+    // Settings - Role and layer based
     (hasPermission(PERMISSIONS.SYSTEM_SETTINGS_VIEW) ||
       hasPermission(PERMISSIONS.SPECIAL_SETTINGS_VIEW)) && {
       key: 'settings',
       icon: <SettingOutlined />,
       label: t('common:settings') || 'Settings',
       children: [
-        hasRole([ROLES.SUPER_ADMIN, ROLES.EXECUTIVE, ROLES.DEVELOPER]) && {
-          key: 'special-settings',
-          icon: <TeamOutlined />,
-          label: t('systemSettings:specialSettings') || 'Special Settings',
-          children: [
-            {
-              key: 'special-settings-provinces',
-              label: t('systemSettings:provinces') || 'จังหวัด',
-              onClick: () => navigate('/special-settings/provinces'),
-            },
-            {
-              key: 'special-settings-branches',
-              label: t('systemSettings:branches') || 'สาขา',
-              onClick: () => navigate('/special-settings/branches'),
-            },
-          ],
-        },
-        // Menu for User Management limit acces to province manager or higher.
-        // Consist of: UserReview, UserRoleManagement
+        // Special Settings - Executive only
+        hasRole([ROLES.SUPER_ADMIN, ROLES.EXECUTIVE, ROLES.DEVELOPER]) &&
+          userAccessLayer === 'executive' && {
+            key: 'special-settings',
+            icon: <TeamOutlined />,
+            label: t('systemSettings:specialSettings') || 'Special Settings',
+            children: [
+              {
+                key: 'special-settings-provinces',
+                label: t('systemSettings:provinces') || 'จังหวัด',
+                onClick: () => navigateWithLayerCheck('/special-settings/provinces'),
+              },
+              {
+                key: 'special-settings-branches',
+                label: t('systemSettings:branches') || 'สาขา',
+                onClick: () => navigateWithLayerCheck('/special-settings/branches'),
+              },
+            ],
+          },
+        // System Settings - Layer aware
         {
           key: 'system-settings',
           icon: <SettingOutlined />,
           label: t('systemSettings:title') || 'System Settings',
-          onClick: () => navigate('/admin/settings'),
+          onClick: () => {
+            const path =
+              userAccessLayer === 'executive'
+                ? '/admin/settings'
+                : `${userRoutePrefix}admin/settings`;
+            navigateWithLayerCheck(path);
+          },
         },
       ].filter(Boolean),
     },
+
+    // System Overview - Available to all but layer-aware
     {
       key: 'system-overview',
       icon: <DashboardOutlined />,
       label: t('about:systemOverview') || 'System Overview',
-      onClick: () => navigate('/about/system-overview'),
+      onClick: () => {
+        const path = getLayerAwarePath('/about/system-overview');
+        if (path) {
+          navigateWithLayerCheck(path);
+        } else {
+          // Fallback to user's home if not supported at their layer
+          navigate(getUserHomePath(userProfile));
+        }
+      },
     },
   ];
 
@@ -499,6 +634,7 @@ const MainLayout = ({ children }) => {
           }
         >
           {children || <Outlet />}
+          <RouteDebugInfo />
         </Content>
       </Layout>
     </Layout>

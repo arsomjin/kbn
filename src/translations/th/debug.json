@@ -1,0 +1,29 @@
+{
+  "title": "ข้อมูลการดีบัก",
+  "currentPath": "เส้นทางปัจจุบัน",
+  "userRole": "บทบาทผู้ใช้",
+  "accessLayer": "ระดับการเข้าถึง",
+  "routePrefix": "คำนำหน้าเส้นทาง",
+  "accessAllowed": "อนุญาตให้เข้าถึง",
+  "province": "จังหวัด",
+  "branch": "สาขา",
+  "displayName": "ชื่อที่แสดง",
+  "environment": "สภาพแวดล้อม",
+  "yes": "ใช่",
+  "no": "ไม่",
+  "copyPath": "คัดลอกเส้นทาง",
+  "copyPrefix": "คัดลอกคำนำหน้า",
+  "copied": "คัดลอกแล้ว!",
+  "provinceId": "รหัสจังหวัด",
+  "branchCode": "รหัสสาขา",
+  "minimize": "ย่อเก็บ",
+  "expandDebug": "ขยายข้อมูลการดีบัก",
+  "accessLayers": {
+    "guest": "ผู้เยี่ยมชม",
+    "executive": "ผู้บริหารระดับสูง",
+    "generalManager": "ผู้จัดการทั่วไป",
+    "province": "จังหวัด",
+    "branchManager": "ผู้จัดการสาขา",
+    "branchStaff": "พนักงานสาขา"
+  }
+}

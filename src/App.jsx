@@ -10,7 +10,6 @@ import ErrorBoundary from './components/common/ErrorBoundary';
 import { useSelector } from 'react-redux';
 import { useNotifications } from 'hooks/useNotifications';
 import { ModalProvider } from 'contexts/ModalContext';
-import { PermissionProvider } from 'contexts/PermissionContext';
 
 import { getAntDesignConfig } from './theme/themeConfig';
 // Redux store
@@ -41,15 +40,13 @@ const ThemeAppContent = () => {
       <AntdApp notification={{ placement: 'topRight' }}>
         <ModalProvider>
           <NotificationProvider>
-            <PermissionProvider>
-              <EnterKeyNavigationProvider>
-                <BrowserRouter>
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <AppRouter />
-                  </Suspense>
-                </BrowserRouter>
-              </EnterKeyNavigationProvider>
-            </PermissionProvider>
+            <EnterKeyNavigationProvider>
+              <BrowserRouter>
+                <Suspense fallback={<LoadingSpinner />}>
+                  <AppRouter />
+                </Suspense>
+              </BrowserRouter>
+            </EnterKeyNavigationProvider>
           </NotificationProvider>
         </ModalProvider>
       </AntdApp>

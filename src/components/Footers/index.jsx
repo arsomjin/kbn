@@ -86,3 +86,5 @@ export const FooterContent = () => {
     </div>
   );
 };
+
+// NOTE: Ensure t('footer.companyName') in translations is set to 'KBN' for both languages.

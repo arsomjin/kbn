@@ -61,6 +61,8 @@ import enHr from './en/hr.json';
 import thHr from './th/hr.json';
 import enMenu from './en/menu.json';
 import thMenu from './th/menu.json';
+import enDebug from './en/debug.json';
+import thDebug from './th/debug.json';
 
 // Resources object containing translations
 const resources = {
@@ -94,6 +96,7 @@ const resources = {
     about: enAbout,
     hr: enHr,
     menu: enMenu,
+    debug: enDebug,
   },
   th: {
     app: thApp,
@@ -125,6 +128,7 @@ const resources = {
     about: thAbout,
     hr: thHr,
     menu: thMenu,
+    debug: thDebug,
   },
 };
 
@@ -168,6 +172,7 @@ i18n
       'about',
       'hr',
       'menu',
+      'debug',
     ],
     interpolation: {
       escapeValue: false,
