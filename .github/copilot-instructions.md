@@ -15,11 +15,13 @@ KBN is an enterprise-level business management platform built with React, JavaSc
 - Single province → Multi-province architecture
 - Implement full RBAC across provinces, branches, and roles
 - Maintain backward compatibility with existing data
+- Modify Firebase to the new modular SDK.
 - Include full bilingual support (Thai/English, with Thai as default language)
 - A modern dark/light mode interface.
 - Convert date libraries to Dayjs
 - Complete i18next integration throughout the app
 - Migrate from CRA to Vite for improved dev performance
+- Display all user-facing messages, errors using the `useModal` hook for consistent UX.
 
 ## Tech Stack
 
@@ -131,6 +133,45 @@ See [design system documentation](/docs/design-system.md) for colors, typography
 ## Role-Based Access Control
 
 See [RBAC documentation](/docs/rbac.md) for detailed role hierarchy and permissions. The implementation is available in `/src/constants/roles.ts` which defines role types, hierarchy, and permission mappings.
+
+## Firebase Modular SDK Migration
+
+All Firebase usage must follow the new **Modular SDK** syntax.
+
+- **DO NOT** use namespaced SDK (e.g. `firebase.firestore()`).
+- Use modular imports and function calls instead.
+
+### Before (namespaced SDK)
+
+```js
+import firebase from 'firebase/app';
+import 'firebase/firestore';
+
+const db = firebase.firestore();
+const docRef = db.collection('users').doc(userId);
+```
+
+### After (Modular SDK)
+
+```js
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const docRef = doc(db, 'users', userId);
+const snapshot = await getDoc(docRef);
+```
+
+### Migration Guidance
+
+- Update all Firebase-related code to use `getFirestore`, `getAuth`, `getStorage`, etc.
+- Replace `collection(db, 'path')` and `doc(db, 'path')` patterns.
+- Prefer named imports from `'firebase/firestore'`, `'firebase/auth'`, etc.
+- Use `async/await` instead of promise chaining when possible.
+- Ensure compatibility with Vite tree-shaking optimizations.
+
+Refer to official docs: [Firebase Modular SDK Upgrade Guide](https://firebase.google.com/docs/web/modular-upgrade)
 
 ## Translation Usage
 

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useMemo, useCallback } from 'react';
 import {
   signInWithEmailAndPassword,
   signInWithPopup,
@@ -63,6 +63,7 @@ export const AuthProvider = ({ children }) => {
       setUser(user);
       if (!user) {
         console.log('[AuthContext] No user, clearing profile');
+        setUserProfile(null);
         setCurrentProvinceId(null);
         setLoading(false);
       }
@@ -142,7 +143,7 @@ export const AuthProvider = ({ children }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.uid]); // Only re-run if user ID changes
 
-  const login = async (email, password) => {
+  const login = useCallback(async (email, password) => {
     try {
       setError(null);
       await signInWithEmailAndPassword(auth, email, password);
@@ -150,9 +151,9 @@ export const AuthProvider = ({ children }) => {
       setError(err instanceof Error ? err : new Error('Login failed'));
       throw err;
     }
-  };
+  }, []);
 
-  const loginWithGoogle = async () => {
+  const loginWithGoogle = useCallback(async () => {
     try {
       setError(null);
       const provider = new GoogleAuthProvider();
@@ -161,9 +162,9 @@ export const AuthProvider = ({ children }) => {
       setError(err instanceof Error ? err : new Error('Google login failed'));
       throw err;
     }
-  };
+  }, []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       setError(null);
       await signOut(auth);
@@ -171,31 +172,37 @@ export const AuthProvider = ({ children }) => {
       setError(err instanceof Error ? err : new Error('Logout failed'));
       throw err;
     }
-  };
+  }, []);
 
-  const updateProfile = async (data) => {
-    if (!user) throw new Error('No user logged in');
-    try {
-      const userRef = doc(db, 'users', user.uid);
-      await updateDoc(userRef, {
-        ...data,
-        updatedAt: new Date(),
-      });
-      setUserProfile((prev) => (prev ? { ...prev, ...data } : null));
-    } catch (err) {
-      setError(err instanceof Error ? err : new Error('Failed to update profile'));
-      throw err;
-    }
-  };
+  const updateProfile = useCallback(
+    async (data) => {
+      if (!user) throw new Error('No user logged in');
+      try {
+        const userRef = doc(db, 'users', user.uid);
+        await updateDoc(userRef, {
+          ...data,
+          updatedAt: new Date(),
+        });
+        setUserProfile((prev) => (prev ? { ...prev, ...data } : null));
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error('Failed to update profile'));
+        throw err;
+      }
+    },
+    [user],
+  );
 
-  const switchProvince = async (provinceId) => {
-    if (!(userProfile?.accessibleProvinceIds || []).includes(provinceId)) {
-      throw new Error('User does not have access to this province');
-    }
-    setCurrentProvinceId(provinceId);
-  };
+  const switchProvince = useCallback(
+    async (provinceId) => {
+      if (!(userProfile?.accessibleProvinceIds || []).includes(provinceId)) {
+        throw new Error('User does not have access to this province');
+      }
+      setCurrentProvinceId(provinceId);
+    },
+    [userProfile?.accessibleProvinceIds],
+  );
 
-  const refreshUserData = async () => {
+  const refreshUserData = useCallback(async () => {
     if (!user) return;
     setIsProfileLoading(true);
     try {
@@ -209,11 +216,14 @@ export const AuthProvider = ({ children }) => {
     } finally {
       setIsProfileLoading(false);
     }
-  };
+  }, [user]);
 
-  const hasPermission = (permission) => {
-    return userProfile?.permissions?.includes(permission) ?? false;
-  };
+  const hasPermission = useCallback(
+    (permission) => {
+      return userProfile?.permissions?.includes(permission) ?? false;
+    },
+    [userProfile?.permissions],
+  );
 
   /**
    * Checks if the user has any of the required permissions
@@ -222,20 +232,28 @@ export const AuthProvider = ({ children }) => {
    * @param requiredPermissions Array of permissions to check for
    * @returns boolean indicating if user has any of the required permissions
    */
-  const hasAnyPermission = (requiredPermissions) => {
-    if (requiredPermissions.length === 0) {
-      return false;
-    }
+  const hasAnyPermission = useCallback(
+    (requiredPermissions) => {
+      if (requiredPermissions.length === 0) {
+        return false;
+      }
 
-    return requiredPermissions.some((permission) => userProfile?.permissions?.includes(permission));
-  };
+      return requiredPermissions.some((permission) =>
+        userProfile?.permissions?.includes(permission),
+      );
+    },
+    [userProfile?.permissions],
+  );
 
-  const hasRole = (role) => {
-    if (Array.isArray(role)) {
-      return role.includes(userProfile?.role ?? '');
-    }
-    return userProfile?.role === role;
-  };
+  const hasRole = useCallback(
+    (role) => {
+      if (Array.isArray(role)) {
+        return role.includes(userProfile?.role ?? '');
+      }
+      return userProfile?.role === role;
+    },
+    [userProfile?.role],
+  );
 
   /**
    * Helper function to check if a role has higher or equal privileges than another
@@ -243,13 +261,16 @@ export const AuthProvider = ({ children }) => {
    * @param requiredRole - The role being checked against
    * @returns boolean indicating if the user has sufficient privileges
    */
-  const hasPrivilege = (requiredRole) => {
-    const userRoleLevel = getPrivilegeLevel(userProfile?.role ?? '');
-    const requiredRoleLevel = getPrivilegeLevel(requiredRole);
+  const hasPrivilege = useCallback(
+    (requiredRole) => {
+      const userRoleLevel = getPrivilegeLevel(userProfile?.role ?? '');
+      const requiredRoleLevel = getPrivilegeLevel(requiredRole);
 
-    // Lower numbers have higher privilege
-    return userRoleLevel <= requiredRoleLevel;
-  };
+      // Lower numbers have higher privilege
+      return userRoleLevel <= requiredRoleLevel;
+    },
+    [userProfile?.role],
+  );
 
   /**
    * Check if a user should be hidden from the current user's view
@@ -257,73 +278,99 @@ export const AuthProvider = ({ children }) => {
    * @param targetUser - The user being checked
    * @returns true if the target user should be hidden from current user
    */
-  const shouldHideUserFromView = (targetUser) => {
-    console.log('[AuthContext] Checking if user should be hidden from view:', {
-      targetUser,
-      currentUser: userProfile,
-    });
-    if (!userProfile || !targetUser) {
-      return false;
-    }
+  const shouldHideUserFromView = useCallback(
+    (targetUser) => {
+      console.log('[AuthContext] Checking if user should be hidden from view:', {
+        targetUser,
+        currentUser: userProfile,
+      });
+      if (!userProfile || !targetUser) {
+        return false;
+      }
 
-    // If current user is not a developer but target user is a developer, hide the target user
-    const currentUserIsDev = isDev({ email: userProfile.email || '', role: userProfile?.role });
-    const targetUserIsDev = isDev({ email: targetUser.email || '', role: targetUser.role });
+      // If current user is not a developer but target user is a developer, hide the target user
+      const currentUserIsDev = isDev({ email: userProfile.email || '', role: userProfile?.role });
+      const targetUserIsDev = isDev({ email: targetUser.email || '', role: targetUser.role });
 
-    return !currentUserIsDev && targetUserIsDev;
-  };
+      return !currentUserIsDev && targetUserIsDev;
+    },
+    [userProfile],
+  );
 
-  const resetAuthError = () => {
+  const resetAuthError = useCallback(() => {
     setError(null);
-  };
+  }, []);
 
   // Consider authenticated if we have a user, even if profile is still loading
   const isAuthenticated = !!user;
 
-  const value = {
-    // State
-    user,
-    userProfile,
-    loading: loading || isProfileLoading,
-    error,
-    currentProvinceId,
+  const value = useMemo(
+    () => ({
+      // State
+      user,
+      userProfile,
+      loading: loading || isProfileLoading,
+      error,
+      currentProvinceId,
 
-    // Computed values
-    isAuthenticated,
-    isProfileComplete: userProfile?.isProfileComplete ?? false,
-    hasProvinceAccess: (provinceId) => {
-      return (
-        !!(userProfile?.accessibleProvinceIds || []).includes(provinceId) ||
-        (userProfile?.provinceId || '').includes(provinceId)
-      );
-    },
-    hasBranchAccess: (branchCode) => {
-      return userProfile?.employeeInfo?.branch === branchCode;
-    },
-    hasDepartmentAccess: (departmentCode) => {
-      return userProfile?.employeeInfo?.department === departmentCode;
-    },
-    hasNoProfile: !userProfile,
-    isLoading: loading || isProfileLoading,
+      // Computed values
+      isAuthenticated,
+      isProfileComplete: userProfile?.isProfileComplete ?? false,
+      hasProvinceAccess: (provinceId) => {
+        return (
+          !!(userProfile?.accessibleProvinceIds || []).includes(provinceId) ||
+          (userProfile?.provinceId || '').includes(provinceId)
+        );
+      },
+      hasBranchAccess: (branchCode) => {
+        return userProfile?.employeeInfo?.branch === branchCode;
+      },
+      hasDepartmentAccess: (departmentCode) => {
+        return userProfile?.employeeInfo?.department === departmentCode;
+      },
+      hasNoProfile: !userProfile,
+      isLoading: loading || isProfileLoading,
 
-    // Methods
-    login,
-    loginWithGoogle,
-    logout,
-    updateProfile,
-    switchProvince,
-    refreshUserData,
-    hasAnyPermission,
-    hasPermission,
-    hasRole,
-    hasPrivilege,
-    resetAuthError,
-    shouldHideUserFromView,
-  };
+      // Methods
+      login,
+      loginWithGoogle,
+      logout,
+      updateProfile,
+      switchProvince,
+      refreshUserData,
+      hasAnyPermission,
+      hasPermission,
+      hasRole,
+      hasPrivilege,
+      resetAuthError,
+      shouldHideUserFromView,
+    }),
+    [
+      user,
+      userProfile,
+      loading,
+      isProfileLoading,
+      error,
+      currentProvinceId,
+      isAuthenticated,
+      login,
+      loginWithGoogle,
+      logout,
+      updateProfile,
+      switchProvince,
+      refreshUserData,
+      hasAnyPermission,
+      hasPermission,
+      hasRole,
+      hasPrivilege,
+      resetAuthError,
+      shouldHideUserFromView,
+    ],
+  );
 
   console.log('[AuthContext] Render state:', {
     user: !!user,
-    userProfile,
+    userProfile: userProfile ? 'exists' : null,
     loading,
     isProfileLoading,
     isAuthenticated,

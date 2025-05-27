@@ -1,0 +1,273 @@
+{
+  "withHoldingTax": {
+    "placeholder": "Withholding Tax",
+    "none": "No Withholding Tax",
+    "rate1": "Withholding Tax 1%",
+    "rate2": "Withholding Tax 2%",
+    "rate3": "Withholding Tax 3%",
+    "rate5": "Withholding Tax 5%"
+  },
+  "taxDocument": {
+    "placeholder": "Withholding Tax Document Type",
+    "type1": "PND. 1",
+    "type3": "PND. 3",
+    "type53": "PND. 53"
+  },
+  "vehicle": {
+    "itemType": {
+      "placeholder": "Vehicle Item Type"
+    },
+    "search": {
+      "placeholder": "Type to search vehicles..."
+    },
+    "group": {
+      "placeholder": "Vehicle Group"
+    }
+  },
+  "branch": {
+    "placeholder": "Branch",
+    "all": "All Branches"
+  },
+  "branchSelector": {
+    "label": "Branch",
+    "placeholder": "Select Branch",
+    "all": "All Branches"
+  },
+  "dateRange": {
+    "label": "Date Range",
+    "placeholder": "Select Date Range"
+  },
+  "autoComplete": {
+    "placeholder": "Type to search"
+  },
+  "inputMethod": {
+    "placeholder": "Input Method",
+    "importFromFile": "Import from File",
+    "manualInput": "Manual Input"
+  },
+  "guarantor": {
+    "title": "Guarantor Information",
+    "prefix": "Prefix",
+    "prefixPlaceholder": "Select Prefix",
+    "firstName": "First Name",
+    "firstNamePlaceholder": "Guarantor First Name",
+    "lastName": "Last Name",
+    "lastNamePlaceholder": "Last Name",
+    "companyName": "Company Name",
+    "companyNamePlaceholder": "Company Name",
+    "phoneNumber": "Phone Number",
+    "phoneNumberPlaceholder": "012-3456789",
+    "relationship": "Relationship",
+    "relationshipPlaceholder": "Relationship to Customer",
+    "addressSection": "Guarantor Address",
+    "validation": {
+      "firstNameRequired": "Please enter guarantor name",
+      "phoneNumberRequired": "Please enter phone number",
+      "relationshipRequired": "Please enter relationship"
+    }
+  },
+  "prefix": {
+    "placeholder": "Select Prefix",
+    "mr": "Mr.",
+    "mrs": "Mrs.",
+    "miss": "Miss",
+    "shop": "Shop",
+    "partnership": "Partnership",
+    "limitedCompany": "Co., Ltd.",
+    "publicCompany": "PLC",
+    "search": "Search Prefix"
+  },
+  "bankAccount": {
+    "title": "Bank Account Information",
+    "accountName": "Account Name",
+    "accountNamePlaceholder": "Account Name",
+    "bankName": "Bank",
+    "bankNamePlaceholder": "Select Bank",
+    "accountNumber": "Account Number",
+    "accountNumberPlaceholder": "Account Number",
+    "branch": "Branch",
+    "branchPlaceholder": "Bank Branch",
+    "validation": {
+      "accountNameRequired": "Please enter account name",
+      "bankNameRequired": "Please select bank",
+      "accountNumberRequired": "Please enter account number",
+      "accountNumberInvalid": "Invalid account number"
+    }
+  },
+  "upload": {
+    "button": {
+      "text": "Upload"
+    },
+    "errors": {
+      "invalidFileType": "Only JPG/PNG files are allowed",
+      "fileTooLarge": "Image must be smaller than 2MB",
+      "uploadFailed": "Failed to upload file"
+    },
+    "success": {
+      "uploaded": "Image uploaded successfully"
+    },
+    "alt": {
+      "preview": "Image preview"
+    }
+  },
+  "common": {
+    "all": "All"
+  },
+  "deliveryTypeSelector": {
+    "placeholder": "Delivery Type"
+  },
+  "paymentMethodSelector": {
+    "placeholder": "Payment Method"
+  },
+  "paymentTypeSelector": {
+    "placeholder": "Payment Type"
+  },
+  "priceTypeSelector": {
+    "placeholder": "Price Type"
+  },
+  "saleTypeSelector": {
+    "placeholder": "Sale Type"
+  },
+  "modelSelector": {
+    "placeholder": "Select Model / Product Name"
+  },
+  "guarantors": {
+    "title": "Guarantor #{number}",
+    "deleteConfirm": "Delete this item?",
+    "prefix": "Prefix",
+    "firstName": "Guarantor Name",
+    "lastName": "Last Name",
+    "phoneNumber": "Phone Number",
+    "relationship": "Relationship",
+    "relationshipPlaceholder": "Please enter relationship",
+    "addGuarantor": "Add Guarantor",
+    "validation": {
+      "firstNameRequired": "Please enter guarantor name",
+      "phoneRequired": "Please enter phone number",
+      "relationshipRequired": "Please enter relationship"
+    }
+  },
+  "inputModal": {
+    "placeholder": "Please enter data"
+  },
+  "pdfViewer": {
+    "previous": "Previous",
+    "next": "Next",
+    "pageInfo": "Page {{current}} of {{total}}"
+  },
+  "errors": {
+    "fetchFailed": "Failed to fetch data"
+  },
+  "peripheralIdSelector": {
+    "placeholder": "Type to search peripherals..."
+  },
+  "departmentSelector": {
+    "placeholder": "Department",
+    "allDepartments": "All Departments"
+  },
+  "technicianInForm": {
+    "technicianName": "Technician Name",
+    "placeholder": "Technician name, surname, phone or employee code",
+    "phoneNumber": "Phone Number",
+    "phoneNumberPlaceholder": "Phone number",
+    "additionalInfo": "Additional Technician Info",
+    "addTechnician": "Add Technician"
+  },
+  "payments": {
+    "order": "Order",
+    "type": "Type",
+    "amount": "Amount",
+    "bank": "Bank",
+    "paymentMethod": "Payment Method",
+    "customer": "Customer",
+    "transferPerson": "Transfer/Deposit Person"
+  },
+  "commonSelector": {
+    "placeholder": "Items"
+  },
+  "bankSelector": {
+    "placeholder": "Bank"
+  },
+  "notComplete": {
+    "defaultMessage": "Please check the data"
+  },
+  "hiddenItem": {
+    "defaultMessage": "Please enter data"
+  },
+  "leavePageBlocker": {
+    "defaultMessage": "You have unsaved changes. Are you sure you want to leave?"
+  },
+  "footer": {
+    "confirmCancel": "Confirm cancellation?",
+    "confirmSave": "Confirm save?",
+    "save": "Save Data"
+  },
+  "technician": {
+    "title": "Technician Information",
+    "placeholder": "Select Technician",
+    "addNew": "Add New Technician"
+  },
+  "dealerSelector": {
+    "placeholder": "Type dealer name/code",
+    "addEdit": "Add/Edit dealers...",
+    "saveSuccess": "Data saved successfully"
+  },
+  "reportSaleHeader": {
+    "saleType": "Sale Type"
+  },
+  "branchYearHeader": {
+    "branch": "Branch",
+    "year": "Year",
+    "yearRange": "Year Range"
+  },
+  "branchMonthHeader": {
+    "branch": "Branch",
+    "month": "Month",
+    "monthRange": "Month Range"
+  },
+  "branchDateHeader": {
+    "branch": "Branch",
+    "date": "Date"
+  },
+  "branchDateSpecificHeader": {
+    "selectBranch": "Select Branch",
+    "selectRange": "Select Range",
+    "allBranches": "All Branches",
+    "ranges": {
+      "today": "Today",
+      "thisWeek": "This Week",
+      "thisMonth": "This Month",
+      "sevenDays": "Last 7 Days",
+      "thirtyDays": "Last 30 Days",
+      "custom": "Custom"
+    }
+  },
+  "customer": {
+    "searchLabel": "Search by name, surname, phone number",
+    "searchPlaceholder": "Type to search customers",
+    "customerName": "Customer Name",
+    "phoneNumber": "Phone Number",
+    "moreInfo": "Details",
+    "moreInfoButton": "More Customer Info",
+    "noCustomerSelected": "No customer selected",
+    "validation": {
+      "nameRequired": "Please enter customer name"
+    }
+  },
+  "branches": {
+    "label": "Branch",
+    "placeholder": "Select branch"
+  },
+  "userProfile": {
+    "email": "Email",
+    "location": "Location",
+    "phone": "Phone",
+    "accountNumber": "Account Number",
+    "backgroundAlt": "User Background Photo",
+    "changeBackground": "Change Background Photo"
+  },
+  "docSelector": {
+    "addNew": "Add New",
+    "searchPlaceholder": "Type to search..."
+  }
+}

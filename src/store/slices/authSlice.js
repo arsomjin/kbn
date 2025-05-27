@@ -8,7 +8,7 @@ const initialState = {
   userProfile: null,
   loading: false,
   error: null,
-  isProfileTransitioning: false
+  isProfileTransitioning: false,
 };
 
 const convertTimestampToDate = (timestamp) => {
@@ -37,7 +37,7 @@ export const fetchUserProfile = createAsyncThunk('auth/fetchUserProfile', async 
     role: profile.role,
     requestedType: profile.requestedType,
     createdAt: convertTimestampToDate(profile.createdAt),
-    updatedAt: convertTimestampToDate(profile.updatedAt)
+    updatedAt: convertTimestampToDate(profile.updatedAt),
   };
   return removeUndefinedFields(userProfile);
 });
@@ -60,11 +60,26 @@ const authSlice = createSlice({
     },
     setProfileTransitioning: (state, action) => {
       state.isProfileTransitioning = action.payload;
-    }
+    },
+    updateUser: (state, action) => {
+      if (state.user) {
+        state.user = { ...state.user, ...action.payload };
+      }
+      if (state.userProfile) {
+        state.userProfile = { ...state.userProfile, ...action.payload };
+      }
+    },
+    logoutUser: (state) => {
+      state.user = null;
+      state.userProfile = null;
+      state.error = null;
+      state.loading = false;
+      state.isProfileTransitioning = false;
+    },
   },
-  extraReducers: builder => {
+  extraReducers: (builder) => {
     builder
-      .addCase(fetchUserProfile.pending, state => {
+      .addCase(fetchUserProfile.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
@@ -76,8 +91,16 @@ const authSlice = createSlice({
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch user profile';
       });
-  }
+  },
 });
 
-export const { setUser, setUserProfile, setLoading, setError, setProfileTransitioning } = authSlice.actions;
-export default authSlice.reducer; 
+export const {
+  setUser,
+  setUserProfile,
+  setLoading,
+  setError,
+  setProfileTransitioning,
+  updateUser,
+  logoutUser,
+} = authSlice.actions;
+export default authSlice.reducer;

@@ -3,9 +3,9 @@ import { Card, Row, Col } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { AccountReport } from '../../../components/AccountReport';
-import { AccountPieChart } from '../../../components/AccountPieChart';
-import { AccountTable } from '../../../components/AccountTable';
+import { AccountReport } from '../components/AccountReport';
+import { AccountPieChart } from '../components/AccountPieChart';
+import { AccountTable } from '../components/AccountTable';
 import { useFinancialData } from '../hooks/useFinancialData';
 
 /**

@@ -6,23 +6,18 @@ import {
   limit,
   getDocs,
   Timestamp,
-  WhereFilterOp
+  WhereFilterOp,
 } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 import { app } from '../services/firebase';
-import { sortArr } from './functions';
+import { sortArr } from 'utils/array';
 import dayjs from 'dayjs';
 
 /**
  * Modern JavaScript replacement for getSearchData
  * Searches Firestore collection with complex filters
  */
-export const getSearchData = async (
-  collectionPath,
-  searchValues,
-  sorts,
-  mapFieldName
-) => {
+export const getSearchData = async (collectionPath, searchValues, sorts, mapFieldName) => {
   try {
     const firestore = getFirestore(app);
     let dataArray = [];
@@ -43,7 +38,7 @@ export const getSearchData = async (
     let queryRef = collectionRef;
     const whereConditions = [];
 
-    Object.keys(searchValues).forEach(key => {
+    Object.keys(searchValues).forEach((key) => {
       const value = searchValues[key];
       if (typeof value !== 'undefined' && value !== 'all') {
         switch (key) {
@@ -84,12 +79,12 @@ export const getSearchData = async (
     }
 
     // Process results
-    snapshot.forEach(doc => {
+    snapshot.forEach((doc) => {
       const data = doc.data();
       const item = {
         ...data,
         _key: doc.id,
-        key: doc.id
+        key: doc.id,
       };
       dataArray.push(item);
     });
@@ -97,21 +92,21 @@ export const getSearchData = async (
     // Add sequential IDs
     dataArray = dataArray.map((item, id) => ({
       ...item,
-      id
+      id,
     }));
 
     // Apply sorting if specified
     if (sorts && sorts.length > 0) {
       // Use the sortArr function from utils/functions
       let sortedArray = JSON.parse(JSON.stringify(dataArray));
-      sorts.forEach(sortField => {
+      sorts.forEach((sortField) => {
         sortedArray = sortArr(sortedArray, sortField);
       });
 
       // Re-add sequential IDs after sorting
       sortedArray = sortedArray.map((item, id) => ({
         ...item,
-        id
+        id,
       }));
 
       return sortedArray;
@@ -129,7 +124,13 @@ export const getSearchData = async (
  * Gets the latest documents from a collection
  */
 export const getLatestData = async (params) => {
-  const { collection: collectionPath, wheres, orderBy: orderByField, limit: limitCount = 1, desc = false } = params;
+  const {
+    collection: collectionPath,
+    wheres,
+    orderBy: orderByField,
+    limit: limitCount = 1,
+    desc = false,
+  } = params;
 
   if (!collectionPath || !orderByField) {
     return null;
@@ -211,5 +212,5 @@ export const convertTimestampToDayjs = (timestamp) => {
 export default {
   getSearchData,
   getLatestData,
-  convertTimestampToDayjs
-}; 
+  convertTimestampToDayjs,
+};

@@ -1,7 +1,7 @@
 import React from 'react';
 import numeral from 'numeral';
-import { Numb } from 'functions';
-import { showLog } from 'functions';
+import { Numb } from 'utils/functions';
+import { showLog } from 'utils/functions';
 
 export const tableData = [
   {
@@ -11,7 +11,7 @@ export const tableData = [
     description: 'Accommodation',
     unitPrice: 132600,
     discount: 0,
-    qty: 1
+    qty: 1,
   },
   {
     id: 2,
@@ -20,8 +20,8 @@ export const tableData = [
     description: 'Accommodation',
     unitPrice: 20600,
     discount: 0,
-    qty: 1
-  }
+    qty: 1,
+  },
 ];
 
 export const tableColumns = [
@@ -29,14 +29,14 @@ export const tableColumns = [
     title: 'รายละเอียด',
     dataIndex: 'productName',
     key: 'productName',
-    width: '40%'
+    width: '40%',
   },
   {
     title: 'จำนวน',
     dataIndex: 'qty',
     key: 'qty',
     width: '10%',
-    align: 'center'
+    align: 'center',
   },
   {
     title: 'ราคาต่อหน่วย',
@@ -44,7 +44,7 @@ export const tableColumns = [
     key: 'unitPrice',
     width: '10%',
     align: 'right',
-    render: text => numeral(text).format('0,0.00')
+    render: (text) => numeral(text).format('0,0.00'),
   },
   {
     title: 'ส่วนลด',
@@ -52,14 +52,20 @@ export const tableColumns = [
     key: 'discount',
     width: '10%',
     align: 'right',
-    render: text => numeral(text).format('0,0.00')
+    render: (text) => numeral(text).format('0,0.00'),
   },
   {
     title: 'ยอดรวม',
     width: '10%',
     render: (text, record) => {
-      return <div>{numeral(Numb(record.qty) * Numb(record.unitPrice) - Numb(record.discount)).format('0,0.00')}</div>;
+      return (
+        <div>
+          {numeral(Numb(record.qty) * Numb(record.unitPrice) - Numb(record.discount)).format(
+            '0,0.00',
+          )}
+        </div>
+      );
     },
-    align: 'right'
-  }
+    align: 'right',
+  },
 ];

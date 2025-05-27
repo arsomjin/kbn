@@ -25,6 +25,7 @@ import logo from '../../assets/logo/android-chrome-192x192.png';
 import { useAuth } from 'contexts/AuthContext';
 import { useTheme } from 'hooks/useTheme';
 import { usePermissions } from 'hooks/usePermissions';
+import { useAccountMenu } from '../../modules/account/hooks/useAccountMenu';
 
 // Components
 import NotificationCenter from '../notifications/NotificationCenter';
@@ -134,8 +135,18 @@ const MainLayout = ({ children }) => {
   const isBranchContext = Boolean(params.provinceId && params.branchCode);
   const photoURL =
     user?.photoURL || (userProfile && 'photoURL' in userProfile ? userProfile.photoURL : undefined);
+  const accountMenuItemsRaw = useAccountMenu();
 
-  console.log('[MainLayout] isMobile', isMobile);
+  // Add onClick to each child in accountMenuItems
+  const accountMenuItems = accountMenuItemsRaw.map((group) => ({
+    ...group,
+    children: group.children.map((child) => ({
+      ...child,
+      onClick: () => navigate(child.path),
+    })),
+  }));
+
+  console.log('[MainLayout] accountMenuItems', accountMenuItems);
 
   // Responsive behavior
   useEffect(() => {
@@ -227,6 +238,7 @@ const MainLayout = ({ children }) => {
       label: homeMenu.label,
       onClick: () => navigate(homeMenu.path),
     },
+    ...accountMenuItems,
     hasPermission(PERMISSIONS.USER_ROLE_EDIT) && {
       key: 'user-review',
       icon: <TeamOutlined />,

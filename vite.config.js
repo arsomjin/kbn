@@ -17,6 +17,7 @@ export default defineConfig({
     alias: {
       // Add path aliases for absolute imports
       components: resolve(__dirname, './src/components'),
+      elements: resolve(__dirname, './src/elements'),
       contexts: resolve(__dirname, './src/contexts'),
       hooks: resolve(__dirname, './src/hooks'),
       utils: resolve(__dirname, './src/utils'),
@@ -29,6 +30,9 @@ export default defineConfig({
       assets: resolve(__dirname, './src/assets'),
       api: resolve(__dirname, './src/api'),
       data: resolve(__dirname, './src/data'),
+      styles: resolve(__dirname, './src/styles'),
+      modules: resolve(__dirname, './src/modules'),
+      firebaseConfig: resolve(__dirname, './src/firebase'),
     },
   },
 });

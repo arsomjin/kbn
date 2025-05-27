@@ -32,6 +32,8 @@
     "react-redux": "^9.2.0",
     "react-router": "^7.5.3",
     "react-router-dom": "^7.5.3",
+    "react-simple-animate": "^3.5.3",
+    "react-to-print": "^3.1.0",
     "redux": "^5.0.1",
     "redux-logger": "^3.0.6",
     "stream-browserify": "^3.0.0",

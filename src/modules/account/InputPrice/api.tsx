@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Form, Input, Row, Col, InputNumber, Card, Descriptions, DatePicker } from 'antd';
 import dayjs from 'dayjs';
-import { sortArr, showWarn } from '../../../utils/functions';
+import { showWarn } from '../../../utils/functions';
 import PriceTypeSelector from 'components/PriceTypeSelector';
 import { SearchOutlined } from '@ant-design/icons';
 import numeral from 'numeral';
@@ -13,6 +13,7 @@ import { getRules } from '../../../utils/form';
 import type { FormInstance } from 'antd/lib/form';
 import { isMobile } from 'react-device-detect';
 import { useTranslation } from 'react-i18next';
+import { sortArr } from 'utils/array';
 import './RenderSummary.css';
 
 export const ExpandedRowRender: React.FC<{ record: InputPriceItem }> = ({ record }) => {
@@ -266,8 +267,10 @@ export const RenderSummary: React.FC<
       column={1}
       bordered
       size="small"
-      contentStyle={{ textAlign: 'right', paddingRight: 12, whiteSpace: 'nowrap' }}
-      labelStyle={{ fontWeight: 'normal', paddingLeft: 12, whiteSpace: 'nowrap' }}
+      styles={{
+        content: { textAlign: 'right', paddingRight: 12, whiteSpace: 'nowrap' },
+        label: { fontWeight: 'normal', paddingLeft: 12, whiteSpace: 'nowrap' },
+      }}
       colon={false}
       className="summary-descriptions"
       layout="horizontal"
@@ -284,7 +287,7 @@ export const RenderSummary: React.FC<
             placeholder="0"
             onChange={onBillDiscountChange}
             className="summary-input"
-            bordered={false}
+            variant="borderless"
             controls={false}
           />
           <span className="summary-unit">{t('unit')}</span>
@@ -300,7 +303,7 @@ export const RenderSummary: React.FC<
             placeholder="0"
             onChange={(value) => onDeductDepositChange(Number(value) || 0)}
             className="summary-input"
-            bordered={false}
+            variant="borderless"
             controls={false}
           />
           <span className="summary-unit">{t('unit')}</span>

@@ -1,4 +1,4 @@
-module.exports = {
+const PrinterManager = {
   _currentPrinter: null,
   registerPrinter(Printer) {
     this._currentPrinter = Printer;
@@ -23,5 +23,7 @@ module.exports = {
         this._currentPrinter.hidePrint();
       }, 100);
     }
-  }
+  },
 };
+
+export default PrinterManager;

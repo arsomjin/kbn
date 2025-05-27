@@ -3,7 +3,7 @@ import { collection, onSnapshot, query } from 'firebase/firestore';
 import { firestore as db } from 'services/firebase';
 import { message } from 'antd';
 import { useDispatch } from 'react-redux';
-import { serializeTimestampsDeep } from 'utils/timestampUtils';
+
 import { processFirestoreDataForForm } from '../utils/dateHandling';
 
 /**
@@ -11,28 +11,35 @@ import { processFirestoreDataForForm } from '../utils/dateHandling';
  * @param {string} collectionPath - Firestore collection path
  * @param {Function} setReduxAction - Redux action creator for setting data (e.g., setProvinces)
  * @param {Array} queryConstraints - Additional query constraints
+ * @param {boolean} enabled - Whether to enable the listener (default: true)
  * @returns {Object} { loading, error }
  */
-const useFirestoreSync = (collectionPath, setReduxAction, queryConstraints = []) => {
+const useFirestoreSync = (
+  collectionPath,
+  setReduxAction,
+  queryConstraints = [],
+  enabled = true,
+) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   // Debug: warn if queryConstraints is not memoized
   if (queryConstraints && typeof queryConstraints === 'object' && queryConstraints.length > 0) {
-    const isMemoized =
-      Object.isFrozen(queryConstraints) ||
-      Object.getPrototypeOf(queryConstraints) === Array.prototype;
-    if (!isMemoized) {
-      console.warn(
-        '[useFirestoreSync] queryConstraints is not memoized. This may cause multiple listeners:',
-        queryConstraints,
-      );
-    }
+    console.warn(
+      '[useFirestoreSync] queryConstraints should be memoized to prevent re-renders:',
+      collectionPath,
+      queryConstraints,
+    );
   }
 
   useEffect(() => {
-    // console.log('[useFirestoreSync] Mounting FirestoreSync for', collectionPath);
+    if (!enabled) {
+      setLoading(false);
+      setError(null);
+      return;
+    }
+    console.log('[useFirestoreSync] Setting up listener for', collectionPath, 'enabled:', enabled);
     if (!collectionPath || !setReduxAction) {
       setError('Invalid Firestore collection path or action creator.');
       setLoading(false);
@@ -74,15 +81,14 @@ const useFirestoreSync = (collectionPath, setReduxAction, queryConstraints = [])
       },
     );
 
-    // Debug: log unsubscribe
+    // Cleanup function
     return () => {
-      // console.log('[useFirestoreSync] Unsubscribing FirestoreSync for', collectionPath);
+      console.log('[useFirestoreSync] Cleaning up listener for', collectionPath);
       unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collectionPath, queryConstraints]);
+  }, [collectionPath, setReduxAction, queryConstraints, enabled]);
 
-  return { loading, error };
+  return { loading: enabled ? loading : false, error: enabled ? error : null };
 };
 
 export default useFirestoreSync;

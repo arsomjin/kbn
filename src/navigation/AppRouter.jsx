@@ -44,6 +44,11 @@ const EmployeeDashboard = React.lazy(() => import('../modules/dashboard/employee
 const VisitorDashboard = React.lazy(() => import('../modules/dashboard/visitor/Dashboard'));
 const NotFound = React.lazy(() => import('../pages/NotFound'));
 
+import AccountOverview from '../modules/account/Overview';
+import AccountIncome from '../modules/account/Income';
+import AccountExpense from '../modules/account/Expense';
+import AccountInputPrice from '../modules/account/InputPrice';
+
 /**
  * Main application router for KBN.
  * Handles all route protection, redirection, and layout logic.
@@ -201,6 +206,141 @@ const AppRouter = () => {
 
           <Route path="/landing" element={<Landing />} />
           <Route path="/about/system-overview" element={<SystemOverview />} />
+
+          <Route
+            path="/account/overview"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.EXECUTIVE)}
+              >
+                <AccountOverview />
+              </PermissionProtectedRoute>
+            }
+          />
+          <Route
+            path="/account/income"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_INCOME}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.EXECUTIVE)}
+              >
+                <AccountIncome />
+              </PermissionProtectedRoute>
+            }
+          />
+          <Route
+            path="/account/expense"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_EXPENSE}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.EXECUTIVE)}
+              >
+                <AccountExpense />
+              </PermissionProtectedRoute>
+            }
+          />
+          <Route
+            path="/account/input-price"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.EXECUTIVE)}
+              >
+                <AccountInputPrice />
+              </PermissionProtectedRoute>
+            }
+          />
+
+          <Route
+            path=":provinceId/account/overview"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.PROVINCE_MANAGER)}
+              >
+                <AccountOverview />
+              </PermissionProtectedRoute>
+            }
+          />
+          <Route
+            path=":provinceId/account/income"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_INCOME}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.PROVINCE_MANAGER)}
+              >
+                <AccountIncome />
+              </PermissionProtectedRoute>
+            }
+          />
+          <Route
+            path=":provinceId/account/expense"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_EXPENSE}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.PROVINCE_MANAGER)}
+              >
+                <AccountExpense />
+              </PermissionProtectedRoute>
+            }
+          />
+          <Route
+            path=":provinceId/account/input-price"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.PROVINCE_MANAGER)}
+              >
+                <AccountInputPrice />
+              </PermissionProtectedRoute>
+            }
+          />
+
+          <Route
+            path=":provinceId/:branchCode/account/overview"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.BRANCH_MANAGER)}
+              >
+                <AccountOverview />
+              </PermissionProtectedRoute>
+            }
+          />
+          <Route
+            path=":provinceId/:branchCode/account/income"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_INCOME}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.BRANCH_MANAGER)}
+              >
+                <AccountIncome />
+              </PermissionProtectedRoute>
+            }
+          />
+          <Route
+            path=":provinceId/:branchCode/account/expense"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_EXPENSE}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.BRANCH_MANAGER)}
+              >
+                <AccountExpense />
+              </PermissionProtectedRoute>
+            }
+          />
+          <Route
+            path=":provinceId/:branchCode/account/input-price"
+            element={
+              <PermissionProtectedRoute
+                requiredPermission={PERMISSIONS.VIEW_ACCOUNTS}
+                allowedRoles={getAllowedRolesByCategory(RoleCategory.BRANCH_MANAGER)}
+              >
+                <AccountInputPrice />
+              </PermissionProtectedRoute>
+            }
+          />
         </Route>
 
         <Route path="/visitor/dashboard" element={<VisitorDashboard />} />

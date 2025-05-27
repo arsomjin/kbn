@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useMemo } from 'react';
-import { App, Modal, notification } from 'antd';
+import { App, Modal } from 'antd';
 import { useAntdUi } from '../hooks/useAntdUi';
 import { useTranslation } from 'react-i18next';
 
@@ -53,6 +53,23 @@ export const ModalProvider = ({ children }) => {
           onClose,
         });
       },
+      showWarn: (content, duration = 5, onClose) => {
+        message.warning({
+          content: content || t('common:warning', 'Warning'),
+          duration,
+          key: 'global-warning',
+          onClose,
+        });
+      },
+      showError: (content, duration = 5, onClose) => {
+        message.error({
+          content: content || t('common:error', 'Error'),
+          duration,
+          icon: <span style={{ color: '#ff4d4f', fontSize: 20, marginRight: 10 }}>❌</span>,
+          key: 'global-error',
+          onClose,
+        });
+      },
       showInfo: (content, duration = 5, onClose) => {
         message.info({
           content: content || t('common:info', 'Information'),
@@ -72,6 +89,70 @@ export const ModalProvider = ({ children }) => {
           cancelText: t('common:cancel', 'ยกเลิก'),
           centered: true,
           maskClosable: false,
+        });
+      },
+      showAlert: ({ title = t('common:alert', 'แจ้งเตือน'), content, onOk, type = 'info' }) => {
+        const modalMethod =
+          type === 'warning'
+            ? modal.warning
+            : type === 'error'
+              ? modal.error
+              : type === 'success'
+                ? modal.success
+                : modal.info;
+        modalMethod({
+          title,
+          content,
+          onOk,
+          okText: t('common:confirm', 'ตกลง'),
+          centered: true,
+          maskClosable: false,
+        });
+      },
+      showMessageBar: (content, duration = 5, onClose) => {
+        message.info({
+          content: content || t('common:info', 'Information'),
+          duration,
+          key: 'global-message',
+          onClose,
+        });
+      },
+      showConfirmDelete: ({
+        title = t('common:confirmDelete', 'ยืนยันการลบ'),
+        content,
+        onOk,
+        onCancel,
+        itemName,
+        unRecoverable = false,
+      }) => {
+        const deleteContent = unRecoverable
+          ? `${content || `ต้องการลบ ${itemName || 'รายการนี้'} หรือไม่?`}\n\n⚠️ การดำเนินการนี้ไม่สามารถยกเลิกได้`
+          : content || `ต้องการลบ ${itemName || 'รายการนี้'} หรือไม่?`;
+
+        modal.confirm({
+          title,
+          content: deleteContent,
+          onOk,
+          onCancel,
+          okText: t('common:delete', 'ลบ'),
+          cancelText: t('common:cancel', 'ยกเลิก'),
+          okButtonProps: { danger: true },
+          centered: true,
+          maskClosable: false,
+        });
+      },
+      showGrantDenied: () => {
+        message.warning({
+          content: t('common:accessDenied', 'คุณไม่มีสิทธิ์ในการดำเนินการนี้'),
+          duration: 3,
+          key: 'grant-denied',
+        });
+      },
+      showToBeContinue: () => {
+        message.info({
+          content: t('common:toBeContinue', 'ฟีเจอร์นี้จะเปิดให้ใช้งานในอนาคต'),
+          duration: 3,
+          key: 'to-be-continue',
         });
       },
     }),

@@ -1,0 +1,330 @@
+{
+  "withHoldingTax": {
+    "placeholder": "หัก ณ ที่จ่าย",
+    "none": "ไม่หัก ณ ที่จ่าย",
+    "rate1": "หัก ณ ที่จ่าย 1%",
+    "rate2": "หัก ณ ที่จ่าย 2%",
+    "rate3": "หัก ณ ที่จ่าย 3%",
+    "rate5": "หัก ณ ที่จ่าย 5%"
+  },
+  "taxDocument": {
+    "placeholder": "แบบแสดงภาษี หัก ณ ที่จ่าย",
+    "type1": "ภงด. 1",
+    "type3": "ภงด. 3",
+    "type53": "ภงด. 53"
+  },
+  "vehicle": {
+    "itemType": {
+      "placeholder": "ประเภทรายการรถ"
+    },
+    "search": {
+      "placeholder": "พิมพ์เพื่อค้นหารถ..."
+    },
+    "group": {
+      "placeholder": "กลุ่มรถ"
+    }
+  },
+  "branchSelector": {
+    "label": "สาขา",
+    "placeholder": "เลือกสาขา",
+    "all": "ทุกสาขา"
+  },
+  "dateRange": {
+    "label": "ช่วงเวลา",
+    "placeholder": "เลือกช่วงเวลา"
+  },
+  "autoComplete": {
+    "placeholder": "พิมพ์เพื่อค้นหา"
+  },
+  "inputMethod": {
+    "placeholder": "วิธีบันทึกรายการ",
+    "importFromFile": "นำเข้าจากไฟล์",
+    "manualInput": "บันทึกรายการ"
+  },
+  "guarantor": {
+    "title": "ข้อมูลผู้ค้ำประกัน",
+    "prefix": "คำนำหน้า",
+    "prefixPlaceholder": "เลือกคำนำหน้า",
+    "firstName": "ชื่อผู้ค้ำประกัน",
+    "firstNamePlaceholder": "ชื่อผู้ค้ำประกัน",
+    "lastName": "นามสกุล",
+    "lastNamePlaceholder": "นามสกุล",
+    "companyName": "ชื่อบริษัท",
+    "companyNamePlaceholder": "ชื่อบริษัท",
+    "phoneNumber": "เบอร์โทรศัพท์",
+    "phoneNumberPlaceholder": "012-3456789",
+    "relationship": "ความสัมพันธ์",
+    "relationshipPlaceholder": "ความสัมพันธ์กับลูกค้า",
+    "addressSection": "ที่อยู่ผู้ค้ำประกัน",
+    "validation": {
+      "firstNameRequired": "กรุณาป้อนชื่อผู้ค้ำประกัน",
+      "phoneNumberRequired": "กรุณาป้อนเบอร์โทรศัพท์",
+      "relationshipRequired": "กรุณาป้อนความสัมพันธ์"
+    }
+  },
+  "prefix": {
+    "placeholder": "เลือกคำนำหน้า",
+    "mr": "นาย",
+    "mrs": "นาง",
+    "miss": "นางสาว",
+    "shop": "ร้าน",
+    "partnership": "หจก.",
+    "limitedCompany": "บจก.",
+    "publicCompany": "บมจ.",
+    "search": "ค้นหาคำนำหน้า"
+  },
+  "bankAccount": {
+    "title": "ข้อมูลบัญชีธนาคาร",
+    "accountName": "ชื่อบัญชี",
+    "accountNamePlaceholder": "ชื่อบัญชี",
+    "bankName": "ธนาคาร",
+    "bankNamePlaceholder": "เลือกธนาคาร",
+    "accountNumber": "เลขที่บัญชี",
+    "accountNumberPlaceholder": "เลขที่บัญชี",
+    "branch": "สาขา",
+    "branchPlaceholder": "สาขาธนาคาร",
+    "validation": {
+      "accountNameRequired": "กรุณาป้อนชื่อบัญชี",
+      "bankNameRequired": "กรุณาเลือกธนาคาร",
+      "accountNumberRequired": "กรุณาป้อนเลขที่บัญชี",
+      "accountNumberInvalid": "เลขที่บัญชีไม่ถูกต้อง"
+    }
+  },
+  "branch": {
+    "placeholder": "สาขา",
+    "all": "ทุกสาขา"
+  },
+  "upload": {
+    "button": {
+      "text": "อัปโหลด"
+    },
+    "errors": {
+      "invalidFileType": "อัปโหลดได้เฉพาะไฟล์ JPG/PNG เท่านั้น",
+      "fileTooLarge": "รูปภาพต้องมีขนาดน้อยกว่า 2MB",
+      "uploadFailed": "ไม่สามารถอัปโหลดไฟล์ได้"
+    },
+    "success": {
+      "uploaded": "อัปโหลดรูปภาพสำเร็จ"
+    },
+    "alt": {
+      "preview": "ตัวอย่างรูปภาพ"
+    }
+  },
+  "common": {
+    "all": "ทั้งหมด",
+    "noData": "ไม่พบข้อมูล"
+  },
+  "deliveryTypeSelector": {
+    "placeholder": "ประเภทการส่ง"
+  },
+  "paymentMethodSelector": {
+    "placeholder": "วิธีโอนเงิน"
+  },
+  "paymentTypeSelector": {
+    "placeholder": "การชำระเงิน"
+  },
+  "priceTypeSelector": {
+    "placeholder": "ประเภทราคา"
+  },
+  "saleTypeSelector": {
+    "placeholder": "ประเภทการขาย"
+  },
+  "modelSelector": {
+    "placeholder": "เลือก รุ่น / ชื่อสินค้า"
+  },
+  "guarantors": {
+    "title": "ผู้ค้ำประกัน #{number}",
+    "deleteConfirm": "ลบรายการนี้?",
+    "prefix": "คำนำหน้า",
+    "firstName": "ชื่อผู้ค้ำประกัน",
+    "lastName": "นามสกุล",
+    "phoneNumber": "เบอร์โทรศัพท์",
+    "relationship": "ความสัมพันธ์",
+    "relationshipPlaceholder": "กรุณาป้อนความสัมพันธ์",
+    "addGuarantor": "เพิ่มผู้ค้ำประกัน",
+    "validation": {
+      "firstNameRequired": "กรุณาป้อนชื่อผู้ค้ำประกัน",
+      "phoneRequired": "กรุณาป้อนเบอร์โทรศัพท์",
+      "relationshipRequired": "กรุณาป้อนความสัมพันธ์"
+    }
+  },
+  "inputModal": {
+    "placeholder": "กรุณาป้อนข้อมูล"
+  },
+  "pdfViewer": {
+    "previous": "ก่อนหน้า",
+    "next": "ถัดไป",
+    "pageInfo": "หน้า {{current}} จาก {{total}}"
+  },
+  "errors": {
+    "fetchFailed": "ไม่สามารถดึงข้อมูลได้"
+  },
+  "peripheralIdSelector": {
+    "placeholder": "พิมพ์เพื่อค้นหาอุปกรณ์..."
+  },
+  "departmentSelector": {
+    "placeholder": "แผนก",
+    "allDepartments": "ทุกแผนก"
+  },
+  "technicianInForm": {
+    "technicianName": "ชื่อช่างบริการ",
+    "placeholder": "ชื่อช่าง, นามสกุล, เบอร์โทร หรือ รหัสพนักงาน",
+    "phoneNumber": "เบอร์โทรศัพท์",
+    "phoneNumberPlaceholder": "เบอร์โทรศัพท์",
+    "additionalInfo": "ข้อมูลช่างเพิ่มเติม",
+    "addTechnician": "เพิ่มรายชื่อ"
+  },
+  "payments": {
+    "order": "ลำดับ",
+    "type": "ประเภท",
+    "amount": "จำนวนเงิน",
+    "bank": "ธนาคาร",
+    "paymentMethod": "วิธีโอนเงิน",
+    "customer": "ลูกค้า",
+    "transferPerson": "ผู้โอน/ฝากเงิน"
+  },
+  "commonSelector": {
+    "placeholder": "รายการ"
+  },
+  "bankSelector": {
+    "placeholder": "ธนาคาร"
+  },
+  "notComplete": {
+    "defaultMessage": "กรุณาตรวจสอบข้อมูล"
+  },
+  "hiddenItem": {
+    "defaultMessage": "กรุณาป้อนข้อมูล"
+  },
+  "leavePageBlocker": {
+    "defaultMessage": "คุณมีการเปลี่ยนแปลงที่ยังไม่ได้บันทึก คุณต้องการออกจากหน้านี้หรือไม่?"
+  },
+  "footer": {
+    "confirmCancel": "ยืนยันการยกเลิก?",
+    "confirmSave": "ยืนยันการบันทึก?",
+    "save": "บันทึกข้อมูล"
+  },
+  "technician": {
+    "title": "ข้อมูลช่าง",
+    "placeholder": "เลือกช่าง",
+    "addNew": "เพิ่มช่างใหม่"
+  },
+  "dealerSelector": {
+    "placeholder": "พิมพ์ชื่อ/รหัสผู้จำหน่าย",
+    "addEdit": "เพิ่ม/แก้ไข รายชื่อ...",
+    "saveSuccess": "บันทึกข้อมูลสำเร็จ"
+  },
+  "reportSaleHeader": {
+    "saleType": "ประเภทการขาย"
+  },
+  "branchYearHeader": {
+    "branch": "สาขา",
+    "year": "ปี",
+    "yearRange": "ช่วงปี"
+  },
+  "branchMonthHeader": {
+    "branch": "สาขา",
+    "month": "เดือน",
+    "monthRange": "ช่วงเดือน"
+  },
+  "branchDateHeader": {
+    "branch": "สาขา",
+    "date": "วันที่"
+  },
+  "branchDateSpecificHeader": {
+    "selectBranch": "เลือกสาขา",
+    "selectRange": "เลือกช่วงเวลา",
+    "allBranches": "ทุกสาขา",
+    "ranges": {
+      "today": "วันนี้",
+      "thisWeek": "สัปดาห์นี้",
+      "thisMonth": "เดือนนี้",
+      "sevenDays": "7 วันที่ผ่านมา",
+      "thirtyDays": "30 วันที่ผ่านมา",
+      "custom": "กำหนดเอง"
+    }
+  },
+  "customer": {
+    "searchLabel": "ค้นหา ชื่อลูกค้า, นามสกุล, เบอร์โทร",
+    "searchPlaceholder": "พิมพ์เพื่อค้นหาลูกค้า",
+    "customerName": "ชื่อ-นามสกุล ลูกค้า",
+    "phoneNumber": "เบอร์โทรศัพท์",
+    "moreInfo": "รายละเอียด",
+    "moreInfoButton": "ข้อมูลลูกค้าเพิ่มเติม",
+    "noCustomerSelected": "ยังไม่ได้เลือกลูกค้า",
+    "validation": {
+      "nameRequired": "กรุณาป้อนชื่อลูกค้า"
+    }
+  },
+  "branches": {
+    "label": "สาขา",
+    "placeholder": "เลือกสาขา"
+  },
+  "userActivity": {
+    "timeAgo": {
+      "minutes": "{{minutes}} นาทีที่แล้ว",
+      "hours": "{{hours}} ชั่วโมงที่แล้ว",
+      "hoursMinutes": "{{hours}} ชั่วโมง {{minutes}} นาทีที่แล้ว",
+      "days": "{{days}} วันที่แล้ว"
+    },
+    "assigned": "ได้รับมอบหมายให้",
+    "project": "โครงการ",
+    "marked": "ทำเครื่องหมาย",
+    "tasks": "งาน",
+    "as": "เป็น",
+    "complete": "เสร็จสิ้น",
+    "invalid": "ไม่ถูกต้อง",
+    "inside": "ใน",
+    "added": "เพิ่ม",
+    "and": "และ",
+    "others": "คนอื่น ๆ",
+    "toThe": "ไปยัง",
+    "team": "ทีม",
+    "opened": "เปิด",
+    "issues": "ปัญหา",
+    "in": "ใน",
+    "projects": "โครงการ",
+    "newTasks": "งานใหม่",
+    "viewProject": "ดูโครงการ",
+    "viewTeam": "ดูทีม",
+    "viewAll": "ดูทั้งหมด",
+    "loadMore": "โหลดเพิ่มเติม",
+    "tasks": {
+      "fixPagination": "แก้ไขปัญหาการแบ่งหน้า",
+      "removePadding": "ลบ padding ที่เกินออกจาก container"
+    }
+  },
+  "userStats": {
+    "tasks": "งาน",
+    "completed": "เสร็จสิ้น",
+    "projects": "โครงการ",
+    "teams": "ทีม",
+    "workload": "ภาระงาน",
+    "performance": "ประสิทธิภาพ"
+  },
+  "userContact": {
+    "messageLabel": "ข้อความ",
+    "messagePlaceholder": "พิมพ์ข้อความของคุณที่นี่...",
+    "messageRequired": "กรุณาป้อนข้อความ",
+    "messageMinLength": "ข้อความต้องมีอย่างน้อย 10 ตัวอักษร",
+    "sendMessage": "ส่งข้อความ"
+  },
+  "userTeams": {
+    "active": "ใช้งาน",
+    "noTeams": "ไม่มีทีม"
+  },
+  "userPerformance": {
+    "weeklyOverview": "ภาพรวมรายสัปดาห์"
+  },
+  "userProfile": {
+    "email": "อีเมล",
+    "location": "ที่อยู่",
+    "phone": "โทรศัพท์",
+    "accountNumber": "หมายเลขบัญชี",
+    "backgroundAlt": "รูปพื้นหลังผู้ใช้",
+    "changeBackground": "เปลี่ยนรูปพื้นหลัง"
+  },
+  "docSelector": {
+    "addNew": "เพิ่มใหม่",
+    "searchPlaceholder": "พิมพ์เพื่อค้นหา..."
+  }
+}

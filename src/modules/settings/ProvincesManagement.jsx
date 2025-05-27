@@ -94,7 +94,7 @@ const ProvincesManagement = () => {
     });
   };
 
-  const handleDelete = async (id) => {
+  const _handleDelete = async (id) => {
     Modal.confirm({
       title: t('provinces:modal.deleteTitle'),
       content: t('provinces:modal.deleteConfirmation'),
@@ -231,7 +231,7 @@ const ProvincesManagement = () => {
         className="max-w-full"
         style={{ top: 24 }}
         styles={{ body: { padding: 16 } }}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

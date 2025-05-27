@@ -1,6 +1,19 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, browserLocalPersistence, setPersistence } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import {
+  getFirestore,
+  doc,
+  getDoc,
+  getDocs,
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+} from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getMessaging, isSupported, onMessage, getToken } from 'firebase/messaging';
 
@@ -50,6 +63,111 @@ export const authPersistenceReady = setPersistence(auth, browserLocalPersistence
 
 export const firestore = getFirestore(app);
 export const storage = getStorage(app);
+
+// Firebase API utility functions
+export const checkDoc = async (collectionPath, docId) => {
+  try {
+    const docRef = doc(firestore, collectionPath, docId);
+    const docSnap = await getDoc(docRef);
+    return docSnap.exists() ? { id: docSnap.id, ...docSnap.data() } : null;
+  } catch (error) {
+    console.error('Error checking document:', error);
+    throw error;
+  }
+};
+
+export const getCollection = async (collectionPath, queryConstraints = []) => {
+  try {
+    const colRef = collection(firestore, collectionPath);
+    const q = queryConstraints.length > 0 ? query(colRef, ...queryConstraints) : colRef;
+    const snapshot = await getDocs(q);
+    const result = {};
+    snapshot.forEach((doc) => {
+      result[doc.id] = { id: doc.id, ...doc.data() };
+    });
+    return result;
+  } catch (error) {
+    console.error('Error getting collection:', error);
+    throw error;
+  }
+};
+
+export const checkCollection = async (collectionPath, queryConstraints = []) => {
+  try {
+    const colRef = collection(firestore, collectionPath);
+    const q = queryConstraints.length > 0 ? query(colRef, ...queryConstraints) : colRef;
+    const snapshot = await getDocs(q);
+    const result = [];
+    snapshot.forEach((doc) => {
+      result.push({ id: doc.id, ...doc.data() });
+    });
+    return result;
+  } catch (error) {
+    console.error('Error checking collection:', error);
+    throw error;
+  }
+};
+
+export const getSearchData = async (collectionPath, queryConstraints = []) => {
+  try {
+    const colRef = collection(firestore, collectionPath);
+    const q = queryConstraints.length > 0 ? query(colRef, ...queryConstraints) : colRef;
+    const snapshot = await getDocs(q);
+    const result = [];
+    snapshot.forEach((doc) => {
+      result.push({ id: doc.id, ...doc.data() });
+    });
+    return result;
+  } catch (error) {
+    console.error('Error searching data:', error);
+    throw error;
+  }
+};
+
+export const getLatestData = async (collectionPath, orderByField = 'created', limitCount = 1) => {
+  try {
+    const colRef = collection(firestore, collectionPath);
+    const q = query(colRef, orderBy(orderByField, 'desc'), limit(limitCount));
+    const snapshot = await getDocs(q);
+    const result = [];
+    snapshot.forEach((doc) => {
+      result.push({ id: doc.id, ...doc.data() });
+    });
+    return limitCount === 1 ? result[0] || null : result;
+  } catch (error) {
+    console.error('Error getting latest data:', error);
+    throw error;
+  }
+};
+
+export const updateData = async (collectionPath, docId, data) => {
+  try {
+    const docRef = doc(firestore, collectionPath, docId);
+    await updateDoc(docRef, data);
+    return { success: true };
+  } catch (error) {
+    console.error('Error updating data:', error);
+    throw error;
+  }
+};
+
+// Re-export Firebase SDK functions for direct use
+export {
+  doc,
+  getDoc,
+  getDocs,
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+};
+
+// Re-export utility functions from utils
+export { addErrorLogs } from 'utils/functions';
 
 // Singleton instance for messaging
 let messagingInstance = null;

@@ -5,6 +5,7 @@ import employeesReducer from './slices/employeesSlice';
 import dataReducer from './slices/dataSlice';
 import notificationsReducer from './slices/notificationsSlice';
 import departmentsReducer from './slices/departmentSlice';
+import networkReducer from './slices/networkSlice';
 import logger from 'redux-logger';
 
 export const store = configureStore({
@@ -15,6 +16,7 @@ export const store = configureStore({
     data: dataReducer,
     notifications: notificationsReducer,
     departments: departmentsReducer,
+    network: networkReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

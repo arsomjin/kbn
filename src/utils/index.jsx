@@ -1,13 +1,14 @@
 import React from 'react';
 import { Tag } from 'antd';
-import { sortArr, isTimeTypeField, arrayForEach, parser, showToBeContinue } from 'utils/functions';
+import { isTimeTypeField, arrayForEach, parser, showToBeContinue } from 'utils/functions';
+import { sortArr } from 'utils/array';
 import { w } from 'api';
 import dayjs from 'dayjs';
 import { uniq } from 'lodash-es';
 import { distinctArr } from 'utils/functions';
 import { removeAllNonAlphaNumericCharacters } from './RegEx';
 import { VehicleNameKeywords } from 'data/Constant';
-import getSidebarNavItems from 'data/sidebar-nav-items';
+import getSidebarNavItems from 'data/sidebar-nav-items.jsx';
 import {
   getFirestore,
   collection,

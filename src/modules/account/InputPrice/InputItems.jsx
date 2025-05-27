@@ -5,7 +5,6 @@ import { TableSummary } from 'api/Table';
 import { ExpandedRowRender } from './api';
 import { Numb } from 'utils/number';
 import { useTranslation } from 'react-i18next';
-import MTable from 'components/Table';
 
 /**
  * @typedef {Object} InputItemsProps

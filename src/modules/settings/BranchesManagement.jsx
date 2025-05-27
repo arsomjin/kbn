@@ -93,7 +93,7 @@ const BranchesManagement = () => {
     }, 0);
   };
 
-  const handleDelete = async (id) => {
+  const _handleDelete = async (id) => {
     Modal.confirm({
       title: t('branches:modal.deleteTitle'),
       content: t('branches:modal.deleteConfirmation'),
@@ -269,7 +269,7 @@ const BranchesManagement = () => {
         className="max-w-full"
         style={{ top: 24 }}
         styles={{ body: { padding: 16 } }}
-        destroyOnClose
+        destroyOnHidden
       >
         <Form
           form={form}

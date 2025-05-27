@@ -311,6 +311,40 @@ export const hideAlert = () => {
   // No need for this function as Ant Design's Modal handles its own lifecycle
 };
 
+export const showAlert = (modal, title, info, theme, onOk) => {
+  const modalProps = {
+    title,
+    content: info,
+    onOk,
+    okText: 'ตกลง',
+    centered: true,
+    maskClosable: false,
+  };
+
+  if (theme === 'warning') {
+    modal.warning(modalProps);
+  } else if (theme === 'error') {
+    modal.error(modalProps);
+  } else {
+    modal.info(modalProps);
+  }
+};
+
+export const showSuccess = (modal, title, info, theme, onOk) => {
+  modal.success({
+    title,
+    content: info,
+    onOk,
+    okText: 'ตกลง',
+    centered: true,
+    maskClosable: false,
+  });
+};
+
+export const load = (loading, text, hideIndicator) => {
+  console.log('load called with', { loading, text, hideIndicator });
+};
+
 // Confirm utilities
 // DEPRECATED: Use modal.confirm from useAntdUi hook instead
 export const showConfirm = (modal, onOk, messageText) => {
@@ -436,92 +470,6 @@ export const distinctElement = (arrayOfElements) => {
     name: elem,
     count: arrayOfElements.filter((l) => l === elem).length,
   }));
-};
-
-export const arrayMin = (arrayOfElements) => {
-  return arrayOfElements.reduce((p, v) => (p < v ? p : v));
-};
-
-export const arrayMax = (arrayOfElements) => {
-  return arrayOfElements.reduce((p, v) => (p > v ? p : v));
-};
-
-export function sortArr(arrItems, sortKey) {
-  if (!Array.isArray(arrItems)) {
-    return [];
-  }
-
-  return [...arrItems].sort((a, b) => {
-    const aVal = a[sortKey];
-    const bVal = b[sortKey];
-
-    if (typeof aVal === 'string' && typeof bVal === 'string') {
-      return aVal.localeCompare(bVal);
-    }
-
-    if (typeof aVal === 'number' && typeof bVal === 'number') {
-      return aVal - bVal;
-    }
-
-    return 0;
-  });
-}
-
-export function sortArrByMultiKeys(arrItems, sortKeys) {
-  if (!Array.isArray(arrItems)) {
-    return [];
-  }
-
-  return [...arrItems].sort((a, b) => {
-    for (const key of sortKeys) {
-      const aVal = a[key];
-      const bVal = b[key];
-
-      if (typeof aVal === 'string' && typeof bVal === 'string') {
-        const compare = aVal.localeCompare(bVal);
-        if (compare !== 0) return compare;
-      }
-
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        const compare = aVal - bVal;
-        if (compare !== 0) return compare;
-      }
-    }
-
-    return 0;
-  });
-}
-
-export function searchArr(arrItems, search, keys) {
-  if (!Array.isArray(arrItems) || !search) {
-    return arrItems;
-  }
-
-  const searchLower = search.toLowerCase();
-  return arrItems.filter((item) =>
-    keys.some((key) => {
-      const value = item[key];
-      return typeof value === 'string' && value.toLowerCase().includes(searchLower);
-    }),
-  );
-}
-
-export function insertArr(arr, index, insertItems) {
-  if (!Array.isArray(arr) || !Array.isArray(insertItems)) {
-    return arr;
-  }
-
-  const result = [...arr];
-  result.splice(index, 0, ...insertItems);
-  return result;
-}
-
-export const range = (len) => {
-  const arr = [];
-  for (let i = 0; i < len; i++) {
-    arr.push(i);
-  }
-  return arr;
 };
 
 export const newPerson = () => {

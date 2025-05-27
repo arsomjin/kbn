@@ -27,6 +27,8 @@
   "or": "OR",
   "home": "Home",
   "total": "Total",
+  "all": "All",
+  "noData": "No Data",
   "toggleTheme": "Toggle Theme",
   "errors": {
     "notFound": "Sorry, the page you are looking for does not exist.",
