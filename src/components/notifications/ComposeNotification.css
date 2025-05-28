@@ -44,7 +44,7 @@
 
 .compose-notification .ant-form-item-label > label {
   font-weight: 500;
-  color: #262626;
+  /* color: #262626; */
   display: flex;
   align-items: center;
   gap: 0.5rem;
