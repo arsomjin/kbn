@@ -1,5 +1,6 @@
 {
-  "title": "Employee Management",
+  "title": "Employees",
+  "subtitle": "Manage employee information",
   "list": {
     "title": "Employee List",
     "addNew": "Add New Employee",
@@ -26,63 +27,51 @@
     "back": "Back to List"
   },
   "fields": {
-    "employeeId": "Employee ID",
     "employeeCode": "Employee Code",
+    "prefix": "Prefix",
     "firstName": "First Name",
     "lastName": "Last Name",
-    "name": "Full Name",
-    "nickName": "Nickname",
     "position": "Position",
-    "department": "Department",
-    "email": "Email",
-    "phone": "Phone",
-    "address": "Address",
-    "startDate": "Start Date",
-    "startDateRequired": "Start Date Required",
-    "endDate": "End Date",
     "status": "Status",
-    "salary": "Salary",
-    "bankAccount": "Bank Account",
-    "bankName": "Bank Name",
-    "workBegin": "Work Start",
-    "workEnd": "Work End",
-    "prefix": "Prefix",
     "affiliate": "Affiliate",
-    "emergencyContact": {
-      "title": "Emergency Contact",
-      "name": "Contact Name",
-      "relationship": "Relationship",
-      "phone": "Contact Phone"
-    },
-    "documents": {
-      "title": "Documents",
-      "type": "Document Type",
-      "uploadDate": "Upload Date",
-      "actions": "Actions"
-    },
-    "details": "Details",
-    "emergencyContactName": "Emergency Contact Name",
-    "emergencyContactRelationship": "Emergency Contact Relationship",
-    "emergencyContactPhone": "Emergency Contact Phone"
+    "phoneNumber": "Phone Number",
+    "address": "Address",
+    "province": "Province",
+    "amphoe": "District",
+    "tambol": "Sub-district",
+    "postcode": "Postal Code",
+    "branch": "Branch",
+    "provinceId": "Province",
+    "remark": "Remark",
+    "description": "Description",
+    "nickName": "Nickname",
+    "fullName": "Full Name",
+    "workBegin": "Work Begin",
+    "workEnd": "Work End",
+    "startDate": "Start Date",
+    "endDate": "End Date"
   },
   "status": {
     "active": "Active",
     "inactive": "Inactive",
-    "on_leave": "On Leave",
-    "terminated": "Terminated",
     "resigned": "Resigned",
-    "probation": "On Probation",
-    "retired": "Retired"
+    "terminated": "Terminated"
+  },
+  "prefix": {
+    "mr": "Mr.",
+    "mrs": "Mrs.",
+    "ms": "Ms."
   },
   "actions": {
-    "view": "View",
+    "add": "Add Employee",
     "edit": "Edit",
     "delete": "Delete",
-    "download": "Download",
-    "upload": "Upload Document",
-    "add": "Add Employee",
-    "resetFilters": "Reset Filters",
-    "clearAll": "Clear All"
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "confirm": "Confirm",
+    "confirmSave": "Are you sure you want to save {{name}}'s information?",
+    "saving": "Saving..."
   },
   "filters": {
     "status": "Select Status",
@@ -90,7 +79,7 @@
     "position": "Select Position"
   },
   "search": {
-    "placeholder": "Search by name, ID, or department..."
+    "placeholder": "Search employees..."
   },
   "results": {
     "showing": "Showing {{count}} of {{total}} employees",
@@ -99,57 +88,122 @@
   },
   "messages": {
     "success": {
-      "created": "Employee created successfully",
+      "created": "Employee added successfully",
       "updated": "Employee updated successfully",
       "deleted": "Employee deleted successfully",
+      "loaded": "Employee data loaded successfully",
+      "saved": "Employee data saved successfully",
+      "exported": "Employee data exported successfully",
+      "imported": "Employee data imported successfully",
       "documentUploaded": "Document uploaded successfully",
-      "documentDeleted": "Document deleted successfully"
+      "documentDeleted": "Document deleted successfully",
+      "documentDownloaded": "Document downloaded successfully",
+      "statusChanged": "Employee status changed successfully",
+      "profilePhotoUploaded": "Profile photo uploaded successfully",
+      "profilePhotoDeleted": "Profile photo deleted successfully"
     },
     "error": {
-      "loading": "Error loading employees",
-      "saving": "Error saving employee",
-      "creating": "Failed to create employee",
-      "updating": "Failed to update employee",
-      "deleting": "Error deleting employee",
-      "notFound": "Employee not found",
-      "uploading": "Error uploading document",
-      "downloading": "Error downloading document",
-      "deletingDocument": "Error deleting document",
-      "loadFailed": "Failed to load employee data",
+      "loading": "Error loading employee data",
+      "loadingFailed": "Failed to load employee data",
+      "saving": "Error saving employee data",
+      "savingFailed": "Failed to save employee data",
+      "creating": "Error creating new employee",
       "createFailed": "Failed to create new employee",
-      "updateFailed": "Failed to update employee information",
+      "updating": "Error updating employee data",
+      "updateFailed": "Failed to update employee data",
+      "deleting": "Error deleting employee",
       "deleteFailed": "Failed to delete employee",
-      "invalidData": "Invalid employee data provided",
-      "duplicateId": "Employee ID already exists",
-      "invalidProvince": "Invalid province specified",
-      "invalidBranch": "Invalid branch specified"
+      "notFound": "Employee data not found",
+      "employeeNotFound": "Employee not found",
+      "employeeExists": "Employee code already exists",
+      "duplicateEmployeeId": "This employee code is already used",
+      "duplicateEmail": "This email is already used",
+      "invalidEmployeeId": "Invalid employee code",
+      "invalidEmail": "Invalid email",
+      "invalidPhone": "Invalid phone number",
+      "invalidDateRange": "Invalid date range",
+      "invalidSalary": "Invalid salary amount",
+      "uploading": "Error uploading document",
+      "uploadFailed": "Failed to upload document",
+      "downloading": "Error downloading document",
+      "downloadFailed": "Failed to download document",
+      "deletingDocument": "Error deleting document",
+      "documentDeleteFailed": "Failed to delete document",
+      "documentNotFound": "Document not found",
+      "unsupportedFileType": "Unsupported file type",
+      "fileTooLarge": "File is too large",
+      "missingRequiredFields": "Please fill in all required fields",
+      "permissionDenied": "You do not have permission to perform this action",
+      "networkError": "Network error occurred",
+      "serverError": "Server error occurred",
+      "timeout": "Operation timed out",
+      "unknownError": "An unknown error occurred",
+      "validationError": "Invalid data",
+      "exportFailed": "Failed to export data",
+      "importFailed": "Failed to import data",
+      "statusChangeFailed": "Failed to change status",
+      "profilePhotoUploadFailed": "Failed to upload profile photo",
+      "profilePhotoDeleteFailed": "Failed to delete profile photo"
     },
     "confirm": {
       "delete": "Are you sure you want to delete this employee?",
-      "deleteDocument": "Are you sure you want to delete this document?"
+      "deleteDocument": "Are you sure you want to delete this document?",
+      "deleteProfilePhoto": "Are you sure you want to delete the profile photo?",
+      "changeStatus": "Are you sure you want to change the employee's status?",
+      "unsavedChanges": "You have unsaved changes. Do you want to leave this page?"
     },
-    "empty": "No employees found."
+    "empty": "No employee data found",
+    "noData": "No employee data",
+    "noResults": "No search results found",
+    "loading": "Loading employee data...",
+    "saving": "Saving data...",
+    "deleting": "Deleting data...",
+    "uploading": "Uploading...",
+    "downloading": "Downloading...",
+    "processing": "Processing..."
   },
   "validation": {
     "required": {
-      "employeeId": "Employee ID is required",
-      "firstName": "First name is required",
-      "lastName": "Last name is required",
-      "position": "Position is required",
-      "department": "Department is required",
-      "email": "Email is required",
-      "phone": "Phone is required",
-      "startDate": "Start date is required",
-      "status": "Status is required",
-      "salary": "Salary is required",
-      "bankAccount": "Bank account is required",
-      "bankName": "Bank name is required"
+      "employeeId": "Please enter employee ID",
+      "employeeCode": "Please enter employee code",
+      "firstName": "Please enter first name",
+      "lastName": "Please enter last name",
+      "position": "Please enter position",
+      "department": "Please enter department",
+      "email": "Please enter email",
+      "phone": "Please enter phone number",
+      "startDate": "Please enter start date",
+      "status": "Please select status",
+      "salary": "Please enter salary",
+      "bankAccount": "Please enter bank account",
+      "bankName": "Please enter bank name",
+      "branch": "Please enter branch",
+      "province": "Please enter province"
     },
     "format": {
-      "email": "Please enter a valid email address",
-      "phone": "Please enter a valid phone number",
-      "salary": "Please enter a valid salary amount",
-      "bankAccount": "Please enter a valid bank account number"
+      "email": "Please enter valid email",
+      "phone": "Please enter valid phone number",
+      "salary": "Please enter valid salary",
+      "bankAccount": "Please enter valid bank account"
     }
+  },
+  "table": {
+    "title": "List",
+    "employeeCode": "Employee Code",
+    "name": "Full Name",
+    "position": "Position",
+    "status": "Status",
+    "actions": "Actions"
+  },
+  "profile": {
+    "title": "Employee Profile",
+    "subtitle": "Employee"
+  },
+  "menu": {
+    "executive": "Employees (Executive)",
+    "province": "Employees (Province)",
+    "branch": "Employees (Branch)",
+    "list": "View Employees",
+    "create": "Add Employee"
   }
 }

@@ -1,12 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Modal, Button, Tabs, Form, Select, Transfer, Alert, Tag, Typography } from 'antd';
+import {
+  Modal,
+  Button,
+  Tabs,
+  Form,
+  Select,
+  Transfer,
+  Alert,
+  Tag,
+  Typography,
+  Collapse,
+  Checkbox,
+  Row,
+  Col,
+} from 'antd';
 import { SaveOutlined } from '@ant-design/icons';
-import { ROLES } from '../../constants/roles';
-import { PERMISSIONS } from '../../constants/Permissions';
+import { ROLES, ROLE_PERMISSIONS } from '../../constants/roles';
+import { PERMISSIONS, PERMISSION_CATEGORIES } from '../../constants/Permissions';
 import { getPrivilegeLevel } from '../../utils/roleUtils';
 import { useResponsive } from 'hooks/useResponsive';
 import styles from './UserRoleEditor.module.css';
+import { useAuth } from '../../contexts/AuthContext';
+import { ROLE_HIERARCHY } from '../../constants/roles';
 
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -20,17 +36,25 @@ const UserRoleEditor = ({
   user,
   availableRoles,
   availableProvinces,
-  rolePermissions,
   onCancel,
   onSave,
   isSaving = false,
   modalTitle = 'userRoleManager.editModal.title',
   namespace = 'userRoleManager',
 }) => {
-  const { t } = useTranslation([namespace, 'common', 'roles', 'provinces']);
+  const { t } = useTranslation([namespace, 'common', 'roles', 'provinces', 'permissions']);
   const { isMobile, isTablet } = useResponsive();
+  const { userProfile } = useAuth();
   const [editingUser, setEditingUser] = useState(null);
   const [activeTabKey, setActiveTabKey] = useState('role');
+
+  // Filter available roles based on current user's role level
+  const filteredRoles = useMemo(() => {
+    if (!userProfile?.role || !availableRoles) return [];
+
+    const currentUserLevel = ROLE_HIERARCHY[userProfile.role];
+    return availableRoles.filter((role) => ROLE_HIERARCHY[role.value] >= currentUserLevel);
+  }, [userProfile?.role, availableRoles]);
 
   // Derive translation key prefix from modalTitle prop
   const getKeyPrefix = () => {
@@ -64,8 +88,8 @@ const UserRoleEditor = ({
   const handleRoleChange = (role) => {
     if (!editingUser) return;
 
-    // Get default permissions for the selected role
-    let defaultPermissions = rolePermissions[role] || [];
+    // Always use canonical ROLE_PERMISSIONS for default permissions
+    let defaultPermissions = [...(ROLE_PERMISSIONS[role] || [])];
 
     // Add VIEW_ACCOUNTS permission for account department
     if (['dep0005', 'dep0012'].includes(editingUser.departmentId || '')) {
@@ -89,24 +113,6 @@ const UserRoleEditor = ({
       selectedRole: role,
       selectedPermissions: defaultPermissions,
       selectedProvinceIds: defaultProvinceIds,
-    });
-  };
-
-  // Handle permission change in the Transfer component
-  const handlePermissionChange = (targetKeys) => {
-    if (!editingUser) return;
-
-    // Get role-based permissions for the current role
-    const roleBasedPermissions = rolePermissions[editingUser.selectedRole] || [];
-
-    // Filter out role-based permissions from the selected permissions
-    const customPermissions = targetKeys.filter(
-      (permission) => !roleBasedPermissions.includes(permission),
-    );
-
-    setEditingUser({
-      ...editingUser,
-      selectedPermissions: [...roleBasedPermissions, ...customPermissions],
     });
   };
 
@@ -152,12 +158,14 @@ const UserRoleEditor = ({
   const resetPermissionsToDefault = () => {
     if (!editingUser) return;
 
-    const defaultPermissions = rolePermissions[editingUser.selectedRole] || [];
+    const defaultPermissions = [...(ROLE_PERMISSIONS[editingUser.selectedRole] || [])];
     setEditingUser({
       ...editingUser,
-      selectedPermissions: [...defaultPermissions],
+      selectedPermissions: defaultPermissions,
     });
   };
+
+  console.log('filteredRoles', filteredRoles);
 
   // Generate tab items
   const getTabItems = () => {
@@ -174,7 +182,7 @@ const UserRoleEditor = ({
             </h3>
             <Form layout="vertical">
               <Form.Item
-                label={t(`editModal.roleLabel`, t(`${namespace}.editModal.roleLabel`, 'Role'))}
+                // label={t(`editModal.roleLabel`, t(`${namespace}.editModal.roleLabel`, 'Role'))}
                 extra={t(
                   `editModal.roleDescription`,
                   t(
@@ -188,9 +196,9 @@ const UserRoleEditor = ({
                   onChange={(value) => handleRoleChange(value)}
                   style={{ width: '100%' }}
                 >
-                  {availableRoles.map((role) => (
+                  {filteredRoles.map((role) => (
                     <Option key={role.value} value={role.value}>
-                      {t(`${role.value.toLowerCase()}.label`, { ns: 'roles' })}
+                      {t(`${role.value}.label`, { ns: 'roles' })}
                     </Option>
                   ))}
                 </Select>
@@ -236,31 +244,66 @@ const UserRoleEditor = ({
                   ),
                 )}
               >
-                <Transfer
-                  dataSource={Object.values(PERMISSIONS).map((permission) => ({
-                    key: permission,
-                    title: translatePermission(permission),
-                  }))}
-                  titles={[
-                    t('editModal.availablePermissions', 'Available'),
-                    t('editModal.selectedPermissions', 'Selected'),
-                  ]}
-                  targetKeys={editingUser.selectedPermissions}
-                  onChange={handlePermissionChange}
-                  render={(item) => item.title}
-                  listStyle={{
-                    width: isMobile ? '100%' : 250,
-                    height: 300,
-                  }}
-                  operations={[
-                    t('editModal.addPermissions', 'Add'),
-                    t('editModal.removePermissions', 'Remove'),
-                  ]}
-                  className={styles.permissionsTransfer}
-                />
+                <Collapse accordion bordered={false}>
+                  {Object.entries(PERMISSION_CATEGORIES).map(([catKey, permKeys]) => {
+                    // Only count selected permissions that are in this category
+                    const selectedCount = permKeys.filter((p) =>
+                      editingUser.selectedPermissions.includes(p),
+                    ).length;
+                    const totalCount = permKeys.length;
+                    const sectionLabel = (
+                      <>
+                        {t(catKey.toLowerCase(), {
+                          ns: 'permissions',
+                          defaultValue: catKey
+                            .replace(/_/g, ' ')
+                            .replace(/\b\w/g, (c) => c.toUpperCase()),
+                        })}
+                        <span className="text-muted" style={{ marginLeft: 8, fontSize: 11 }}>
+                          {t(`editModal.tabs.selectedCount`, {
+                            selected: selectedCount,
+                            total: totalCount,
+                            ns: namespace,
+                            defaultValue: `(เลือก ${selectedCount} จาก ${totalCount})`,
+                          })}
+                        </span>
+                      </>
+                    );
+                    return (
+                      <Collapse.Panel header={sectionLabel} key={catKey}>
+                        <Checkbox.Group
+                          style={{ width: '100%' }}
+                          value={editingUser.selectedPermissions.filter((p) =>
+                            permKeys.includes(p),
+                          )}
+                          onChange={(checkedList) => {
+                            // Merge with other selected permissions from other groups
+                            const otherPerms = editingUser.selectedPermissions.filter(
+                              (p) => !permKeys.includes(p),
+                            );
+                            setEditingUser({
+                              ...editingUser,
+                              selectedPermissions: [...otherPerms, ...checkedList],
+                            });
+                          }}
+                        >
+                          <Row gutter={[8, 8]}>
+                            {permKeys.map((permission) => (
+                              <Col xs={24} sm={12} md={8} lg={8} key={permission}>
+                                <Checkbox value={permission}>
+                                  {translatePermission(permission)}
+                                </Checkbox>
+                              </Col>
+                            ))}
+                          </Row>
+                        </Checkbox.Group>
+                      </Collapse.Panel>
+                    );
+                  })}
+                </Collapse>
               </Form.Item>
               <Button type="link" onClick={resetPermissionsToDefault} className="mt-2">
-                {t('editModal.resetToDefault', 'Reset to Role Defaults')}
+                {t('editModal.resetPermissions', 'Reset to Role Defaults')}
               </Button>
             </Form>
           </div>
@@ -370,6 +413,8 @@ const UserRoleEditor = ({
       open={visible}
       onCancel={onCancel}
       onOk={handleSave}
+      okText={t('save', { ns: 'common' })}
+      cancelText={t('cancel', { ns: 'common' })}
       confirmLoading={isSaving}
       width={isMobile ? '100%' : isTablet ? '80%' : '60%'}
       className={styles.userRoleEditorModal}

@@ -50,16 +50,6 @@ module.exports = {
         soil: 'var(--colors-soil)',
         stone: 'var(--colors-stone)',
         forest: 'var(--colors-forest)',
-        primary: {
-          DEFAULT: '#4B6043', // Deep olive green
-          light: '#7A8450', // Muted olive
-          dark: '#2E3D27', // Dark forest
-        },
-        secondary: {
-          DEFAULT: '#A67C52', // Earthy brown
-          light: '#D9B382', // Sand
-          dark: '#7C5A36', // Deep brown
-        },
         accent: {
           DEFAULT: '#6C8E7B', // Muted teal
           light: '#A3C1AD', // Pale green
@@ -113,7 +103,8 @@ module.exports = {
       variables: {
         DEFAULT: {
           colors: {
-            primary: '#7FA97F', // moss green
+            primary: '#4A6749', // moss green
+            // primary: '#7FA97F', // moss green
             'primary-light': '#A3C9A8', // lighter sage
             'primary-dark': '#5A7D5A', // forest green
             secondary: '#A67B5B', // warm terracotta

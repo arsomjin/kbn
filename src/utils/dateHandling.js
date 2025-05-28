@@ -59,19 +59,19 @@
  */
 
 import { Timestamp } from 'firebase/firestore';
-import dayjs from './dayjs';
+import dayjs from './dayjs.js';
 import { showWarn } from './functions';
 
 // ===== DATE VALUE DETECTION =====
 
 /**
- * Check if a value appears to be a date/time value based on its content
- * This is more reliable than checking field names
+ * Check if a value represents a date/time value
+ * Enhanced with more conservative detection to prevent false positives
  */
 export const isDateValue = (value) => {
   if (!value) return false;
 
-  // Firestore Timestamp
+  // Firestore Timestamp (always a date)
   if (
     value &&
     typeof value === 'object' &&
@@ -81,56 +81,83 @@ export const isDateValue = (value) => {
     return true;
   }
 
-  // Dayjs object
+  // Dayjs object (always a date)
   if (dayjs.isDayjs(value)) {
     return true;
   }
 
-  // JavaScript Date
+  // JavaScript Date (always a date)
   if (value instanceof Date) {
     return true;
   }
 
-  // Unix timestamp (reasonable range: 1970-2100)
-  if (typeof value === 'number' && value > 0 && value < 4102444800000) {
-    // Additional check: if it's a small number, it might be seconds
-    if (value < 10000000000) {
-      // Seconds timestamp (1970-2286)
-      return value > 31536000; // After 1971 to avoid false positives
+  // Unix timestamp (be more conservative with numbers)
+  if (typeof value === 'number' && value > 0) {
+    // Additional check: must be a reasonable timestamp length
+    // Milliseconds should be 13 digits, seconds should be 10 digits
+    const valueStr = value.toString();
+    if (valueStr.length === 13 || valueStr.length === 10) {
+      // Only consider it a timestamp if it's in a reasonable range
+      // Milliseconds: between 1970-01-01 and 2100-01-01
+      if (value >= 0 && value <= 4102444800000) {
+        return true;
+      }
     }
-    // Milliseconds timestamp
-    return true;
+    return false;
   }
 
-  // String that looks like a date
+  // String that looks like a date - be more conservative
   if (typeof value === 'string' && value.trim()) {
-    // ISO date patterns
-    const isoPatterns = [
+    const trimmed = value.trim();
+
+    // Very specific ISO date patterns only
+    const strictPatterns = [
       /^\d{4}-\d{2}-\d{2}$/, // YYYY-MM-DD
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/, // ISO datetime
-      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/, // SQL datetime
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?$/, // ISO datetime
+      /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/, // SQL datetime
     ];
 
-    // Common date patterns
-    const datePatterns = [
+    // Check strict patterns first
+    if (strictPatterns.some((pattern) => pattern.test(trimmed))) {
+      // Verify it's actually parseable as a valid date
+      const parsed = new Date(trimmed);
+      if (
+        !isNaN(parsed.getTime()) &&
+        parsed.getFullYear() >= 1900 &&
+        parsed.getFullYear() <= 2100
+      ) {
+        return true;
+      }
+    }
+
+    // Additional check for common date formats, but only if they look very date-like
+    const commonPatterns = [
       /^\d{1,2}\/\d{1,2}\/\d{4}$/, // MM/DD/YYYY or DD/MM/YYYY
-      /^\d{1,2}-\d{1,2}-\d{4}$/, // MM-DD-YYYY or DD-MM-YYYY
       /^\d{4}\/\d{1,2}\/\d{1,2}$/, // YYYY/MM/DD
     ];
 
-    const allPatterns = [...isoPatterns, ...datePatterns];
-
-    // Check patterns first (faster)
-    if (allPatterns.some((pattern) => pattern.test(value.trim()))) {
-      // Verify it's actually parseable as a date
-      const parsed = new Date(value);
-      return !isNaN(parsed.getTime()) && parsed.getFullYear() > 1900 && parsed.getFullYear() < 2100;
+    if (commonPatterns.some((pattern) => pattern.test(trimmed))) {
+      const parsed = dayjs(trimmed);
+      if (parsed.isValid() && parsed.year() >= 1900 && parsed.year() <= 2100) {
+        return true;
+      }
     }
 
-    // Try parsing with dayjs for more formats
-    const parsed = dayjs(value);
-    if (parsed.isValid() && parsed.year() > 1900 && parsed.year() < 2100) {
-      return true;
+    // Reject strings that are clearly not dates
+    if (trimmed.length < 8 || trimmed.length > 30) {
+      return false;
+    }
+
+    // Reject strings with obvious non-date patterns
+    const nonDatePatterns = [
+      /^[a-zA-Z][a-zA-Z0-9]*$/, // Simple identifiers like "AB776", "dep007"
+      /^\d+$/, // Pure numbers as strings
+      /^[a-zA-Z]+$/, // Pure letters
+      /[!@#$%^&*()_+=[\]{}|;':",./<>?`~]/, // Special characters
+    ];
+
+    if (nonDatePatterns.some((pattern) => pattern.test(trimmed))) {
+      return false;
     }
   }
 
@@ -231,10 +258,10 @@ export const toJSDate = (input, options = {}) => {
       return input.isValid() ? input.toDate() : null;
     }
 
-    // Handle Unix timestamp (seconds)
+    // Handle Unix timestamp (seconds and milliseconds)
     if (typeof input === 'number') {
-      // If it's a reasonable timestamp (after year 1970 and before year 3000)
-      if (input > 0 && input < 32503680000) {
+      // If it's a reasonable timestamp (after year 1970 and before year 2100)
+      if (input > 0 && input <= 4102444800000) {
         // Handle both seconds and milliseconds
         const date = input < 10000000000 ? new Date(input * 1000) : new Date(input);
         return isNaN(date.getTime()) ? null : date;
@@ -444,50 +471,49 @@ export const processFirestoreDataForForm = (data, options = {}) => {
     // If include list is specified, only process those fields
     if (includeFields && !includeFields.includes(key)) return;
 
-    // Check if value should be converted from Firestore format
-    if (convertDates && isDateValue(value)) {
-      if (value === null || typeof value === 'undefined' || value === '') {
-        result[key] = undefined;
-      } else {
-        // Convert based on output format preference
-        switch (outputFormat) {
-          case 'dayjs':
-            result[key] = toDayjs(value, dateOptions);
-            break;
-          case 'iso':
-            result[key] = toISOString(value, dateOptions);
-            break;
-          case 'date':
-            result[key] = toJSDate(value, dateOptions);
-            break;
-          default:
-            // Default to dayjs for Antd compatibility
-            result[key] = toDayjs(value, dateOptions);
-        }
-      }
-      return;
-    }
-
-    // Handle null values (preserve them as undefined for forms)
-    if (value === null) {
+    // Handle undefined values (keep as undefined)
+    if (typeof value === 'undefined') {
       result[key] = undefined;
       return;
     }
 
-    // Process nested objects
+    // Handle null values (keep as null)
+    if (value === null) {
+      result[key] = null;
+      return;
+    }
+
+    // Check if value should be converted based on VALUE TYPE, not field name
+    if (convertDates && isDateValue(value)) {
+      // Convert based on output format preference
+      switch (outputFormat) {
+        case 'dayjs':
+          result[key] = toDayjs(value, dateOptions);
+          break;
+        case 'iso':
+          result[key] = toISOString(value, dateOptions);
+          break;
+        case 'date':
+          result[key] = toJSDate(value, dateOptions);
+          break;
+        default:
+          // Default to dayjs for Antd compatibility
+          result[key] = toDayjs(value, dateOptions);
+      }
+      return;
+    }
+
+    // Process nested objects recursively
     if (processNested && value && typeof value === 'object' && !Array.isArray(value)) {
       result[key] = processFirestoreDataForForm(value, options);
       return;
     }
 
-    // Process arrays
+    // Process arrays recursively
     if (processNested && Array.isArray(value)) {
       result[key] = value.map((item) => {
         // Convert date values in arrays
         if (convertDates && isDateValue(item)) {
-          if (item === null || typeof item === 'undefined' || item === '') {
-            return undefined;
-          }
           switch (outputFormat) {
             case 'dayjs':
               return toDayjs(item, dateOptions);
@@ -507,6 +533,9 @@ export const processFirestoreDataForForm = (data, options = {}) => {
       });
       return;
     }
+
+    // For all other types (strings, numbers, booleans that aren't dates), keep as-is
+    result[key] = value;
   });
 
   return result;

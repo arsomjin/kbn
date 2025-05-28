@@ -4,12 +4,10 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/th';
 import locale from 'antd/es/date-picker/locale/th_TH';
 import { isMobile } from 'react-device-detect';
+import { ensureDayjs } from '.';
 
 const CustomDatePicker = forwardRef(
-  (
-    { value, onChange, format, mFormat, dFormat, placeholder, picker, disabledDate, ...props },
-    ref,
-  ) => {
+  ({ value, onChange, placeholder, picker, disabledDate, ...props }, ref) => {
     const isMonth = picker === 'month';
     const isYear = picker === 'year';
     const isTime = picker === 'time';
@@ -19,10 +17,13 @@ const CustomDatePicker = forwardRef(
       onChange && onChange(date ? date.valueOf() : null);
     };
 
+    // console.log('[DatePick] value', value);
+    // console.log('[DatePick] ensureDayjs(value)', ensureDayjs(value));
+    console.log('[DatePick] props', props);
     return (
       <DatePicker
         ref={ref}
-        value={value ? dayjs(value) : null}
+        value={value ? ensureDayjs(value) : null}
         onChange={_onChange}
         locale={locale}
         placeholder={

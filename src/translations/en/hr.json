@@ -122,5 +122,8 @@
     "noData": "No Data",
     "error": "Error",
     "success": "Success"
+  },
+  "sidebar": {
+    "hrGroup": "Human Resources"
   }
 }

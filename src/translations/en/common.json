@@ -34,7 +34,9 @@
   "errors": {
     "notFound": "Sorry, the page you are looking for does not exist.",
     "unexpectedError": "An unexpected error occurred",
-    "saving": "Error saving data"
+    "saving": "Error saving data",
+    "cannotModifyHigherRole": "You cannot modify a user's role that is higher than your own.",
+    "cannotEditSelf": "You cannot edit your own role/permissions."
   },
   "excelImportExport": {
     "importExcel": "Import Excel",

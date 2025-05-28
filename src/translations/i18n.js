@@ -63,6 +63,8 @@ import enMenu from './en/menu.json';
 import thMenu from './th/menu.json';
 import enDebug from './en/debug.json';
 import thDebug from './th/debug.json';
+import enComponents from './en/components.json';
+import thComponents from './th/components.json';
 
 // Resources object containing translations
 const resources = {
@@ -97,6 +99,7 @@ const resources = {
     hr: enHr,
     menu: enMenu,
     debug: enDebug,
+    components: enComponents,
   },
   th: {
     app: thApp,
@@ -129,6 +132,7 @@ const resources = {
     hr: thHr,
     menu: thMenu,
     debug: thDebug,
+    components: thComponents,
   },
 };
 
@@ -173,6 +177,7 @@ i18n
       'hr',
       'menu',
       'debug',
+      'components',
     ],
     interpolation: {
       escapeValue: false,

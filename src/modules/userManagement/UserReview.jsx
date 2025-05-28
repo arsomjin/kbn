@@ -164,36 +164,35 @@ const UserReview = () => {
         return true;
       }
 
-      // Province admin can see pending users in their accessible provinces
+      // Province admin can see users in their accessible provinces
       if (currentUser.role === ROLES.PROVINCE_ADMIN) {
-        const userProvinceIds = [targetUser.provinceId].filter(Boolean);
+        const userProvinceIds =
+          targetUser.accessibleProvinceIds ||
+          [targetUser.provinceId || targetUser.province].filter(Boolean);
         const hasProvinceOverlap = userProvinceIds.some(
           (pid) =>
-            currentUser.accessibleProvinceIds?.includes(pid) || currentUser.provinceId === pid,
+            currentUser.accessibleProvinceIds?.includes(pid) ||
+            (currentUser.provinceId || currentUser.province) === pid,
         );
         return hasProvinceOverlap;
       }
 
-      // Province manager can see pending users in their province
+      // Province manager can see users in their province
       if (currentUser.role === ROLES.PROVINCE_MANAGER) {
-        return targetUser.provinceId === currentUser.provinceId;
+        const userProvinceIds =
+          targetUser.accessibleProvinceIds ||
+          [targetUser.provinceId || targetUser.province].filter(Boolean);
+        return userProvinceIds.includes(currentUser.provinceId || currentUser.province);
       }
 
-      // Branch manager can see pending users in their branch
+      // Branch manager can see users in their branch
       if (currentUser.role === ROLES.BRANCH_MANAGER) {
         // Must be same province and same branch
         return (
-          targetUser.provinceId === currentUser.provinceId &&
-          targetUser.branchId === currentUser.employeeInfo?.branch
-        );
-      }
-
-      // Lead and regular users typically cannot approve users
-      // But we'll allow them to see pending users in their branch for reference
-      if ([ROLES.LEAD, ROLES.USER].includes(currentUser.role)) {
-        return (
-          targetUser.provinceId === currentUser.provinceId &&
-          targetUser.branchId === currentUser.employeeInfo?.branch
+          (targetUser.provinceId || targetUser.province) ===
+            (currentUser.provinceId || currentUser.province) &&
+          (targetUser.employeeInfo?.branch || targetUser?.branch) ===
+            (currentUser?.branch || currentUser.employeeInfo?.branch)
         );
       }
 

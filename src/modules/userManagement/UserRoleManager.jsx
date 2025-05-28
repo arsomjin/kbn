@@ -132,10 +132,12 @@ const UserRoleManager = () => {
       // Province admin can see users in their accessible provinces
       if (currentUser.role === ROLES.PROVINCE_ADMIN) {
         const userProvinceIds =
-          targetUser.accessibleProvinceIds || [targetUser.provinceId].filter(Boolean);
+          targetUser.accessibleProvinceIds ||
+          [targetUser.provinceId || targetUser.province].filter(Boolean);
         const hasProvinceOverlap = userProvinceIds.some(
           (pid) =>
-            currentUser.accessibleProvinceIds?.includes(pid) || currentUser.provinceId === pid,
+            currentUser.accessibleProvinceIds?.includes(pid) ||
+            (currentUser.provinceId || currentUser.province) === pid,
         );
         return hasProvinceOverlap;
       }
@@ -143,37 +145,20 @@ const UserRoleManager = () => {
       // Province manager can see users in their province
       if (currentUser.role === ROLES.PROVINCE_MANAGER) {
         const userProvinceIds =
-          targetUser.accessibleProvinceIds || [targetUser.provinceId].filter(Boolean);
-        return userProvinceIds.includes(currentUser.provinceId);
+          targetUser.accessibleProvinceIds ||
+          [targetUser.provinceId || targetUser.province].filter(Boolean);
+        return userProvinceIds.includes(currentUser.provinceId || currentUser.province);
       }
 
       // Branch manager can see users in their branch
       if (currentUser.role === ROLES.BRANCH_MANAGER) {
         // Must be same province and same branch
         return (
-          targetUser.provinceId === currentUser.provinceId &&
-          targetUser.employeeInfo?.branch === currentUser.employeeInfo?.branch
+          (targetUser.provinceId || targetUser.province) ===
+            (currentUser.provinceId || currentUser.province) &&
+          (targetUser.employeeInfo?.branch || targetUser?.branch) ===
+            (currentUser?.branch || currentUser.employeeInfo?.branch)
         );
-      }
-
-      // Lead can see users in their branch but not other managers
-      if (currentUser.role === ROLES.LEAD) {
-        // Can see users in same branch but not managers or above
-        const canSeeRole = [ROLES.USER, ROLES.LEAD].includes(targetUser.role);
-        const sameBranch =
-          targetUser.provinceId === currentUser.provinceId &&
-          targetUser.employeeInfo?.branch === currentUser.employeeInfo?.branch;
-        return canSeeRole && sameBranch;
-      }
-
-      // Regular users can only see themselves and other users in same branch
-      if (currentUser.role === ROLES.USER) {
-        // Can only see other users (not managers) in same branch
-        const canSeeRole = targetUser.role === ROLES.USER;
-        const sameBranch =
-          targetUser.provinceId === currentUser.provinceId &&
-          targetUser.employeeInfo?.branch === currentUser.employeeInfo?.branch;
-        return canSeeRole && sameBranch;
       }
 
       return false;
@@ -208,8 +193,9 @@ const UserRoleManager = () => {
       }))
       .filter((userData) => {
         // Filter out deleted users
-        if (userData.deleted) return false;
-
+        if (userData?.status === 'ลาออก') return false;
+        (userData.province || userData.provinceId) === 'nakhon-sawan' &&
+          console.log('[UserRoleManager] userData', { userData, userProfile });
         // Apply role-based filtering
         return canUserSeeUser(userData, userProfile);
       });
@@ -238,6 +224,28 @@ const UserRoleManager = () => {
       showWarning(t('permissions.insufficientPermissions'));
     }
   }, [canViewUsers, showWarning, t]);
+
+  // Helper function to check if current user can modify target user's role
+  const canModifyUserRole = useCallback((currentUserRole, targetUserRole) => {
+    if (!currentUserRole || !targetUserRole) return false;
+
+    // Get role hierarchy levels
+    const currentUserLevel = ROLE_HIERARCHY[currentUserRole];
+    const targetUserLevel = ROLE_HIERARCHY[targetUserRole];
+
+    // Can only modify roles equal to or lower in hierarchy
+    return currentUserLevel <= targetUserLevel;
+  }, []);
+
+  // Helper function to check if current user can edit their own role/permissions
+  const canEditSelf = (currentUser) => {
+    return (
+      currentUser.role === ROLES.EXECUTIVE ||
+      currentUser.role === ROLES.SUPER_ADMIN ||
+      currentUser.role === ROLES.DEVELOPER
+    );
+  };
+
   // Filter users based on search text, role, and province, then sort by role
   const filteredUsers = users
     .filter((user) => {
@@ -274,6 +282,17 @@ const UserRoleManager = () => {
 
   // Handle edit user button click
   const handleEditUser = (user) => {
+    // Prevent self-edit unless executive, super_admin, or developer
+    if (userProfile.uid === user.uid && !canEditSelf(userProfile)) {
+      showWarning(t('errors.cannotEditSelf', { ns: 'common' }));
+      return;
+    }
+    // Check if current user can modify this user's role
+    if (!canModifyUserRole(userProfile.role, user.role)) {
+      showWarning(t('errors.cannotModifyHigherRole', { ns: 'common' }));
+      return;
+    }
+
     // Create editing user object with current values as defaults
     const editingUser = {
       uid: user.uid,
@@ -294,6 +313,17 @@ const UserRoleManager = () => {
 
   // Handle save changes in edit modal
   const handleSaveChanges = async (editedUser) => {
+    // Prevent self-edit unless executive, super_admin, or developer
+    if (userProfile.uid === editedUser.uid && !canEditSelf(userProfile)) {
+      showWarning(t('errors.cannotEditSelf', { ns: 'common' }));
+      return;
+    }
+    // Check if current user can modify to the new role
+    if (!canModifyUserRole(userProfile.role, editedUser.selectedRole)) {
+      showWarning(t('errors.cannotAssignHigherRole'));
+      return;
+    }
+
     console.log('[UserRoleManager] editedUser', editedUser);
     setEditingInProgress(true);
     try {
@@ -731,9 +761,9 @@ const UserRoleManager = () => {
         </div>
       </Card>
 
-      {users.length === 0 ? (
+      {filteredUsers.length === 0 ? (
         <div className="flex justify-center items-center h-64">
-          <Spin size={isMobile ? 'default' : 'large'} tip={t('loading', 'Loading users...')} />
+          <Text>{t('noData', { ns: 'common' })}</Text>
         </div>
       ) : filteredUsers.length > 0 ? (
         <Card className={styles.tableCard}>

@@ -5,7 +5,8 @@
       "role": "[Role]",
       "permissions": "สิทธิ์",
       "provinces": "จังหวัด",
-      "summary": "สรุป"
+      "summary": "สรุป",
+      "selectedCount": "(เลือก {{selected}} จาก {{total}})"
     },
     "roleTitle": "เลือก[Role]ผู้ใช้",
     "roleLabel": "[Role]",
@@ -69,9 +70,9 @@
       "userInfo": "ข้อมูลรายละเอียดผู้ใช้"
     }
   },
-  "title": "จัดการ[Role]ผู้ใช้",
-  "pageTitle": "จัดการ[Role]ผู้ใช้",
-  "description": "จัดการ[Role]และสิทธิ์ของผู้ใช้ในแต่ละจังหวัด",
+  "title": "กำหนดสิทธิ์ User",
+  "pageTitle": "กำหนดสิทธิ์ User",
+  "description": "จัดการ [Role] และสิทธิ์ของ User ในแต่ละจังหวัด/สาขา",
   "tooltip": "กำหนดค่า[Role] สิทธิ์ และการเข้าถึงจังหวัดสำหรับผู้ใช้",
   "filters": {
     "search": "ค้นหาผู้ใช้...",

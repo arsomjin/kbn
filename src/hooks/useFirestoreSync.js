@@ -5,6 +5,7 @@ import { message } from 'antd';
 import { useDispatch } from 'react-redux';
 
 import { processFirestoreDataForForm } from '../utils/dateHandling';
+import { safeProcessForRedux } from '../utils/fixUserDataProcessing';
 
 /**
  * useFirestoreSync - A hook for syncing Firestore collections with Redux
@@ -59,13 +60,26 @@ const useFirestoreSync = (
           snapshot.forEach((doc) => {
             if (doc.exists()) {
               // Serialize each document's data before adding to the collection
-              // Use ISO format for Redux state to ensure serializability
-              data[doc.id] = processFirestoreDataForForm(
-                { ...doc.data(), _key: doc.id },
-                {
-                  outputFormat: 'iso',
-                },
-              );
+              // Use safe processing to prevent data type issues
+              if (collectionPath === 'users') {
+                // Use safe processing for user data
+                data[doc.id] = safeProcessForRedux(doc.data(), doc.id);
+              } else {
+                // Use ISO format for Redux state to ensure serializability
+                data[doc.id] = processFirestoreDataForForm(
+                  { ...doc.data(), _key: doc.id },
+                  {
+                    outputFormat: 'iso',
+                  },
+                );
+              }
+              if (doc.data().province === 'nakhon-sawan' && collectionPath === 'users') {
+                console.log('[useFirestoreSync] doc', doc.data());
+                console.log(
+                  '[useFirestoreSync] processed',
+                  processFirestoreDataForForm(doc.data()),
+                );
+              }
             }
           });
 

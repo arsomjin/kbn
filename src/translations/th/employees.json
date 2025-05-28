@@ -1,5 +1,6 @@
 {
-  "title": "จัดการพนักงาน",
+  "title": "พนักงาน",
+  "subtitle": "จัดการข้อมูลพนักงาน",
   "list": {
     "title": "รายชื่อพนักงาน",
     "addNew": "เพิ่มพนักงานใหม่",
@@ -26,62 +27,51 @@
     "back": "กลับไปยังรายการ"
   },
   "fields": {
-    "employeeId": "รหัสพนักงาน",
     "employeeCode": "รหัสพนักงาน",
+    "prefix": "คำนำหน้า",
     "firstName": "ชื่อ",
     "lastName": "นามสกุล",
-    "name": "ชื่อ-นามสกุล",
-    "nickName": "ชื่อเล่น",
     "position": "ตำแหน่ง",
-    "department": "แผนก",
-    "email": "อีเมล",
-    "phone": "เบอร์โทรศัพท์",
-    "address": "ที่อยู่",
-    "startDate": "วันที่เริ่มงาน",
-    "endDate": "วันที่สิ้นสุด",
     "status": "สถานะ",
-    "salary": "เงินเดือน",
-    "bankAccount": "บัญชีธนาคาร",
-    "bankName": "ชื่อธนาคาร",
-    "workBegin": "เวลาเริ่มงาน",
-    "workEnd": "เวลาเลิกงาน",
-    "prefix": "คำนำหน้า",
     "affiliate": "สังกัด",
-    "emergencyContact": {
-      "title": "ผู้ติดต่อฉุกเฉิน",
-      "name": "ชื่อผู้ติดต่อ",
-      "relationship": "ความสัมพันธ์",
-      "phone": "เบอร์โทรศัพท์ผู้ติดต่อ"
-    },
-    "documents": {
-      "title": "เอกสาร",
-      "type": "ประเภทเอกสาร",
-      "uploadDate": "วันที่อัปโหลด",
-      "actions": "การดำเนินการ"
-    },
-    "details": "รายละเอียด",
-    "emergencyContactName": "ชื่อผู้ติดต่อฉุกเฉิน",
-    "emergencyContactRelationship": "ความสัมพันธ์กับผู้ติดต่อฉุกเฉิน",
-    "emergencyContactPhone": "เบอร์โทรศัพท์ผู้ติดต่อฉุกเฉิน"
+    "phoneNumber": "เบอร์โทรศัพท์",
+    "address": "ที่อยู่",
+    "province": "จังหวัด",
+    "amphoe": "อำเภอ",
+    "tambol": "ตำบล",
+    "postcode": "รหัสไปรษณีย์",
+    "branch": "สาขา",
+    "provinceId": "จังหวัด",
+    "remark": "หมายเหตุ",
+    "description": "รายละเอียด",
+    "nickName": "ชื่อเล่น",
+    "fullName": "ชื่อ-นามสกุล",
+    "workBegin": "เข้างาน",
+    "workEnd": "เลิกงาน",
+    "startDate": "วันที่เริ่มงาน",
+    "endDate": "วันที่ลาออก"
   },
   "status": {
-    "active": "ทำงานอยู่",
+    "active": "ทำงาน",
     "inactive": "ไม่ทำงาน",
-    "on_leave": "ลางาน",
-    "terminated": "สิ้นสุดการจ้างงาน",
     "resigned": "ลาออก",
-    "probation": "ทดลองงาน",
-    "retired": "เกษียณอายุ"
+    "terminated": "ลาออก"
+  },
+  "prefix": {
+    "mr": "นาย",
+    "mrs": "นาง",
+    "ms": "นางสาว"
   },
   "actions": {
-    "view": "ดู",
+    "add": "เพิ่มพนักงาน",
     "edit": "แก้ไข",
     "delete": "ลบ",
-    "download": "ดาวน์โหลด",
-    "upload": "อัปโหลดเอกสาร",
-    "add": "เพิ่มพนักงาน",
-    "resetFilters": "รีเซ็ตตัวกรอง",
-    "clearAll": "ล้างทั้งหมด"
+    "save": "บันทึก",
+    "cancel": "ยกเลิก",
+    "back": "กลับ",
+    "confirm": "ยืนยัน",
+    "confirmSave": "คุณต้องการบันทึกข้อมูลของ {{name}} หรือไม่?",
+    "saving": "กำลังบันทึก..."
   },
   "filters": {
     "status": "เลือกสถานะ",
@@ -89,7 +79,7 @@
     "position": "เลือกตำแหน่ง"
   },
   "search": {
-    "placeholder": "ค้นหาด้วยชื่อ, รหัส, หรือแผนก..."
+    "placeholder": "ค้นหาพนักงาน..."
   },
   "results": {
     "showing": "แสดง {{count}} จาก {{total}} พนักงาน",
@@ -175,6 +165,7 @@
   "validation": {
     "required": {
       "employeeId": "กรุณากรอกรหัสพนักงาน",
+      "employeeCode": "กรุณากรอกรหัสพนักงาน",
       "firstName": "กรุณากรอกชื่อ",
       "lastName": "กรุณากรอกนามสกุล",
       "position": "กรุณากรอกตำแหน่ง",
@@ -185,7 +176,9 @@
       "status": "กรุณาเลือกสถานะ",
       "salary": "กรุณากรอกเงินเดือน",
       "bankAccount": "กรุณากรอกบัญชีธนาคาร",
-      "bankName": "กรุณากรอกชื่อธนาคาร"
+      "bankName": "กรุณากรอกชื่อธนาคาร",
+      "branch": "กรุณากรอกสาขา",
+      "province": "กรุณากรอกจังหวัด"
     },
     "format": {
       "email": "กรุณากรอกอีเมลที่ถูกต้อง",
@@ -193,5 +186,42 @@
       "salary": "กรุณากรอกจำนวนเงินเดือนที่ถูกต้อง",
       "bankAccount": "กรุณากรอกเลขบัญชีธนาคารที่ถูกต้อง"
     }
+  },
+  "table": {
+    "title": "รายชื่อ",
+    "employeeCode": "รหัสพนักงาน",
+    "name": "ชื่อ-นามสกุล",
+    "position": "ตำแหน่ง",
+    "status": "สถานะ",
+    "actions": "การดำเนินการ"
+  },
+  "profile": {
+    "title": "โปรไฟล์พนักงาน",
+    "subtitle": "พนักงาน",
+    "edit": "แก้ไขโปรไฟล์",
+    "delete": "ลบโปรไฟล์"
+  },
+  "errors": {
+    "accessDenied": "ไม่สามารถเข้าถึงได้",
+    "insufficientPermissions": "คุณไม่มีสิทธิ์ในการดำเนินการนี้",
+    "uploadFailed": "ไม่สามารถอัปโหลดรูปภาพได้",
+    "incompleteData": "ข้อมูลไม่ครบถ้วน",
+    "employeeCodeRequired": "กรุณาระบุรหัสพนักงาน",
+    "validationFailed": "การตรวจสอบข้อมูลล้มเหลว",
+    "dataNotFound": "ไม่พบข้อมูล",
+    "duplicateEmployee": "พนักงานซ้ำ",
+    "employeeExists": "พนักงาน {firstName} {lastName} มีอยู่ในระบบแล้ว",
+    "saveFailed": "บันทึกข้อมูลล้มเหลว"
+  },
+  "success": {
+    "saved": "บันทึกสำเร็จ",
+    "employeeSaved": "บันทึกข้อมูลพนักงานเรียบร้อยแล้ว"
+  },
+  "menu": {
+    "executive": "พนักงาน (ผู้บริหาร)",
+    "province": "พนักงาน (จังหวัด)",
+    "branch": "พนักงาน (สาขา)",
+    "list": "ดูรายชื่อพนักงาน",
+    "create": "เพิ่มพนักงาน"
   }
 }

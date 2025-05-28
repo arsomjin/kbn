@@ -29,6 +29,7 @@ const ReusableEditableTable = ({
   const [data, setData] = useState([]);
   const {
     branches,
+    provinces,
     departments,
     userGroups,
     dealers,
@@ -129,6 +130,7 @@ const ReusableEditableTable = ({
   // Prepare object for getRenderColumns
   const db = {
     branches,
+    provinces,
     departments,
     userGroups,
     dealers,

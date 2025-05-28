@@ -52,5 +52,14 @@
   "manage_roles": "Manage Roles",
   "view_provinces": "View Provinces",
   "manage_provinces": "Manage Provinces",
-  "insufficientPermissions": "You don't have sufficient permissions to perform this action"
+  "insufficientPermissions": "You don't have sufficient permissions to perform this action",
+  "data_access": "Data Access",
+  "user_management": "User Management",
+  "content_management": "Content Management",
+  "system_configuration": "System Configuration",
+  "operational_actions": "Operational Actions",
+  "document_workflow": "Document Workflow",
+  "region_management": "Region Management",
+  "account_management": "Account Management",
+  "hr_management": "HR Management"
 }

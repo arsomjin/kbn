@@ -27,6 +27,7 @@ import { useTheme } from 'hooks/useTheme';
 import { usePermissions } from 'hooks/usePermissions';
 import { useAccountMenu } from '../../modules/account/hooks/useAccountMenu';
 import { useUserManagementMenu } from '../../modules/userManagement/hooks/useUserManagementMenu';
+import { useEmployeesMenu } from '../../modules/hr/Employees/hooks/useEmployeesMenu';
 
 // Components
 import NotificationCenter from '../notifications/NotificationCenter';
@@ -151,6 +152,20 @@ const getSelectedKey = (location, isBranchContext, openKeys, setOpenKeys) => {
   return '';
 };
 
+// Helper to recursively add onClick to menu items with a path
+function addOnClickToMenuItems(items, navigate) {
+  return items.map((item) => {
+    const newItem = { ...item };
+    if (newItem.path && !newItem.onClick) {
+      newItem.onClick = () => navigate(newItem.path);
+    }
+    if (Array.isArray(newItem.children)) {
+      newItem.children = addOnClickToMenuItems(newItem.children, navigate);
+    }
+    return newItem;
+  });
+}
+
 const MainLayout = ({ children }) => {
   // State
   const [collapsed, setCollapsed] = useState(false);
@@ -171,6 +186,7 @@ const MainLayout = ({ children }) => {
   const photoURL =
     user?.photoURL || (userProfile && 'photoURL' in userProfile ? userProfile.photoURL : undefined);
   const accountMenuItemsRaw = useAccountMenu();
+  const employeesMenuItemsRaw = useEmployeesMenu();
   const userManagementMenuItemsRaw = useUserManagementMenu();
 
   // Layer-based navigation
@@ -196,6 +212,15 @@ const MainLayout = ({ children }) => {
 
   // Add onClick to each child in accountMenuItems
   const accountMenuItems = accountMenuItemsRaw.map((group) => ({
+    ...group,
+    children: group.children.map((child) => ({
+      ...child,
+      onClick: () => navigate(child.path),
+    })),
+  }));
+
+  // Add onClick to each child in employeesMenuItems
+  const employeesMenuItems = employeesMenuItemsRaw.map((group) => ({
     ...group,
     children: group.children.map((child) => ({
       ...child,
@@ -349,6 +374,21 @@ const MainLayout = ({ children }) => {
     return null;
   };
 
+  // Human Resource group for sidebar
+  const hrChildrenRaw = [...employeesMenuItemsRaw, ...userManagementMenuItemsRaw];
+  const hrChildren = addOnClickToMenuItems(hrChildrenRaw, navigate);
+  const humanResourceMenuGroup =
+    hrChildren.length > 0
+      ? [
+          {
+            key: 'hr-group',
+            label: t('sidebar.hrGroup', 'Human Resources'),
+            icon: <TeamOutlined />,
+            children: hrChildren,
+          },
+        ]
+      : [];
+
   // Navigation items
   const navItemsRaw = [
     {
@@ -358,7 +398,7 @@ const MainLayout = ({ children }) => {
       onClick: () => navigate(homeMenu.path),
     },
     ...accountMenuItems,
-    ...userManagementMenuItems,
+    ...humanResourceMenuGroup,
 
     // Send Notification - Province admin and above
     hasRole(ROLES.PROVINCE_ADMIN) &&
@@ -576,7 +616,7 @@ const MainLayout = ({ children }) => {
                 <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
                   <div
                     className="cursor-pointer flex items-center"
-                    style={{ height: 36, marginLeft: 4 }}
+                    style={{ height: 38, marginLeft: 4 }}
                   >
                     <UserAvatar
                       photoURL={photoURL}
@@ -611,13 +651,13 @@ const MainLayout = ({ children }) => {
                 <Dropdown menu={{ items: userMenuItems }} trigger={['click']}>
                   <div
                     className="cursor-pointer flex items-center"
-                    style={{ height: 32, marginLeft: 10 }}
+                    style={{ height: 32, marginLeft: 4 }}
                   >
                     <UserAvatar
                       photoURL={photoURL}
                       displayName={userProfile?.displayName ?? user?.displayName ?? undefined}
                       className="bg-primary"
-                      size={32}
+                      size={38}
                     />
                   </div>
                 </Dropdown>

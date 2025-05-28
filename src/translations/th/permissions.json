@@ -51,5 +51,14 @@
   "view_roles": "ดู[Role]",
   "manage_roles": "จัดการ[Role]",
   "view_provinces": "ดูจังหวัด",
-  "manage_provinces": "จัดการจังหวัด"
+  "manage_provinces": "จัดการจังหวัด",
+  "data_access": "การเข้าถึงข้อมูล",
+  "user_management": "การจัดการผู้ใช้",
+  "content_management": "การจัดการเนื้อหา",
+  "system_configuration": "การตั้งค่าระบบ",
+  "operational_actions": "การดำเนินการ",
+  "document_workflow": "เวิร์กโฟลว์เอกสาร",
+  "region_management": "การจัดการภูมิภาค",
+  "account_management": "การจัดการบัญชี",
+  "hr_management": "การจัดการบุคลากร"
 }

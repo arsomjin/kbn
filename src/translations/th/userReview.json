@@ -80,7 +80,8 @@
       "role": "[Role]",
       "permissions": "สิทธิ์",
       "provinces": "จังหวัด",
-      "summary": "สรุป"
+      "summary": "สรุป",
+      "selectedCount": "(เลือก {{selected}} จาก {{total}})"
     },
     "moveButtons": {
       "toRight": "เพิ่มสิทธิ์ที่เลือก",

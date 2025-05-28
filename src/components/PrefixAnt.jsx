@@ -23,26 +23,26 @@ const PrefixAnt = ({
   onChange,
   ...props
 }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['components']);
 
   const personPrefixes = [
-    { value: 'นาย', label: t('components.prefix.mr'), labelEn: 'Mr.' },
-    { value: 'นาง', label: t('components.prefix.mrs'), labelEn: 'Mrs.' },
-    { value: 'นางสาว', label: t('components.prefix.miss'), labelEn: 'Miss' },
+    { value: 'นาย', label: t('prefix.mr'), labelEn: 'Mr.' },
+    { value: 'นาง', label: t('prefix.mrs'), labelEn: 'Mrs.' },
+    { value: 'นางสาว', label: t('prefix.miss'), labelEn: 'Miss' },
   ];
 
   const companyPrefixes = [
-    { value: 'ร้าน', label: t('components.prefix.shop'), labelEn: 'Shop' },
-    { value: 'หจก.', label: t('components.prefix.partnership'), labelEn: 'Partnership' },
-    { value: 'บจก.', label: t('components.prefix.limitedCompany'), labelEn: 'Co., Ltd.' },
-    { value: 'บมจ.', label: t('components.prefix.publicCompany'), labelEn: 'PLC' },
+    { value: 'ร้าน', label: t('prefix.shop'), labelEn: 'Shop' },
+    { value: 'หจก.', label: t('prefix.partnership'), labelEn: 'Partnership' },
+    { value: 'บจก.', label: t('prefix.limitedCompany'), labelEn: 'Co., Ltd.' },
+    { value: 'บมจ.', label: t('prefix.publicCompany'), labelEn: 'PLC' },
   ];
 
   const allPrefixes = onlyPerson ? personPrefixes : [...personPrefixes, ...companyPrefixes];
 
   return (
     <Select
-      placeholder={placeholder || t('components.prefix.placeholder')}
+      placeholder={placeholder || t('prefix.placeholder')}
       disabled={disabled || readOnly}
       value={value}
       onChange={onChange}

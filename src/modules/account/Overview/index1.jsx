@@ -1,31 +1,24 @@
 import React, { useState } from 'react';
-import { Card, Row, Col, Select } from 'antd';
+import { Card, Row, Col } from 'antd';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
-import dayjs, { Dayjs } from 'dayjs';
-import { AccountReport } from '../../../components/AccountReport';
-import { AccountPieChart } from '../../../components/AccountPieChart';
-import { AccountTable } from '../../../components/AccountTable';
+import dayjs from 'dayjs';
+import { AccountReport } from '../components/AccountReport';
+import { AccountPieChart } from '../components/AccountPieChart';
+import { AccountTable } from '../components/AccountTable';
 import { useFinancialData } from '../hooks/useFinancialData';
-import { AccountOverviewData } from '../types';
-import { formatCurrency } from 'utils/format';
-
-const { Option } = Select;
 
 /**
  * Overview screen component for account module
  */
-const Overview: React.FC = () => {
+const Overview = () => {
   const { t } = useTranslation('account', 'common');
-  const { branchCode = 'all' } = useParams<{ branchCode: string }>();
-  const [range, setRange] = useState<[Dayjs, Dayjs]>([
-    dayjs().startOf('month'),
-    dayjs().endOf('month'),
-  ]);
+  const { branchCode = 'all' } = useParams();
+  const [range, setRange] = useState([dayjs().startOf('month'), dayjs().endOf('month')]);
 
   const { data, loading, error } = useFinancialData(range);
 
-  const handleRangeChange = (newRange: [Dayjs, Dayjs]) => {
+  const handleRangeChange = (newRange) => {
     setRange(newRange);
   };
 

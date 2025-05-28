@@ -26,5 +26,17 @@
     },
     "userReview": "User Review",
     "userRoleManager": "User Role Manager"
+  },
+  "employees": {
+    "executive": {
+      "title": "Employees (Executive)"
+    },
+    "province": {
+      "title": "Employees (Province)"
+    },
+    "branch": {
+      "title": "Employees (Branch)"
+    },
+    "list": "Employee List"
   }
 }

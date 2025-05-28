@@ -31,6 +31,7 @@ const NotificationCenter = () => {
           onClick={showDrawer}
           className="notification-bell"
           aria-label={t('notifications.open')}
+          shape="circle"
         />
       </Badge>
       <NotificationDrawer

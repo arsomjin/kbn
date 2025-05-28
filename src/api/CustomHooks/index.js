@@ -1,155 +1,142 @@
-import { showLog, showWarn } from 'utils/functions';
+// src/api/CustomHooks/index.js
+//
+// Custom React hooks for Firestore, Redux, and app utilities.
+// All hooks use Firebase Modular SDK, Redux Toolkit, and follow KBN project guidelines.
+
 import { useState, useCallback, useRef, useEffect, useContext } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import {
+  getFirestore,
+  collection,
+  doc,
+  onSnapshot,
+  getDocs,
+  getDoc,
+  query as fbQuery,
+  where,
+  orderBy as fbOrderBy,
+  limit as fbLimit,
+} from 'firebase/firestore';
 import { FirebaseContext } from '../../firebase';
 import { goOffline, goOnline } from 'store/slices/networkSlice';
 import { updateUser } from 'store/slices/authSlice';
 import { distinctArr, sortArr } from 'utils/array';
 import { setNotifications } from 'store/slices/dataSlice';
 
-// Example: usage in reducers: setSomeCollection(dataObj, isPartial = false)
-///////////////////////////////////////////////////////////
-// 1) A NEW HOOK for syncing Firestore -> Redux in real-time
-///////////////////////////////////////////////////////////
+/**
+ * Syncs a Firestore collection or document to Redux in real-time.
+ * @param {string} collectionPath - Firestore path (e.g. 'users' or 'company/employees')
+ * @param {function} setReduxAction - Redux action creator to update the store
+ */
 export const useCollectionSync = (collectionPath, setReduxAction) => {
-  /**
-   * collectionPath: e.g. 'users' or 'someCollection/someDoc/subCollection'
-   * setReduxAction: e.g. setEmployees, setBanks, setUsers, etc.
-   *
-   * In your Redux action, define:
-   *   export const setEmployees = (employees, isPartial = false) => ({
-   *     type: GET_EMPLOYEES,
-   *     employees,
-   *     isPartial
-   *   });
-   *
-   * Then in the reducer, handle partial merges if isPartial === true.
-   */
-  const { firestore } = useContext(FirebaseContext);
+  const db = getFirestore();
   const dispatch = useDispatch();
 
   useEffect(() => {
     if (!collectionPath) return;
 
-    // Helper: parse a slash-delimited path
+    // Parse a slash-delimited path to Firestore ref
     const parsePath = (db, path) => {
-      let ref = db;
       const segments = path.split('/');
-      segments.forEach((seg, i) => {
-        ref = i % 2 === 0 ? ref.collection(seg) : ref.doc(seg);
-      });
+      let ref = db;
+      for (let i = 0; i < segments.length; i++) {
+        ref = i % 2 === 0 ? collection(ref, segments[i]) : doc(ref, segments[i]);
+      }
       return ref;
     };
 
-    const ref = parsePath(firestore, collectionPath);
+    const ref = parsePath(db, collectionPath);
     let unsubscribe = null;
 
-    // 1) Do an initial one-time fetch of the entire collection/doc
+    // Initial fetch
     const initialFetch = async () => {
       try {
-        const snap = await ref.get();
-        // If it's a collection, snap.docs exists; if it's a single doc, snap.data() exists
-        if (snap.docs) {
-          // It's a collection
+        if (ref.type === 'collection') {
+          const snap = await getDocs(ref);
           let fullData = {};
-          snap.forEach((doc) => {
-            fullData[doc.id] = { ...doc.data(), _key: doc.id };
+          snap.forEach((docSnap) => {
+            fullData[docSnap.id] = { ...docSnap.data(), _key: docSnap.id };
           });
-          // Dispatch a "full set" to Redux
           dispatch(setReduxAction(fullData, false));
-        } else if (snap.exists) {
-          // It's a single doc
-          const docData = { ...snap.data(), _key: snap.id };
-          dispatch(setReduxAction({ [snap.id]: docData }, false));
+        } else {
+          const docSnap = await getDoc(ref);
+          if (docSnap.exists()) {
+            dispatch(
+              setReduxAction({ [docSnap.id]: { ...docSnap.data(), _key: docSnap.id } }, false),
+            );
+          }
         }
       } catch (error) {
-        showWarn('Initial fetch error', error);
+        // Optionally handle error with i18n modal
       }
     };
 
-    // 2) Real-time listener merges changes
+    // Real-time listener
     const listenChanges = () => {
-      unsubscribe = ref.onSnapshot(
-        (snapshot) => {
-          // For collections
-          if (snapshot.docChanges) {
-            let changesObj = {};
-            snapshot.docChanges().forEach((change) => {
-              const docId = change.doc.id;
-              if (change.type === 'removed') {
-                changesObj[docId] = null; // indicates removal
-              } else {
-                changesObj[docId] = { ...change.doc.data(), _key: docId };
-              }
-            });
-            // Dispatch a "partial update" to Redux
-            dispatch(setReduxAction(changesObj, true));
-          }
-          // For single doc usage, snapshot.exists
-          else if (snapshot.exists) {
-            const docData = { ...snapshot.data(), _key: snapshot.id };
-            dispatch(setReduxAction({ [snapshot.id]: docData }, true));
-          }
-        },
-        (err) => showWarn('onSnapshot error', err),
-      );
+      unsubscribe = onSnapshot(ref, (snapshot) => {
+        if (snapshot.docChanges) {
+          let changesObj = {};
+          snapshot.docChanges().forEach((change) => {
+            const docId = change.doc.id;
+            if (change.type === 'removed') {
+              changesObj[docId] = null;
+            } else {
+              changesObj[docId] = { ...change.doc.data(), _key: docId };
+            }
+          });
+          dispatch(setReduxAction(changesObj, true));
+        } else if (snapshot.exists) {
+          const docData = { ...snapshot.data(), _key: snapshot.id };
+          dispatch(setReduxAction({ [snapshot.id]: docData }, true));
+        }
+      });
     };
 
     initialFetch().then(listenChanges);
-
-    return () => {
-      if (unsubscribe) {
-        unsubscribe();
-      }
-    };
-  }, [collectionPath, firestore, dispatch, setReduxAction]);
+    return () => unsubscribe && unsubscribe();
+  }, [collectionPath, db, dispatch, setReduxAction]);
 };
 
-const useTemplateHook = () => {
-  const { firestore, api } = useContext(FirebaseContext);
-  const [data, setData] = useState({
-    error: null,
-    loading: true,
-    data: {},
-  });
-
+/**
+ * Combines multiple refs into one for forwarding.
+ * @param  {...any} refs
+ * @returns {object} Combined ref
+ */
+export const useCombinedRefs = (...refs) => {
+  const targetRef = useRef();
   useEffect(() => {
-    const handleUpdates = (snap) => {
-      const users = {};
-      snap.docChanges().forEach(function (change) {
-        if (change.type === 'added') {
-          showLog('added', change.doc.data());
-        }
-        if (change.type === 'modified') {
-          showLog('modified', change.doc.data());
-        }
-        if (change.type === 'removed') {
-          showLog('removed', change.doc.data());
-        }
-        let mData = change.doc.data();
-        users[change.doc.id] = mData;
-      });
-      setData({
-        error: null,
-        loading: false,
-        data: users,
-      });
-    };
+    refs.forEach((ref) => {
+      if (!ref) return;
+      if (typeof ref === 'function') {
+        ref(targetRef.current);
+      } else {
+        ref.current = targetRef.current;
+      }
+    });
+  }, [refs]);
+  return targetRef;
+};
 
-    const query = firestore.collection('users');
-    let unsubscribe = query.onSnapshot(handleUpdates, (error) =>
-      setData({
-        error,
-        loading: false,
-        data: {},
-      }),
-    );
-    return () => {
-      unsubscribe && unsubscribe();
-    };
-  }, [firestore]);
-
-  return data;
+/**
+ * Like useState, but merges objects shallowly.
+ * @param {object} initial
+ * @returns {[object, function]}
+ */
+export const useMergeState = (initial) => {
+  const [state, setState] = useState(initial);
+  const setMergedState = (newIncomingState) =>
+    setState((prevState) => {
+      const newState =
+        typeof newIncomingState === 'function' ? newIncomingState(prevState) : newIncomingState;
+      // Shallow compare
+      for (const key in newState) {
+        if (!(key in prevState) || prevState[key] !== newState[key]) {
+          return { ...prevState, ...newState };
+        }
+      }
+      return prevState;
+    });
+  return [state, setMergedState];
 };
 
 export const useFunctionAsState = (fn) => {
@@ -162,42 +149,31 @@ export const useFunctionAsState = (fn) => {
   return [val, setFunc];
 };
 
-export const useCombinedRefs = (...refs) => {
-  const targetRef = useRef();
+/**
+ * Helper to parse a Firestore path string into a reference using the modular SDK.
+ * @param {object} db - Firestore instance
+ * @param {string} path - Slash-delimited path
+ * @returns {CollectionReference|DocumentReference}
+ */
+function getFirestoreRef(db, path) {
+  const segments = path.split('/');
+  let ref = db;
+  for (let i = 0; i < segments.length; i++) {
+    ref = i % 2 === 0 ? collection(ref, segments[i]) : doc(ref, segments[i]);
+  }
+  return ref;
+}
 
-  useEffect(() => {
-    refs.forEach((ref) => {
-      if (!ref) {
-        return;
-      }
-
-      if (typeof ref === 'function') {
-        ref(targetRef.current);
-      } else {
-        ref.current = targetRef.current;
-      }
-    });
-  }, [refs]);
-
-  return targetRef;
-};
-
-const shallowPartialCompare = (obj, partialObj) =>
-  Object.keys(partialObj).every((key) => obj.hasOwnProperty(key) && obj[key] === partialObj[key]);
-
-export const useMergeState = (initial) => {
-  const [state, setState] = useState(initial);
-  const setMergedState = (newIncomingState) =>
-    setState((prevState) => {
-      const newState =
-        typeof newIncomingState === 'function' ? newIncomingState(prevState) : newIncomingState;
-      return shallowPartialCompare(prevState, newState) ? prevState : { ...prevState, ...newState };
-    });
-  return [state, setMergedState];
-};
-
-export const useCollectionListener = (collection, wheres, limit, orderBy) => {
-  const { firestore } = useContext(FirebaseContext);
+/**
+ * Listen to a Firestore collection in real-time and return its data.
+ * @param {string} collectionPath - Firestore collection path (e.g. 'users' or 'company/employees')
+ * @param {Array} wheres - Optional Firestore where clauses, e.g. [[field, op, value], ...]
+ * @param {number} limit - Optional limit
+ * @param {string|Array} orderBy - Optional order by field or array of [field, direction]
+ * @returns {object} { error, loading, data }
+ */
+export const useCollectionListener = (collectionPath, wheres, limit, orderBy) => {
+  const db = getFirestore();
   const [data, setData] = useState({
     error: null,
     loading: true,
@@ -205,146 +181,119 @@ export const useCollectionListener = (collection, wheres, limit, orderBy) => {
   });
 
   useEffect(() => {
-    const handleUpdate = (snap) => {
-      let res = {};
-      snap.forEach((doc) => {
-        res[doc.id] = { ...doc.data(), _key: doc.id };
-      });
-      setData({ error: null, loading: false, data: res });
-    };
-    let updateRef = firestore;
-    collection.split('/').map((txt, n) => {
-      if (n % 2 === 0) {
-        updateRef = updateRef.collection(txt);
-      } else {
-        updateRef = updateRef.doc(txt);
-      }
-      return txt;
-    });
-    if (wheres) {
-      wheres.map((wh) => {
-        // console.log({ wh });
-        updateRef = updateRef.where(wh[0], wh[1], wh[2]);
-        return wh;
+    if (!collectionPath) return;
+    let ref = getFirestoreRef(db, collectionPath);
+    let q = ref;
+
+    // Build query
+    const queryConstraints = [];
+    if (Array.isArray(wheres)) {
+      wheres.forEach((wh) => {
+        if (Array.isArray(wh) && wh.length === 3) {
+          queryConstraints.push(where(wh[0], wh[1], wh[2]));
+        }
       });
     }
     if (orderBy) {
-      updateRef = updateRef.orderBy(orderBy);
+      if (Array.isArray(orderBy) && orderBy.length === 2) {
+        queryConstraints.push(fbOrderBy(orderBy[0], orderBy[1]));
+      } else if (typeof orderBy === 'string') {
+        queryConstraints.push(fbOrderBy(orderBy));
+      }
     }
-    if (limit) {
-      updateRef = updateRef.limt(limit);
+    if (typeof limit === 'number' && limit > 0) {
+      queryConstraints.push(fbLimit(limit));
+    }
+    if (queryConstraints.length > 0) {
+      q = fbQuery(ref, ...queryConstraints);
     }
 
-    const unsubscribe = updateRef.onSnapshot(
-      (snapshot) => handleUpdate(snapshot),
-      (error) => {
-        setData({
-          error,
-          loading: false,
-          data: {},
+    const unsubscribe = onSnapshot(
+      q,
+      (snap) => {
+        let res = {};
+        snap.forEach((doc) => {
+          res[doc.id] = { ...doc.data(), _key: doc.id };
         });
+        setData({ error: null, loading: false, data: res });
+      },
+      (error) => {
+        setData({ error, loading: false, data: {} });
       },
     );
-
-    return unsubscribe;
-  }, [collection, firestore, limit, orderBy, wheres]);
+    return () => unsubscribe();
+  }, [collectionPath, db, JSON.stringify(wheres), limit, JSON.stringify(orderBy)]);
 
   return data;
 };
 
-export const useCollectionChangeListener = (collection) => {
-  const { firestore } = useContext(FirebaseContext);
+/**
+ * Listen to Firestore collection changes (docChanges) in real-time.
+ * @param {string} collectionPath - Firestore collection path
+ * @returns {object} { error, loading, data }
+ */
+export const useCollectionChangeListener = (collectionPath) => {
+  const db = getFirestore();
   const [data, setData] = useState({
     error: null,
     loading: true,
     data: {},
   });
-
   useEffect(() => {
-    const handleUpdate = (snap) => {
-      snap.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          console.log('Added: ', change.doc.data());
-        }
-        if (change.type === 'modified') {
-          console.log('Modified: ', change.doc.data());
-        }
-        if (change.type === 'removed') {
-          console.log('Removed: ', change.doc.data());
-        }
+    if (!collectionPath) return;
+    let ref = getFirestoreRef(db, collectionPath);
+    const unsubscribe = onSnapshot(
+      ref,
+      (snap) => {
+        snap.docChanges().forEach((change) => {
+          setData({
+            error: null,
+            loading: false,
+            data: { ...change.doc.data(), _key: change.doc.id },
+          });
+        });
+      },
+      (error) => {
+        setData({ error, loading: false, data: {} });
+      },
+    );
+    return () => unsubscribe();
+  }, [collectionPath, db]);
+  return data;
+};
+
+/**
+ * Listen to a Firestore document in real-time and return its data.
+ * @param {string} collectionPath - Firestore collection path
+ * @param {string} docPath - Firestore document path (relative to collection)
+ * @returns {object} { error, loading, data }
+ */
+export const useDocListener = (collectionPath, docPath) => {
+  const db = getFirestore();
+  const [data, setData] = useState({
+    error: null,
+    loading: true,
+    data: {},
+  });
+  useEffect(() => {
+    if (!collectionPath || !docPath) return;
+    let ref = getFirestoreRef(db, collectionPath);
+    ref = doc(ref, docPath);
+    const unsubscribe = onSnapshot(
+      ref,
+      (docSnap) => {
         setData({
           error: null,
           loading: false,
-          data: { ...change.doc.data(), _key: change.doc.id },
-        });
-      });
-    };
-    let updateRef = firestore;
-    collection.split('/').map((txt, n) => {
-      if (n % 2 === 0) {
-        updateRef = updateRef.collection(txt);
-      } else {
-        updateRef = updateRef.doc(txt);
-      }
-      return txt;
-    });
-    const unsubscribe = updateRef.onSnapshot(
-      (snapshot) => handleUpdate(snapshot),
-      (error) => {
-        setData({
-          error,
-          loading: false,
-          data: {},
+          data: { ...docSnap.data(), _key: docSnap.id },
         });
       },
-    );
-
-    return unsubscribe;
-  }, [collection, firestore]);
-
-  return data;
-};
-
-export const useDocListener = (collection, doc) => {
-  const { firestore } = useContext(FirebaseContext);
-  const [data, setData] = useState({
-    error: null,
-    loading: true,
-    data: {},
-  });
-
-  useEffect(() => {
-    const handleUpdate = (doc) => {
-      setData({
-        error: null,
-        loading: false,
-        data: { ...doc.data(), _key: doc.id },
-      });
-    };
-    let updateRef = firestore.collection(collection);
-    doc.split('/').map((txt, n) => {
-      if (n % 2 === 0) {
-        updateRef = updateRef.doc(txt);
-      } else {
-        updateRef = updateRef.collection(txt);
-      }
-      return txt;
-    });
-
-    const unsubscribe = updateRef.onSnapshot(
-      (snapshot) => handleUpdate(snapshot),
       (error) => {
-        setData({
-          error,
-          loading: false,
-          data: {},
-        });
+        setData({ error, loading: false, data: {} });
       },
     );
-
-    return unsubscribe && unsubscribe();
-  }, [collection, doc, firestore]);
-
+    return () => unsubscribe();
+  }, [collectionPath, docPath, db]);
   return data;
 };
 
@@ -367,17 +316,14 @@ export const useOnlineStatus = (uid) => {
   const [online, setOnline] = useState(true);
   useEffect(() => {
     const userStatusRef = firestore.collection('status').doc(uid);
-    const unsubscribe = userStatusRef.onSnapshot(
-      (doc) => {
-        console.log('doc', doc.data());
-        if (doc.exists) {
-          const isOnline = doc.data().state === 'online';
-          setOnline(isOnline);
-          dispatch(isOnline ? goOnline() : goOffline());
-        }
-      },
-      (err) => showWarn(err),
-    );
+    const unsubscribe = userStatusRef.onSnapshot((doc) => {
+      console.log('doc', doc.data());
+      if (doc.exists) {
+        const isOnline = doc.data().state === 'online';
+        setOnline(isOnline);
+        dispatch(isOnline ? goOnline() : goOffline());
+      }
+    });
     return () => {
       unsubscribe && unsubscribe();
     };

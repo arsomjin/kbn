@@ -4,9 +4,9 @@ import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useModal } from 'contexts/ModalContext';
-import { useAuth } from 'hooks/useAuth';
+import { useAuth } from 'contexts/AuthContext';
 import { useResponsive } from 'hooks/useResponsive';
-import { app } from 'config/firebase';
+import { app } from 'services/firebase';
 
 /**
  * Convert file to base64 string

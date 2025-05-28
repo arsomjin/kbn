@@ -40,6 +40,8 @@ const PermissionProtectedRoute = ({
     fallbackPath,
     provinceCheck,
     allowedRoles,
+    hasProvinceAccess,
+    hasAnyPermission,
   });
 
   // Show loading spinner while checking authentication

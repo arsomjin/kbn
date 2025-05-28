@@ -31,7 +31,7 @@
   --ant-primary-color: var(--color-primary);
   --ant-primary-color-hover: var(--color-primary-light);
   --ant-primary-color-active: var(--color-primary-dark);
-  --color-primary: #4b6043;
+  --color-primary: #6c8e7b;
   --color-primary-light: #7a8450;
   --color-primary-dark: #2e3d27;
   --color-secondary: #a67c52;
@@ -44,7 +44,7 @@
   --color-paper: #ffffff;
   --color-surface: #f0eee7;
   --color-border: #d6cfc2;
-  --color-text: #2e3d27;
+  --color-text: #2d4821;
   --color-textSecondary: #6b705c;
   --color-on-primary: #fff;
 }
@@ -317,8 +317,8 @@ html.dark {
   /* Modal and Drawer */
   --ant-modal-content-bg: var(--color-paper);
   --ant-drawer-bg: var(--color-paper);
-  --color-primary: #9bc4a0;
-  --color-primary-light: #b8d9bc;
+  --color-primary: #519358;
+  --color-primary-light: #c8ffd0;
   --color-primary-dark: #7fa97f;
   --color-secondary: #8c6e54;
   --color-secondary-light: #a68b76;
@@ -333,6 +333,7 @@ html.dark {
   --color-text: #e9e5dd;
   --color-textSecondary: #b9b5ad;
   --color-on-primary: #fff;
+  --colors-text-primary: #e9e5dd !important;
 }
 
 /* Additional customizations for specific Ant Design components */

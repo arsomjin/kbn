@@ -57,6 +57,7 @@ import { BuyType } from 'data/Constant';
 import ExecutiveSelector from 'components/ExecutiveSelector';
 import { PaymentMethod } from 'data/Constant';
 import { useModal } from 'contexts/ModalContext';
+import ProvinceSelector from '../../components/common/ProvinceSelector';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -138,14 +139,20 @@ export const ColumnProps = {
   operation: {
     width: 45,
   },
+  branch: {
+    width: 110,
+  },
   branchCode: {
     width: 110,
   },
+  province: {
+    width: 120,
+  },
+  provinceId: {
+    width: 120,
+  },
   payToBranch: {
     width: 110,
-  },
-  branch: {
-    width: 80,
   },
   date: {
     width: 120,
@@ -531,9 +538,6 @@ export const ColumnProps = {
   amphoe: {
     width: 80,
   },
-  province: {
-    width: 80,
-  },
   postcode: {
     width: 80,
   },
@@ -898,8 +902,14 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
       }
 
       case 'branchCode':
+      case 'branch':
       case 'payToBranch':
         inputNode = <BranchSelector branchCode size={size || 'small'} {...selectProps} />;
+        break;
+
+      case 'province':
+      case 'provinceId':
+        inputNode = <ProvinceSelector size={size || 'small'} {...selectProps} />;
         break;
 
       case 'storeLocationCode': {
@@ -1045,6 +1055,7 @@ export const getRenderColumns = (
   const {
     dealers,
     branches,
+    provinces,
     banks,
     departments,
     userGroups,
@@ -1176,6 +1187,7 @@ export const getRenderColumns = (
             ),
           };
           break;
+        case 'branch':
         case 'branchCode':
         case 'payToBranch':
           mCol = {
@@ -1183,6 +1195,17 @@ export const getRenderColumns = (
             render: (text) => (
               <div className={!text ? 'transparent' : ''}>
                 {text && branches[text] ? branches[text].branchName : text || '-'}
+              </div>
+            ),
+          };
+          break;
+        case 'province':
+        case 'provinceId':
+          mCol = {
+            ...mCol,
+            render: (text) => (
+              <div className={!text ? 'transparent' : ''}>
+                {text && provinces[text] ? provinces[text].name : text || '-'}
               </div>
             ),
           };
@@ -1633,6 +1656,7 @@ export const GetColumns = ({
   // Pull data from your Redux store
   const {
     branches,
+    provinces,
     departments,
     userGroups,
     dealers,
@@ -1648,6 +1672,7 @@ export const GetColumns = ({
   // Prepare object for getRenderColumns
   const db = {
     branches,
+    provinces,
     departments,
     userGroups,
     dealers,

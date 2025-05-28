@@ -4,6 +4,7 @@ import dayjs from 'dayjs';
 import React, { forwardRef, useEffect, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 const { RangePicker } = DatePicker;
+import { ensureDayjs } from '.';
 
 export default forwardRef(
   ({ value, onChange, format, placeholder, picker, mFormat, dFormat, ...props }, ref) => {
@@ -47,12 +48,12 @@ export default forwardRef(
 
       if (valueC) {
         if (!!valueD && !!valueD[0]) {
-          return [valueD[0], valueD[1]];
+          return [ensureDayjs(valueD[0]), ensureDayjs(valueD[1])];
         } else {
-          return [dayjs(valueC[0], mFormat), dayjs(valueC[1], mFormat)];
+          return [ensureDayjs(dayjs(valueC[0], mFormat)), ensureDayjs(dayjs(valueC[1], mFormat))];
         }
       } else {
-        return dayjs();
+        return ensureDayjs(dayjs());
       }
     };
 

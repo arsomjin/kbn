@@ -12,19 +12,31 @@
     "overview": "ภาพรวม",
     "income": "รายได้",
     "expense": "รายจ่าย",
-    "inputPrice": "ป้อนราคา"
+    "inputPrice": "บันทึกราคาซื้อ"
   },
   "userManagement": {
     "executive": {
-      "title": "จัดการผู้ใช้ (ผู้บริหาร)"
+      "title": "จัดการ User (ผู้บริหาร)"
     },
     "province": {
-      "title": "จัดการผู้ใช้ (จังหวัด)"
+      "title": "จัดการ User (จังหวัด)"
     },
     "branch": {
-      "title": "จัดการผู้ใช้ (สาขา)"
+      "title": "จัดการ User (สาขา)"
     },
-    "userReview": "ทบทวนผู้ใช้",
-    "userRoleManager": "จัดการบทบาทผู้ใช้"
+    "userReview": "อนุมัติ User",
+    "userRoleManager": "กำหนดสิทธิ์ User"
+  },
+  "employees": {
+    "executive": {
+      "title": "พนักงาน (ผู้บริหาร)"
+    },
+    "province": {
+      "title": "พนักงาน (จังหวัด)"
+    },
+    "branch": {
+      "title": "พนักงาน (สาขา)"
+    },
+    "list": "รายชื่อพนักงาน"
   }
 }

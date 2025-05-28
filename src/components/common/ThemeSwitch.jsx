@@ -16,6 +16,7 @@ const ThemeSwitch = () => {
   return (
     <Button
       type="text"
+      shape="circle"
       icon={
         isDarkMode ? (
           <MoonFilled className="text-secondary" />

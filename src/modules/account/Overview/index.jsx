@@ -1,66 +1,30 @@
-import React, { useState } from 'react';
-import { Card, Row, Col } from 'antd';
+import React from 'react';
+import { Card, Row, Col, Typography } from 'antd';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
-import dayjs from 'dayjs';
-import { AccountReport } from '../components/AccountReport';
-import { AccountPieChart } from '../components/AccountPieChart';
-import { AccountTable } from '../components/AccountTable';
-import { useFinancialData } from '../hooks/useFinancialData';
+
+const { Title } = Typography;
 
 /**
- * Overview screen component for account module
+ * Income screen component for account module
  */
-const Overview = () => {
+const Income = () => {
   const { t } = useTranslation('account', 'common');
-  const { branchCode = 'all' } = useParams();
-  const [range, setRange] = useState([dayjs().startOf('month'), dayjs().endOf('month')]);
-
-  const { data, loading, error } = useFinancialData(range);
-
-  const handleRangeChange = (newRange) => {
-    setRange(newRange);
-  };
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error.message}</div>;
-  }
 
   return (
     <div className="space-y-6">
+      <Title level={2}>{t('overview:title', 'ภาพรวม')}</Title>
+
       <Row gutter={[16, 16]}>
-        <Col xs={24} lg={16}>
+        <Col xs={24}>
           <Card>
-            <AccountReport
-              title={t('financialReport')}
-              branchName={branchCode === 'all' ? t('allBranches') : branchCode}
-              range={range}
-              onRangeChange={handleRangeChange}
-              data={data}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} lg={8}>
-          <Card>
-            <AccountPieChart
-              title={t('financialDistribution')}
-              branchName={branchCode === 'all' ? t('allBranches') : branchCode}
-              range={range}
-              data={data}
-            />
+            <div className="text-center p-8">
+              {t('income:underConstruction', 'Overview management page is under construction')}
+            </div>
           </Card>
         </Col>
       </Row>
-
-      <Card>
-        <AccountTable data={data.data} range={range} />
-      </Card>
     </div>
   );
 };
 
-export default Overview;
+export default Income;

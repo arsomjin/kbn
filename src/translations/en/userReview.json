@@ -65,7 +65,8 @@
       "role": "Role",
       "permissions": "Permissions",
       "provinces": "Provinces",
-      "summary": "Summary"
+      "summary": "Summary",
+      "selectedCount": "(Selected {{selected}} of {{total}})"
     },
     "moveButtons": {
       "toRight": "Add selected permissions",

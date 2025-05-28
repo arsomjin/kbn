@@ -91,6 +91,7 @@ export const AuthProvider = ({ children }) => {
             ...doc.data(),
             ...doc.data()?.auth,
             isProfileComplete: isUserProfileComplete,
+            branch: doc.data()?.employeeInfo?.branch || doc.data()?.employeeInfo?.branchCode,
           };
           console.log('[AuthContext] User profile data:', profileData);
           setUserProfile(profileData);
@@ -278,10 +279,10 @@ export const AuthProvider = ({ children }) => {
    */
   const shouldHideUserFromView = useCallback(
     (targetUser) => {
-      console.log('[AuthContext] Checking if user should be hidden from view:', {
-        targetUser,
-        currentUser: userProfile,
-      });
+      // console.log('[AuthContext] Checking if user should be hidden from view:', {
+      //   targetUser,
+      //   currentUser: userProfile,
+      // });
       if (!userProfile || !targetUser) {
         return false;
       }

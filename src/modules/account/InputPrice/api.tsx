@@ -277,7 +277,7 @@ export const RenderSummary: React.FC<
     >
       <Descriptions.Item label={t('total')}>
         <span className="summary-value">
-          {total.toLocaleString(undefined, { minimumFractionDigits: 2 })} {t('unit')}
+          {total.toLocaleString(undefined, { minimumFractionDigits: 2 })} {t('baht')}
         </span>
       </Descriptions.Item>
       <Descriptions.Item label={t('discount')}>
@@ -290,9 +290,9 @@ export const RenderSummary: React.FC<
             variant="borderless"
             controls={false}
           />
-          <span className="summary-unit">{t('unit')}</span>
+          <span className="summary-unit">{t('baht')}</span>
           <span className="summary-value">
-            {numeral(afterDiscount).format('0,0.00')} {t('unit')}
+            {numeral(afterDiscount).format('0,0.00')} {t('baht')}
           </span>
         </div>
       </Descriptions.Item>
@@ -306,20 +306,20 @@ export const RenderSummary: React.FC<
             variant="borderless"
             controls={false}
           />
-          <span className="summary-unit">{t('unit')}</span>
+          <span className="summary-unit">{t('baht')}</span>
           <span className="summary-value">
-            {numeral(afterDepositDeduct).format('0,0.00')} {t('unit')}
+            {numeral(afterDepositDeduct).format('0,0.00')} {t('baht')}
           </span>
         </div>
       </Descriptions.Item>
       <Descriptions.Item label={t('vat', 'ภาษีมูลค่าเพิ่ม 7%')}>
         <span className="summary-value">
-          {billVAT.toLocaleString(undefined, { minimumFractionDigits: 2 })} {t('unit')}
+          {billVAT.toLocaleString(undefined, { minimumFractionDigits: 2 })} {t('baht')}
         </span>
       </Descriptions.Item>
       <Descriptions.Item label={<span style={{ fontWeight: 600 }}>{t('grandTotal')}</span>}>
         <span className="summary-value summary-grand">
-          {billTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })} {t('unit')}
+          {billTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })} {t('baht')}
         </span>
       </Descriptions.Item>
     </Descriptions>

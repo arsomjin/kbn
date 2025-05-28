@@ -8,7 +8,7 @@ import { Layout, Card, Button, Typography, Space, Row, Col, Statistic } from 'an
 import {
   CheckCircleOutlined,
   FileOutlined,
-  TaskOutlined,
+  CheckSquareOutlined,
   BarChartOutlined,
 } from '@ant-design/icons';
 
@@ -66,7 +66,7 @@ const EmployeeDashboard = () => {
             {canViewTasks && (
               <Col xs={24} sm={12} lg={8}>
                 <Card hoverable>
-                  <Statistic title="Tasks" value={null} prefix={<TaskOutlined />} />
+                  <Statistic title="Tasks" value={null} prefix={<CheckSquareOutlined />} />
                   <Button
                     type="primary"
                     block
