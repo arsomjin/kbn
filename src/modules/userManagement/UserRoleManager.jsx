@@ -51,7 +51,13 @@ const { Option } = Select;
  * This component allows viewing, filtering, and editing user roles and permissions
  */
 const UserRoleManager = () => {
-  const { t } = useTranslation(['userRoleManager', 'roles', 'permissions', 'common']);
+  const { t } = useTranslation([
+    'userRoleManager',
+    'roles',
+    'permissions',
+    'common',
+    'notifications',
+  ]);
   const { hasPermission, shouldHideUserFromView } = usePermissions();
   const { showWarning, showSuccess } = useModal();
   const { userProfile } = useAuth();
@@ -194,8 +200,8 @@ const UserRoleManager = () => {
       .filter((userData) => {
         // Filter out deleted users
         if (userData?.status === 'ลาออก') return false;
-        (userData.province || userData.provinceId) === 'nakhon-sawan' &&
-          console.log('[UserRoleManager] userData', { userData, userProfile });
+        // (userData.province || userData.provinceId) === 'nakhon-sawan' &&
+        //   console.log('[UserRoleManager] userData', { userData, userProfile });
         // Apply role-based filtering
         return canUserSeeUser(userData, userProfile);
       });
@@ -220,7 +226,7 @@ const UserRoleManager = () => {
   // Check permissions
   useEffect(() => {
     if (!canViewUsers) {
-      console.log('[UserRoleManager] User does not have USER_VIEW permission');
+      // console.log('[UserRoleManager] User does not have USER_VIEW permission');
       showWarning(t('permissions.insufficientPermissions'));
     }
   }, [canViewUsers, showWarning, t]);
@@ -324,7 +330,7 @@ const UserRoleManager = () => {
       return;
     }
 
-    console.log('[UserRoleManager] editedUser', editedUser);
+    // console.log('[UserRoleManager] editedUser', editedUser);
     setEditingInProgress(true);
     try {
       const userRef = doc(firestore, 'users', editedUser.uid);
@@ -345,9 +351,10 @@ const UserRoleManager = () => {
       // Send notification to the user
       await notificationController.sendNotification(
         {
-          title: t('notifications.roleUpdatedTitle'),
-          description: t('notifications.roleUpdatedDescription', {
+          title: t('roleUpdatedTitle', { ns: 'notifications' }),
+          description: t('roleUpdatedDescription', {
             role: editedUser.selectedRole,
+            ns: 'notifications',
           }),
           type: NotificationType.INFO,
           link: '/profile',

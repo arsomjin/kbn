@@ -7,7 +7,7 @@ import {
   setNotificationDrawer,
   resetNotifications,
   initializeFcm,
-  addToast
+  addToast,
 } from '../store/slices/notificationsSlice';
 import { subscribeToNotifications, NotificationType } from '../services/notificationService';
 import { notificationController } from '../controllers/notificationController';
@@ -16,9 +16,15 @@ import { useAuth } from 'contexts/AuthContext';
 
 export const useNotifications = () => {
   const dispatch = useDispatch();
-  const { notifications, unreadCount, hasMore, status, error, isNotificationDrawerOpen, fcmInitialized } = useSelector(
-    (state) => state.notifications
-  );
+  const {
+    notifications,
+    unreadCount,
+    hasMore,
+    status,
+    error,
+    isNotificationDrawerOpen,
+    fcmInitialized,
+  } = useSelector((state) => state.notifications);
   // Get user from AuthContext (or Redux if that's your pattern)
   const { user, userProfile } = useAuth();
 
@@ -59,8 +65,8 @@ export const useNotifications = () => {
             type: payload.data?.type || NotificationType.INFO,
             title: payload.notification.title || 'New Notification',
             message: payload.notification.body || '',
-            duration: 6 // Show for 6 seconds
-          })
+            duration: 6, // Show for 6 seconds
+          }),
         );
       }
 
@@ -98,10 +104,10 @@ export const useNotifications = () => {
       accessibleProvinceIds: userProfile?.accessibleProvinceIds || [],
       requestedType: userProfile?.requestedType || 'employee',
       createdAt: userProfile?.createdAt || new Date(),
-      updatedAt: userProfile?.updatedAt || new Date()
+      updatedAt: userProfile?.updatedAt || new Date(),
     };
 
-    unsubscribe = subscribeToNotifications(effectiveProfile, newNotifications => {
+    unsubscribe = subscribeToNotifications(effectiveProfile, (newNotifications) => {
       if (newNotifications.length > 0) {
         // Serialize notifications before dispatching
         const serializedNotifications = serializeTimestampArray(newNotifications);
@@ -109,21 +115,21 @@ export const useNotifications = () => {
 
         // Show toast for new unread notifications that just arrived
         const now = Date.now();
-        const recentNotifications = newNotifications.filter(n => {
+        const recentNotifications = newNotifications.filter((n) => {
           const notificationTime = getTimestampMillis(n.createdAt);
           // Only show toasts for notifications that are less than 10 seconds old
           return !n.isRead && now - notificationTime < 10000;
         });
 
         if (recentNotifications.length > 0) {
-          recentNotifications.forEach(notification => {
+          recentNotifications.forEach((notification) => {
             dispatch(
               addToast({
                 type: notification.type,
                 title: notification.title,
                 message: notification.description,
-                duration: 6 // Show for 6 seconds
-              })
+                duration: 6, // Show for 6 seconds
+              }),
             );
           });
         }
@@ -173,14 +179,16 @@ export const useNotifications = () => {
   const markAllAsRead = () => {
     if (!userProfile?.uid) return;
 
-    const unreadIds = notifications.filter(notification => !notification.isRead).map(notification => notification.id);
+    const unreadIds = notifications
+      .filter((notification) => !notification.isRead)
+      .map((notification) => notification.id);
 
     if (unreadIds.length > 0) {
       dispatch(
         readMultipleNotifications({
           notificationIds: unreadIds,
-          userId: userProfile.uid
-        })
+          userId: userProfile.uid,
+        }),
       );
     }
   };
@@ -215,9 +223,18 @@ export const useNotifications = () => {
         title,
         message,
         type,
-        duration
-      })
+        duration,
+      }),
     );
+  };
+
+  /**
+   * Refresh notifications by fetching latest data
+   */
+  const refreshNotifications = async () => {
+    if (userProfile && status !== 'loading') {
+      return dispatch(fetchNotifications({ userProfile, reset: true }));
+    }
   };
 
   return {
@@ -234,6 +251,7 @@ export const useNotifications = () => {
     markAllAsRead,
     toggleNotificationDrawer,
     sendNotification,
-    showToast
+    showToast,
+    refreshNotifications,
   };
 };

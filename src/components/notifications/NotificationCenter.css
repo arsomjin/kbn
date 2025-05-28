@@ -111,14 +111,32 @@
 
 .ant-badge-count {
   background: var(--color-primary) !important;
+  animation: badge-bounce 0.5s ease-out;
+}
+
+/* Badge bounce animation when count changes */
+@keyframes badge-bounce {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .notification-list-container {
-  max-height: 480px;
+  max-height: 85vh;
   overflow-y: auto;
   padding: 0 0 0 0;
-  scrollbar-width: thin;
-  scrollbar-color: #d6cfc2 #f5f3eb;
+  scroll-behavior: smooth;
+  /* scrollbar-width: thin;
+  scrollbar-color: #d6cfc2 #f5f3eb; */
 }
 
 .dark .notification-list-container {
@@ -126,9 +144,10 @@
 }
 
 .notification-list-container::-webkit-scrollbar {
-  width: 7px;
+  width: 0px;
   background: #f5f3eb;
   border-radius: 8px;
+  transition: width 0.3s ease;
 }
 
 .dark .notification-list-container::-webkit-scrollbar {
@@ -138,6 +157,7 @@
 .notification-list-container::-webkit-scrollbar-thumb {
   background: #d6cfc2;
   border-radius: 8px;
+  transition: background 0.3s ease;
 }
 
 .dark .notification-list-container::-webkit-scrollbar-thumb {
@@ -145,24 +165,41 @@
 }
 
 .notification-list {
-  padding: 10px 20px;
+  padding: 4px 4px;
 }
 
 .notification-item {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
+  gap: 8px;
   padding: 20px 32px 16px 32px;
   cursor: pointer;
   border-radius: 12px;
-  margin-bottom: 0;
+  margin-bottom: 8px;
   background: transparent;
-  transition: background 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
+  transform: translateX(0);
+  opacity: 1;
+  animation: notification-slide-in 0.4s ease-out;
+}
+
+/* Notification slide-in animation */
+@keyframes notification-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 .notification-item:hover {
   background: #f7f8fa;
+  transform: translateX(4px);
+  box-shadow: 0 4px 12px rgba(75, 96, 67, 0.08);
 }
 
 .notification-item.unread::before {
@@ -175,6 +212,20 @@
   position: absolute;
   left: 12px;
   top: 32px;
+  animation: pulse-dot 2s infinite;
+}
+
+/* Pulsing dot animation for unread notifications */
+@keyframes pulse-dot {
+  0% {
+    box-shadow: 0 0 0 0 rgba(91, 109, 250, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(91, 109, 250, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(91, 109, 250, 0);
+  }
 }
 
 .notification-item .ant-avatar {
@@ -185,6 +236,12 @@
   font-size: 14px;
   margin-right: 4px;
   background: #f0f2f5;
+  transition: all 0.3s ease;
+}
+
+.notification-item:hover .ant-avatar {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(75, 96, 67, 0.15);
 }
 
 .notification-title {
@@ -192,6 +249,7 @@
   font-weight: 700;
   color: #222;
   margin-bottom: 2px;
+  transition: color 0.3s ease;
 }
 
 .notification-time {
@@ -200,6 +258,7 @@
   color: #bbb;
   margin-top: 2px;
   font-weight: 400;
+  transition: color 0.3s ease;
 }
 
 .notification-description {
@@ -212,16 +271,31 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  transition: color 0.3s ease;
 }
 
 .notification-divider {
   height: 1px;
   background: #f0f0f0;
   margin: 0 28px;
+  transition: background 0.3s ease;
 }
 
 .notification-empty {
   padding: 40px 0;
+  animation: fade-in 0.6s ease-out;
+}
+
+/* Fade-in animation for empty state */
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .notification-load-more {
@@ -242,6 +316,30 @@
   background: none;
   border: none;
   outline: none;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.notification-footer .mark-all-read-link:hover {
+  color: #4854e8;
+  transform: translateY(-1px);
+}
+
+.notification-footer .mark-all-read-link::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: #5b6dfa;
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.notification-footer .mark-all-read-link:hover::before {
+  width: 100%;
 }
 
 /* Dark mode support */
@@ -256,10 +354,28 @@
 
 .dark .notification-item:hover {
   background-color: #23272f;
+  box-shadow: 0 4px 12px rgba(155, 196, 160, 0.1);
 }
 
 .dark .notification-item.unread::before {
   background: #7c8cff;
+}
+
+/* Dark mode pulsing dot */
+.dark .notification-item.unread::before {
+  animation: pulse-dot-dark 2s infinite;
+}
+
+@keyframes pulse-dot-dark {
+  0% {
+    box-shadow: 0 0 0 0 rgba(124, 140, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 6px rgba(124, 140, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(124, 140, 255, 0);
+  }
 }
 
 /* Dark mode adjustments */
@@ -268,11 +384,14 @@
   color: var(--color-primary);
   border: 1.5px solid #39382d;
   box-shadow: 0 2px 8px rgba(127, 169, 127, 0.1);
+  transition: all 0.3s ease;
 }
 
 .dark .notification-bell-button:hover {
   background: #39382d;
   border-color: var(--color-primary-light);
+  transform: scale(1.05);
+  box-shadow: 0 4px 16px rgba(127, 169, 127, 0.15);
 }
 
 .dark .ant-badge-count {
@@ -305,4 +424,570 @@
 .notification-bell {
   font-size: 20px !important;
   margin-top: 14px;
+  transition: all 0.3s ease;
+}
+
+.notification-bell:hover {
+  transform: rotate(15deg) scale(1.1);
+  color: var(--color-primary-light);
+}
+
+/* Bell shake animation for new notifications */
+@keyframes bell-shake {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(15deg);
+  }
+  75% {
+    transform: rotate(-15deg);
+  }
+}
+
+.notification-bell.has-new {
+  animation: bell-shake 0.6s ease-in-out;
+}
+
+/* Dark mode scrollbar styles */
+.dark-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  background: rgba(67, 66, 57, 0.3);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(185, 181, 173, 0.4);
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(185, 181, 173, 0.6);
+}
+
+/* Dark mode notification drawer styles */
+.notification-drawer.dark-mode .ant-drawer-content {
+  background-color: #23241e !important;
+  color: #e9e5dd !important;
+  animation: drawer-slide-in 0.4s ease-out;
+}
+
+/* Drawer slide-in animation */
+@keyframes drawer-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.notification-drawer.dark-mode .ant-drawer-header {
+  background-color: #2e2c26 !important;
+  border-bottom: 1px solid #434239 !important;
+  color: #e9e5dd !important;
+  animation: header-fade-in 0.5s ease-out;
+}
+
+@keyframes header-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-drawer.dark-mode .ant-drawer-body {
+  background-color: #23241e !important;
+  color: #e9e5dd !important;
+}
+
+.notification-drawer.dark-mode .ant-drawer-close {
+  color: #e9e5dd !important;
+  transition: all 0.3s ease;
+}
+
+.notification-drawer.dark-mode .ant-drawer-close:hover {
+  color: #9bc4a0 !important;
+  transform: rotate(90deg) scale(1.1);
+}
+
+/* Dark mode notification item hover effects */
+.notification-drawer-item.dark-hover:hover {
+  background-color: rgba(57, 56, 45, 0.5) !important;
+  transform: translateX(4px);
+  transition: all 0.3s ease;
+}
+
+/* Staggered animation for notification list items */
+.notification-drawer-item {
+  animation: item-fade-in 0.4s ease-out backwards;
+}
+
+.notification-drawer-item:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.notification-drawer-item:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.notification-drawer-item:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.notification-drawer-item:nth-child(4) {
+  animation-delay: 0.25s;
+}
+.notification-drawer-item:nth-child(5) {
+  animation-delay: 0.3s;
+}
+
+@keyframes item-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Dark mode notification list styles */
+.notification-list.dark-mode .ant-list-item {
+  border-bottom: 1px solid #434239 !important;
+  background-color: #2e2c26 !important;
+  transition: all 0.3s ease;
+  animation: list-item-slide-in 0.5s ease-out;
+}
+
+@keyframes list-item-slide-in {
+  0% {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.notification-list.dark-mode .ant-list-item:hover {
+  background-color: rgba(57, 56, 45, 0.8) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.notification-list-item.dark-hover:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+  border-color: #9bc4a0 !important;
+  transform: scale(1.02);
+  transition: all 0.3s ease;
+}
+
+/* Dark mode notification item styles */
+.notification-item.dark-mode {
+  background-color: #2e2c26 !important;
+  color: #e9e5dd !important;
+  transition: all 0.3s ease;
+}
+
+.notification-item.dark-mode:hover {
+  background-color: rgba(57, 56, 45, 0.8) !important;
+  transform: translateX(4px) translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.notification-item.dark-mode .ant-list-item-meta-title {
+  color: #e9e5dd !important;
+  transition: color 0.3s ease;
+}
+
+.notification-item.dark-mode .ant-list-item-meta-description {
+  color: #b9b5ad !important;
+  transition: color 0.3s ease;
+}
+
+.notification-item.dark-mode .ant-avatar {
+  background-color: #39382d !important;
+  border-color: #9bc4a0 !important;
+  transition: all 0.3s ease;
+}
+
+.notification-item.dark-mode:hover .ant-avatar {
+  transform: scale(1.08);
+  box-shadow: 0 4px 12px rgba(155, 196, 160, 0.2);
+}
+
+.notification-item.dark-mode .ant-tag {
+  background-color: #39382d !important;
+  border-color: #434239 !important;
+  color: #e9e5dd !important;
+  transition: all 0.3s ease;
+}
+
+.notification-item.dark-mode:hover .ant-tag {
+  background-color: #434239 !important;
+  transform: scale(1.05);
+}
+
+.notification-item.dark-mode .ant-btn-text {
+  color: #9bc4a0 !important;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.notification-item.dark-mode .ant-btn-text:hover {
+  background-color: rgba(57, 56, 45, 0.6) !important;
+  color: #c8ffd0 !important;
+  transform: scale(1.05);
+}
+
+.notification-item.dark-mode .ant-btn-text::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(200, 255, 208, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.4s ease;
+}
+
+.notification-item.dark-mode .ant-btn-text:active::after {
+  width: 200%;
+  height: 200%;
+}
+
+/* Dark mode badge styles */
+.notification-item.dark-mode .ant-badge-status-dot {
+  background-color: #f5222d !important;
+  animation: pulse-badge 1.5s infinite;
+}
+
+@keyframes pulse-badge {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.notification-item.dark-mode .ant-badge-status-text {
+  color: #e9e5dd !important;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode empty state */
+.notification-list-container.dark-mode .ant-empty-description {
+  color: #b9b5ad !important;
+  animation: empty-fade-in 0.8s ease-out;
+}
+
+@keyframes empty-fade-in {
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-list-container.dark-mode .ant-empty-image svg {
+  fill: #b9b5ad !important;
+  transition: all 0.3s ease;
+}
+
+.notification-list-container.dark-mode .ant-empty:hover .ant-empty-image svg {
+  transform: scale(1.05);
+  fill: #9bc4a0 !important;
+}
+
+/* Dark mode loading state */
+.notification-list-loading.dark-mode .ant-spin-dot-item {
+  background-color: #9bc4a0 !important;
+}
+
+/* Enhanced loading spinner animation */
+.notification-list-loading.dark-mode .ant-spin-dot {
+  animation: spin-bounce 1.4s infinite ease-in-out;
+}
+
+@keyframes spin-bounce {
+  0%,
+  80%,
+  100% {
+    transform: scale(0);
+  }
+  40% {
+    transform: scale(1);
+  }
+}
+
+/* Dark mode alert styles */
+.notification-drawer.dark-mode .ant-alert {
+  background-color: #39382d !important;
+  border-color: #434239 !important;
+  color: #e9e5dd !important;
+  animation: alert-slide-up 0.5s ease-out;
+}
+
+@keyframes alert-slide-up {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notification-drawer.dark-mode .ant-alert-warning {
+  background-color: rgba(217, 179, 130, 0.1) !important;
+  border-color: #d9b382 !important;
+}
+
+/* Dark mode button hover improvements */
+.notification-drawer.dark-mode .ant-btn-link {
+  color: #9bc4a0 !important;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.notification-drawer.dark-mode .ant-btn-link:hover {
+  color: #c8ffd0 !important;
+  transform: translateY(-1px);
+}
+
+.notification-drawer.dark-mode .ant-btn-link::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: #c8ffd0;
+  transition: width 0.3s ease;
+}
+
+.notification-drawer.dark-mode .ant-btn-link:hover::before {
+  width: 100%;
+}
+
+/* Dark mode text improvements */
+.notification-drawer.dark-mode .ant-typography {
+  color: #e9e5dd !important;
+  transition: color 0.3s ease;
+}
+
+.notification-drawer.dark-mode .ant-typography-caption {
+  color: #b9b5ad !important;
+  transition: color 0.3s ease;
+}
+
+/* Dark mode badge count */
+.dark .ant-badge-count {
+  background: var(--color-primary) !important;
+  color: white !important;
+  animation: badge-bounce 0.5s ease-out;
+}
+
+/* Micro-interaction for count updates */
+.ant-badge-count.updating {
+  animation: count-update 0.4s ease-out;
+}
+
+@keyframes count-update {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.2) rotate(5deg);
+  }
+  75% {
+    transform: scale(0.9) rotate(-3deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+/* Smooth scroll behavior for all containers */
+.notification-list-container,
+.dark-scrollbar {
+  scroll-behavior: smooth;
+}
+
+/* Ripple effect for notification clicks */
+.ripple-effect {
+  position: absolute !important;
+  border-radius: 50%;
+  background: rgba(155, 196, 160, 0.3);
+  pointer-events: none;
+  transform: scale(0);
+  animation: ripple-animation 0.6s linear;
+  z-index: 1;
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.dark .ripple-effect {
+  background: rgba(155, 196, 160, 0.2);
+}
+
+/* Enhanced notification avatar hover */
+.notification-avatar:hover {
+  transform: scale(1.05) rotate(5deg);
+}
+
+/* Link icon hover animation */
+.link-icon:hover {
+  transform: scale(1.2) rotate(10deg);
+  color: var(--color-primary) !important;
+}
+
+/* Enhanced button ripple effects */
+.mark-read-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(155, 196, 160, 0.3);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: all 0.4s ease;
+  z-index: 0;
+}
+
+.mark-read-button:active::after {
+  width: 200%;
+  height: 200%;
+}
+
+.dark .mark-read-button::after {
+  background: rgba(155, 196, 160, 0.2);
+}
+
+/* Tag hover animations */
+.notification-type-tag:hover,
+.priority-tag:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.dark .notification-type-tag:hover,
+.dark .priority-tag:hover {
+  box-shadow: 0 2px 8px rgba(155, 196, 160, 0.2);
+}
+
+/* Time indicator animation */
+.time-indicator:hover .anticon {
+  animation: tick 0.5s ease-in-out;
+}
+
+@keyframes tick {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-5deg);
+  }
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+/* Enhanced scroll animations */
+.notification-list-container:hover::-webkit-scrollbar-thumb {
+  background: rgba(155, 196, 160, 0.6);
+}
+
+.dark .notification-list-container:hover::-webkit-scrollbar-thumb {
+  background: rgba(185, 181, 173, 0.8);
+}
+
+/* Notification content expand animation */
+.ant-typography-expand {
+  transition: all 0.3s ease;
+}
+
+.ant-typography-expand:hover {
+  color: var(--color-primary) !important;
+  transform: translateX(4px);
+}
+
+/* Enhanced empty state animation */
+.notification-empty .ant-empty-image {
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Loading dots animation */
+@keyframes loading-dots {
+  0%,
+  20% {
+    color: rgba(155, 196, 160, 0.4);
+    text-shadow:
+      0.25em 0 0 rgba(155, 196, 160, 0.4),
+      0.5em 0 0 rgba(155, 196, 160, 0.4);
+  }
+  40% {
+    color: #9bc4a0;
+    text-shadow:
+      0.25em 0 0 rgba(155, 196, 160, 0.4),
+      0.5em 0 0 rgba(155, 196, 160, 0.4);
+  }
+  60% {
+    text-shadow:
+      0.25em 0 0 #9bc4a0,
+      0.5em 0 0 rgba(155, 196, 160, 0.4);
+  }
+  80%,
+  100% {
+    text-shadow:
+      0.25em 0 0 #9bc4a0,
+      0.5em 0 0 #9bc4a0;
+  }
+}
+
+.loading-text::after {
+  content: '...';
+  animation: loading-dots 1.5s infinite;
 }

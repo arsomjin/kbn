@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { Typography, Space, Button, Empty, Badge, List, Spin } from 'antd';
 import { useNotifications } from 'hooks/useNotifications';
+import { useTheme } from '../../hooks/useTheme';
 import { notificationController } from '../../controllers/notificationController';
 import './NotificationList.css';
 import { Timestamp } from 'firebase/firestore';
@@ -18,6 +19,7 @@ const { Text } = Typography;
 const NotificationList = () => {
   const navigate = useNavigate();
   const { userProfile } = useAuth();
+  const { isDarkMode } = useTheme();
   const notifications = useSelector((state) => state.notifications.notifications);
   const { isLoading, hasMore, loadMoreNotifications, markAsRead } = useNotifications();
   const { t } = useTranslation('notifications');
@@ -29,8 +31,6 @@ const NotificationList = () => {
     status: 'all',
     dateRange: null,
   });
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 10;
 
   function isTimestamp(obj) {
     return (
@@ -77,7 +77,6 @@ const NotificationList = () => {
     });
 
     setFilteredNotifications(filtered);
-    setCurrentPage(1);
   }, [filters, notifications]);
 
   const handleNotificationClick = (notification) => {
@@ -95,52 +94,130 @@ const NotificationList = () => {
     }
   };
 
-  // For pagination
-  const paginatedNotifications = filteredNotifications.slice(
-    (currentPage - 1) * pageSize,
-    currentPage * pageSize,
-  );
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    if (page === Math.ceil(filteredNotifications.length / pageSize) && hasMore) {
-      loadMoreNotifications();
-    }
-  };
+  // Add staggered animation delay for list items
+  const getListItemDelay = (index) => ({
+    animationDelay: `${index * 0.1}s`,
+    opacity: 0,
+    animation: `list-item-slide-in 0.5s ease-out ${index * 0.1}s forwards`,
+  });
 
   if (isLoading && filteredNotifications.length === 0) {
     return (
-      <div className="notification-list-loading">
-        <Spin />
+      <div
+        className={`notification-list-loading ${isDarkMode ? 'dark-mode' : ''}`}
+        style={{
+          backgroundColor: isDarkMode ? '#23241e' : '#ffffff',
+          color: isDarkMode ? '#e9e5dd' : '#262626',
+          padding: '32px',
+          textAlign: 'center',
+          minHeight: '200px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Spin size="large" />
+        <div style={{ marginTop: '16px' }}>
+          <Text style={{ color: isDarkMode ? '#b9b5ad' : '#8c8c8c' }} className="loading-text">
+            {t('common.loading')}
+          </Text>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="notification-list-container">
+    <div
+      className={`notification-list-container ${isDarkMode ? 'dark-mode' : ''}`}
+      style={{
+        backgroundColor: isDarkMode ? '#23241e' : '#ffffff',
+        color: isDarkMode ? '#e9e5dd' : '#262626',
+        minHeight: '100vh',
+        padding: '24px',
+        animation: 'fade-in 0.6s ease-out',
+      }}
+    >
       {filteredNotifications.length === 0 ? (
-        <Empty
-          description={t('notifications.noNotifications')}
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          className="notification-list-empty"
-        />
+        <div
+          style={{
+            backgroundColor: isDarkMode ? '#2e2c26' : '#ffffff',
+            borderRadius: '8px',
+            padding: '48px 24px',
+            textAlign: 'center',
+            border: `1px solid ${isDarkMode ? '#434239' : '#f0f0f0'}`,
+            animation: 'fade-in 0.6s ease-out',
+          }}
+        >
+          <Empty
+            description={
+              <Text style={{ color: isDarkMode ? '#b9b5ad' : '#8c8c8c' }}>
+                {t('noNotifications')}
+              </Text>
+            }
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            className="notification-list-empty"
+            imageStyle={{
+              height: 60,
+              filter: isDarkMode ? 'invert(0.8)' : 'none',
+            }}
+          />
+        </div>
       ) : (
         <List
-          className="notification-list"
+          className={`notification-list ${isDarkMode ? 'dark-mode' : ''}`}
           itemLayout="horizontal"
-          dataSource={paginatedNotifications}
-          renderItem={(notification) => (
-            <NotificationItem
-              key={notification.id}
-              notification={notification}
-              onMarkAsRead={handleNotificationClick}
-            />
+          dataSource={filteredNotifications}
+          renderItem={(notification, index) => (
+            <div
+              style={{
+                backgroundColor: isDarkMode ? '#2e2c26' : '#ffffff',
+                borderRadius: '8px',
+                marginBottom: '12px',
+                border: `1px solid ${isDarkMode ? '#434239' : '#f0f0f0'}`,
+                transition: 'all 0.2s ease',
+                overflow: 'hidden',
+                ...getListItemDelay(index),
+              }}
+              className={`notification-list-item ${isDarkMode ? 'dark-hover' : ''}`}
+            >
+              <NotificationItem
+                key={`notification-${notification.id}-${index}`}
+                notification={notification}
+                onMarkAsRead={handleNotificationClick}
+              />
+            </div>
           )}
           footer={
             hasMore && (
-              <div className="notification-list-footer">
-                <Button onClick={handlePageChange} loading={isLoading}>
-                  {t('notifications.loadMore')}
+              <div
+                className="notification-list-footer"
+                style={{
+                  backgroundColor: isDarkMode ? '#2e2c26' : '#ffffff',
+                  border: `1px solid ${isDarkMode ? '#434239' : '#f0f0f0'}`,
+                  borderRadius: '8px',
+                  padding: '16px',
+                  textAlign: 'center',
+                  marginTop: '16px',
+                  animation: 'fade-in 0.6s ease-out 0.3s backwards',
+                }}
+              >
+                <Button
+                  onClick={loadMoreNotifications}
+                  loading={isLoading}
+                  style={{
+                    color: isDarkMode ? '#9bc4a0' : '#1890ff',
+                    borderColor: isDarkMode ? '#9bc4a0' : '#1890ff',
+                    backgroundColor: 'transparent',
+                    transition: 'all 0.3s ease',
+                  }}
+                  className={
+                    isDarkMode
+                      ? 'hover:bg-green-700 hover:text-white transition-all duration-300'
+                      : 'hover:bg-blue-50 transition-all duration-300'
+                  }
+                >
+                  {t('loadMore')}
                 </Button>
               </div>
             )

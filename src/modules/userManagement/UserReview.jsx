@@ -89,7 +89,7 @@ const DEFAULT_ROLES = [
 ];
 
 const UserReview = () => {
-  const { t } = useTranslation(['userReview', 'roles', 'common']);
+  const { t } = useTranslation(['userReview', 'roles', 'common', 'notifications']);
   const { theme } = useTheme();
   const { showWarning } = useModal();
 
@@ -367,8 +367,8 @@ const UserReview = () => {
             // Send notification to the approved user
             await notificationController.sendNotification(
               {
-                title: t('notifications.userTitle'),
-                description: t('notifications.userDescription', { role: selectedRole }),
+                title: t('userTitle'),
+                description: t('userDescription', { role: selectedRole }),
                 type: NotificationType.SUCCESS,
                 link: '/dashboard',
                 imageUrl: undefined,
@@ -379,8 +379,8 @@ const UserReview = () => {
 
             // Send notification to appropriate admins based on province
             await notificationController.sendNotification({
-              title: t('notifications.adminTitle'),
-              description: t('notifications.adminDescription'),
+              title: t('adminTitle'),
+              description: t('adminDescription'),
               type: NotificationType.INFO,
               targetRoles: [ROLES.SUPER_ADMIN, ROLES.GENERAL_MANAGER],
               provinceId: userData.provinceId || userData.selectedProvinceIds?.[0],
@@ -431,8 +431,8 @@ const UserReview = () => {
           // Send notification to the rejected user
           await notificationController.sendNotification(
             {
-              title: t('notifications.userRejectedTitle'),
-              description: t('notifications.userRejectedDescription'),
+              title: t('userRejectedTitle'),
+              description: t('userRejectedDescription'),
               type: NotificationType.ERROR,
               link: '/pending',
               imageUrl: undefined,
@@ -441,8 +441,8 @@ const UserReview = () => {
           );
           // Send notification to admins about rejected user
           await notificationController.sendNotification({
-            title: t('notifications.adminRejectedTitle'),
-            description: t('notifications.adminRejectedDescription'),
+            title: t('adminRejectedTitle'),
+            description: t('adminRejectedDescription'),
             type: NotificationType.WARNING,
             targetRoles: [ROLES.SUPER_ADMIN, ROLES.GENERAL_MANAGER],
             provinceId: userDataSnap?.provinceId || userDataSnap?.selectedProvinceIds?.[0],

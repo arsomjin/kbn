@@ -232,10 +232,18 @@ const notificationsSlice = createSlice({
         if (action.payload.reset) {
           state.notifications = action.payload.notifications;
         } else {
-          state.notifications = [...state.notifications, ...action.payload.notifications];
+          // Add new notifications with deduplication
+          const existingIds = new Set(state.notifications.map((n) => n.id));
+          const newUniqueNotifications = action.payload.notifications.filter(
+            (n) => !existingIds.has(n.id),
+          );
+          state.notifications = [...state.notifications, ...newUniqueNotifications];
         }
         state.lastDocId = action.payload.lastDocId;
         state.hasMore = action.payload.hasMore;
+
+        // Recalculate unread count to ensure accuracy
+        state.unreadCount = state.notifications.filter((n) => !n.isRead).length;
       })
       .addCase(fetchNotifications.rejected, (state, action) => {
         state.status = 'failed';

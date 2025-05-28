@@ -6,6 +6,10 @@
   "update": "Update",
   "create": "Create",
   "created": "Created",
+  "reset": "Reset",
+  "loading": "Loading...",
+  "showMore": "Show more",
+  "showLess": "Show less",
   "saveSuccess": "Data saved successfully",
   "saveSuccessDescription": "Your data has been saved successfully.",
   "search": "Search",
@@ -29,7 +33,13 @@
   "total": "Total",
   "all": "All",
   "noData": "No Data",
+  "untitled": "Untitled",
   "toggleTheme": "Toggle Theme",
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "refresh": "Refresh",
+  "offline": "Offline",
+  "offlineDesc": "You are currently offline. Some features may not work correctly.",
   "noPermissionEdit": "You do not have permission to edit this field.",
   "errors": {
     "notFound": "Sorry, the page you are looking for does not exist.",
@@ -45,5 +55,7 @@
     "previewImport": "Preview Import",
     "previewImportedData": "Preview Imported Data",
     "noDataToExport": "No data to export"
-  }
+  },
+  "branch": "Branch",
+  "department": "Department"
 }

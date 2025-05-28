@@ -6,6 +6,10 @@
   "update": "อัปเดต",
   "create": "สร้าง",
   "created": "สร้างแล้ว",
+  "reset": "รีเซ็ต",
+  "loading": "กำลังโหลด...",
+  "showMore": "แสดงเพิ่มเติม",
+  "showLess": "แสดงน้อยลง",
   "saveSuccess": "บันทึกข้อมูลสำเร็จ",
   "saveSuccessDescription": "ข้อมูลของคุณถูกบันทึกเรียบร้อยแล้ว",
   "search": "ค้นหา",
@@ -29,22 +33,29 @@
   "total": "ทั้งหมด",
   "all": "ทั้งหมด",
   "noData": "ไม่มีข้อมูล",
-  "toggleTheme": "สลับโหมดแสง/มืด",
-  "loading": "กำลังโหลด...",
+  "untitled": "ไม่มีชื่อเรื่อง",
+  "toggleTheme": "เปลี่ยนธีม",
+  "enabled": "เปิดใช้งาน",
+  "disabled": "ปิดใช้งาน",
+  "refresh": "รีเฟรช",
+  "offline": "ออฟไลน์",
+  "offlineDesc": "คุณกำลังออฟไลน์อยู่ ฟีเจอร์บางอย่างอาจไม่ทำงานอย่างถูกต้อง",
   "noPermissionEdit": "คุณไม่มีสิทธิ์แก้ไขข้อมูลนี้",
   "errors": {
-    "notFound": "ขออภัย ไม่พบหน้าที่คุณต้องการ",
+    "notFound": "ไม่พบหน้าที่คุณค้นหา",
     "unexpectedError": "เกิดข้อผิดพลาดที่ไม่คาดคิด",
     "saving": "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
-    "cannotModifyHigherRole": "คุณไม่สามารถแก้ไขบทบาทของผู้ใช้ที่มีบทบาทสูงกว่าคุณ",
-    "cannotEditSelf": "คุณไม่สามารถแก้ไขบทบาท/สิทธิ์ของตัวเอง"
+    "cannotModifyHigherRole": "คุณไม่สามารถแก้ไขบทบาทของผู้ใช้ที่มีระดับสูงกว่าคุณได้",
+    "cannotEditSelf": "คุณไม่สามารถแก้ไขบทบาท/สิทธิ์ของตัวเองได้"
   },
   "excelImportExport": {
     "importExcel": "นำเข้า Excel",
     "exportExcel": "ส่งออก Excel",
-    "downloadTemplate": "ดาวน์โหลดเทมเพลต",
-    "previewImport": "ดูตัวอย่างนำเข้า",
-    "previewImportedData": "ดูตัวอย่างข้อมูลที่นำเข้า",
+    "downloadTemplate": "ดาวน์โหลดแม่แบบ",
+    "previewImport": "ตัวอย่างการนำเข้า",
+    "previewImportedData": "ตัวอย่างข้อมูลที่นำเข้า",
     "noDataToExport": "ไม่มีข้อมูลสำหรับส่งออก"
-  }
+  },
+  "branch": "สาขา",
+  "department": "แผนก"
 }

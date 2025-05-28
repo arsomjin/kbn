@@ -32,17 +32,17 @@ const PermissionProtectedRoute = ({
   const { hasProvinceAccess, hasAnyPermission } = usePermissions();
   const location = useLocation();
 
-  console.log('[PermissionProtectedRoute] - ', {
-    isAuthenticated,
-    userProfile,
-    isLoading,
-    requiredPermission,
-    fallbackPath,
-    provinceCheck,
-    allowedRoles,
-    hasProvinceAccess,
-    hasAnyPermission,
-  });
+  // console.log('[PermissionProtectedRoute] - ', {
+  //   isAuthenticated,
+  //   userProfile,
+  //   isLoading,
+  //   requiredPermission,
+  //   fallbackPath,
+  //   provinceCheck,
+  //   allowedRoles,
+  //   hasProvinceAccess,
+  //   hasAnyPermission,
+  // });
 
   // Show loading spinner while checking authentication
   if (isLoading) {

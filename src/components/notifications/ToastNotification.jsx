@@ -21,7 +21,7 @@ const ToastNotification = ({ children }) => {
       description,
       placement: 'topRight',
       duration: 4.5,
-      className: 'toast-notification',
+      className: 'kbn-toast-notification',
     });
   };
 

@@ -1,7 +1,9 @@
 import React from 'react';
 import { Route, Navigate } from 'react-router-dom';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
+import PermissionProtectedRoute from '../../components/auth/PermissionProtectedRoute';
 import { getUserHomePath } from '../../utils/roleUtils';
+import { ROLES } from '../../constants/roles';
 import MainLayout from '../../components/layout/MainLayout';
 import ProvinceLayout from '../../components/layout/ProvinceLayout';
 import BranchLayout from '../../components/layout/BranchLayout';
@@ -9,6 +11,9 @@ import ProvinceGuard from '../router/ProvinceGuard';
 import BranchGuard from '../router/BranchGuard';
 import PersonalProfile from '../../pages/PersonalProfile';
 import SystemOverview from '../../pages/SystemOverview';
+import ComposeNotification from '../../components/notifications/ComposeNotification';
+import NotificationSettings from '../../components/notifications/NotificationSettings';
+import NotificationList from '../../components/notifications/NotificationList';
 import {
   executiveRoutes,
   provinceRoutes,
@@ -85,6 +90,88 @@ export const ProtectedRoutes = ({ userProfile, isProfileComplete }) => {
       {/* Standalone routes */}
       <Route path="/landing" element={<Landing />} />
       <Route path="/about/system-overview" element={<SystemOverview />} />
+
+      {/* Notification routes - Executive level */}
+      <Route
+        path="/admin/send-notification"
+        element={
+          <PermissionProtectedRoute
+            allowedRoles={[
+              ROLES.PROVINCE_ADMIN,
+              ROLES.GENERAL_MANAGER,
+              ROLES.SUPER_ADMIN,
+              ROLES.DEVELOPER,
+            ]}
+            fallbackPath="/dashboard"
+          >
+            <ComposeNotification />
+          </PermissionProtectedRoute>
+        }
+      />
+      <Route path="/notifications" element={<NotificationList />} />
+      <Route path="/notification-settings" element={<NotificationSettings />} />
+
+      {/* Province level notification routes */}
+      <Route
+        path="/:provinceId/admin/send-notification"
+        element={
+          <ProvinceGuard>
+            <PermissionProtectedRoute
+              allowedRoles={[ROLES.PROVINCE_ADMIN, ROLES.PROVINCE_MANAGER]}
+              fallbackPath="/:provinceId/dashboard"
+            >
+              <ComposeNotification />
+            </PermissionProtectedRoute>
+          </ProvinceGuard>
+        }
+      />
+      <Route
+        path="/:provinceId/notifications"
+        element={
+          <ProvinceGuard>
+            <NotificationList />
+          </ProvinceGuard>
+        }
+      />
+      <Route
+        path="/:provinceId/notification-settings"
+        element={
+          <ProvinceGuard>
+            <NotificationSettings />
+          </ProvinceGuard>
+        }
+      />
+
+      {/* Branch level notification routes */}
+      <Route
+        path="/:provinceId/:branchCode/admin/send-notification"
+        element={
+          <BranchGuard>
+            <PermissionProtectedRoute
+              allowedRoles={[ROLES.BRANCH_MANAGER]}
+              fallbackPath="/:provinceId/:branchCode/dashboard"
+            >
+              <ComposeNotification />
+            </PermissionProtectedRoute>
+          </BranchGuard>
+        }
+      />
+      <Route
+        path="/:provinceId/:branchCode/notifications"
+        element={
+          <BranchGuard>
+            <NotificationList />
+          </BranchGuard>
+        }
+      />
+      <Route
+        path="/:provinceId/:branchCode/notification-settings"
+        element={
+          <BranchGuard>
+            <NotificationSettings />
+          </BranchGuard>
+        }
+      />
 
       {/* Account routes for all levels */}
       {createAccountRoutes(

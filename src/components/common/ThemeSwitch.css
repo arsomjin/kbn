@@ -1,18 +1,294 @@
 .theme-switch-btn {
+  width: 40px !important;
+  height: 40px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+  background: transparent !important;
+  border: 2px solid transparent !important;
+}
+
+/* Light theme button styling */
+.theme-switch-btn.light-theme {
+  background: linear-gradient(145deg, #fff7e6, #ffd591) !important;
+  border-color: #faad14 !important;
+  box-shadow:
+    0 2px 8px rgba(250, 173, 20, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+}
+
+.theme-switch-btn.light-theme:hover {
+  background: linear-gradient(145deg, #fff1d6, #ffc53d) !important;
+  border-color: #fa8c16 !important;
+  box-shadow:
+    0 4px 16px rgba(250, 173, 20, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Dark theme button styling */
+.theme-switch-btn.dark-theme {
+  background: linear-gradient(145deg, #1a1a2e, #16213e) !important;
+  border-color: #531dab !important;
+  box-shadow:
+    0 2px 8px rgba(83, 29, 171, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+.theme-switch-btn.dark-theme:hover {
+  background: linear-gradient(145deg, #0f0f23, #0d1b32) !important;
+  border-color: #722ed1 !important;
+  box-shadow:
+    0 4px 16px rgba(83, 29, 171, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Icon container */
+.theme-icon-container {
+  position: relative;
+  width: 20px;
+  height: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 4px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
-  color: var(--color-text);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.theme-switch-btn:hover {
-  background-color: var(--color-bg-hover);
-  transform: scale(1.1);
+.theme-icon-container.light-mode {
+  transform: rotate(0deg);
 }
 
-.theme-switch-btn .anticon {
-  font-size: 20px;
+.theme-icon-container.dark-mode {
+  transform: rotate(180deg);
+}
+
+/* Icon wrapper for smooth transitions */
+.icon-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Theme icons */
+.theme-icon {
+  font-size: 16px !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Sun icon styling */
+.sun-icon {
+  color: #fa8c16 !important;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  animation: sun-rays 2s ease-in-out infinite;
+}
+
+@keyframes sun-rays {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 8px rgba(250, 140, 22, 0.3));
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.05) rotate(15deg);
+    filter: drop-shadow(0 0 12px rgba(250, 140, 22, 0.5));
+  }
+}
+
+/* Moon icon styling */
+.moon-icon {
+  color: #722ed1 !important;
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  animation: moon-glow 3s ease-in-out infinite;
+}
+
+@keyframes moon-glow {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+    filter: drop-shadow(0 0 8px rgba(114, 46, 209, 0.4));
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.03) rotate(-5deg);
+    filter: drop-shadow(0 0 15px rgba(114, 46, 209, 0.6));
+  }
+}
+
+/* Theme switching animation */
+.theme-switch-btn.theme-switching {
+  animation: theme-switch-pulse 0.6s ease-out;
+}
+
+@keyframes theme-switch-pulse {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  25% {
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 0 20px rgba(155, 196, 160, 0.4);
+  }
+  50% {
+    transform: scale(1.05) rotate(180deg);
+    box-shadow: 0 0 30px rgba(155, 196, 160, 0.6);
+  }
+  75% {
+    transform: scale(1.1) rotate(270deg);
+    box-shadow: 0 0 20px rgba(155, 196, 160, 0.4);
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+  }
+}
+
+/* Ripple effect */
+.theme-ripple {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 0 !important;
+  height: 0 !important;
+  border-radius: 50% !important;
+  background: rgba(155, 196, 160, 0.3) !important;
+  transform: translate(-50%, -50%) !important;
+  animation: theme-ripple-animation 0.5s ease-out !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+@keyframes theme-ripple-animation {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.8;
+  }
+  100% {
+    width: 80px;
+    height: 80px;
+    opacity: 0;
+  }
+}
+
+/* Active state */
+.theme-switch-btn:active {
+  transform: scale(0.95) !important;
+  transition: transform 0.1s ease !important;
+}
+
+/* Focus state for accessibility */
+.theme-switch-btn:focus {
+  outline: 2px solid rgba(155, 196, 160, 0.5) !important;
+  outline-offset: 2px !important;
+}
+
+/* Hover effects for icon container */
+.theme-switch-btn:hover .theme-icon-container.light-mode {
+  transform: rotate(15deg) scale(1.1);
+}
+
+.theme-switch-btn:hover .theme-icon-container.dark-mode {
+  transform: rotate(195deg) scale(1.1);
+}
+
+/* Enhanced hover effects for icons */
+.theme-switch-btn:hover .sun-icon {
+  animation: sun-rays-hover 0.8s ease-in-out infinite;
+}
+
+@keyframes sun-rays-hover {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1.1) rotate(0deg);
+    filter: drop-shadow(0 0 15px rgba(250, 140, 22, 0.6));
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.15) rotate(30deg);
+    filter: drop-shadow(0 0 20px rgba(250, 140, 22, 0.8));
+  }
+}
+
+.theme-switch-btn:hover .moon-icon {
+  animation: moon-glow-hover 1s ease-in-out infinite;
+}
+
+@keyframes moon-glow-hover {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1.1) rotate(0deg);
+    filter: drop-shadow(0 0 15px rgba(114, 46, 209, 0.6));
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.13) rotate(-10deg);
+    filter: drop-shadow(0 0 25px rgba(114, 46, 209, 0.8));
+  }
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .theme-switch-btn {
+    width: 36px !important;
+    height: 36px !important;
+  }
+
+  .theme-icon {
+    font-size: 14px !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .theme-switch-btn.light-theme {
+    border-color: #000 !important;
+    background: #fff !important;
+  }
+
+  .theme-switch-btn.dark-theme {
+    border-color: #fff !important;
+    background: #000 !important;
+  }
+
+  .sun-icon {
+    color: #000 !important;
+  }
+
+  .moon-icon {
+    color: #fff !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .theme-switch-btn,
+  .theme-icon-container,
+  .theme-icon {
+    transition: none !important;
+    animation: none !important;
+  }
+
+  .theme-switch-btn:hover {
+    transform: none !important;
+  }
+
+  .theme-switch-btn.theme-switching {
+    animation: none !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .theme-switch-btn {
+    display: none !important;
+  }
 }

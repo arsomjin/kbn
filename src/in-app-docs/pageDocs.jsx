@@ -35,6 +35,114 @@ import inputpriceApprovers from '../docs/visuals/inputprice-approvers.png';
 import inputpriceHistory from '../docs/visuals/inputprice-history.png';
 import inputpriceSave from '../docs/visuals/inputprice-save.png';
 
+// Placeholder for compose notification image until actual screenshot is added
+const composeNotificationPlaceholder =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600' viewBox='0 0 800 600'%3E%3Crect width='800' height='600' fill='%23f8f9fa'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-family='system-ui' font-size='24' fill='%23666'%3ECompose Notification Screenshot Placeholder%3C/text%3E%3C/svg%3E";
+
+// Dynamic route matching patterns
+const ROUTE_PATTERNS = {
+  // Static routes (exact match)
+  STATIC: 'static',
+  // Dynamic routes with single parameter
+  SINGLE_PARAM: 'single_param',
+  // Dynamic routes with multiple parameters
+  MULTI_PARAM: 'multi_param',
+  // Wildcard routes
+  WILDCARD: 'wildcard',
+};
+
+// Route matcher utility
+const routeMatcher = {
+  /**
+   * Check if a route matches a pattern
+   * @param {string} currentRoute - The current route path
+   * @param {string} pattern - The pattern to match against
+   * @returns {boolean|object} - false if no match, object with params if match
+   */
+  match: (currentRoute, pattern) => {
+    // Remove trailing slashes
+    const route = currentRoute.replace(/\/$/, '') || '/';
+    const patternPath = pattern.replace(/\/$/, '') || '/';
+
+    // Exact match for static routes
+    if (!pattern.includes(':') && !pattern.includes('*')) {
+      return route === patternPath ? { type: ROUTE_PATTERNS.STATIC } : false;
+    }
+
+    // Convert pattern to regex
+    const regexPattern = patternPath
+      .replace(/:[^/]+/g, '([^/]+)') // Replace :param with capture group
+      .replace(/\*/g, '.*'); // Replace * with wildcard
+
+    const regex = new RegExp(`^${regexPattern}$`);
+    const match = route.match(regex);
+
+    if (!match) return false;
+
+    // Extract parameter names and values
+    const paramNames = (patternPath.match(/:[^/]+/g) || []).map((p) => p.slice(1));
+    const paramValues = match.slice(1);
+
+    const params = {};
+    paramNames.forEach((name, index) => {
+      params[name] = paramValues[index];
+    });
+
+    return {
+      type: paramNames.length > 1 ? ROUTE_PATTERNS.MULTI_PARAM : ROUTE_PATTERNS.SINGLE_PARAM,
+      params,
+    };
+  },
+
+  /**
+   * Find the best matching documentation for a route
+   * @param {string} currentRoute - The current route path
+   * @param {object} pageDocs - The page documentation object
+   * @returns {object|null} - The matching documentation or null
+   */
+  findDoc: (currentRoute, pageDocs) => {
+    // First try exact match
+    if (pageDocs[currentRoute]) {
+      return pageDocs[currentRoute];
+    }
+
+    // Then try pattern matching
+    for (const pattern of Object.keys(pageDocs)) {
+      const match = routeMatcher.match(currentRoute, pattern);
+      if (match) {
+        const doc = pageDocs[pattern];
+        // Add route parameters to the documentation context
+        return { ...doc, routeParams: match.params, matchType: match.type };
+      }
+    }
+
+    return null;
+  },
+
+  /**
+   * Get role-specific route documentation
+   * @param {string} currentRoute - The current route
+   * @param {string} userRole - The user's role
+   * @param {object} pageDocs - The page documentation object
+   * @returns {object|null} - Role-specific documentation
+   */
+  getRoleSpecificDoc: (currentRoute, userRole, pageDocs) => {
+    const doc = routeMatcher.findDoc(currentRoute, pageDocs);
+    if (!doc) return null;
+
+    // If the documentation has role-specific content, merge it
+    if (doc.roleSpecific && doc.roleSpecific[userRole]) {
+      return {
+        ...doc,
+        ...doc.roleSpecific[userRole],
+        baseDoc: doc,
+      };
+    }
+
+    return doc;
+  },
+};
+
 const pageDocs = {
   // Login Page
   '/auth/login': {
@@ -1024,6 +1132,554 @@ flowchart TD
       </>
     ),
   },
+
+  // Compose Notification Page
+  '/compose-notification': {
+    overview: (
+      <>
+        <h2 style={{ color: '#2d4739', marginBottom: 8 }}>
+          🚀 KBN Platform – Compose Notification
+        </h2>
+        <p>
+          <b>Compose Notification</b> is a feature in the KBN platform designed to allow users to
+          create and send notifications to other users or groups. This document provides a detailed
+          explanation of how to use this feature.
+        </p>
+      </>
+    ),
+    instruction: (
+      <>
+        <h2 style={{ color: '#2d4739', marginBottom: 8 }}>🔑 Key Concepts</h2>
+        <ul>
+          <li>
+            <b>Notification Content:</b> Users can compose notifications with text, images, and
+            attachments.
+          </li>
+          <li>
+            <b>Recipient Selection:</b> Users can select specific recipients or a group of users for
+            the notification.
+          </li>
+          <li>
+            <b>Send Notification:</b> Users can send the notification to the selected recipients.
+          </li>
+        </ul>
+      </>
+    ),
+    flow: (
+      <>
+        <h2 style={{ color: '#2d4739', marginBottom: 8 }}>🧭 How to Use Compose Notification</h2>
+        <ol>
+          <li>
+            <b>Enter Notification Content:</b> Users can type the text of the notification, add
+            images, and include attachments.
+          </li>
+          <li>
+            <b>Select Recipients:</b> Users can choose specific recipients or a group of users for
+            the notification.
+          </li>
+          <li>
+            <b>Send Notification:</b> Users can click the "Send" button to send the notification to
+            the selected recipients.
+          </li>
+        </ol>
+      </>
+    ),
+    logic: (
+      <>
+        <h2 style={{ color: '#2d4739', marginBottom: 8 }}>💡 Practical Examples</h2>
+        <ul>
+          <li>
+            <b>Custom Notification:</b> Users can create a notification with text, images, and
+            attachments.
+          </li>
+          <li>
+            <b>Recipient Selection:</b> Users can select specific recipients or a group of users for
+            the notification.
+          </li>
+          <li>
+            <b>Send Notification:</b> Users can send the notification to the selected recipients.
+          </li>
+        </ul>
+        <div style={{ marginTop: 16, color: '#888', fontSize: 13 }}>
+          <b>Need help?</b> Contact your system administrator or support team.
+        </div>
+      </>
+    ),
+  },
+
+  // Compose Notification Page - Enhanced with role-specific content
+  '/admin/send-notification': {
+    overview: (
+      <>
+        <h2 style={{ marginBottom: 8 }}>📢 ภาพรวม - สร้างการแจ้งเตือน</h2>
+        <p>
+          <b>หน้าสร้างการแจ้งเตือน</b>{' '}
+          สำหรับผู้ดูแลระบบและผู้จัดการในการส่งข้อความแจ้งเตือนให้กับผู้ใช้งานในระบบ
+          รองรับการกำหนดเป้าหมายตาม Role, จังหวัด, สาขา, แผนก หรือผู้ใช้เฉพาะ
+          พร้อมระบบควบคุมสิทธิ์การเข้าถึงตาม RBAC
+        </p>
+        <div style={{ margin: '16px 0' }}>
+          <img
+            src={composeNotificationPlaceholder}
+            alt="หน้าสร้างการแจ้งเตือน"
+            style={{
+              width: '100%',
+              borderRadius: 12,
+              boxShadow: '0 2px 12px rgba(44,62,80,0.08)',
+              marginBottom: 8,
+            }}
+          />
+          <p style={{ fontSize: 12, color: '#666', textAlign: 'center', margin: 0 }}>
+            หน้าต่างสร้างการแจ้งเตือนแสดงฟอร์มกรอกข้อมูลและเลือกผู้รับ
+          </p>
+        </div>
+      </>
+    ),
+    instruction: (
+      <>
+        <h2 style={{ marginBottom: 8 }}>📝 ขั้นตอนการใช้งาน</h2>
+        <ol style={{ paddingLeft: 20 }}>
+          <li>
+            <b>กำหนดประเภทและความสำคัญ:</b>
+            <ul style={{ marginTop: 8 }}>
+              <li>
+                <b>ประเภทการแจ้งเตือน:</b> เลือกข้อมูล, สำเร็จ, คำเตือน, หรือข้อผิดพลาด
+              </li>
+              <li>
+                <b>ความสำคัญ:</b> ปกติ, สูง, เร่งด่วน, หรือต่ำ
+              </li>
+              <li>
+                <b>ตัวเลือกการส่ง:</b> แจ้งเตือนในแอป หรือ Push Notification
+              </li>
+            </ul>
+          </li>
+          <li>
+            <b>กรอกเนื้อหาการแจ้งเตือน:</b>
+            <ul style={{ marginTop: 8 }}>
+              <li>
+                <b>หัวข้อ:</b> กรอกหัวข้อการแจ้งเตือน (สูงสุด 100 ตัวอักษร)
+              </li>
+              <li>
+                <b>ข้อความ:</b> กรอกรายละเอียดข้อความ (สูงสุด 500 ตัวอักษร)
+              </li>
+              <li>
+                <b>ลิงก์:</b> เพิ่มลิงก์ที่เกี่ยวข้อง (ไม่บังคับ)
+              </li>
+            </ul>
+          </li>
+          <li>
+            <b>เลือกผู้รับการแจ้งเตือน:</b>
+            <ul style={{ marginTop: 8 }}>
+              <li>
+                <b>เลือก Role:</b> ส่งถึงผู้ใช้ตาม Role ที่กำหนด
+              </li>
+              <li>
+                <b>ผู้ใช้ระบุ:</b> เลือกผู้ใช้เฉพาะเจาะจง
+              </li>
+              <li>
+                <b>เลือกสาขา:</b> ส่งถึงผู้ใช้ในสาขาที่กำหนด
+              </li>
+              <li>
+                <b>เลือกแผนก:</b> ส่งถึงผู้ใช้ในแผนกที่กำหนด
+              </li>
+              <li>
+                <b>เลือกจังหวัด:</b> ส่งถึงผู้ใช้ในจังหวัดที่กำหนด
+              </li>
+            </ul>
+          </li>
+          <li>
+            <b>ส่งการแจ้งเตือน:</b> กดปุ่ม "ส่งการแจ้งเตือน" เพื่อส่งให้ผู้รับที่เลือก
+          </li>
+        </ol>
+      </>
+    ),
+    flow: (
+      <>
+        <h2 style={{ marginBottom: 8 }}>🔄 ลำดับการทำงาน (Workflow)</h2>
+        <div
+          style={{
+            background: 'transparent',
+            padding: 12,
+            borderRadius: 8,
+            fontSize: 13,
+            marginBottom: 16,
+            overflowX: 'auto',
+          }}
+        >
+          <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{`
+flowchart TD
+    A[เข้าสู่หน้าสร้างการแจ้งเตือน] --> B[เลือกประเภทและความสำคัญ]
+    B --> C[กรอกหัวข้อและข้อความ]
+    C --> D[เลือกตัวเลือกการส่ง]
+    D --> E{เลือกผู้รับ}
+    E -->|Role| F[เลือก Role ที่ต้องการ]
+    E -->|ผู้ใช้| G[เลือกผู้ใช้เฉพาะ]
+    E -->|สาขา| H[เลือกสาขา]
+    E -->|แผนก| I[เลือกแผนก]
+    E -->|จังหวัด| J[เลือกจังหวัด]
+    F --> K[ตรวจสอบจำนวนผู้รับ]
+    G --> K
+    H --> K
+    I --> K
+    J --> K
+    K --> L{ส่งการแจ้งเตือน}
+    L -->|สำเร็จ| M[แจ้งผลสำเร็จ]
+    L -->|ล้มเหลว| N[แจ้งข้อผิดพลาด]
+          `}</pre>
+        </div>
+        <div style={{ fontSize: 13, color: '#888' }}>
+          <ul>
+            <li>ระบบจะแสดงจำนวนผู้รับโดยประมาณก่อนส่ง</li>
+            <li>สามารถเลือกผู้รับได้หลายรูปแบบพร้อมกัน</li>
+            <li>มีการตรวจสอบสิทธิ์การเข้าถึงก่อนส่ง</li>
+          </ul>
+        </div>
+      </>
+    ),
+    logic: (
+      <>
+        <h2 style={{ marginBottom: 8 }}>🔐 ระบบควบคุมสิทธิ์ (RBAC) และตรรกะธุรกิจ</h2>
+
+        <h3 style={{ color: '#d35400', marginTop: 16, marginBottom: 8 }}>
+          สิทธิ์การเข้าถึงหน้านี้:
+        </h3>
+        <ul style={{ paddingLeft: 20 }}>
+          <li>
+            <b>PROVINCE_ADMIN</b> (Level 7): เข้าถึงได้ที่ <code>/admin/send-notification</code> และ{' '}
+            <code>/:provinceId/admin/send-notification</code>
+          </li>
+          <li>
+            <b>GENERAL_MANAGER</b> (Level 8): เข้าถึงได้ที่ <code>/admin/send-notification</code>
+          </li>
+          <li>
+            <b>SUPER_ADMIN</b> (Level 9): เข้าถึงได้ที่ <code>/admin/send-notification</code>
+          </li>
+          <li>
+            <b>DEVELOPER</b> (Level 10): เข้าถึงได้ที่ <code>/admin/send-notification</code>
+          </li>
+          <li>
+            <b>PROVINCE_MANAGER</b> (Level 6): เข้าถึงได้ที่{' '}
+            <code>/:provinceId/admin/send-notification</code>
+          </li>
+          <li>
+            <b>BRANCH_MANAGER</b> (Level 5): เข้าถึงได้ที่{' '}
+            <code>/:provinceId/:branchCode/admin/send-notification</code>
+          </li>
+        </ul>
+
+        <h3 style={{ color: '#d35400', marginTop: 16, marginBottom: 8 }}>
+          ข้อจำกัดการกำหนดเป้าหมาย:
+        </h3>
+        <div style={{ background: '#f8f9fa', padding: 12, borderRadius: 8, marginBottom: 12 }}>
+          <h4 style={{ margin: '0 0 8px 0', color: '#2c3e50' }}>BRANCH_MANAGER (Level 5):</h4>
+          <ul style={{ margin: 0, paddingLeft: 20 }}>
+            <li>✅ ส่งถึงผู้ใช้ในสาขาเดียวกันเท่านั้น</li>
+            <li>✅ กำหนด Role ได้: USER, LEAD</li>
+            <li>❌ ไม่สามารถส่งข้ามสาขาหรือจังหวัด</li>
+          </ul>
+        </div>
+
+        <div style={{ background: '#f8f9fa', padding: 12, borderRadius: 8, marginBottom: 12 }}>
+          <h4 style={{ margin: '0 0 8px 0', color: '#2c3e50' }}>PROVINCE_MANAGER (Level 6):</h4>
+          <ul style={{ margin: 0, paddingLeft: 20 }}>
+            <li>✅ ส่งถึงผู้ใช้ในจังหวัดเดียวกันทั้งหมด</li>
+            <li>✅ กำหนด Role ได้: USER, LEAD, BRANCH_MANAGER</li>
+            <li>❌ ไม่สามารถส่งข้ามจังหวัด</li>
+          </ul>
+        </div>
+
+        <div style={{ background: '#f8f9fa', padding: 12, borderRadius: 8, marginBottom: 12 }}>
+          <h4 style={{ margin: '0 0 8px 0', color: '#2c3e50' }}>PROVINCE_ADMIN (Level 7):</h4>
+          <ul style={{ margin: 0, paddingLeft: 20 }}>
+            <li>✅ ส่งถึงผู้ใช้ในจังหวัดที่มีสิทธิ์เข้าถึง</li>
+            <li>✅ กำหนด Role ได้: USER ถึง PROVINCE_MANAGER</li>
+            <li>
+              ✅ อาจมีสิทธิ์หลายจังหวัด (ตาม <code>accessibleProvinceIds</code>)
+            </li>
+          </ul>
+        </div>
+
+        <div style={{ background: '#f8f9fa', padding: 12, borderRadius: 8, marginBottom: 12 }}>
+          <h4 style={{ margin: '0 0 8px 0', color: '#2c3e50' }}>
+            GENERAL_MANAGER และสูงกว่า (Level 8+):
+          </h4>
+          <ul style={{ margin: 0, paddingLeft: 20 }}>
+            <li>✅ ส่งถึงผู้ใช้ทั้งระบบ</li>
+            <li>✅ กำหนด Role ได้ทุกระดับ (ตามลำดับชั้น)</li>
+            <li>✅ เข้าถึงข้อมูลทุกจังหวัดและสาขา</li>
+          </ul>
+        </div>
+
+        <h3 style={{ color: '#d35400', marginTop: 16, marginBottom: 8 }}>ตรรกะการกรองผู้รับ:</h3>
+        <div
+          style={{
+            background: '#e8f5e8',
+            padding: 12,
+            borderRadius: 8,
+            fontFamily: 'monospace',
+            fontSize: 12,
+          }}
+        >
+          <p style={{ margin: '0 0 8px 0' }}>
+            <b>การตรวจสอบสิทธิ์:</b>
+          </p>
+          <code>
+            {`// 1. ตรวจสอบ Role ของผู้ส่ง
+if (!hasPermission(SEND_NOTIFICATIONS)) return false;
+
+// 2. ตรวจสอบเป้าหมายตามจังหวัด
+notification.provinceId = userProfile?.provinceId || values.province;
+
+// 3. กรองผู้รับตามสิทธิ์
+const canTargetUser = (targetUser) => {
+  // ตรวจสอบ Role Hierarchy
+  const senderLevel = ROLE_HIERARCHY[senderRole];
+  const targetLevel = ROLE_HIERARCHY[targetUser.role];
+  return senderLevel <= targetLevel;
+  
+  // ตรวจสอบ Province Access
+  return hasProvinceAccess(targetUser.province);
+};`}
+          </code>
+        </div>
+
+        <div style={{ marginTop: 16, color: '#e74c3c', fontSize: 13, fontWeight: 'bold' }}>
+          ⚠️ หมายเหตุ: การส่งการแจ้งเตือนจะถูกจำกัดด้วยระบบ RBAC
+          และการเข้าถึงตามพื้นที่ที่ผู้ใช้มีสิทธิ์
+        </div>
+      </>
+    ),
+    // Role-specific content variations
+    roleSpecific: {
+      SUPER_ADMIN: {
+        overview: (
+          <>
+            <h2 style={{ marginBottom: 8 }}>📢 ภาพรวม - สร้างการแจ้งเตือน (Super Admin)</h2>
+            <p>
+              <b>หน้าสร้างการแจ้งเตือนสำหรับ Super Admin</b>{' '}
+              มีสิทธิ์เต็มในการส่งการแจ้งเตือนให้กับผู้ใช้ทั้งระบบ สามารถกำหนดเป้าหมายได้ทุกระดับ
+              และเข้าถึงข้อมูลทุกจังหวัด สาขา และแผนก
+            </p>
+            <div style={{ background: '#d1ecf1', padding: 12, borderRadius: 8, marginTop: 12 }}>
+              <b>🔓 สิทธิ์พิเศษ:</b> ไม่มีข้อจำกัดใดๆ ในการส่งการแจ้งเตือน
+            </div>
+          </>
+        ),
+      },
+      GENERAL_MANAGER: {
+        overview: (
+          <>
+            <h2 style={{ marginBottom: 8 }}>📢 ภาพรวม - สร้างการแจ้งเตือน (General Manager)</h2>
+            <p>
+              <b>หน้าสร้างการแจ้งเตือนสำหรับ General Manager</b>{' '}
+              สามารถส่งการแจ้งเตือนให้กับผู้ใช้ทั้งระบบ แต่ไม่สามารถกำหนดเป้าหมายเป็น Admin
+              ระดับสูงได้
+            </p>
+          </>
+        ),
+      },
+      PROVINCE_ADMIN: {
+        overview: (
+          <>
+            <h2 style={{ marginBottom: 8 }}>📢 ภาพรวม - สร้างการแจ้งเตือน (Province Admin)</h2>
+            <p>
+              <b>หน้าสร้างการแจ้งเตือนสำหรับ Province Admin</b>{' '}
+              สามารถส่งการแจ้งเตือนให้กับผู้ใช้ในจังหวัดที่มีสิทธิ์เข้าถึง
+              สามารถมีสิทธิ์หลายจังหวัดตาม accessibleProvinceIds
+            </p>
+            <div style={{ background: '#fff3cd', padding: 12, borderRadius: 8, marginTop: 12 }}>
+              <b>📍 ข้อจำกัดพื้นที่:</b> จำกัดเฉพาะจังหวัดที่ได้รับสิทธิ์
+            </div>
+          </>
+        ),
+      },
+      PROVINCE_MANAGER: {
+        overview: (
+          <>
+            <h2 style={{ marginBottom: 8 }}>📢 ภาพรวม - สร้างการแจ้งเตือน (Province Manager)</h2>
+            <p>
+              <b>หน้าสร้างการแจ้งเตือนสำหรับ Province Manager</b>{' '}
+              สามารถส่งการแจ้งเตือนให้กับผู้ใช้ในจังหวัดของตนเองเท่านั้น
+            </p>
+            <div style={{ background: '#f8d7da', padding: 12, borderRadius: 8, marginTop: 12 }}>
+              <b>🏢 ข้อจำกัดพื้นที่:</b> จำกัดเฉพาะจังหวัดเดียวเท่านั้น
+            </div>
+          </>
+        ),
+      },
+      BRANCH_MANAGER: {
+        overview: (
+          <>
+            <h2 style={{ marginBottom: 8 }}>📢 ภาพรวม - สร้างการแจ้งเตือน (Branch Manager)</h2>
+            <p>
+              <b>หน้าสร้างการแจ้งเตือนสำหรับ Branch Manager</b>{' '}
+              สามารถส่งการแจ้งเตือนให้กับผู้ใช้ในสาขาของตนเองเท่านั้น
+            </p>
+            <div style={{ background: '#f8d7da', padding: 12, borderRadius: 8, marginTop: 12 }}>
+              <b>🏪 ข้อจำกัดพื้นที่:</b> จำกัดเฉพาะสาขาเดียวเท่านั้น
+            </div>
+          </>
+        ),
+      },
+    },
+  },
+
+  // Dynamic province-level route
+  '/:provinceId/admin/send-notification': {
+    overview: (
+      <>
+        <h2 style={{ marginBottom: 8 }}>📢 สร้างการแจ้งเตือน (ระดับจังหวัด)</h2>
+        <p>
+          หน้าสร้างการแจ้งเตือนระดับจังหวัด สำหรับ Province Admin และ Province Manager
+          ในการส่งข้อความแจ้งเตือนให้กับผู้ใช้งานในจังหวัดของตนเอง
+        </p>
+        <div style={{ background: '#fff3cd', padding: 12, borderRadius: 8, marginTop: 12 }}>
+          <b>📍 การจำกัดพื้นที่:</b> การแจ้งเตือนจะถูกจำกัดเฉพาะผู้ใช้ในจังหวัดเดียวกันเท่านั้น
+        </div>
+      </>
+    ),
+    instruction: 'เหมือนกับหน้า /admin/send-notification แต่จำกัดเฉพาะจังหวัดที่ผู้ใช้มีสิทธิ์',
+    flow: 'เช่นเดียวกับการสร้างการแจ้งเตือนปกติ แต่ระบบจะกรองผู้รับให้เป็นเฉพาะจังหวัดที่เกี่ยวข้องโดยอัตโนมัติ',
+    logic: (
+      <>
+        <p>ใช้ระบบ RBAC เดียวกัน แต่เพิ่มการตรวจสอบ:</p>
+        <div
+          style={{
+            background: '#e8f5e8',
+            padding: 12,
+            borderRadius: 8,
+            fontFamily: 'monospace',
+            fontSize: 12,
+          }}
+        >
+          <code>
+            {`// กรองผู้รับเฉพาะจังหวัดที่เข้าถึงได้
+const provinceId = useParams().provinceId;
+const canAccess = hasProvinceAccess(provinceId);
+if (!canAccess) return <Navigate to="/access-denied" />;
+
+// การแจ้งเตือนจะถูกกำหนด provinceId อัตโนมัติ
+notification.provinceId = provinceId;`}
+          </code>
+        </div>
+      </>
+    ),
+    // Dynamic content based on route parameters
+    dynamicContent: (routeParams) => (
+      <>
+        <div style={{ background: '#e3f2fd', padding: 12, borderRadius: 8, marginTop: 12 }}>
+          <b>📍 จังหวัดปัจจุบัน:</b> {routeParams?.provinceId || 'ไม่ระบุ'}
+        </div>
+      </>
+    ),
+  },
+
+  // Dynamic branch-level route
+  '/:provinceId/:branchCode/admin/send-notification': {
+    overview: (
+      <>
+        <h2 style={{ marginBottom: 8 }}>📢 สร้างการแจ้งเตือน (ระดับสาขา)</h2>
+        <p>
+          หน้าสร้างการแจ้งเตือนระดับสาขา สำหรับ Branch Manager
+          ในการส่งข้อความแจ้งเตือนให้กับผู้ใช้งานในสาขาของตนเอง
+        </p>
+        <div style={{ background: '#f8d7da', padding: 12, borderRadius: 8, marginTop: 12 }}>
+          <b>🏢 การจำกัดพื้นที่:</b> การแจ้งเตือนจะถูกจำกัดเฉพาะผู้ใช้ในสาขาเดียวกันเท่านั้น
+        </div>
+      </>
+    ),
+    instruction: 'เหมือนกับหน้า /admin/send-notification แต่จำกัดเฉพาะสาขาที่ผู้ใช้มีสิทธิ์',
+    flow: 'เช่นเดียวกับการสร้างการแจ้งเตือนปกติ แต่ระบบจะกรองผู้รับให้เป็นเฉพาะสาขาที่เกี่ยวข้องโดยอัตโนมัติ',
+    logic: (
+      <>
+        <p>ใช้ระบบ RBAC เดียวกัน แต่เพิ่มการตรวจสอบ:</p>
+        <div
+          style={{
+            background: '#e8f5e8',
+            padding: 12,
+            borderRadius: 8,
+            fontFamily: 'monospace',
+            fontSize: 12,
+          }}
+        >
+          <code>
+            {`// กรองผู้รับเฉพาะสาขาที่เข้าถึงได้
+const { provinceId, branchCode } = useParams();
+const canAccess = hasBranchAccess(provinceId, branchCode);
+if (!canAccess) return <Navigate to="/access-denied" />;
+
+// การแจ้งเตือนจะถูกกำหนด province และ branch อัตโนมัติ
+notification.provinceId = provinceId;
+notification.targetBranch = branchCode;`}
+          </code>
+        </div>
+      </>
+    ),
+    // Dynamic content based on route parameters
+    dynamicContent: (routeParams) => (
+      <>
+        <div style={{ background: '#e3f2fd', padding: 12, borderRadius: 8, marginTop: 12 }}>
+          <b>📍 ตำแหน่งปัจจุบัน:</b>
+          <br />
+          จังหวัด: {routeParams?.provinceId || 'ไม่ระบุ'}
+          <br />
+          สาขา: {routeParams?.branchCode || 'ไม่ระบุ'}
+        </div>
+      </>
+    ),
+  },
+
+  // Generic dynamic admin route pattern
+  '/:provinceId/admin/*': {
+    overview: (
+      <>
+        <h2 style={{ marginBottom: 8 }}>🏛️ หน้าดูแลระบบ (ระดับจังหวัด)</h2>
+        <p>
+          หน้าดูแลระบบสำหรับจังหวัดเฉพาะ สิทธิ์การเข้าถึงขึ้นอยู่กับ Role และ Province Access
+          ของผู้ใช้งาน
+        </p>
+      </>
+    ),
+    instruction: 'การใช้งานขึ้นอยู่กับหน้าที่เฉพาะ แต่จะถูกจำกัดขอบเขตตามจังหวัดที่ระบุ',
+    flow: 'ระบบจะตรวจสอบสิทธิ์การเข้าถึงจังหวัดก่อนแสดงเนื้อหา',
+    logic: 'ใช้ระบบ RBAC ร่วมกับการตรวจสอบสิทธิ์การเข้าถึงจังหวัด',
+    dynamicContent: (routeParams) => (
+      <>
+        <div style={{ background: '#e3f2fd', padding: 12, borderRadius: 8, marginTop: 12 }}>
+          <b>📍 จังหวัด:</b> {routeParams?.provinceId || 'ไม่ระบุ'}
+        </div>
+      </>
+    ),
+  },
+
+  // Generic dynamic branch admin route pattern
+  '/:provinceId/:branchCode/admin/*': {
+    overview: (
+      <>
+        <h2 style={{ marginBottom: 8 }}>🏪 หน้าดูแลระบบ (ระดับสาขา)</h2>
+        <p>
+          หน้าดูแลระบบสำหรับสาขาเฉพาะ สิทธิ์การเข้าถึงขึ้นอยู่กับ Role และ Branch Access
+          ของผู้ใช้งาน
+        </p>
+      </>
+    ),
+    instruction: 'การใช้งานขึ้นอยู่กับหน้าที่เฉพาะ แต่จะถูกจำกัดขอบเขตตามสาขาที่ระบุ',
+    flow: 'ระบบจะตรวจสอบสิทธิ์การเข้าถึงสาขาก่อนแสดงเนื้อหา',
+    logic: 'ใช้ระบบ RBAC ร่วมกับการตรวจสอบสิทธิ์การเข้าถึงสาขา',
+    dynamicContent: (routeParams) => (
+      <>
+        <div style={{ background: '#e3f2fd', padding: 12, borderRadius: 8, marginTop: 12 }}>
+          <b>📍 ตำแหน่ง:</b>
+          <br />
+          จังหวัด: {routeParams?.provinceId || 'ไม่ระบุ'}
+          <br />
+          สาขา: {routeParams?.branchCode || 'ไม่ระบุ'}
+        </div>
+      </>
+    ),
+  },
 };
 
+// Export the route matcher utility along with pageDocs
+export { routeMatcher };
 export default pageDocs;

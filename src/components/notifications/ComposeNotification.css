@@ -1,53 +1,392 @@
 /* ComposeNotification.css */
 
 .compose-notification {
+  padding: 1rem;
   max-width: 800px;
   margin: 0 auto;
-  padding: 24px 16px;
 }
 
-.notification-card {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.09);
-  border-radius: 4px;
+.compose-notification .ant-card {
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
 }
 
-.notification-card .ant-card-head {
-  border-bottom: 1px solid #f0f0f0;
-  padding: 16px 24px;
+.compose-notification .ant-card-head {
+  border-bottom: 2px solid #f0f0f0;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
 }
 
-.notification-card .ant-card-body {
-  padding: 24px;
+.compose-notification .ant-card-head-title {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #262626;
+}
+
+.compose-notification .ant-card-body {
+  padding: 1.5rem;
+}
+
+/* Form styling */
+.compose-notification .ant-form {
+  margin-top: 0;
+}
+
+.compose-notification .ant-form-item {
+  margin-bottom: 1.5rem;
+}
+
+.compose-notification .ant-form-item-label {
+  padding-bottom: 0.5rem;
 }
 
 .compose-notification .ant-form-item-label > label {
   font-weight: 500;
+  color: #262626;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.compose-notification .ant-form-item-label > label .anticon {
+  color: #1890ff;
+}
+
+/* Input and select styling */
+.compose-notification .ant-input,
+.compose-notification .ant-select-selector,
+.compose-notification .ant-input-affix-wrapper {
+  border-radius: 8px;
+  border: 1.5px solid #d9d9d9;
+  transition: all 0.3s ease;
+}
+
+.compose-notification .ant-input:focus,
+.compose-notification .ant-select-focused .ant-select-selector,
+.compose-notification .ant-input-affix-wrapper:focus {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+.compose-notification .ant-input:hover,
+.compose-notification .ant-select:hover .ant-select-selector,
+.compose-notification .ant-input-affix-wrapper:hover {
+  border-color: #40a9ff;
+}
+
+/* Textarea specific styling */
+.compose-notification .ant-input {
+  padding: 0.75rem;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.compose-notification textarea.ant-input {
+  min-height: 100px;
+  resize: vertical;
+}
+
+/* Select styling */
+.compose-notification .ant-select {
+  width: 100%;
+}
+
+.compose-notification .ant-select-selector {
+  padding: 0.5rem 0.75rem !important;
+  min-height: 42px;
+}
+
+.compose-notification .ant-select-selection-item {
+  line-height: 28px;
+}
+
+.compose-notification .ant-select-multiple .ant-select-selection-item {
+  background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%);
+  border: 1px solid #91d5ff;
+  border-radius: 6px;
+  margin: 2px;
+  padding: 2px 8px;
+  font-size: 12px;
+}
+
+/* Divider styling */
+.compose-notification .ant-divider {
+  margin: 2rem 0 1.5rem 0;
+  border-color: #e8e8e8;
 }
 
 .compose-notification .ant-divider-inner-text {
-  font-size: 14px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #262626;
+  background: #ffffff;
+  padding: 0 1rem;
+}
+
+/* Grid and layout styling */
+.compose-notification .ant-row {
+  margin-bottom: 0;
+}
+
+.compose-notification .ant-col {
+  padding-bottom: 0;
+}
+
+/* Button styling */
+.compose-notification .ant-btn {
+  border-radius: 8px;
+  font-weight: 500;
+  height: 42px;
+  padding: 0 1.5rem;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.compose-notification .ant-btn-primary {
+  background: linear-gradient(135deg, #1890ff 0%, #40a9ff 100%);
+  border: none;
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.3);
+}
+
+.compose-notification .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #096dd9 0%, #1890ff 100%);
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.compose-notification .ant-btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.3);
+}
+
+.compose-notification .ant-btn:not(.ant-btn-primary) {
+  border: 2px solid #d9d9d9;
+  color: #595959;
+}
+
+.compose-notification .ant-btn:not(.ant-btn-primary):hover {
+  border-color: #40a9ff;
+  color: #1890ff;
+}
+
+/* Loading state */
+.compose-notification .ant-btn-loading {
+  pointer-events: none;
+}
+
+.compose-notification .ant-btn-loading .anticon {
+  animation: loadingSpinner 1s infinite linear;
+}
+
+@keyframes loadingSpinner {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Form validation styling */
+.compose-notification .ant-form-item-has-error .ant-input,
+.compose-notification .ant-form-item-has-error .ant-select-selector {
+  border-color: #ff4d4f;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2);
+}
+
+.compose-notification .ant-form-item-explain-error {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 0.25rem;
+}
+
+/* Tooltip styling */
+.compose-notification .ant-form-item-tooltip {
+  margin-left: 0.5rem;
   color: #8c8c8c;
+  cursor: help;
+}
+
+.compose-notification .ant-form-item-tooltip:hover {
+  color: #1890ff;
+}
+
+/* Recipients section styling */
+.compose-notification .recipients-section {
+  background: #fafafa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border: 1px solid #f0f0f0;
+}
+
+/* Search functionality in selects */
+.compose-notification .ant-select-search-input {
+  font-size: 14px;
+}
+
+.compose-notification .ant-select-dropdown {
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .compose-notification {
+    padding: 0.5rem;
+  }
+
+  .compose-notification .ant-card-head,
+  .compose-notification .ant-card-body {
+    padding: 1rem;
+  }
+
+  .compose-notification .ant-card-head-title {
+    font-size: 1.1rem;
+  }
+
+  .compose-notification .ant-form-item {
+    margin-bottom: 1rem;
+  }
+
+  .compose-notification .ant-divider {
+    margin: 1.5rem 0 1rem 0;
+  }
+
+  .compose-notification .ant-btn {
+    height: 38px;
+    padding: 0 1rem;
+    font-size: 14px;
+  }
+
+  .compose-notification .ant-col {
+    margin-bottom: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .compose-notification .ant-card-head-title {
+    font-size: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .compose-notification .ant-form-item-label > label {
+    font-size: 14px;
+  }
+
+  .compose-notification .ant-btn {
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+
+  .compose-notification .ant-space {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .compose-notification .ant-space-item {
+    width: 100%;
+  }
 }
 
 /* Dark mode support */
-.compose-notification.dark .notification-card {
+[data-theme='dark'] .compose-notification .ant-card {
   background-color: #1f1f1f;
-  color: rgba(255, 255, 255, 0.85);
+  border-color: #434343;
 }
 
-.compose-notification.dark .notification-card .ant-card-head {
-  background-color: #141414;
-  border-bottom: 1px solid #303030;
+[data-theme='dark'] .compose-notification .ant-card-head {
+  background-color: #262626;
+  border-bottom-color: #434343;
 }
 
-.compose-notification.dark .ant-divider-inner-text {
-  color: #a6a6a6;
+[data-theme='dark'] .compose-notification .ant-card-head-title {
+  color: #ffffff;
 }
 
-.compose-notification.dark .ant-form-item-label > label {
-  color: rgba(255, 255, 255, 0.85);
+[data-theme='dark'] .compose-notification .ant-form-item-label > label {
+  color: #ffffff;
 }
 
-.compose-notification.dark .ant-form-item-control-input {
-  background-color: transparent;
+[data-theme='dark'] .compose-notification .ant-input,
+[data-theme='dark'] .compose-notification .ant-select-selector {
+  background-color: #262626;
+  border-color: #434343;
+  color: #ffffff;
+}
+
+[data-theme='dark'] .compose-notification .ant-input:focus,
+[data-theme='dark'] .compose-notification .ant-select-focused .ant-select-selector {
+  border-color: #1890ff;
+  background-color: #262626;
+}
+
+[data-theme='dark'] .compose-notification .ant-divider {
+  border-color: #434343;
+}
+
+[data-theme='dark'] .compose-notification .ant-divider-inner-text {
+  background-color: #1f1f1f;
+  color: #ffffff;
+}
+
+[data-theme='dark'] .compose-notification .recipients-section {
+  background-color: #262626;
+  border-color: #434343;
+}
+
+/* Accessibility improvements */
+.compose-notification .ant-form-item-label > label:focus-visible {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.compose-notification .ant-input:focus-visible,
+.compose-notification .ant-select:focus-visible .ant-select-selector {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+.compose-notification .ant-btn:focus-visible {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .compose-notification .ant-input,
+  .compose-notification .ant-select-selector {
+    border-width: 2px;
+  }
+
+  .compose-notification .ant-btn {
+    border-width: 2px;
+    font-weight: 600;
+  }
+
+  .compose-notification .ant-form-item-label > label {
+    font-weight: 600;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .compose-notification .ant-btn,
+  .compose-notification .ant-input,
+  .compose-notification .ant-select-selector {
+    transition: none;
+  }
+
+  .compose-notification .ant-btn-primary:hover {
+    transform: none;
+  }
+
+  .compose-notification .ant-btn-loading .anticon {
+    animation: none;
+  }
 }

@@ -10,7 +10,7 @@ import { Timestamp, FieldValue } from 'firebase/firestore';
 const { Title, Text } = Typography;
 
 const PersonalProfile = () => {
-  const { t } = useTranslation('profile');
+  const { t } = useTranslation(['profile', 'roles']);
   const { userProfile, loading, error } = useAuth();
 
   if (loading) {
@@ -69,7 +69,7 @@ const PersonalProfile = () => {
             </Title>
             {userProfile?.role && (
               <Tag color={getRoleColor(userProfile?.role)} className={styles.roleTag}>
-                {t(`roles.${userProfile?.role.toLowerCase()}`)}
+                {t(`${userProfile?.role.toLowerCase()}.label`, { ns: 'roles' })}
               </Tag>
             )}
           </div>

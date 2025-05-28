@@ -16,6 +16,9 @@ import {
   CloseOutlined,
   UsergroupAddOutlined,
   AccountBookOutlined,
+  NotificationOutlined,
+  SendOutlined,
+  UnorderedListOutlined,
 } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -175,7 +178,7 @@ const MainLayout = ({ children }) => {
   const [mobileHeaderFade, setMobileHeaderFade] = useState(1);
 
   // Hooks
-  const { t, i18n } = useTranslation(['hr']);
+  const { t, i18n } = useTranslation(['hr', 'notifications']);
   const navigate = useNavigate();
   const { user, userProfile, logout } = useAuth();
   const { theme } = useTheme();
@@ -212,24 +215,6 @@ const MainLayout = ({ children }) => {
 
   // Add onClick to each child in accountMenuItems
   const accountMenuItems = accountMenuItemsRaw.map((group) => ({
-    ...group,
-    children: group.children.map((child) => ({
-      ...child,
-      onClick: () => navigate(child.path),
-    })),
-  }));
-
-  // Add onClick to each child in employeesMenuItems
-  const employeesMenuItems = employeesMenuItemsRaw.map((group) => ({
-    ...group,
-    children: group.children.map((child) => ({
-      ...child,
-      onClick: () => navigate(child.path),
-    })),
-  }));
-
-  // Add onClick to each child in userManagementMenuItems
-  const userManagementMenuItems = userManagementMenuItemsRaw.map((group) => ({
     ...group,
     children: group.children.map((child) => ({
       ...child,
@@ -400,21 +385,85 @@ const MainLayout = ({ children }) => {
     ...accountMenuItems,
     ...humanResourceMenuGroup,
 
-    // Send Notification - Province admin and above
-    hasRole(ROLES.PROVINCE_ADMIN) &&
-      (['executive', 'general_manager'].includes(userAccessLayer) ||
-        userAccessLayer === 'province') && {
-        key: 'send-notification',
-        icon: <TeamOutlined />,
-        label: t('sendNotification:title') || 'Send Notification',
-        onClick: () => {
-          const path =
-            userAccessLayer === 'executive'
-              ? '/admin/send-notification'
-              : `${userRoutePrefix}admin/send-notification`;
-          navigateWithLayerCheck(path);
+    // Notifications Menu Group
+    (hasRole([
+      ROLES.PROVINCE_ADMIN,
+      ROLES.GENERAL_MANAGER,
+      ROLES.SUPER_ADMIN,
+      ROLES.DEVELOPER,
+      ROLES.PROVINCE_MANAGER,
+      ROLES.BRANCH_MANAGER,
+    ]) ||
+      userAccessLayer === 'executive' ||
+      userAccessLayer === 'province' ||
+      userAccessLayer === 'branch_manager') && {
+      key: 'notifications-group',
+      icon: <NotificationOutlined />,
+      label: t('title', { ns: 'notifications', defaultValue: 'การแจ้งเตือน' }),
+      children: [
+        // Send Notification - Administrative roles only
+        hasRole([
+          ROLES.PROVINCE_ADMIN,
+          ROLES.GENERAL_MANAGER,
+          ROLES.SUPER_ADMIN,
+          ROLES.DEVELOPER,
+          ROLES.PROVINCE_MANAGER,
+          ROLES.BRANCH_MANAGER,
+        ]) && {
+          key: 'send-notification',
+          icon: <SendOutlined />,
+          label: t('compose.title', { ns: 'notifications', defaultValue: 'Send Notification' }),
+          onClick: () => {
+            const path =
+              userAccessLayer === 'executive'
+                ? '/admin/send-notification'
+                : userAccessLayer === 'province'
+                  ? `${userRoutePrefix}admin/send-notification`
+                  : userAccessLayer === 'branch_manager'
+                    ? `${userRoutePrefix}admin/send-notification`
+                    : '/admin/send-notification';
+            navigateWithLayerCheck(path);
+          },
         },
-      },
+        // View All Notifications - Available to all users
+        {
+          key: 'view-notifications',
+          icon: <UnorderedListOutlined />,
+          label: t('viewAll', { ns: 'notifications', defaultValue: 'View All Notifications' }),
+          onClick: () => {
+            const path =
+              userAccessLayer === 'executive'
+                ? '/notifications'
+                : userAccessLayer === 'province'
+                  ? `${userRoutePrefix}notifications`
+                  : userAccessLayer === 'branch_manager' || userAccessLayer === 'branch_staff'
+                    ? `${userRoutePrefix}notifications`
+                    : '/notifications';
+            navigateWithLayerCheck(path);
+          },
+        },
+        // Notification Settings - Available to all users
+        {
+          key: 'notification-settings',
+          icon: <SettingOutlined />,
+          label: t('settings.title', {
+            ns: 'notifications',
+            defaultValue: 'Notification Settings',
+          }),
+          onClick: () => {
+            const path =
+              userAccessLayer === 'executive'
+                ? '/notification-settings'
+                : userAccessLayer === 'province'
+                  ? `${userRoutePrefix}notification-settings`
+                  : userAccessLayer === 'branch_manager' || userAccessLayer === 'branch_staff'
+                    ? `${userRoutePrefix}notification-settings`
+                    : '/notification-settings';
+            navigateWithLayerCheck(path);
+          },
+        },
+      ].filter(Boolean),
+    },
 
     // Developer tools - Developer role only
     hasRole(ROLES.DEVELOPER) && {
