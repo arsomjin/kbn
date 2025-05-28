@@ -167,6 +167,9 @@ const UserRoleEditor = ({
 
   console.log('filteredRoles', filteredRoles);
 
+  // Utility to deduplicate an array
+  const unique = (arr) => Array.from(new Set(arr));
+
   // Generate tab items
   const getTabItems = () => {
     if (!editingUser) return [];
@@ -288,8 +291,8 @@ const UserRoleEditor = ({
                           }}
                         >
                           <Row gutter={[8, 8]}>
-                            {permKeys.map((permission) => (
-                              <Col xs={24} sm={12} md={8} lg={8} key={permission}>
+                            {unique(permKeys).map((permission, idx) => (
+                              <Col xs={24} sm={12} md={8} lg={8} key={permission + '-' + idx}>
                                 <Checkbox value={permission}>
                                   {translatePermission(permission)}
                                 </Checkbox>
@@ -378,8 +381,8 @@ const UserRoleEditor = ({
               <div>
                 <Text strong>{t('editModal.permissions', 'Permissions')}:</Text>
                 <div className="mt-1 flex flex-wrap gap-1">
-                  {editingUser.selectedPermissions.map((permission) => (
-                    <Tag key={permission} color="green">
+                  {unique(editingUser.selectedPermissions).map((permission, idx) => (
+                    <Tag key={permission + '-' + idx} color="green">
                       {translatePermission(permission)}
                     </Tag>
                   ))}
