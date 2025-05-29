@@ -87,3 +87,35 @@ export const createAdminRoute = (adminConfig) => {
 export const createRoutesFromConfig = (routeConfigs) => {
   return routeConfigs.map((config) => createProtectedRoute(config));
 };
+
+/**
+ * Creates notification routes for a specific hierarchical level
+ * @param {Array} notificationRoutes - Array of notification route configurations
+ * @param {string} basePath - Base path for notification routes
+ * @returns {Array<JSX.Element>}
+ */
+export const createNotificationRoutes = (notificationRoutes, basePath) => {
+  return notificationRoutes.map((route) => {
+    const fullPath = basePath === '/' ? `/${route.path}` : `${basePath}${route.path}`;
+    return createProtectedRoute({
+      path: fullPath,
+      component: route.component,
+      isPublic: route.isPublic,
+      fallbackPath: '/dashboard',
+    });
+  });
+};
+
+/**
+ * Creates notification admin route for a specific level
+ * @param {Object} notificationAdminConfig - Notification admin route configuration
+ * @returns {JSX.Element}
+ */
+export const createNotificationAdminRoute = (notificationAdminConfig) => {
+  return createProtectedRoute({
+    path: notificationAdminConfig.path,
+    component: notificationAdminConfig.component,
+    roles: notificationAdminConfig.roles,
+    fallbackPath: notificationAdminConfig.fallbackPath,
+  });
+};

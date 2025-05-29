@@ -531,6 +531,8 @@ const MainLayout = ({ children }) => {
       label: t('about:systemOverview') || 'System Overview',
       onClick: () => {
         const path = getLayerAwarePath('/about/system-overview');
+        console.log('[MainLayout] system-overview path', path);
+        console.log('[MainLayout] user-home-path', getUserHomePath(userProfile));
         if (path) {
           navigateWithLayerCheck(path);
         } else {

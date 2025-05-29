@@ -1,28 +1,49 @@
 import { DatePicker } from 'antd';
-import { showLog } from 'utils/functions';
-import dayjs from 'dayjs';
 import React, { forwardRef, useEffect, useState } from 'react';
 import { isMobile } from 'react-device-detect';
-const { RangePicker } = DatePicker;
 import { ensureDayjs } from '.';
 
+const { RangePicker } = DatePicker;
+
 export default forwardRef(
-  ({ value, onChange, format, placeholder, picker, mFormat, dFormat, ...props }, ref) => {
+  ({ value, onChange, picker, mFormat = 'YYYY-MM-DD', dFormat = 'DD/MM/YYYY', ...props }, ref) => {
     const [dates, setDates] = useState(null);
-    const [cValue, setCValue] = useState(null);
+    const [pickerValue, setPickerValue] = useState(null);
 
+    // Initialize picker value when value prop changes
     useEffect(() => {
-      showLog({ YES_ISRANGE: value });
-      setCValue(value);
-    }, [value]);
+      if (value && Array.isArray(value) && value.length === 2) {
+        try {
+          const startDate = ensureDayjs(value[0], mFormat);
+          const endDate = ensureDayjs(value[1], mFormat);
 
+          if (startDate && endDate && startDate.isValid() && endDate.isValid()) {
+            setPickerValue([startDate, endDate]);
+          } else {
+            console.warn('[RangePick] Invalid date values provided:', value);
+            setPickerValue(null);
+          }
+        } catch (error) {
+          console.error('[RangePick] Error processing value:', error);
+          setPickerValue(null);
+        }
+      } else {
+        setPickerValue(null);
+      }
+    }, [value, mFormat]);
+
+    // Disable dates outside of selected month range
     const disabledDateRange = (current) => {
-      if (!dates) {
+      if (!dates || !dates[0]) {
         return false;
       }
-      const tooLate = dates[0] && current.diff(dates[0], 'month') > 0;
-      const tooEarly = dates[1] && dates[1].diff(current, 'month') > 0;
-      return !!tooEarly || !!tooLate;
+
+      // Only allow dates within the same month as the first selected date
+      const firstDate = dates[0];
+      const tooLate = current.diff(firstDate, 'month') > 0;
+      const tooEarly = firstDate.diff(current, 'month') > 0;
+
+      return tooEarly || tooLate;
     };
 
     const onOpenChange = (open) => {
@@ -33,42 +54,51 @@ export default forwardRef(
       }
     };
 
-    const _onChange = (date, dateString) => {
-      //   showLog({ date, dateString });
-      if (onChange) {
-        onChange([dateString[0], dateString[1]]);
-        setCValue([dateString[0], dateString[1]]);
+    const handleChange = (dateValues, dateStrings) => {
+      if (onChange && dateStrings) {
+        // Ensure we always pass valid date strings or null values
+        const formattedStrings = [dateStrings[0] || null, dateStrings[1] || null];
+        onChange(formattedStrings);
+      }
+
+      // Update internal state
+      if (dateValues && dateValues[0] && dateValues[1]) {
+        setPickerValue(dateValues);
       }
     };
 
-    const getValue = (valueD, valueC) => {
-      if (typeof valueC === 'undefined') {
-        return undefined;
-      }
-
-      if (valueC) {
-        if (!!valueD && !!valueD[0]) {
-          return [ensureDayjs(valueD[0]), ensureDayjs(valueD[1])];
-        } else {
-          return [ensureDayjs(dayjs(valueC[0], mFormat)), ensureDayjs(dayjs(valueC[1], mFormat))];
-        }
-      } else {
-        return ensureDayjs(dayjs());
-      }
+    const handleCalendarChange = (dateValues) => {
+      setDates(dateValues);
     };
+
+    // Debug logging (can be removed in production)
+    // eslint-disable-next-line no-undef
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[RangePick] value:', value);
+      console.log('[RangePick] pickerValue:', pickerValue);
+      console.log('[RangePick] dates:', dates);
+      console.log('[RangePick] mFormat:', mFormat);
+      console.log('[RangePick] dFormat:', dFormat);
+    }
 
     return (
       <RangePicker
         ref={ref}
-        value={() => getValue(dates, cValue)}
+        value={pickerValue}
         disabledDate={disabledDateRange}
-        onChange={_onChange}
-        onCalendarChange={(val) => setDates(val)}
+        onChange={handleChange}
+        onCalendarChange={handleCalendarChange}
         onOpenChange={onOpenChange}
         allowClear={false}
         picker={picker}
-        onFocus={(e) => isMobile && (e.target.readOnly = true)} // Disable virtual keyboard on mobile devices.
-        onBlur={() => console.log('blur has been triggered')}
+        format={dFormat}
+        onFocus={(e) => isMobile && (e.target.readOnly = true)} // Disable virtual keyboard on mobile
+        onBlur={() => {
+          // eslint-disable-next-line no-undef
+          if (process.env.NODE_ENV === 'development') {
+            console.log('[RangePick] blur triggered');
+          }
+        }}
         {...props}
       />
     );

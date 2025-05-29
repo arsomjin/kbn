@@ -23,12 +23,15 @@ import Dashboard from '../../modules/dashboard/Dashboard';
 import SystemOverview from '../../pages/SystemOverview';
 import SpecialSettings from '../../modules/settings/SpecialSettings';
 import PersonalProfile from '../../pages/PersonalProfile';
-import AccountOverview from '../../modules/account/Overview/index1';
+import AccountOverview from '../../modules/account/Overview/index';
 import AccountIncome from '../../modules/account/Income';
 import AccountExpense from '../../modules/account/Expense';
 import AccountInputPrice from '../../modules/account/InputPrice';
 import UserManagement from '../../modules/userManagement';
 import { Employees } from '../../modules/hr/Employees';
+import ComposeNotification from '../../components/notifications/ComposeNotification';
+import NotificationSettings from '../../components/notifications/NotificationSettings';
+import NotificationList from '../../components/notifications/NotificationList';
 
 /**
  * Account route configuration for different hierarchical levels
@@ -190,5 +193,64 @@ export const employeeRoutes = {
     component: Employees,
     permission: PERMISSIONS.EMPLOYEE_VIEW,
     roles: getAllowedRolesByCategory(RoleCategory.BRANCH_MANAGER),
+  },
+};
+
+/**
+ * Notification routes configuration for different hierarchical levels
+ */
+export const notificationRoutes = [
+  {
+    path: 'notifications',
+    component: NotificationList,
+    isPublic: true, // Available to all authenticated users
+  },
+  {
+    path: 'notification-settings',
+    component: NotificationSettings,
+    isPublic: true, // Available to all authenticated users
+  },
+];
+
+/**
+ * Notification admin routes configuration for different levels
+ * (Send notification functionality)
+ */
+export const notificationAdminRoutes = {
+  executive: {
+    path: '/admin/send-notification',
+    component: ComposeNotification,
+    roles: ['PROVINCE_ADMIN', 'GENERAL_MANAGER', 'SUPER_ADMIN', 'DEVELOPER'],
+    fallbackPath: '/dashboard',
+  },
+  province: {
+    path: ':provinceId/admin/send-notification',
+    component: ComposeNotification,
+    roles: ['PROVINCE_ADMIN', 'PROVINCE_MANAGER'],
+    fallbackPath: ':provinceId/dashboard',
+  },
+  branch: {
+    path: ':provinceId/:branchCode/admin/send-notification',
+    component: ComposeNotification,
+    roles: ['BRANCH_MANAGER'],
+    fallbackPath: ':provinceId/:branchCode/dashboard',
+  },
+};
+
+/**
+ * Notification route configurations for different hierarchical levels
+ */
+export const notificationRouteConfigs = {
+  executive: {
+    basePath: '/',
+    adminPath: '/admin/send-notification',
+  },
+  province: {
+    basePath: ':provinceId/',
+    adminPath: ':provinceId/admin/send-notification',
+  },
+  branch: {
+    basePath: ':provinceId/:branchCode/',
+    adminPath: ':provinceId/:branchCode/admin/send-notification',
   },
 };

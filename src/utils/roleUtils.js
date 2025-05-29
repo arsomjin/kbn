@@ -313,6 +313,36 @@ export const shouldAllowRouteAccess = (userProfile, routePath) => {
     return true;
   }
 
+  // Universal routes that all authenticated users can access regardless of layer
+  const universalRoutes = [
+    '/personal-profile',
+    '/landing',
+    '/notifications',
+    '/notification-settings',
+    '/about/system-overview',
+  ];
+
+  // Check if this is a universal route (exact match or starts with universal route)
+  if (universalRoutes.some((route) => routePath === route || routePath.startsWith(route + '/'))) {
+    return true;
+  }
+
+  // Check if this is a layer-aware version of a universal route
+  // For routes like /{provinceId}/about/system-overview or /{provinceId}/{branchCode}/about/system-overview
+  for (const universalRoute of universalRoutes) {
+    // Skip routes that are inherently root-level (like personal-profile)
+    if (universalRoute === '/personal-profile') continue;
+
+    // Check if the route matches the pattern: {layer-prefix}{universal-route}
+    const expectedLayerAwarePath = `${userPrefix.slice(0, -1)}${universalRoute}`;
+    if (
+      routePath === expectedLayerAwarePath ||
+      routePath.startsWith(expectedLayerAwarePath + '/')
+    ) {
+      return true;
+    }
+  }
+
   // For other layers, check if route starts with their allowed prefix
   return routePath.startsWith(userPrefix);
 };

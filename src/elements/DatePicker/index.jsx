@@ -4,8 +4,13 @@ import 'dayjs/locale/th';
 import DatePick from './DatePick';
 import RangePick from './RangePick';
 
-export const ensureDayjs = (value) => {
-  // Already a real Dayjs instance
+export const ensureDayjs = (value, format) => {
+  // Return null for null/undefined values
+  if (!value) {
+    return null;
+  }
+
+  // Already a valid Dayjs instance
   if (
     value &&
     typeof value === 'object' &&
@@ -14,6 +19,8 @@ export const ensureDayjs = (value) => {
   ) {
     return value;
   }
+
+  // Handle string values
   if (typeof value === 'string') {
     // Check for time-only string (HH:mm or HH:mm:ss)
     if (/^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/.test(value)) {
@@ -21,11 +28,32 @@ export const ensureDayjs = (value) => {
       const today = dayjs().format('YYYY-MM-DD');
       return dayjs(`${today}T${value}`);
     }
+
+    // Try to parse with format if provided
+    if (format) {
+      const parsed = dayjs(value, format, true); // strict parsing
+      if (parsed.isValid()) {
+        return parsed;
+      }
+    }
+
+    // Fallback to default parsing
+    const fallback = dayjs(value);
+    if (fallback.isValid()) {
+      return fallback;
+    }
   }
-  // Try to convert if it's a string or number or Dayjs-like object
+
+  // Try to convert if it's a number or Dayjs-like object
   if (value) {
-    return dayjs(value.$d || value); // $d is the native Date inside Dayjs
+    const converted = dayjs(value.$d || value); // $d is the native Date inside Dayjs
+    if (converted.isValid()) {
+      return converted;
+    }
   }
+
+  // If all else fails, return null
+  console.warn('[ensureDayjs] Could not parse date value:', value, 'with format:', format);
   return null;
 };
 
