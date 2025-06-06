@@ -1,0 +1,8 @@
+@media print {
+  .page-break {
+    page-break-after: always;
+    /* or page-break-before: always */
+    /* Some browsers support break-after instead: */
+    break-after: page;
+  }
+}

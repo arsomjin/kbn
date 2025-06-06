@@ -1,0 +1,3935 @@
+{
+  "collections": {
+    "changeLogs": {
+      "sample": {
+        "id": "w6Bls1yqtSfm92nxJnT9",
+        "data": {
+          "time": 1714500000000,
+          "version": "1.4.3",
+          "changes": [
+            {
+              "detail": "บัญชี - รายรับ",
+              "subDetails": ["เพิ่มงาน รับเงิน - สินเชื่อส่วนบุคล"],
+              "link": "/account/income-personal-loan"
+            },
+            {
+              "detail": "รายงาน - บัญชี - รายรับ",
+              "subDetails": ["เพิ่มรายงาน รับเงิน - สินเชื่อส่วนบุคล"],
+              "link": "/reports/account/income-personal-loan"
+            }
+          ]
+        }
+      }
+    },
+    "data": {
+      "account": {
+        "expenseAccountNames": {
+          "sample": {
+            "id": "ACC-NAME2022031608604",
+            "data": {
+              "inputBy": "gXPrx0ICugWrVlboFQKq4MqIlX43",
+              "created": 1647400599000,
+              "expenseAccountName": "ค่าปุ๋ย",
+              "expenseAccountNameId": "ACC-NAME2022031608604"
+            }
+          }
+        },
+        "expenseCategories": {
+          "sample": {
+            "id": "ACC-CAT2022030803751",
+            "data": {
+              "expenseCategoryId": "ACC-CAT2022030803751",
+              "expenseCategoryName": "เบี้ยเลี้ยงขนส่งกั้งไปส่งรถใหม่ อ.คง",
+              "inputBy": "oHk3pUKiYEVbM8a5XU89vFdRtZz1",
+              "created": 1646707289000
+            }
+          }
+        },
+        "expenseCategory": {
+          "sample": {
+            "id": "ค่าขึ้นทะเบียนโดรน",
+            "data": {
+              "expenseCategoryId": "ค่าขึ้นทะเบียนโดรน",
+              "expenseCategoryName": "ค่าขึ้นทะเบียนโดรน",
+              "keywords": ["ค", "ค่", "ค่า"],
+              "created": 1739873159000,
+              "inputBy": "pmxuGOgnbPQxqlOCCPRaTYxhAjA2",
+              "deleted": true
+            }
+          }
+        },
+        "expenseName": {
+          "sample": {
+            "id": "ACC-NAME2025042900272",
+            "data": {
+              "expenseNameId": "ACC-NAME2025042900272",
+              "expenseCategoryId": "expenseCategory06",
+              "expenseName": "ค่าเบี้ยเลี้ยงขนส่งบูรณ์",
+              "expenseCategoryName": "ค่าเบี้ยเลี้ยงขนส่ง",
+              "expenseSubCategoryName": null,
+              "keywords": ["ข", "ขน", "ขนส"],
+              "deleted": false,
+              "created": 1745906849000,
+              "inputBy": "pmxuGOgnbPQxqlOCCPRaTYxhAjA2"
+            }
+          }
+        },
+        "expenseNames": {
+          "sample": {
+            "id": "tm9dD8ahz5LN5djGc61g",
+            "data": {
+              "expenseCategoryId": "expenseCategory10",
+              "expenseCategoryName": "ค่าต่อภาษี และตรวจสภาพ ตรอ.",
+              "expenseName": "ทะเบียน ผข-6746",
+              "expenseSubCategory": ""
+            }
+          }
+        },
+        "expenseSubCategory": {
+          "sample": {
+            "id": "expenseSubCategory02",
+            "data": {
+              "batchNo": 1649565042000,
+              "importTime": 1714500000000,
+              "importBy": "fWvdPsjExSaFPo57ZaVsgOLawEM2",
+              "expenseSubCategoryId": "expenseSubCategory02",
+              "deleted": false,
+              "keywords": ["e", "ex", "exp"],
+              "expenseSubCategoryName": "รถบริการ",
+              "expenseCategoryId": "expenseCategory04"
+            }
+          }
+        }
+      },
+      "company": {
+        "bankNames": {
+          "sample": {
+            "id": "BANK2024072709909",
+            "data": {
+              "inputBy": "07AcySREGLg1VAUk0YKaAiaKxSI2",
+              "created": 1722044570000,
+              "name": "ทีทีบี",
+              "bankNameId": "BANK2024072709909",
+              "remark": null
+            }
+          }
+        },
+        "banks": {
+          "sample": {
+            "id": "BANK2024090505917",
+            "data": {
+              "bankId": "BANK2024090505917",
+              "inputBy": "sM15Y60PSuQNKD2r5AewQWwS47l2",
+              "created": 1725529017000,
+              "accNo": "710-2-47010-3",
+              "name": "บจก.คูโบต้าเบญจพลนครราชสีมา",
+              "bankName": "ไทยพาณิชย์",
+              "sameAcc": ["BANK2024090504924", "nk0f9iIOKPtcAgPn8HSP"],
+              "branch": null,
+              "order": 42
+            }
+          }
+        },
+        "banks_new": {
+          "sample": {
+            "id": "BANK2024090505917",
+            "data": {
+              "bankId": "BANK2024090505917",
+              "inputBy": "sM15Y60PSuQNKD2r5AewQWwS47l2",
+              "created": 1725529017000,
+              "bankName": "ไทยพาณิชย์",
+              "branch": null,
+              "order": 42,
+              "sameAcc": ["BANK2024090504924", "nk0f9iIOKPtcAgPn8HSP"],
+              "name": "บจก.คูโบต้าเบญจพลนครราชสีมา",
+              "accNo": "710-2-47010-3"
+            }
+          }
+        },
+        "branches": {
+          "sample": {
+            "id": "0500",
+            "data": {
+              "branchCode": "0500",
+              "warehouseId": "warehouse008",
+              "locationId": "location008",
+              "branchName": "ฟาร์ม หนองบุญมาก",
+              "remark": "",
+              "branchId": "1008",
+              "queue": 42
+            }
+          }
+        },
+        "departments": {
+          "sample": {
+            "id": "dep0016",
+            "data": {
+              "deleted": false,
+              "departmentId": "dep0016",
+              "department": "ทั่วไป"
+            }
+          }
+        },
+        "employees": {
+          "sample": {
+            "id": "KBN20169",
+            "data": {
+              "prefix": "นาย",
+              "firstName": "วัชรดนัย",
+              "lastName": "กิ่มก่อสุข",
+              "employeeCode": "KBN20169",
+              "status": "ปกติ",
+              "nickName": "",
+              "position": "นักศึกษาฝึกงาน",
+              "affiliate": "จักราช",
+              "workBegin": "08:00",
+              "workEnd": "17:00",
+              "startDate": "2025-04-01",
+              "endDate": null,
+              "created": 1746005050000,
+              "inputBy": "RaeTVZUzFBZ9JzDeonsQGRFRT5L2"
+            }
+          }
+        },
+        "executives": {
+          "sample": {
+            "id": "พิชัย",
+            "data": {
+              "executiveCode": "พิชัย",
+              "prefix": "นาย",
+              "firstName": "พิชัย",
+              "lastName": "เบญจพลกุล",
+              "branch": "0450",
+              "group": "group001",
+              "phoneNumber": null,
+              "email": null,
+              "created": 1744857378000,
+              "inputBy": "jSLKebQtIfaqXPPnCL54wnIWKo12"
+            }
+          }
+        },
+        "locations": {
+          "sample": {
+            "id": "location008",
+            "data": {
+              "amphoe": "หนองบุญมาก",
+              "country": "",
+              "address": "Sample text",
+              "province": "นครราชสีมา",
+              "locationId": "location008",
+              "postcode": "",
+              "remark": "",
+              "tambol": ""
+            }
+          }
+        },
+        "permissionCategories": {
+          "sample": {
+            "id": "permCat008",
+            "data": {
+              "permissionCategoryName": "รายงาน",
+              "permissionCategoryId": "permCat008",
+              "remark": ""
+            }
+          }
+        },
+        "permissions": {
+          "sample": {
+            "id": "permission806",
+            "data": {
+              "permissionCategoryId": "permCat008",
+              "permissionId": "permission806",
+              "description": "ดูรายงาน ฝ่ายบุคคล",
+              "permissionName": "ดูรายงาน"
+            }
+          }
+        },
+        "userGroups": {
+          "sample": {
+            "id": "group011",
+            "data": {
+              "remark": "เป็นค่าเริ่มต้นสำหรับผู้ลงทะเบียนใหม่ และรอการอนุมัติเข้าใช้งานระบบ ดังนั้นจึงไม่ควรมีการกำหนดสิทธิ์ใดๆไว้สำหรับกลุ่มนี้",
+              "_key": "group011",
+              "permCats": {
+                "permCat005": false,
+                "permCat004": false,
+                "permCat003": false,
+                "permCat002": false,
+                "permCat001": false,
+                "permCat007": false,
+                "permCat006": false
+              },
+              "userGroupId": "group011",
+              "permissions": {
+                "permission610": false,
+                "permission212": false,
+                "permission210": false,
+                "permission614": false,
+                "permission613": false,
+                "permission501": false,
+                "permission203": false,
+                "permission401": false,
+                "permission302": false,
+                "permission204": false,
+                "permission402": false,
+                "permission303": false,
+                "permission201": false,
+                "permission301": false,
+                "permission202": false,
+                "permission101": false,
+                "permission209": false,
+                "permission606": false,
+                "permission605": false,
+                "permission207": false,
+                "permission208": false,
+                "permission504": false,
+                "permission403": false,
+                "permission304": false,
+                "permission602": false,
+                "permission503": false,
+                "permission205": false,
+                "permission404": false,
+                "permission206": false,
+                "permission601": false,
+                "permission502": false,
+                "permission609": false
+              },
+              "userGroupName": "รอการอนุมัติ"
+            }
+          }
+        },
+        "warehouses": {
+          "sample": {
+            "id": "warehouse008",
+            "data": {
+              "warehouseId": "warehouse008",
+              "locationId": "location008",
+              "remark": "",
+              "warehouseName": "ฟาร์ม หนองบุญมาก"
+            }
+          }
+        }
+      },
+      "products": {
+        "partList": {
+          "sample": {
+            "id": "w9503-62431",
+            "data": {
+              "model_partial": "dc-105x",
+              "name_partial": "ปลอกรอง",
+              "model_lower": "dc-105x",
+              "pCode_partial": "w9503-62431",
+              "description": "",
+              "remark": "",
+              "standardCost": 42,
+              "wsPrice": "",
+              "slp": 42,
+              "pCode": "w9503-62431",
+              "creditTerm": "",
+              "name": "ปลอกรอง",
+              "name_lower": "ปลอกรอง",
+              "model": "DC-105X",
+              "slp_no_vat": 42,
+              "partType": "KBN",
+              "pCode_lower": "w9503-62431"
+            }
+          }
+        },
+        "vehicleList": {
+          "sample": {
+            "id": "W95CD-70211",
+            "data": {
+              "batchNo": 1740977674000,
+              "creditTerm": 42,
+              "deleted": false,
+              "importBy": "7ATjP4V6HyWwCPXtATMNBB54xOT2",
+              "importTime": 1714500000000,
+              "listPrice": 29000,
+              "name": "DJI Relay",
+              "productCode": "W95CD-70211",
+              "productType": "โดรนการเกษตร",
+              "wsPrice": "",
+              "name_lower": "dji relay",
+              "name_partial": "relay",
+              "productCode_lower": "w95cd-70211",
+              "productCode_partial": "w95cd-70211",
+              "productType_lower": "โดรนการเกษตร",
+              "productType_partial": "โดรนการเกษตร",
+              "header": null,
+              "model": "DJI Relay",
+              "keywords": ["d", "dj", "dji"],
+              "isUsed": false,
+              "productPCode": "w95cd70211"
+            }
+          }
+        }
+      },
+      "sales": {
+        "customers": {
+          "sample": {
+            "id": "KBN-CUS-04502025043001117",
+            "data": {
+              "plants": [],
+              "sourceOfData": [],
+              "customerId": "KBN-CUS-04502025043001117",
+              "agentId": "8EIkERx7cUUforV6ZddY0v7RucC2",
+              "agent": "",
+              "whenToBuy": "เดือนนี้",
+              "whenToBuyRange": {
+                "range": ["2025-04-30", "2025-05-30"],
+                "months": ["2025-04", "2025-05"]
+              },
+              "url": null,
+              "customerNo": "KBN-CUS-04502025043001117",
+              "customerLevel": "",
+              "idNumber": "",
+              "prefix": "นาง",
+              "firstName": "สุกัลยา",
+              "lastName": "สุหา",
+              "phoneNumber": "Sample text",
+              "address": {
+                "address": "Sample text",
+                "moo": "11",
+                "village": "",
+                "province": "นครราชสีมา",
+                "amphoe": "บัวใหญ่",
+                "tambol": "ด่านช้าง",
+                "postcode": "30120"
+              },
+              "career": "",
+              "areaSize": "",
+              "ownedModel": "",
+              "interestedModel": "",
+              "branch": "0450",
+              "remark": "",
+              "firstName_lower": "สุกัลยา",
+              "firstName_partial": "สุกัลยา",
+              "lastName_lower": "สุหา",
+              "lastName_partial": "สุหา",
+              "phoneNumber_lower": "Sample text",
+              "phoneNumber_partial": "Sample text",
+              "customerNo_lower": "kbn-cus-04502025043001117",
+              "customerNo_partial": "kbn-cus-04502025043001117",
+              "customerId_lower": "kbn-cus-04502025043001117",
+              "customerId_partial": "kbn-cus-04502025043001117",
+              "created": 1746006264000,
+              "inputBy": "8EIkERx7cUUforV6ZddY0v7RucC2"
+            }
+          }
+        },
+        "dataSources": {
+          "sample": {
+            "id": "UQJYAXOdlG9xOickAbk2",
+            "data": {
+              "inputBy": "WLBoinjEsoeHtRAM6KV91GbJ3Qw1",
+              "created": 1640407771000,
+              "remark": null,
+              "name": "ในงานสาธิตโดรน",
+              "dataSourceId": "UQJYAXOdlG9xOickAbk2"
+            }
+          }
+        },
+        "dealers": {
+          "sample": {
+            "id": "DEAL2025042506810",
+            "data": {
+              "dealerId": "DEAL2025042506810",
+              "dealerCode": "บริษัท บางจากกรีนเนท จำกัด",
+              "dealerType": "dealer",
+              "dealerPrefix": "บจก.",
+              "dealerName": "บางจากกรีนเนท",
+              "dealerTaxNumber": "0105536080112",
+              "dealerHeadOffice": 42,
+              "dealerBank": null,
+              "dealerBankType": "saving",
+              "dealerBankAccNo": null,
+              "dealerBankName": null,
+              "dealerAddress": null,
+              "dealerProvince": null,
+              "dealerAmphoe": null,
+              "dealerTambol": null,
+              "dealerPostcode": null,
+              "created": 1745572017000,
+              "inputBy": "pmxuGOgnbPQxqlOCCPRaTYxhAjA2"
+            }
+          }
+        },
+        "plants": {
+          "sample": {
+            "id": "sapodilla",
+            "data": {
+              "plantId": "sapodilla",
+              "name": "ละมุด"
+            }
+          }
+        },
+        "referrers": {
+          "sample": {
+            "id": "REF2025043008282",
+            "data": {
+              "prefix": "นางสาว",
+              "firstName": "นิตยา",
+              "lastName": "ดวงจิตร",
+              "phoneNumber": "Sample text",
+              "firstName_lower": "นิตยา",
+              "firstName_partial": "นิตยา",
+              "lastName_lower": "ดวงจิตร",
+              "lastName_partial": "ดวงจิตร",
+              "phoneNumber_lower": "Sample text",
+              "phoneNumber_partial": "Sample text",
+              "created": 1746005338000,
+              "address": {
+                "address": "Sample text",
+                "moo": "6",
+                "village": "ระหาร",
+                "province": "สุรินทร์",
+                "amphoe": "เมืองสุรินทร์",
+                "tambol": "เทนมีย์",
+                "postcode": "32000"
+              },
+              "referrerId": "REF2025043008282"
+            }
+          }
+        }
+      },
+      "services": {
+        "serviceList": {
+          "sample": {
+            "id": "06005",
+            "data": {
+              "unitPrice": "133.75",
+              "name_partial": "อื่นภายนอกเช่นคันชัก/คันส่ง/ลูกหมาก/ท่อน",
+              "keywords": ["0", "06", "060"],
+              "inputBy": "vhZxUv9q2dWbbKqYKBblt7OVWhr1",
+              "serviceCode": "06005",
+              "created": 1706667217000,
+              "description": null,
+              "remark": null,
+              "serviceCode_lower": "06005",
+              "unit": "1",
+              "serviceCode_partial": "06005",
+              "creditTerm": null,
+              "name": "อื่นภายนอกเช่นคันชัก/คันส่ง/ลูกหมาก/ท่อน",
+              "name_lower": "อื่นภายนอกเช่นคันชัก/คันส่ง/ลูกหมาก/ท่อน"
+            }
+          }
+        }
+      }
+    },
+    "messages": {
+      "sample": {
+        "id": "xdEKA4jJo05KoI4fsnLi",
+        "data": {
+          "message": "เวอร์ชั่น 1.4.3",
+          "description": "<p><strong style=\"color: rgb(0, 102, 204);\">1. บัญชี - รายรับ</strong></p><p>1.1 เพิ่มงาน รับเงิน - สินเชื่อส่วนบุคล</p><p><strong style=\"color: rgb(0, 102, 204);\">2. รายงาน - บัญชี - รายรับ</strong></p><p>2.1 เพิ่มรายงาน รับเงิน - สินเชื่อส่วนบุคล</p>",
+          "type": "info",
+          "duration": "5",
+          "by": "fWvdPsjExSaFPo57ZaVsgOLawEM2",
+          "time": "1743998038160"
+        }
+      }
+    },
+    "reports": {
+      "sales": {
+        "assessment": {
+          "sample": {
+            "id": "SALE-VEH202112250953",
+            "data": {
+              "assessmentResult": null,
+              "bookNo": "317-15808",
+              "bookNo_partial": "317-15808",
+              "lastName": "พรหมมาโนช",
+              "bookNo_lower": "317-15808",
+              "assessmentMonth": null,
+              "bookingPerson": "KBN10037",
+              "prefix": "นางสาว",
+              "assessmentDate": null,
+              "saleType": "sklLeasing",
+              "sourceOfData": ["ในงานสาธิตโดรน"],
+              "firstName_lower": "กรวรรณ",
+              "firstName_partial": "กรวรรณ",
+              "bookId": "SALE-VEH202112250953",
+              "branchCode": "0450",
+              "firstName": "กรวรรณ",
+              "assessment": {
+                "date": null,
+                "result": null,
+                "details": null
+              },
+              "phoneNumber": "Sample text",
+              "customerId": "gVkPcbHMYLFt2UxBZvPE",
+              "assessmentDetails": null,
+              "salesPerson": ["KBN10096", "KBN10037"],
+              "items": [
+                {
+                  "unitPrice": 386000,
+                  "isEquipment": false,
+                  "engineNo": "",
+                  "vehicleItemType": "vehicle",
+                  "sourceOfData": "",
+                  "_key": "",
+                  "isUsed": false,
+                  "productName": "T20 แบต 4 ก้อน+แท่นชาร์ต 1 อัน",
+                  "peripheralNo": "10344/10343/10345/10342",
+                  "bookId": "BOOK-VEH202112250532",
+                  "vehicleNo": "10085",
+                  "total": 386000,
+                  "productCode": "5zHghdghB1Z5k8Hf3rub",
+                  "qty": 42,
+                  "detail": "",
+                  "bookItemId": "BOOK-VEH-ITEM202112250345",
+                  "vehicleType": "อื่นๆ",
+                  "status": "pending"
+                }
+              ],
+              "assessmentYear": null
+            }
+          }
+        },
+        "customerSources": {
+          "sample": {
+            "id": "SALE-VEH202202070378",
+            "data": {
+              "sourceOfData": [],
+              "date": "2022-02-07",
+              "lastName": "มาดเริง",
+              "saleId": "SALE-VEH202202070378",
+              "saleNo_partial": "245/12203",
+              "prefix": "นาง",
+              "saleType": "sklLeasing",
+              "saleNo_lower": "245/12203",
+              "firstName_lower": "พรพรรณ",
+              "firstName_partial": "พรพรรณ",
+              "saleNo": "245/12203",
+              "branchCode": "0453",
+              "firstName": "พรพรรณ",
+              "phoneNumber": "Sample text",
+              "customerId": "Ne1KFhmnsMvOllkyYPHh",
+              "salesPerson": ["BAS70001"],
+              "items": [
+                {
+                  "saleId": "SALE-VEH202202070378",
+                  "vehicleItemType": "vehicle",
+                  "registered": null,
+                  "saleDate": "2022-02-07",
+                  "_key": "",
+                  "productName": "แทรกเตอร์ B2140S-B Narrow",
+                  "peripheralNo": "",
+                  "saleItemId": "SALE-VEH-ITEM202202070900",
+                  "total": 238000,
+                  "bookItemId": "BOOK-VEH-ITEM202201290007",
+                  "vehicleType": "รถแทรกเตอร์",
+                  "unitPrice": 238000,
+                  "engineNo": "1LE0160",
+                  "isEquipment": false,
+                  "sourceOfData": "",
+                  "saleNo": "245/12203",
+                  "isUsed": false,
+                  "bookId": "BOOK-VEH202201290639",
+                  "branchCode": "0453",
+                  "vehicleNo": "33619",
+                  "productCode": "W95T1-00000",
+                  "ivAdjusted": false,
+                  "qty": 42,
+                  "detail": "",
+                  "status": "pending"
+                },
+                {
+                  "unitPrice": 15000,
+                  "engineNo": "",
+                  "saleId": "SALE-VEH202202070378",
+                  "registered": null,
+                  "saleDate": "2022-02-07",
+                  "_key": "",
+                  "saleNo": "245/12203",
+                  "productName": "ชุดโครงกันอ้อย SG270S - B series S (รถติดใบมีด)",
+                  "bookId": "BOOK-VEH202201290639",
+                  "peripheralNo": "",
+                  "branchCode": "0453",
+                  "saleItemId": "SALE-VEH-ITEM202202070447",
+                  "vehicleNo": "",
+                  "total": 15000,
+                  "productCode": "W95A1-00000",
+                  "ivAdjusted": false,
+                  "qty": 42,
+                  "detail": "",
+                  "bookItemId": "RES-VH-ITEM202201290831",
+                  "vehicleType": "อุปกรณ์",
+                  "productType": null,
+                  "status": "pending"
+                },
+                {
+                  "unitPrice": 38000,
+                  "engineNo": "",
+                  "saleId": "SALE-VEH202202070378",
+                  "registered": null,
+                  "saleDate": "2022-02-07",
+                  "_key": "",
+                  "saleNo": "245/12203",
+                  "productName": "จอบหมุน RX80A2 (ใหม่) - B2140 Narrow/B2140S Narrow",
+                  "peripheralNo": "101093",
+                  "bookId": "BOOK-VEH202201290639",
+                  "branchCode": "0453",
+                  "vehicleNo": "",
+                  "saleItemId": "SALE-VEH-ITEM202202070088",
+                  "total": 38000,
+                  "productCode": "W952A-70001",
+                  "ivAdjusted": false,
+                  "qty": 42,
+                  "detail": "",
+                  "bookItemId": "RES-VH-ITEM202201290517",
+                  "productType": null,
+                  "vehicleType": "อุปกรณ์",
+                  "status": "pending"
+                }
+              ]
+            }
+          }
+        },
+        "mktChannels": {
+          "sample": {
+            "id": "SALE-VEH2022120104525",
+            "data": {
+              "amphoe": "จักราช",
+              "date": "2565-11-28",
+              "lastName": "ทะวันกุล",
+              "saleId": "SALE-VEH2022120104525",
+              "prefix": "นาย",
+              "saleType": "sklLeasing",
+              "saleNo_lower": "315-15725",
+              "vehicles": [
+                {
+                  "unitPrice": 459000,
+                  "engineNo": ["BNS2262"],
+                  "vehicleNo": ["04042"],
+                  "total": 459000,
+                  "productCode": "TC872-15111",
+                  "isVehicle": true,
+                  "qty": 42,
+                  "model": "L3218SP + FD144D",
+                  "productName": "แทรกเตอร์ L3218SP + ใบมีด FD144D",
+                  "peripheralNo": ["007455"]
+                }
+              ],
+              "firstName_partial": "บรรเลง",
+              "peripheralNo": ["007455", "2014674"],
+              "province": "นครราชสีมา",
+              "customerId": "KBN-CUS-04502022112909472",
+              "model": ["L3218SP + FD144D", "DH225C-H - L3208/L3218"],
+              "village": "โนนเสมา",
+              "engineNo": ["BNS2262"],
+              "tambol": "หินโคน",
+              "peripherals": [
+                {
+                  "vehicleNo": [],
+                  "engineNo": [],
+                  "unitPrice": 33000,
+                  "total": 33000,
+                  "productCode": "W9572-10000",
+                  "isVehicle": false,
+                  "qty": 42,
+                  "model": "DH225C-H - L3208/L3218",
+                  "productName": "ผานพรวน DH225C-H - L3208/L3218",
+                  "peripheralNo": ["2014674"]
+                }
+              ],
+              "saleNo_partial": "315-15725",
+              "postcode": "30230",
+              "sourceOfData": ["หน้าร้าน/Walk in"],
+              "firstName_lower": "บรรเลง",
+              "saleNo": "315-15725",
+              "branchCode": "0452",
+              "firstName": "บรรเลง",
+              "vehicleNo": ["04042"],
+              "phoneNumber": "Sample text",
+              "salesPerson": ["KBN10005"],
+              "items": [
+                {
+                  "sourceOfData": [],
+                  "saleId": "SALE-VEH2022120104525",
+                  "vehicleItemType": "vehicle",
+                  "registered": null,
+                  "saleDate": "2565-11-28",
+                  "_key": "",
+                  "productName": "แทรกเตอร์ L3218SP + ใบมีด FD144D",
+                  "peripheralNo": ["007455"],
+                  "saleItemId": "SALE-VEH-ITEM2022120105063",
+                  "total": 459000,
+                  "bookItemId": "BOOK-VEH-ITEM2022112901773",
+                  "vehicleType": "รถแทรกเตอร์",
+                  "unitPrice": 459000,
+                  "engineNo": ["BNS2262"],
+                  "isEquipment": false,
+                  "isUsed": false,
+                  "saleNo": "315-15725",
+                  "bookId": "BOOK-VEH2022112903327",
+                  "branchCode": "0452",
+                  "vehicleNo": ["04042"],
+                  "productCode": "TC872-15111",
+                  "ivAdjusted": false,
+                  "qty": 42,
+                  "detail": "",
+                  "status": "pending"
+                },
+                {
+                  "engineNo": [],
+                  "vehicleNo": [],
+                  "unitPrice": 33000,
+                  "saleId": "SALE-VEH2022120104525",
+                  "registered": null,
+                  "saleDate": "2565-11-28",
+                  "_key": "",
+                  "productName": "ผานพรวน DH225C-H - L3208/L3218",
+                  "saleNo": "315-15725",
+                  "peripheralNo": ["2014674"],
+                  "bookId": "BOOK-VEH2022112903327",
+                  "branchCode": "0452",
+                  "saleItemId": "SALE-VEH-ITEM2022120101655",
+                  "total": 33000,
+                  "productCode": "W9572-10000",
+                  "ivAdjusted": false,
+                  "qty": 42,
+                  "detail": "",
+                  "bookItemId": "BOOK-VEH-ITEM2022112907488",
+                  "productType": null,
+                  "vehicleType": "อุปกรณ์",
+                  "status": "pending"
+                }
+              ],
+              "customer": "นายบรรเลง ทะวันกุล"
+            }
+          }
+        },
+        "parts": {
+          "sample": {
+            "id": "Invalid dateundefined0002",
+            "data": {
+              "redeemPoint": 42,
+              "pointsReceived": 42,
+              "AD_DiscountQty": 42,
+              "discountPointRedeem": 42,
+              "saleDate": "Invalid date",
+              "importBy": "654OykhBfFdVwtGCqXdrSmm1C893",
+              "amtOilType": 42,
+              "SKCLoyaltyDiscountAmt": 42,
+              "netDepositDeduct": 42,
+              "batchNo": 1711417022000,
+              "item": "",
+              "billDiscount": 42,
+              "AD_Discount": 42,
+              "amtPartType": 42,
+              "sourceOfData": "",
+              "saleNo": "",
+              "billDiscountQty": 42,
+              "branchCode": "",
+              "SKCDiscountQty": 42,
+              "SKCManualDiscount": 42,
+              "SKCDiscount": 42,
+              "deposit": 42,
+              "SKCLoyaltyDiscount": 42,
+              "netTotal": 42,
+              "SKCManualDiscountQty": 42,
+              "discountCoupon": 42,
+              "importTime": 1714500000000
+            }
+          }
+        },
+        "vehicles": {
+          "sample": {
+            "id": "SALE-VEH2025043007890",
+            "data": {
+              "additionalPurchase": [],
+              "amtOthers": [],
+              "deductOthers": [],
+              "depositPayments": [],
+              "guarantors": [],
+              "payments": [],
+              "sourceOfData": [],
+              "turnOverDocs": [],
+              "turnOverItems": [],
+              "peripherals": [],
+              "accountRecorded": null,
+              "address": {
+                "address": "Sample text",
+                "amphoe": "เมืองสุรินทร์",
+                "moo": "6",
+                "postcode": "32000",
+                "province": "สุรินทร์",
+                "tambol": "เทนมีย์",
+                "village": "ระหาร"
+              },
+              "advInstallment": 42,
+              "amtBaacDebtor": null,
+              "amtBaacFee": null,
+              "amtDeposit": 42,
+              "amtFull": 738000,
+              "amtKBN": 42,
+              "amtMAX": 20000,
+              "amtOldCustomer": 42,
+              "amtOther": 42,
+              "amtPlateAndInsurance": 42,
+              "amtPro": 7000,
+              "amtReceived": 500000,
+              "amtReferrer": 5000,
+              "amtReservation": 42,
+              "amtSKC": 20000,
+              "amtTurnOver": 53000,
+              "amtTurnOverDifRefund": 42,
+              "amtTurnOverVehicle": null,
+              "assessment": {
+                "date": null,
+                "details": null,
+                "result": null
+              },
+              "baacNo": null,
+              "bookDate": "2025-04-24",
+              "bookId": "BOOK-VEH2025042401196",
+              "bookNo": "417/20828",
+              "bookNo_lower": "417/20828",
+              "bookNo_partial": "417/20828",
+              "bookPNo": "41720828",
+              "bookingPerson": ["BAS70001"],
+              "branchCode": "0453",
+              "canceled": null,
+              "contractDate": "2025-04-29",
+              "created": 1746005339000,
+              "createdBy": "1D7HmfWlnQSEqfSYSW1ljzNPb3W2",
+              "creditRecorded": null,
+              "customer": "นายพิภพ นิกรรัมย์",
+              "customerId": "KBN-CUS-04502025042406673",
+              "customerNo": "KBN-CUS-04502025042406673",
+              "date": "2025-04-24",
+              "deductOther": 42,
+              "deliverDate": "2025-04-29",
+              "depositor": null,
+              "downPayment": 500000,
+              "firstName": "พิภพ",
+              "firstName_lower": "พิภพ",
+              "firstName_partial": "พิภพ",
+              "giveaways": [
+                {
+                  "name": "ทะเบียน พรบ",
+                  "qty": 42,
+                  "total": 3000,
+                  "unit": "ชุด",
+                  "unitPrice": 3000
+                },
+                {
+                  "name": "ประกันภัยธรรมชาติ",
+                  "qty": 42,
+                  "total": 42,
+                  "unit": "ชุด",
+                  "unitPrice": 42
+                },
+                {
+                  "name": "เสื้อ",
+                  "qty": 42,
+                  "total": 42,
+                  "unit": "ตัว",
+                  "unitPrice": 42
+                }
+              ],
+              "guarantorDocs": {},
+              "hasGuarantor": false,
+              "hasReferrer": true,
+              "hasTurnOver": false,
+              "isEquipment": false,
+              "isNewCustomer": true,
+              "isNewReferrer": true,
+              "isUsed": false,
+              "items": [
+                {
+                  "sourceOfData": [],
+                  "_key": "",
+                  "bookId": "BOOK-VEH2025042401196",
+                  "bookItemId": "BOOK-VEH-ITEM2025042406872",
+                  "branchCode": "0453",
+                  "detail": "",
+                  "discount": "0",
+                  "engineNo": ["BSE7069"],
+                  "isEquipment": false,
+                  "isUsed": false,
+                  "ivAdjusted": false,
+                  "peripheralNo": ["002609"],
+                  "productCode": "TC942-19112",
+                  "productName": "แทรกเตอร์ L5228 + ใบมีด FD187F + FG187F",
+                  "qty": 42,
+                  "registered": null,
+                  "saleDate": "2025-04-24",
+                  "saleId": "SALE-VEH2025043007890",
+                  "saleItemId": "SALE-VEH-ITEM2025043009291",
+                  "saleNo": "372/18600",
+                  "status": "pending",
+                  "total": 738000,
+                  "unitPrice": 738000,
+                  "vehicleItemType": "vehicle",
+                  "vehicleNo": ["03690"],
+                  "vehicleType": "รถแทรกเตอร์"
+                }
+              ],
+              "ivAdjusted": false,
+              "keywords": ["3", "37", "372"],
+              "lastName": "นิกรรัมย์",
+              "oweKBNLeasing": 42,
+              "oweKBNLeasings": {
+                "Borrow": null,
+                "Down": null,
+                "Equipment": null,
+                "Installment": null,
+                "overdueFines": null
+              },
+              "phoneNumber": "Sample text",
+              "prefix": "นาย",
+              "proMonth": "2025-04",
+              "promotions": [
+                {
+                  "name": "ยี่ห้ออื่น",
+                  "total": 5000
+                },
+                {
+                  "name": "คูโบต้าโชคจัดใหญ่ให้ทุกคัน ",
+                  "total": 2000
+                }
+              ],
+              "receiverEmployee": "BAS70001",
+              "refNo": "417/20828",
+              "referrer": {
+                "address": {
+                  "address": "Sample text",
+                  "amphoe": "เมืองสุรินทร์",
+                  "moo": "6",
+                  "postcode": "32000",
+                  "province": "สุรินทร์",
+                  "tambol": "เทนมีย์",
+                  "village": "ระหาร"
+                },
+                "firstName": "นิตยา",
+                "lastName": "ดวงจิตร",
+                "phoneNumber": "Sample text",
+                "prefix": "นางสาว",
+                "referrerId": "REF2025043008282"
+              },
+              "referringDetails": {
+                "approvedBy": "",
+                "bank": "ไทยพาณิชย์",
+                "bankAcc": "5592851276",
+                "bankName": "นางสาวนิตยา ดวงจิตร",
+                "branchCode": "0453",
+                "date": "2025-04-30",
+                "forBranch": {
+                  "branchAccountant": "50032",
+                  "branchManager": "BAS70001",
+                  "requestBy": "BAS70001"
+                },
+                "forHQ": {
+                  "creditClerk": "",
+                  "hqAccountAuditor": "",
+                  "hqAccountant": "",
+                  "hqAuditor": ""
+                },
+                "relationship": "รู้จัก",
+                "total": 5000,
+                "whTax": 42
+              },
+              "registered": null,
+              "remark": null,
+              "reservationDepositor": null,
+              "saleCategory": "daily",
+              "saleId": "SALE-VEH2025043007890",
+              "saleNo": "372/18600",
+              "saleNo_lower": "372/18600",
+              "saleNo_partial": "372/18600",
+              "salePNo": "37218600",
+              "saleSubCategory": "vehicle",
+              "saleType": "sklLeasing",
+              "salesPerson": ["KBN50005", "BAS70001", "KBN50028"],
+              "status": "pending",
+              "total": 400000,
+              "turnOverCloseInstallment": null,
+              "turnOverFix": false,
+              "turnOverFixKBN": null,
+              "turnOverFixMAX": null,
+              "vehicles": [
+                {
+                  "model": "L5228 + FD187F + FG187F",
+                  "productCode": "TC942-19112",
+                  "productName": "แทรกเตอร์ L5228 + ใบมีด FD187F + FG187F",
+                  "vehicleNo": ["03690"],
+                  "peripheralNo": ["002609"],
+                  "engineNo": ["BSE7069"],
+                  "qty": 42,
+                  "unitPrice": 738000,
+                  "total": 738000,
+                  "isVehicle": true
+                }
+              ],
+              "model": ["L5228 + FD187F + FG187F"],
+              "vehicleNo": ["03690"],
+              "peripheralNo": ["002609"],
+              "engineNo": ["BSE7069"],
+              "village": "ระหาร",
+              "tambol": "เทนมีย์",
+              "amphoe": "เมืองสุรินทร์",
+              "province": "สุรินทร์",
+              "postcode": "32000"
+            }
+          }
+        }
+      },
+      "services": {
+        "all": {
+          "sample": {
+            "id": "2004026744",
+            "data": {
+              "oilSum": [],
+              "SKCDiscountPrice": 42,
+              "advisor": "1007426",
+              "advisorName": "น.ส. พิชญาภา คูณกลาง",
+              "batchNo": 1742886992000,
+              "branchCode": "0450",
+              "branchName": "สำนักงานใหญ่",
+              "causeCode": null,
+              "causeCodeDesc": null,
+              "customerCode": "1001302198",
+              "customerName": "ประทีป จอดสันเทียะ",
+              "dealerDiscountPrice": 42,
+              "discountType": null,
+              "docDate": "2025-01-31",
+              "engineNo": "D1803-BPA0801",
+              "freights": 42,
+              "importBy": "lO2EGn2zYERqJ1qFb56cxnr0CDE2",
+              "importTime": 1714500000000,
+              "jobCloseDate": "2025-01-31",
+              "model": "L4018SP",
+              "netPrice": 42,
+              "oilBeforeDiscount": 42,
+              "oilDealerDiscount": 42,
+              "oilSKCDiscount": 42,
+              "oils": 42,
+              "orderNo": "2004026744",
+              "orderReason": "",
+              "orderStatus": "Z100",
+              "orderType": "ZIO1",
+              "orderTypeDesc": "ตรวจเช็คตามระยะ",
+              "others": 42,
+              "partBeforeDiscount": 42,
+              "partDealerDiscount": 42,
+              "partSKCDiscount": 42,
+              "parts": 42,
+              "percentDiscount": 42,
+              "priceBeforeDiscount": 42,
+              "productName": "แทรกเตอร์ L4018SP + ใบมีด FD164E + FG186",
+              "saleDate": "2023-02-01",
+              "serviceStatus": "ไม่อนุญาติให้ยกเลิกใบแจ้งหนี้",
+              "serviceTechnician": ["นาย สุเมธ ชาญสูงเนิน"],
+              "travels": 42,
+              "vehicleModel": "TC882-15112",
+              "vehicleNo": "KBULLBDRPPTA34012",
+              "wages": 42,
+              "workHour": 42
+            }
+          }
+        }
+      }
+    },
+    "sections": {
+      "account": {
+        "bankDeposit": {
+          "sample": {
+            "id": "KBN-ACC-INC2025043000290",
+            "data": {
+              "depositId": "KBN-ACC-INC2025043000290",
+              "branchCode": "0455",
+              "date": "2025-04-29",
+              "deleted": false,
+              "depositDate": "2025-04-29",
+              "depositor": "KBN30005",
+              "total": "40000",
+              "selfBankId": "BANK2024090505917",
+              "remark": "รายรับอะไหล่",
+              "created": 1745984216000,
+              "createdBy": "jSLKebQtIfaqXPPnCL54wnIWKo12",
+              "status": "pending"
+            }
+          }
+        },
+        "executiveCashDeposit": {
+          "sample": {
+            "id": "KBN-ACC-INC2025041701749",
+            "data": {
+              "depositId": "KBN-ACC-INC2025041701749",
+              "branchCode": "0455",
+              "date": "2025-04-12",
+              "deleted": false,
+              "depositDate": "2025-04-12",
+              "depositor": "KBN30001",
+              "total": "49240",
+              "executiveId": "พิชัย",
+              "remark": "ยอดคงเหลือวันที่ 12/4/2568",
+              "created": 1744857430000,
+              "createdBy": "jSLKebQtIfaqXPPnCL54wnIWKo12",
+              "status": "pending"
+            }
+          }
+        },
+        "expenseItems": {
+          "sample": {
+            "id": "KBN-ACC-EXP-IT202202010531",
+            "data": {
+              "expenseCategoryId": "1c6o4Vs3RpGBEm8tnQou",
+              "date": "2022-02-01",
+              "expenseItemId": "KBN-ACC-EXP-IT202202010531",
+              "expenseType": "dailyChange",
+              "isChevrolet": false,
+              "inputBy": "oHk3pUKiYEVbM8a5XU89vFdRtZz1",
+              "created": 1643706913000,
+              "priceType": "includeVat",
+              "VAT": "130.8411",
+              "discount": null,
+              "remark": null,
+              "_key": "KBN-ACC-EXP-IT202202010531",
+              "payer": "KBN10031",
+              "expenseName": "เบิกเงินค่าน้ำมัน ยต-6393 ไปกลับสาขา-ไปทำการตลาด อ.พระทองคำ",
+              "branchCode": "0456",
+              "total": 2000,
+              "expenseAccountNameId": "WnMYafbF7cQDgnUxCSLm",
+              "expenseId": "KBN-ACC-EXP202202010618",
+              "dealer": "6qHHTRnAHhX6rmY23LmW",
+              "taxInvoiceNo": "TIO000016502000009",
+              "department": "dep0004"
+            }
+          }
+        },
+        "expenseTransfer": {
+          "sample": {
+            "id": "vJTfg2ZawJpYQdHOEnqi",
+            "data": {
+              "ledgerRecords": [],
+              "date": "2021-07-13",
+              "refNo": null,
+              "expenseItemId": "KBN-ACC-EXP-IT202110180738",
+              "inputBy": "pmxuGOgnbPQxqlOCCPRaTYxhAjA2",
+              "VAT": "347.7103",
+              "taxInvoiceCompleted": false,
+              "remark": null,
+              "bankName": null,
+              "beforeVAT": "4967.2897",
+              "expenseName": "ค่าใยกรอง+เครื่องพ่นหมอกควัน+น้ำยาฆ่าเชื้อ",
+              "total": 5000,
+              "bank": null,
+              "expenseAccountNameId": null,
+              "ledgerCompleted": false,
+              "department": null,
+              "billNo": null,
+              "hasWHTax": 42,
+              "expenseCategoryId": null,
+              "expenseType": "headOfficeTransfer",
+              "transferCompleted": false,
+              "receiver": "kPEg6Ou70Fz176HQnXg1",
+              "created": 1634720895000,
+              "accNo": null,
+              "whTaxDoc": null,
+              "whTax": "0.0000",
+              "priceType": "includeVat",
+              "docNo": "64071207",
+              "branchCode": "0450",
+              "expenseId": "KBN-ACC-EXP202110180402",
+              "netTotal": "5315",
+              "taxInvoiceInfo": null,
+              "_key": "vJTfg2ZawJpYQdHOEnqi"
+            }
+          }
+        },
+        "expenses": {
+          "sample": {
+            "id": "KBN-ACC-EXP2023102004459",
+            "data": {
+              "date": "2566-10-19",
+              "changeDeposit": [
+                {
+                  "total": 7000,
+                  "deleted": false,
+                  "by": "gXPrx0ICugWrVlboFQKq4MqIlX43",
+                  "time": 1714500000000
+                }
+              ],
+              "expenseType": "dailyChange",
+              "inputBy": "gXPrx0ICugWrVlboFQKq4MqIlX43",
+              "expenseCategory": "daily",
+              "receiverEmployee": "KBN10006",
+              "inputDate": "2023-10-20",
+              "branchCode": "0454",
+              "total": 42,
+              "billTotal": 6000,
+              "expenseId": "KBN-ACC-EXP2023102004459",
+              "status": "pending",
+              "created": 1697771760000,
+              "items": [
+                {
+                  "payToBranch": "0454",
+                  "expenseCategoryId": "expenseCategory04",
+                  "expenseItemId": "KBN-ACC-EXP-IT2023102009101",
+                  "expenseType": "dailyChange",
+                  "isChevrolet": false,
+                  "inputBy": "gXPrx0ICugWrVlboFQKq4MqIlX43",
+                  "created": 1697771758000,
+                  "VAT": "65.4206",
+                  "priceType": "includeVat",
+                  "discount": null,
+                  "remark": null,
+                  "_key": "KBN-ACC-EXP-IT2023102009101",
+                  "payer": "KBN10088",
+                  "expenseName": "ด่านขุนทด",
+                  "inputDate": "2023-10-20",
+                  "total": 42,
+                  "expenseAccountNameId": "ACC-NAME2022041007189",
+                  "dealer": null,
+                  "taxInvoiceNo": null,
+                  "department": "dep0002"
+                }
+              ]
+            }
+          }
+        },
+        "incomes": {
+          "sample": {
+            "id": "KBN-ACC-INC2025043004713",
+            "data": {
+              "payments": [],
+              "incomeId": "KBN-ACC-INC2025043004713",
+              "customerId": null,
+              "incomeType": "partSKC",
+              "branchCode": "0456",
+              "date": "2025-04-30",
+              "amtReceived": 42,
+              "docNo": "30400317",
+              "partsDeposit": 42,
+              "salesPerson": ["KBN20002"],
+              "receiverEmployee": "KBN10031",
+              "amtDuringDay": 42,
+              "receiverDuringDay": "KBN10002",
+              "remark": "",
+              "total": 42,
+              "amtIntake": 42,
+              "amtFieldMeter": 42,
+              "amtBattery": 42,
+              "amtGPS": 42,
+              "amtTyre": 42,
+              "amtOther": 42,
+              "deductOther": 42,
+              "incomeCategory": "daily",
+              "incomeSubCategory": "parts",
+              "created": 1746007041000,
+              "createdBy": "4yo1aZQ8qRh9uyJVeM5wGsieeoz1",
+              "status": "pending",
+              "hasBankTransfer": false,
+              "hasPLoan": false
+            }
+          }
+        }
+      },
+      "credits": {
+        "credits": {
+          "sample": {
+            "id": "SALE-VEH2025040502454",
+            "data": {
+              "saleItems": [],
+              "keywords": [],
+              "date": null,
+              "creditId": "CRE-VEH2025042408725",
+              "creditNo": null,
+              "saleCutoffDate": null,
+              "customerId": "KBN-CUS-04502025033105328",
+              "prefix": "นางสาว",
+              "firstName": "สุดา",
+              "lastName": "เนขุนทด",
+              "contractDeliverDate": null,
+              "contractAmtReceivedDate": null,
+              "contractAmtReceivedBank": null,
+              "contractAmtReceivedAccNo": null,
+              "amtFull": 1710000,
+              "amtReceive": null,
+              "downPayment": 110000,
+              "totalDownDiscount": 97000,
+              "firstInstallment": 42,
+              "amtBaacFee": null,
+              "amtInsurance": 42,
+              "amtActOfLegal": 42,
+              "loanInfoIncome": 42,
+              "vat": 42,
+              "wht": 42,
+              "taxInvoice": null,
+              "taxInvoiceDate": null,
+              "saleId": "SALE-VEH2025040502454",
+              "saleNo": "437-21834",
+              "saleType": "sklLeasing",
+              "inputBy": "KBN10151",
+              "inputCreditInfoBy": null,
+              "remark": null,
+              "amtKBN": 13000,
+              "branchCode": "0450",
+              "referrer": {
+                "prefix": "นาย",
+                "firstName": "ภานุวัฒน์",
+                "lastName": "อุดมวิทย์",
+                "phoneNumber": "Sample text"
+              },
+              "amtReferrer": 5000,
+              "hasReferrer": true,
+              "referringDetails": {
+                "branchCode": "0450",
+                "date": "2025-04-05",
+                "relationship": "ญาติ",
+                "whTax": 42,
+                "total": 5000,
+                "bankName": "นายภานุวัฒน์ อุดมวิทย์",
+                "bank": "ออมสิน",
+                "bankAcc": "020334092937",
+                "forBranch": {
+                  "requestBy": "KBN10159",
+                  "branchAccountant": "KBN10001",
+                  "branchManager": "KBN10041"
+                },
+                "forHQ": {
+                  "creditClerk": "KBN10151",
+                  "creditCheckDate": "2025-04-09",
+                  "hqAccountant": "KBN10036",
+                  "sendTransferDate": "2025-04-11",
+                  "hqAccountAuditor": "",
+                  "hqAuditor": ""
+                },
+                "approvedBy": "เฮียง้วง"
+              },
+              "sendTransferDate": null,
+              "actualTransferDate": null,
+              "itemType": ["รถแทรกเตอร์"],
+              "totalBeforeDeductInsurance": 1697000,
+              "netTotal": "1697000",
+              "created": 1745485213000,
+              "createdBy": "Q4duZs9CrPMpdTXRrRtnUb81Lvp2",
+              "status": "pending"
+            }
+          }
+        }
+      },
+      "hr": {
+        "importFingerPrint": {
+          "sample": {
+            "id": "90015-2025-04-25",
+            "data": {
+              "1": "7:53",
+              "2": "",
+              "3": "",
+              "4": "",
+              "5": "",
+              "6": "",
+              "employeeCode": "90015",
+              "fullName": "คุนิล  เจริญพร้อม",
+              "date": "2025-04-25",
+              "branch": "สาขา ตาคลี",
+              "importBy": "RaeTVZUzFBZ9JzDeonsQGRFRT5L2",
+              "importTime": 1714500000000,
+              "batchNo": 1745573593000
+            }
+          }
+        },
+        "importFingerPrintBatch": {
+          "sample": {
+            "id": "90015-2025-04-25-1745573592886",
+            "data": {
+              "1": "7:53",
+              "2": "",
+              "3": "",
+              "4": "",
+              "5": "",
+              "6": "",
+              "employeeCode": "90015",
+              "fullName": "คุนิล  เจริญพร้อม",
+              "date": "2025-04-25",
+              "branch": "สาขา ตาคลี",
+              "importBy": "RaeTVZUzFBZ9JzDeonsQGRFRT5L2",
+              "importTime": 1714500000000,
+              "batchNo": 1745573593000
+            }
+          }
+        },
+        "leave": {
+          "sample": {
+            "id": "HR-LEAVE2025042800018",
+            "data": {
+              "approvedBy": "KBN10029",
+              "branchCode": "0454",
+              "created": 1745823447000,
+              "date": "2025-04-28",
+              "deleted": false,
+              "department": "dep0008",
+              "docId": "HR-LEAVE2025042800018",
+              "employeeId": "KBN10061",
+              "fromDate": "2025-05-03",
+              "hasMedCer": false,
+              "inputBy": "KzNQ7XMs76NyeWK5JLH0KxFpS2G2",
+              "leaveDays": 42,
+              "leaveType": "ลากิจ",
+              "position": "ช่างบริการ",
+              "reason": "ไปธุระที่ กทม.",
+              "recordedBy": "KBN10129",
+              "toDate": "2025-05-03",
+              "dates": ["2025-05-03"]
+            }
+          }
+        }
+      },
+      "imports": {
+        "fingerPrint": {
+          "sample": {
+            "id": "1745573592886",
+            "data": {
+              "batchNo": 1745573593000,
+              "dataType": "fingerPrint",
+              "by": "RaeTVZUzFBZ9JzDeonsQGRFRT5L2",
+              "time": 1714500000000
+            }
+          }
+        },
+        "parts": {
+          "sample": {
+            "id": "1745225895067",
+            "data": {
+              "batchNo": 1745225895000,
+              "dataType": "parts",
+              "by": "07AcySREGLg1VAUk0YKaAiaKxSI2",
+              "time": 1714500000000
+            }
+          }
+        },
+        "sellParts": {
+          "sample": {
+            "id": "1746009030142",
+            "data": {
+              "batchNo": 1746009030000,
+              "dataType": "sellParts",
+              "by": "192i8vqdsNeyTQB4AK5pNZ779nj2",
+              "time": 1714500000000
+            }
+          }
+        },
+        "services": {
+          "sample": {
+            "id": "1742886991630",
+            "data": {
+              "batchNo": 1742886992000,
+              "dataType": "services",
+              "by": "lO2EGn2zYERqJ1qFb56cxnr0CDE2",
+              "time": 1714500000000
+            }
+          }
+        },
+        "vehicleList": {
+          "sample": {
+            "id": "1740977674145",
+            "data": {
+              "batchNo": 1740977674000,
+              "dataType": "vehicleList",
+              "by": "7ATjP4V6HyWwCPXtATMNBB54xOT2",
+              "time": 1714500000000
+            }
+          }
+        },
+        "vehicles": {
+          "sample": {
+            "id": "1740705671244",
+            "data": {
+              "batchNo": 1740705671000,
+              "dataType": "vehicles",
+              "by": "7ATjP4V6HyWwCPXtATMNBB54xOT2",
+              "time": 1714500000000
+            }
+          }
+        }
+      },
+      "sales": {
+        "bookItems": {
+          "sample": {
+            "id": "RES-VH-ITEM2022032107341",
+            "data": {
+              "engineNo": [],
+              "peripheralNo": [],
+              "vehicleNo": [],
+              "unitPrice": 36000,
+              "_key": "",
+              "productName": "ผานพรวน DH225E-Heavy Plus - L3608/L4018",
+              "bookId": "BOOK-VEH2022032103674",
+              "total": 36000,
+              "productCode": "W9573-40000",
+              "qty": 42,
+              "detail": "",
+              "bookItemId": "RES-VH-ITEM2022032107341",
+              "productType": null,
+              "vehicleType": "อุปกรณ์",
+              "status": "pending"
+            }
+          }
+        },
+        "bookings": {
+          "sample": {
+            "id": "BOOK-VEH2025043001744",
+            "data": {
+              "promotions": [],
+              "deductOthers": [],
+              "turnOverDocs": [],
+              "turnOverItems": [],
+              "additionalPurchase": [],
+              "payments": [],
+              "bookNo": "411/20504",
+              "refNo": null,
+              "salesPerson": ["KBN30001"],
+              "isNewCustomer": true,
+              "customerId": "KBN-CUS-04502025043002825",
+              "customerNo": "KBN-CUS-04502025043002825",
+              "prefix": "นาย",
+              "firstName": "คมกริช",
+              "lastName": "ทองแท้",
+              "phoneNumber": "Sample text",
+              "address": {
+                "address": "Sample text",
+                "moo": "2",
+                "village": "",
+                "province": "นครราชสีมา",
+                "amphoe": "หนองบุญมาก",
+                "tambol": "หนองตะไก้",
+                "postcode": "30410"
+              },
+              "assessment": {
+                "date": null,
+                "details": null,
+                "result": null
+              },
+              "isNewReferrer": true,
+              "referrer": {
+                "prefix": "นาย",
+                "firstName": null,
+                "lastName": null,
+                "phoneNumber": "Sample text"
+              },
+              "saleType": "sklLeasing",
+              "isEquipment": false,
+              "isUsed": false,
+              "date": "2025-04-30",
+              "amtReceived": 42,
+              "amtFull": 933000,
+              "downPayment": 170000,
+              "advInstallment": 42,
+              "amtSKC": 42,
+              "amtOldCustomer": 42,
+              "amtMAX": 42,
+              "amtKBN": 42,
+              "proMonth": "2025-04",
+              "amtPro": 42,
+              "deductOther": 42,
+              "amtReferrer": 42,
+              "amtTurnOver": 42,
+              "amtTurnOverDifRefund": 42,
+              "amtTurnOverVehicle": null,
+              "turnOverFix": false,
+              "turnOverFixMAX": null,
+              "turnOverFixKBN": null,
+              "turnOverCloseInstallment": null,
+              "oweKBNLeasing": 42,
+              "giveaways": [
+                {
+                  "name": "เวทหลัง",
+                  "unit": "1",
+                  "qty": 42,
+                  "unitPrice": 8000,
+                  "total": 8000
+                },
+                {
+                  "name": "ทะเบียน",
+                  "unit": "1",
+                  "qty": 42,
+                  "unitPrice": 3000,
+                  "total": 3000
+                },
+                {
+                  "name": "เบียร์",
+                  "unit": "1",
+                  "qty": 42,
+                  "unitPrice": 42,
+                  "total": 42
+                }
+              ],
+              "total": 42,
+              "depositor": null,
+              "remark": null,
+              "bookingPerson": "KBN30001",
+              "receiverEmployee": "KBN20108",
+              "ivAdjusted": false,
+              "sourceOfData": ["หน้าร้าน/Walk in"],
+              "bookId": "BOOK-VEH2025043001744",
+              "items": [
+                {
+                  "vehicleNo": [],
+                  "peripheralNo": [],
+                  "engineNo": [],
+                  "sourceOfData": [],
+                  "bookItemId": "BOOK-VEH-ITEM2025043006933",
+                  "bookId": "BOOK-VEH2025043001744",
+                  "vehicleItemType": "vehicle",
+                  "productName": "แทรกเตอร์ MU4902-B พร้อมหลังคา",
+                  "productCode": "TE012-25010",
+                  "vehicleType": "รถแทรกเตอร์",
+                  "detail": "",
+                  "qty": 42,
+                  "unitPrice": 719000,
+                  "total": 719000,
+                  "status": "pending",
+                  "_key": "",
+                  "isEquipment": false,
+                  "isUsed": false,
+                  "branchCode": "0455"
+                },
+                {
+                  "vehicleNo": [],
+                  "peripheralNo": [],
+                  "engineNo": [],
+                  "productCode": "W955V-00090",
+                  "productName": "ชุดใบมีดดันดินหน้า FD190 - MU4902",
+                  "productType": null,
+                  "isUsed": false,
+                  "detail": "",
+                  "unitPrice": 71000,
+                  "qty": 42,
+                  "total": 71000,
+                  "status": "pending",
+                  "_key": "",
+                  "bookItemId": "BOOK-VEH-ITEM2025043009869",
+                  "bookId": "BOOK-VEH2025043001744",
+                  "vehicleType": "อุปกรณ์",
+                  "isEquipment": true
+                },
+                {
+                  "vehicleNo": [],
+                  "peripheralNo": [],
+                  "engineNo": [],
+                  "productCode": "W952T-00000",
+                  "productName": "จอบหมุน RX220GA - MU4902/M6240",
+                  "productType": null,
+                  "isUsed": false,
+                  "detail": "",
+                  "unitPrice": 78000,
+                  "qty": 42,
+                  "total": 78000,
+                  "status": "pending",
+                  "_key": "",
+                  "bookItemId": "BOOK-VEH-ITEM2025043000983",
+                  "bookId": "BOOK-VEH2025043001744",
+                  "vehicleType": "อุปกรณ์",
+                  "isEquipment": true
+                }
+              ],
+              "branchCode": "0455",
+              "referringDetails": {
+                "relationship": "",
+                "approvedBy": "",
+                "amount": null,
+                "whTax": null,
+                "total": null,
+                "bankAcc": "",
+                "bankName": "",
+                "bank": "",
+                "forBranch": {
+                  "requestBy": "",
+                  "branchAccountant": "",
+                  "branchManager": ""
+                },
+                "forHQ": {
+                  "creditClerk": "",
+                  "hqAccountant": "",
+                  "hqAccountAuditor": "",
+                  "hqAuditor": "",
+                  "amtTransfer": null
+                },
+                "branchCode": "0450"
+              },
+              "firstName_lower": "คมกริช",
+              "firstName_partial": "คมกริช",
+              "customer": "นายคมกริช ทองแท้",
+              "bookPNo": "41120504",
+              "keywords": ["4", "41", "411"],
+              "bookNo_lower": "411/20504",
+              "bookNo_partial": "411/20504",
+              "hasTurnOver": false,
+              "saleCategory": "daily",
+              "saleSubCategory": "vehicle",
+              "created": 1746006195000,
+              "createdBy": "EXM7Wi1y9QXHdBxns3DT50jmMDX2",
+              "status": "pending",
+              "creditRecorded": null,
+              "accountRecorded": null,
+              "canceled": null
+            }
+          }
+        },
+        "partGroups": {
+          "sample": {
+            "id": "2504300454sf0000",
+            "data": {
+              "saleNo": "4008600595",
+              "saleDate": "2025-04-30",
+              "branchCode": "0454",
+              "item": 42,
+              "sourceOfData": "ขายปลีก-ลูกค้าหน้าร้าน",
+              "netTotal": "26480",
+              "discountCoupon": 42,
+              "pointsReceived": 7000,
+              "redeemPoint": 2000,
+              "AD_Discount": 42,
+              "AD_DiscountQty": 42,
+              "SKCDiscount": 42,
+              "SKCDiscountQty": 42,
+              "SKCLoyaltyDiscount": 42,
+              "SKCLoyaltyDiscountAmt": 42,
+              "SKCManualDiscount": 42,
+              "SKCManualDiscountQty": 42,
+              "billDiscount": 42,
+              "billDiscountQty": 42,
+              "deposit": 42,
+              "discountPointRedeem": "100",
+              "netDepositDeduct": 26000,
+              "amtOilType": "6765",
+              "amtPartType": "19715",
+              "importBy": "192i8vqdsNeyTQB4AK5pNZ779nj2",
+              "importTime": 1714500000000,
+              "batchNo": 1746009030000
+            }
+          }
+        },
+        "partItems": {
+          "sample": {
+            "id": "4008607494-1",
+            "data": {
+              "no_": 42,
+              "branchCode": "0451",
+              "branch": "บัวใหญ่",
+              "shopCode": "0450",
+              "shop": "เบญจพลนครราชสีมา",
+              "employeeName": "น.ส. นฤทัย แก้วฝ่ายนอก",
+              "saleNo": "4008607494",
+              "vehicleNo": "",
+              "engineNo": "",
+              "saleDate": "2025-04-30",
+              "invoiceNumber": "1454277326",
+              "item": 42,
+              "POS_No": "",
+              "taxInvoice": "30400896",
+              "cancelStatus": "",
+              "saleType": "ขายอะไหล่",
+              "storeLocation": "NS01",
+              "storeLocationName": "อะไหล่-บัวฯ",
+              "productCode": "15471-51320",
+              "productName": "สกรูไล่ลม",
+              "sourceOfData": "ขายปลีก-ลูกค้าหน้าร้าน",
+              "Kubota ID": "9000185242",
+              "marketingConsent": "ยินยอม",
+              "prefix": "นาง",
+              "customerId": "1000334081",
+              "firstName": "สุกัลยา",
+              "lastName": "สุหา",
+              "address": "Sample text",
+              "building": "",
+              "floor": "",
+              "room": "",
+              "village": "รกฟ้า",
+              "moo": "11",
+              "soi": "",
+              "road": "",
+              "tambol": "ด่านช้าง",
+              "amphoe": "บัวใหญ่",
+              "province": "นครราชสีมา",
+              "postcode": "30120",
+              "telephone": "Sample text",
+              "phoneNumber": "Sample text",
+              "paymentTerms": "เงินสด",
+              "productType": "Y0",
+              "productTypeDesc": "อะไหล่แทรกเตอร์",
+              "discountGroup": "C",
+              "qty": 42,
+              "unit": "UNI",
+              "unitPrice": 42,
+              "netTotal": "170",
+              "skcpartsdiscount20": "",
+              "skcpartsdiscountamount20": "",
+              "pointsReceived": 42,
+              "redeemPoint": "",
+              "SKCLoyaltyDiscountPercent": "",
+              "SKCLoyaltyDiscount": "",
+              "SKCLoyaltyDiscountAmt": "",
+              "discountPointRedeem": "",
+              "AD_DiscountPercent": "",
+              "AD_Discount": "",
+              "AD_DiscountQty": "",
+              "SKCDiscountPercent": "",
+              "SKCDiscount": "",
+              "SKCDiscountQty": "",
+              "SKCManualDiscountPercent": "",
+              "SKCManualDiscount": "",
+              "SKCManualDiscountQty": "",
+              "skcEcouponAmt": "",
+              "Control Tower Disc Manual (Amt)": "",
+              "billDiscountPercent": "",
+              "billDiscount": "",
+              "billDiscountQty": "",
+              "deposit": "",
+              "netDepositDeduct": 42,
+              "remark": "อ้างอิง 080-3964",
+              "amtOilType": 42,
+              "amtPartType": "170",
+              "importBy": "8EIkERx7cUUforV6ZddY0v7RucC2",
+              "importTime": 1714500000000,
+              "batchNo": 1746007165000
+            }
+          }
+        },
+        "parts": {
+          "sample": {
+            "id": "4008607494",
+            "data": {
+              "saleNo": "4008607494",
+              "branchCode": "0451",
+              "branch": "บัวใหญ่",
+              "shop": "เบญจพลนครราชสีมา",
+              "shopCode": "0450",
+              "employeeName": "น.ส. นฤทัย แก้วฝ่ายนอก",
+              "vehicleNo": "",
+              "engineNo": "",
+              "saleDate": "2025-04-30",
+              "invoiceNumber": "1454277326",
+              "taxInvoice": "30400896",
+              "saleType": "ขายอะไหล่",
+              "sourceOfData": "ขายปลีก-ลูกค้าหน้าร้าน",
+              "firstName": "สุกัลยา",
+              "lastName": "สุหา",
+              "prefix": "นาง",
+              "paymentTerms": "เงินสด",
+              "telephone": "Sample text",
+              "phoneNumber": "Sample text",
+              "address": {
+                "address": "Sample text",
+                "building": "",
+                "floor": "",
+                "room": "",
+                "village": "รกฟ้า",
+                "moo": "11",
+                "soi": "",
+                "road": "",
+                "tambol": "ด่านช้าง",
+                "amphoe": "บัวใหญ่",
+                "province": "นครราชสีมา",
+                "postcode": "30120"
+              },
+              "importBy": "8EIkERx7cUUforV6ZddY0v7RucC2",
+              "importTime": 1714500000000,
+              "batchNo": 1746007165000
+            }
+          }
+        },
+        "saleItems": {
+          "sample": {
+            "id": "SALE-VEH-ITEM2022120105063",
+            "data": {
+              "sourceOfData": [],
+              "saleId": "SALE-VEH2022120104525",
+              "vehicleItemType": "vehicle",
+              "registered": null,
+              "saleDate": "2565-11-28",
+              "_key": "",
+              "productName": "แทรกเตอร์ L3218SP + ใบมีด FD144D",
+              "peripheralNo": ["007455"],
+              "saleItemId": "SALE-VEH-ITEM2022120105063",
+              "total": 459000,
+              "bookItemId": "BOOK-VEH-ITEM2022112901773",
+              "vehicleType": "รถแทรกเตอร์",
+              "unitPrice": 459000,
+              "isEquipment": false,
+              "engineNo": ["BNS2262"],
+              "isUsed": false,
+              "saleNo": "315-15725",
+              "bookId": "BOOK-VEH2022112903327",
+              "branchCode": "0452",
+              "vehicleNo": ["04042"],
+              "productCode": "TC872-15111",
+              "ivAdjusted": false,
+              "qty": 42,
+              "detail": "",
+              "status": "pending"
+            }
+          }
+        },
+        "salePartItems": {
+          "sample": {
+            "id": "SALE-PART-ITEM2022072109383",
+            "data": {
+              "unitPrice": 42,
+              "saleId": "SALE-VEH2022072101668",
+              "registered": null,
+              "discount": null,
+              "saleDate": "2022-07-21",
+              "_key": "",
+              "productName": "ชาร์ปอก - L4508 DI M6040",
+              "saleNo": "30700185",
+              "branchCode": "0455",
+              "saleItemId": "SALE-PART-ITEM2022072109383",
+              "total": 42,
+              "ivAdjusted": false,
+              "qty": 42,
+              "pCode": "W9501-4107S",
+              "detail": "",
+              "partType": "SKC",
+              "status": "pending"
+            }
+          }
+        },
+        "vehicles": {
+          "sample": {
+            "id": "SALE-VEH2022120104525",
+            "data": {
+              "turnOverDocs": [],
+              "turnOverItems": [],
+              "amtOthers": [],
+              "additionalPurchase": [],
+              "deductOthers": [],
+              "guarantors": [],
+              "date": "2565-11-28",
+              "bookNo": "331/16514",
+              "contractDate": "2022-11-28",
+              "keywords": ["3", "31", "315"],
+              "saleId": "SALE-VEH2022120104525",
+              "prefix": "นาย",
+              "registered": null,
+              "firstName_partial": "บรรเลง",
+              "receiverEmployee": "KBN10005",
+              "reservationDepositor": null,
+              "assessment": {
+                "result": null,
+                "date": null,
+                "details": null
+              },
+              "amtTurnOverDifRefund": 42,
+              "advInstallment": 42,
+              "turnOverCloseInstallment": null,
+              "accountRecorded": null,
+              "downPayment": 41000,
+              "amtTurnOverVehicle": null,
+              "salePNo": "31515725",
+              "deliverDate": "2022-12-01",
+              "hasReferrer": false,
+              "isNewReferrer": true,
+              "amtTurnOver": 42,
+              "amtSKC": 25000,
+              "amtOldCustomer": 42,
+              "created": 1669883590000,
+              "turnOverFixMAX": null,
+              "saleCategory": "daily",
+              "saleSubCategory": "vehicle",
+              "creditRecorded": null,
+              "saleNo": "315-15725",
+              "isUsed": false,
+              "branchCode": "0452",
+              "firstName": "บรรเลง",
+              "canceled": null,
+              "guarantorDocs": {},
+              "phoneNumber": "Sample text",
+              "amtKBN": 6000,
+              "turnOverFixKBN": null,
+              "proMonth": "2022-11",
+              "amtFull": 492000,
+              "depositor": null,
+              "oweKBNLeasings": {
+                "overdueFines": null,
+                "Installment": null,
+                "Down": null,
+                "Borrow": null,
+                "Equipment": null
+              },
+              "items": [
+                {
+                  "sourceOfData": [],
+                  "saleId": "SALE-VEH2022120104525",
+                  "vehicleItemType": "vehicle",
+                  "registered": null,
+                  "saleDate": "2565-11-28",
+                  "_key": "",
+                  "productName": "แทรกเตอร์ L3218SP + ใบมีด FD144D",
+                  "peripheralNo": ["007455"],
+                  "saleItemId": "SALE-VEH-ITEM2022120105063",
+                  "total": 459000,
+                  "bookItemId": "BOOK-VEH-ITEM2022112901773",
+                  "vehicleType": "รถแทรกเตอร์",
+                  "unitPrice": 459000,
+                  "engineNo": ["BNS2262"],
+                  "isEquipment": false,
+                  "saleNo": "315-15725",
+                  "isUsed": false,
+                  "bookId": "BOOK-VEH2022112903327",
+                  "branchCode": "0452",
+                  "vehicleNo": ["04042"],
+                  "productCode": "TC872-15111",
+                  "ivAdjusted": false,
+                  "qty": 42,
+                  "detail": "",
+                  "status": "pending"
+                },
+                {
+                  "engineNo": [],
+                  "vehicleNo": [],
+                  "unitPrice": 33000,
+                  "saleId": "SALE-VEH2022120104525",
+                  "registered": null,
+                  "saleDate": "2565-11-28",
+                  "_key": "",
+                  "productName": "ผานพรวน DH225C-H - L3208/L3218",
+                  "saleNo": "315-15725",
+                  "peripheralNo": ["2014674"],
+                  "bookId": "BOOK-VEH2022112903327",
+                  "branchCode": "0452",
+                  "saleItemId": "SALE-VEH-ITEM2022120101655",
+                  "total": 33000,
+                  "productCode": "W9572-10000",
+                  "ivAdjusted": false,
+                  "qty": 42,
+                  "detail": "",
+                  "bookItemId": "BOOK-VEH-ITEM2022112907488",
+                  "vehicleType": "อุปกรณ์",
+                  "productType": null,
+                  "status": "pending"
+                }
+              ],
+              "amtReferrer": 42,
+              "giveaways": [
+                {
+                  "unitPrice": 3000,
+                  "unit": "1",
+                  "total": 3000,
+                  "qty": 42,
+                  "name": "ทะเบียน+พรบ"
+                },
+                {
+                  "unitPrice": 42,
+                  "unit": "3",
+                  "total": 42,
+                  "qty": 42,
+                  "name": "เสื้อยืด"
+                },
+                {
+                  "unitPrice": 42,
+                  "total": 42,
+                  "unit": "1",
+                  "qty": 42,
+                  "name": "เบียร์"
+                }
+              ],
+              "status": "pending",
+              "lastName": "ทะวันกุล",
+              "refNo": "331/16514",
+              "bookDate": "2565-11-28",
+              "bookNo_lower": "331/16514",
+              "bookingPerson": ["KBN10005"],
+              "payments": [
+                {
+                  "personName": null,
+                  "amount": null,
+                  "person": null,
+                  "id": 42,
+                  "selfBank": null,
+                  "key": 42,
+                  "paymentType": "cash"
+                }
+              ],
+              "saleType": "sklLeasing",
+              "amtMAX": 42,
+              "referringDetails": {
+                "branchCode": "0450",
+                "date": "2022-12-01",
+                "bank": "",
+                "total": null,
+                "amount": null,
+                "forHQ": {
+                  "amtTransfer": null,
+                  "creditClerk": "",
+                  "hqAuditor": "",
+                  "hqAccountAuditor": "",
+                  "hqAccountant": ""
+                },
+                "whTax": null,
+                "approvedBy": "",
+                "bankName": "",
+                "forBranch": {
+                  "branchAccountant": "",
+                  "branchManager": "",
+                  "requestBy": ""
+                },
+                "relationship": "",
+                "bankAcc": ""
+              },
+              "saleNo_lower": "315-15725",
+              "remark": null,
+              "total": 42,
+              "hasGuarantor": false,
+              "amtBaacFee": null,
+              "customerId": "KBN-CUS-04502022112909472",
+              "amtPlateAndInsurance": 42,
+              "depositPayments": [
+                {
+                  "personName": null,
+                  "amount": null,
+                  "person": null,
+                  "id": 42,
+                  "selfBank": null,
+                  "key": 42,
+                  "paymentType": "cash"
+                }
+              ],
+              "amtReceived": 41000,
+              "oweKBNLeasing": 42,
+              "isEquipment": false,
+              "bookNo_partial": "331/16514",
+              "address": {
+                "amphoe": "จักราช",
+                "tambol": "หินโคน",
+                "address": "Sample text",
+                "province": "นครราชสีมา",
+                "postcode": "30230",
+                "moo": "3",
+                "village": "โนนเสมา"
+              },
+              "saleNo_partial": "315-15725",
+              "amtDeposit": 42,
+              "isNewCustomer": true,
+              "sourceOfData": ["หน้าร้าน/Walk in"],
+              "firstName_lower": "บรรเลง",
+              "bookId": "BOOK-VEH2022112903327",
+              "referrer": {
+                "firstName": null,
+                "lastName": null,
+                "phoneNumber": "Sample text",
+                "prefix": "นาย"
+              },
+              "promotions": [
+                {
+                  "total": 5000,
+                  "name": "พื้นที่"
+                },
+                {
+                  "total": 5000,
+                  "name": "เคียงข้าง"
+                }
+              ],
+              "amtOther": 42,
+              "bookPNo": "33116514",
+              "deductOther": 42,
+              "createdBy": "BFeNUMIWAnTmicinHVjjoDsC4Av1",
+              "amtReservation": 42,
+              "amtBaacDebtor": null,
+              "amtPro": 10000,
+              "hasTurnOver": false,
+              "salesPerson": ["KBN10005"],
+              "turnOverFix": false,
+              "baacNo": null,
+              "customerNo": "KBN-CUS-04502022112909472",
+              "customer": "นายบรรเลง ทะวันกุล",
+              "referrerName": "",
+              "ivAdjusted": {
+                "by": "KBN10038",
+                "ts": 1669883661000
+              }
+            }
+          }
+        }
+      },
+      "services": {
+        "gasCost": {
+          "sample": {
+            "id": "GAS2024012508919",
+            "data": {
+              "date": "2024-01-25",
+              "distance": 42,
+              "inputBy": "r10NCLxzvLQuLQa7j9SipcuRGGp2",
+              "created": 1706174260000,
+              "origin": "คลองดินดำ",
+              "destination": "KBN",
+              "meterStart": "212674",
+              "_key": "GAS2024012508919",
+              "branchCode": "0454",
+              "deleted": false,
+              "meterEnd": "212832",
+              "gasCost": "1000",
+              "vehicleRegNumber": "ผน33"
+            }
+          }
+        },
+        "importServiceItems": {
+          "sample": {
+            "id": "2004026744-10",
+            "data": {
+              "chargesCode": "00P05",
+              "description": "ตรวจเช็คคุ้มอุ่นใจครั้งที่ 2",
+              "discountType": null,
+              "item": "10",
+              "unit": "ชม.",
+              "unitPrice": 42,
+              "qty": 42,
+              "reasonCode": "",
+              "categoryCode": "P001",
+              "categoryDesc": "ค่าแรง",
+              "netPrice": "",
+              "partType": "",
+              "priceBeforeDiscount": "",
+              "SKCDiscountPrice": "",
+              "dealerDiscountPrice": "",
+              "orderNo": "2004026744",
+              "warrantyCategory": "K2",
+              "importBy": "lO2EGn2zYERqJ1qFb56cxnr0CDE2",
+              "importTime": 1714500000000,
+              "batchNo": 1742886992000
+            }
+          }
+        },
+        "importServices": {
+          "sample": {
+            "id": "2004026744",
+            "data": {
+              "oilSum": [],
+              "orderNo": "2004026744",
+              "orderReason": "",
+              "orderStatus": "Z100",
+              "orderType": "ZIO1",
+              "orderTypeDesc": "ตรวจเช็คตามระยะ",
+              "docDate": "2025-01-31",
+              "productName": "แทรกเตอร์ L4018SP + ใบมีด FD164E + FG186",
+              "vehicleModel": "TC882-15112",
+              "vehicleNo": "KBULLBDRPPTA34012",
+              "engineNo": "D1803-BPA0801",
+              "jobCloseDate": "2025-01-31",
+              "model": "L4018SP",
+              "advisor": "1007426",
+              "advisorName": "น.ส. พิชญาภา คูณกลาง",
+              "branchCode": "0450",
+              "branchName": "สำนักงานใหญ่",
+              "causeCode": null,
+              "causeCodeDesc": null,
+              "customerCode": "1001302198",
+              "customerName": "ประทีป จอดสันเทียะ",
+              "serviceStatus": "ไม่อนุญาติให้ยกเลิกใบแจ้งหนี้",
+              "serviceTechnician": ["นาย สุเมธ ชาญสูงเนิน"],
+              "saleDate": "2023-02-01",
+              "workHour": 42,
+              "priceBeforeDiscount": 42,
+              "SKCDiscountPrice": 42,
+              "dealerDiscountPrice": 42,
+              "netPrice": 42,
+              "discountType": null,
+              "partBeforeDiscount": 42,
+              "partSKCDiscount": 42,
+              "partDealerDiscount": 42,
+              "parts": 42,
+              "oilBeforeDiscount": 42,
+              "oilSKCDiscount": 42,
+              "oilDealerDiscount": 42,
+              "oils": 42,
+              "wages": 42,
+              "freights": 42,
+              "travels": 42,
+              "others": 42,
+              "percentDiscount": 42,
+              "importBy": "lO2EGn2zYERqJ1qFb56cxnr0CDE2",
+              "importTime": 1714500000000,
+              "batchNo": 1742886992000
+            }
+          }
+        },
+        "serviceClose": {
+          "sample": {
+            "id": "SER2024021009096",
+            "data": {
+              "serviceType": "periodicCheck",
+              "serviceDate": "2024-02-08",
+              "keywords": ["2", "20", "203"],
+              "VAT": 42,
+              "discount": 1000,
+              "advance": 42,
+              "approvedTime": "09:00",
+              "model": null,
+              "technicianId": ["KBN30019"],
+              "cash": 42,
+              "amtPart": 42,
+              "vehicleType": "รถแทรกเตอร์",
+              "amtBlackGlue": 42,
+              "customerApprovedTime": "16:09",
+              "created": 1707553135000,
+              "discountCouponPercent": 42,
+              "customerSignedDate": "2024-02-08",
+              "serviceTime": "15:35",
+              "branchCode": "0455",
+              "approvedDate": "2024-02-09",
+              "returnTotal": 42,
+              "serviceNo": "203474785",
+              "amtAllParts": 42,
+              "items": [
+                {
+                  "serviceItemId": "KBN-ACC-INC-ITEM2024021003746",
+                  "unitPrice": "190",
+                  "item": "กรองน้ำมันเครื่อง",
+                  "serviceCode": "W9501-31070-B",
+                  "returnQty": null,
+                  "serviceItemType": "อะไหล่",
+                  "description": "",
+                  "discount": 42,
+                  "returnDiscount": null,
+                  "discountCouponPercent": 42,
+                  "_key": "",
+                  "advance": 42,
+                  "total": 42,
+                  "unit": null,
+                  "qty": 42,
+                  "returnTotal": null,
+                  "WR": false,
+                  "FOC": false,
+                  "id": 42,
+                  "serviceId": "SER2024021009096",
+                  "key": 42,
+                  "status": "Complete"
+                },
+                {
+                  "unitPrice": "180",
+                  "serviceItemId": "INV-SV-ITEM2024021005493",
+                  "item": "ไส้กรองน้ำมันเชื้อเพลิง",
+                  "serviceCode": "W9501-B1001",
+                  "returnQty": null,
+                  "serviceItemType": "อะไหล่",
+                  "discount": 42,
+                  "description": "",
+                  "returnDiscount": null,
+                  "discountCouponPercent": 42,
+                  "_key": "",
+                  "advance": 42,
+                  "unit": null,
+                  "total": 42,
+                  "qty": 42,
+                  "returnTotal": null,
+                  "FOC": false,
+                  "id": 42,
+                  "WR": false,
+                  "serviceId": "SER2024021009096",
+                  "key": 42,
+                  "status": "Complete"
+                },
+                {
+                  "serviceItemId": "INV-SV-ITEM2024021007008",
+                  "unitPrice": "640",
+                  "item": "น้ำมันเครื่อง CF4 ขนาด 6 ลิตร * (Lot 4)",
+                  "serviceCode": "1W071-99291",
+                  "returnQty": null,
+                  "serviceItemType": "อะไหล่",
+                  "discount": 42,
+                  "description": "",
+                  "returnDiscount": null,
+                  "discountCouponPercent": 42,
+                  "_key": "",
+                  "advance": 42,
+                  "total": 42,
+                  "unit": null,
+                  "qty": 42,
+                  "returnTotal": null,
+                  "id": 42,
+                  "FOC": false,
+                  "WR": false,
+                  "serviceId": "SER2024021009096",
+                  "key": 42,
+                  "status": "Complete"
+                }
+              ],
+              "status": "pending",
+              "payments": [
+                {
+                  "personName": null,
+                  "amount": 42,
+                  "person": null,
+                  "id": 42,
+                  "selfBank": null,
+                  "key": 42,
+                  "paymentType": "cash"
+                }
+              ],
+              "orderStatus": "ปิดงาน",
+              "cause": "ตรวจเช็คตามระยะครั้งที่1",
+              "corrective": "เเนะนำการใช้งานเเละบำรุงรักษา ทดสอบการใช้งานปกติ",
+              "customerSignedTime": "16:09",
+              "totalBeforeVat": 42,
+              "moneyTransfer": 42,
+              "UDT_6": 42,
+              "times": 42,
+              "total": 42,
+              "amtOil": 42,
+              "discountOil": 42,
+              "serviceNo_partial": "203474785",
+              "amtWage": 42,
+              "serviceId": "SER2024021009096",
+              "vehicleRegNumber": "ผน2552",
+              "approver": "KBN30001",
+              "refDoc": {
+                "serviceType": "periodicCheck",
+                "date": "2024-02-08",
+                "keywords": ["2", "20", "203"],
+                "lastName_partial": "วรนุช",
+                "prefix": "นาย",
+                "sameName": true,
+                "discount": 1000,
+                "firstName_partial": "มณี",
+                "_key": "SER2024021007359",
+                "peripheralPCode": "FD186C",
+                "contact": {
+                  "firstName": "มณี",
+                  "lastName": "วรนุช",
+                  "phoneNumber": "Sample text",
+                  "prefix": "นาย"
+                },
+                "id": 42,
+                "technicianId": ["KBN30019"],
+                "notifyDate": "2024-02-08",
+                "vehicleType": "รถแทรกเตอร์",
+                "engineNo": ["BPU5061"],
+                "created": 1707552970000,
+                "assigner": "KBN30005",
+                "discountCouponPercent": 42,
+                "branchCode": "0455",
+                "firstName": "มณี",
+                "vehicleNo": ["10152"],
+                "phoneNumber": "Sample text",
+                "notifiedBy": "KBN30005",
+                "serviceNo": "203474785",
+                "appointmentDate": "2024-02-08",
+                "items": [
+                  {
+                    "serviceItemId": "KBN-ACC-INC-ITEM2024021003746",
+                    "unitPrice": "190",
+                    "item": "กรองน้ำมันเครื่อง",
+                    "serviceCode": "W9501-31070-B",
+                    "serviceItemType": "อะไหล่",
+                    "description": "",
+                    "discount": 42,
+                    "discountCouponPercent": 42,
+                    "_key": "",
+                    "total": 42,
+                    "unit": null,
+                    "qty": 42,
+                    "WR": false,
+                    "FOC": false,
+                    "id": 42,
+                    "serviceId": "SER2024021007359",
+                    "key": 42,
+                    "status": "Complete"
+                  },
+                  {
+                    "unitPrice": "180",
+                    "serviceItemId": "INV-SV-ITEM2024021005493",
+                    "item": "ไส้กรองน้ำมันเชื้อเพลิง",
+                    "serviceCode": "W9501-B1001",
+                    "serviceItemType": "อะไหล่",
+                    "discount": 42,
+                    "description": "",
+                    "discountCouponPercent": 42,
+                    "_key": "",
+                    "unit": null,
+                    "total": 42,
+                    "qty": 42,
+                    "FOC": false,
+                    "id": 42,
+                    "WR": false,
+                    "serviceId": "SER2024021007359",
+                    "key": 42,
+                    "status": "Complete"
+                  },
+                  {
+                    "serviceItemId": "INV-SV-ITEM2024021007008",
+                    "unitPrice": "640",
+                    "item": "น้ำมันเครื่อง CF4 ขนาด 6 ลิตร * (Lot 4)",
+                    "serviceCode": "1W071-99291",
+                    "serviceItemType": "อะไหล่",
+                    "description": "",
+                    "discount": 42,
+                    "discountCouponPercent": 42,
+                    "_key": "",
+                    "total": 42,
+                    "unit": null,
+                    "qty": 42,
+                    "id": 42,
+                    "FOC": false,
+                    "WR": false,
+                    "serviceId": "SER2024021007359",
+                    "key": 42,
+                    "status": "Complete"
+                  }
+                ],
+                "status": "pending",
+                "productPCode": "TC892-15111",
+                "lastName": "วรนุช",
+                "orderStatus": "เปิดงาน",
+                "redo": false,
+                "peripheralNo": ["000150"],
+                "total": 42,
+                "times": 42,
+                "appointmentTime": "15:35",
+                "urgency": null,
+                "serviceNo_partial": "203474785",
+                "customerId": "KBN-CUS-04502024012904692",
+                "hoursOfUse": "68",
+                "boughDate": "2024-01-31",
+                "serviceId": "SER2024021007359",
+                "key": "SER2024021007359",
+                "address": {
+                  "amphoe": "นางรอง",
+                  "address": "Sample text",
+                  "tambol": "ก้านเหลือง",
+                  "province": "บุรีรัมย์",
+                  "postcode": "31110",
+                  "village": "",
+                  "moo": "8"
+                },
+                "lastName_lower": "วรนุช",
+                "serviceAddress": {
+                  "amphoe": "นางรอง",
+                  "tambol": "ก้านเหลือง",
+                  "address": "Sample text",
+                  "province": "บุรีรัมย์",
+                  "postcode": "31110",
+                  "village": "",
+                  "moo": "8"
+                },
+                "serviceNo_lower": "203474785",
+                "firstName_lower": "มณี",
+                "notifyDetails": "ตรวจเช็คตามระยะครั้งที่1",
+                "notifyChannel": null,
+                "sameAddress": true,
+                "warrantyStatus": "ในประกัน",
+                "guaranteedEndDate": "2026-01-31",
+                "createdBy": "qehwIqNvOdP4KeoFJROlarRf2S03",
+                "dealer": "DEAL2022051901834"
+              },
+              "amtFreight": 42,
+              "recordedDate": "2024-02-08",
+              "servicer": "KBN30019",
+              "serviceAddress": {
+                "amphoe": "นางรอง",
+                "address": "Sample text",
+                "tambol": "ก้านเหลือง",
+                "province": "บุรีรัมย์",
+                "postcode": "31110",
+                "moo": "8",
+                "village": ""
+              },
+              "serviceNo_lower": "203474785",
+              "discountPart": 42,
+              "UDT_18": 42,
+              "amtOther": 42,
+              "warrantyStatus": "ในประกัน",
+              "discountBlackGlue": 42,
+              "CF4_3": 42,
+              "createdBy": "qehwIqNvOdP4KeoFJROlarRf2S03",
+              "customerApprovedDate": "2024-02-08",
+              "CF4_6": 42,
+              "notFound": false,
+              "discountOther": 42,
+              "customer": "นายมณี วรนุช"
+            }
+          }
+        },
+        "serviceCloseItems": {
+          "sample": {
+            "id": "KBN-ACC-INC-ITEM2024021007425",
+            "data": {
+              "serviceItemId": "KBN-ACC-INC-ITEM2024021007425",
+              "unitPrice": "190",
+              "item": "กรองน้ำมันเครื่อง",
+              "serviceCode": "W9501-31070-B",
+              "returnQty": null,
+              "serviceItemType": "อะไหล่",
+              "description": "",
+              "discount": 42,
+              "returnDiscount": null,
+              "discountCouponPercent": 42,
+              "_key": "",
+              "advance": 42,
+              "unit": null,
+              "total": 42,
+              "qty": 42,
+              "returnTotal": null,
+              "id": 42,
+              "WR": false,
+              "FOC": false,
+              "serviceId": "SER2024021000325",
+              "key": 42,
+              "status": "Complete"
+            }
+          }
+        },
+        "serviceItems": {
+          "sample": {
+            "id": "KBN-ACC-INC-ITEM2024021007425",
+            "data": {
+              "unitPrice": "190",
+              "serviceItemId": "KBN-ACC-INC-ITEM2024021007425",
+              "item": "กรองน้ำมันเครื่อง",
+              "serviceCode": "W9501-31070-B",
+              "serviceItemType": "อะไหล่",
+              "description": "",
+              "discount": 42,
+              "discountCouponPercent": 42,
+              "_key": "",
+              "unit": null,
+              "total": 42,
+              "qty": 42,
+              "WR": false,
+              "FOC": false,
+              "id": 42,
+              "serviceId": "SER2024021001445",
+              "key": 42,
+              "status": "Complete"
+            }
+          }
+        },
+        "serviceOrders": {
+          "sample": {
+            "id": "SER2024021001445",
+            "data": {
+              "date": "2024-02-09",
+              "serviceType": "periodicCheck",
+              "keywords": ["2", "20", "200"],
+              "lastName_partial": "สาระกูล",
+              "prefix": "นาย",
+              "sameName": true,
+              "discount": 42,
+              "firstName_partial": "เนติยะ",
+              "peripheralPCode": "FD186F",
+              "contact": {
+                "firstName": "เนติยะ",
+                "lastName": "สาระกูล",
+                "phoneNumber": "Sample text",
+                "prefix": "นาย"
+              },
+              "technicianId": ["KBN30019"],
+              "notifyDate": "2024-02-09",
+              "vehicleType": "รถแทรกเตอร์",
+              "engineNo": ["BNQ0222"],
+              "created": 1707550674000,
+              "assigner": "KBN30005",
+              "discountCouponPercent": 42,
+              "branchCode": "0455",
+              "firstName": "เนติยะ",
+              "vehicleNo": ["37827"],
+              "phoneNumber": "Sample text",
+              "notifiedBy": "KBN30005",
+              "serviceNo": "2003476480",
+              "items": [
+                {
+                  "unitPrice": "190",
+                  "serviceItemId": "KBN-ACC-INC-ITEM2024021007425",
+                  "item": "กรองน้ำมันเครื่อง",
+                  "serviceCode": "W9501-31070-B",
+                  "serviceItemType": "อะไหล่",
+                  "description": "",
+                  "discount": 42,
+                  "discountCouponPercent": 42,
+                  "_key": "",
+                  "unit": null,
+                  "total": 42,
+                  "qty": 42,
+                  "WR": false,
+                  "FOC": false,
+                  "id": 42,
+                  "serviceId": "SER2024021001445",
+                  "key": 42,
+                  "status": "Complete"
+                },
+                {
+                  "unitPrice": "640",
+                  "serviceItemId": "INV-SV-ITEM2024021009390",
+                  "item": "น้ำมันเครื่อง CF4 ขนาด 6 ลิตร * (Lot 4)",
+                  "serviceCode": "1W071-99291",
+                  "serviceItemType": "อะไหล่",
+                  "description": "",
+                  "discount": 42,
+                  "discountCouponPercent": 42,
+                  "_key": "",
+                  "unit": null,
+                  "total": 42,
+                  "qty": 42,
+                  "WR": false,
+                  "FOC": false,
+                  "id": 42,
+                  "serviceId": "SER2024021001445",
+                  "key": 42,
+                  "status": "Complete"
+                },
+                {
+                  "unitPrice": "345",
+                  "serviceItemId": "INV-SV-ITEM2024021004493",
+                  "item": "น้ำมันเครื่อง CF4 ขนาด 3 ลิตร * (Lot 8)",
+                  "serviceCode": "1W071-99281",
+                  "serviceItemType": "อะไหล่",
+                  "description": "",
+                  "discount": 42,
+                  "discountCouponPercent": 42,
+                  "_key": "",
+                  "unit": null,
+                  "total": 42,
+                  "qty": 42,
+                  "WR": false,
+                  "FOC": false,
+                  "id": 42,
+                  "serviceId": "SER2024021001445",
+                  "key": 42,
+                  "status": "Complete"
+                }
+              ],
+              "appointmentDate": "2024-02-09",
+              "status": "pending",
+              "lastName": "สาระกูล",
+              "productPCode": "TC892-15111",
+              "redo": false,
+              "peripheralNo": ["091190"],
+              "times": 42,
+              "total": 42,
+              "appointmentTime": "10:00",
+              "urgency": null,
+              "serviceNo_partial": "2003476480",
+              "customerId": "KBN-CUS-04502022021907638",
+              "hoursOfUse": "1085",
+              "serviceId": "SER2024021001445",
+              "boughDate": "2022-10-08",
+              "address": {
+                "amphoe": "หนองบุญมาก",
+                "address": "Sample text",
+                "tambol": "หนองไม้ไผ่",
+                "province": "นครราชสีมา",
+                "postcode": "30410",
+                "moo": "8",
+                "village": ""
+              },
+              "lastName_lower": "สาระกูล",
+              "serviceAddress": {
+                "amphoe": "หนองบุญมาก",
+                "address": "Sample text",
+                "tambol": "หนองไม้ไผ่",
+                "province": "นครราชสีมา",
+                "postcode": "30410",
+                "moo": "8",
+                "village": ""
+              },
+              "serviceNo_lower": "2003476480",
+              "firstName_lower": "เนติยะ",
+              "notifyDetails": "ตรวจเช็คตามระยะครั้งที่4",
+              "notifyChannel": null,
+              "sameAddress": true,
+              "warrantyStatus": "ในประกัน",
+              "guaranteedEndDate": "2024-10-08",
+              "createdBy": "qehwIqNvOdP4KeoFJROlarRf2S03",
+              "dealer": "DEAL2022051901834",
+              "closedDate": "2024-02-09",
+              "orderStatus": "ปิดงาน"
+            }
+          }
+        }
+      },
+      "stocks": {
+        "importLog": {
+          "sample": {
+            "id": "1745225910390",
+            "data": {
+              "ts": "1745225910390",
+              "dataType": "parts",
+              "batchNo": 1745225895000
+            }
+          }
+        },
+        "importPartItems": {
+          "sample": {
+            "id": "5001877780-4",
+            "data": {
+              "transferLocationCode": "",
+              "import": 42,
+              "remark": "",
+              "itemNo": "4",
+              "branch": "บัวใหญ่",
+              "productName": "น้ำมันเครื่อง CF4 ขนาด 3 ลิตร",
+              "importBy": "zWajT5jqtoRPt2XZjX3cCev5ICl1",
+              "peripheralNo": "",
+              "balance": 42,
+              "storeLocation": "อะไหล่-บัวฯ",
+              "movementType": "รับสินค้าเข้า",
+              "transferDocNo": "",
+              "export": "",
+              "startBalance": 42,
+              "batchNo": 1648278787000,
+              "item": "",
+              "docDate": "2022-03-26",
+              "docNo": "5001877780",
+              "branchCode": "0451",
+              "storePoint": "010T02003",
+              "unit": "UNI",
+              "productCode": "1W071-99281",
+              "receiveBranch": "",
+              "transferBranchCode": "",
+              "importTime": 1714500000000
+            }
+          }
+        },
+        "importParts": {
+          "sample": {
+            "id": "5003662334-2",
+            "data": {
+              "docNo": "5003662334",
+              "inputDate": "2025-04-21",
+              "inputTime": "14:20:09",
+              "userName": "D0450-PC",
+              "itemNo": "2",
+              "typeCode": "101",
+              "movementType": "รับสินค้าเข้า",
+              "เอกสารอ้างอิง": "",
+              "ปีเอกสารอ้างอิง": "",
+              "ยกเลิก": "",
+              "productCode": "W9503-21231",
+              "productName": "ปะเก็นปั๊มน้ำมัน",
+              "branchCode": "0450",
+              "branch": "สำนักงานใหญ่",
+              "storeLocationCode": "NS01",
+              "storeLocation": "อะไหล่-สนญ",
+              "storePoint": "010C07073",
+              "startBalance": "",
+              "import": 42,
+              "export": "",
+              "balance": 42,
+              "unit": "UNI",
+              "ใบสั่ง VSS": "",
+              "item": "",
+              "POS_No": "",
+              "inputBy": "01001753",
+              "billNoSKC": "8034641700",
+              "purchaseNo": "R104526336",
+              "peripheralNo": "",
+              "brand": "",
+              "model": "",
+              "hp": "",
+              "transferBranchCode": "",
+              "receiveBranch": "",
+              "transferLocationCode": "",
+              "transferDocNo": "",
+              "docDate": "2025-04-21",
+              "transactionDate": "2025-04-21",
+              "order": null,
+              "priceType": null,
+              "unitPrice": null,
+              "discount": null,
+              "total": null,
+              "accountChecked": null,
+              "accountCheckedDate": null,
+              "accountCheckedBy": null,
+              "pCode": "W9503-21231",
+              "importBy": "07AcySREGLg1VAUk0YKaAiaKxSI2",
+              "importTime": 1714500000000,
+              "batchNo": 1745225895000,
+              "keywords": ["8", "80", "803"],
+              "seller": "siamKubota",
+              "warehouseInputBy": "07AcySREGLg1VAUk0YKaAiaKxSI2",
+              "warehouseCheckedBy": "KBN10144",
+              "warehouseReceiveDate": "2025-04-21",
+              "warehouseCheckedDate": "2025-04-21",
+              "invoiceDate": "2025-04-19",
+              "warehouseChecked": 1745227534000
+            }
+          }
+        },
+        "importVehicleItems": {
+          "sample": {
+            "id": "5001856647-1",
+            "data": {
+              "transferLocationCode": "",
+              "import": 42,
+              "remark": "",
+              "itemNo": "1",
+              "branch": "จักราช",
+              "productName": "จอบหมุน RX80A2",
+              "importBy": "7ATjP4V6HyWwCPXtATMNBB54xOT2",
+              "peripheralNo": "RX80A2-101287,RX80A2-101288,RX80A2-101289,RX80A2-101290",
+              "balance": 42,
+              "storeLocation": "อุปกรณ์-จักรฯ",
+              "movementType": "รับสินค้าเข้า",
+              "transferDocNo": "",
+              "export": "",
+              "startBalance": "",
+              "batchNo": 1646969268000,
+              "item": "",
+              "docDate": "2022-03-10",
+              "docNo": "5001856647",
+              "branchCode": "0452",
+              "vehicleNo": "",
+              "unit": "UNI",
+              "productCode": "W952A-70001",
+              "receiveBranch": "",
+              "transferBranchCode": "",
+              "importTime": 1714500000000
+            }
+          }
+        },
+        "importVehicles": {
+          "sample": {
+            "id": "5003540095-1",
+            "data": {
+              "docNo": "5003540095",
+              "inputDate": "2025-02-08",
+              "inputTime": "12:52:00",
+              "userName": "D0451-VC",
+              "itemNo": "1",
+              "typeCode": "101",
+              "movementType": "รับสินค้าเข้า",
+              "เอกสารอ้างอิง": "",
+              "ปีเอกสารอ้างอิง": "",
+              "ยกเลิก": "",
+              "productCode": "W95A0-00000",
+              "productName": "ชุดโครงกันอ้อย SG270",
+              "branchCode": "0451",
+              "branch": "บัวใหญ่",
+              "storeLocationCode": "NI01",
+              "storeLocation": "อุปกรณ์-บัวฯ",
+              "startBalance": "",
+              "import": 42,
+              "export": "",
+              "balance": 42,
+              "unit": "UNI",
+              "ใบสั่ง VSS": "",
+              "item": "",
+              "inputBy": "",
+              "billNoSKC": "NI8010645608",
+              "purchaseNo": "A104502915",
+              "vehicleNo": "",
+              "engineNo": "",
+              "peripheralNo": "",
+              "brand": "",
+              "model": "",
+              "hp": "",
+              "transferBranchCode": "",
+              "receiveBranch": "",
+              "transferLocationCode": "",
+              "transferDocNo": "",
+              "docDate": "2025-02-08",
+              "transactionDate": "2025-02-08",
+              "order": null,
+              "warehouseChecked": null,
+              "warehouseCheckedDate": null,
+              "warehouseCheckedBy": null,
+              "seller": null,
+              "invoiceDate": null,
+              "warehouseReceiveDate": null,
+              "priceType": null,
+              "unitPrice": null,
+              "discount": null,
+              "total": null,
+              "accountChecked": null,
+              "accountCheckedDate": null,
+              "accountCheckedBy": null,
+              "importBy": "7ATjP4V6HyWwCPXtATMNBB54xOT2",
+              "importTime": 1714500000000,
+              "batchNo": 1740705671000,
+              "keywords": ["n", "ni", "ni8"]
+            }
+          }
+        },
+        "importVehicles_new": {
+          "sample": {
+            "id": "5001538342",
+            "data": {
+              "seller": "siamKubota",
+              "import": 42,
+              "warehouseCheckedDate": "2021-07-13",
+              "inputTime": "10:37:01",
+              "discount": 18000,
+              "storeLocationCode": "NV01",
+              "branch": "สำนักงานใหญ่",
+              "productName": "แทรกเตอร์ B2440S-B พร้อมหลังคา",
+              "importBy": "7ATjP4V6HyWwCPXtATMNBB54xOT2",
+              "peripheralNo": "",
+              "total": 284000,
+              "balance": 42,
+              "movementType": "รับสินค้าเข้า",
+              "warehouseReceiveDate": "2021-07-13",
+              "purchaseNo": "M104500095",
+              "export": "",
+              "accountCheckedBy": "Kbc9EYYgExW0BX7YvFkYDEXXFO82",
+              "startBalance": "",
+              "order": "",
+              "unitPrice": 302000,
+              "batchNo": 1626149096000,
+              "warehouseInputBy": "7ATjP4V6HyWwCPXtATMNBB54xOT2",
+              "docHeaderText": null,
+              "warehouseCheckedBy": "KBN10029",
+              "priceType": null,
+              "docDate": "2020-07-13",
+              "docNo": "5001538342",
+              "userName": "D0450-VC",
+              "invoiceDate": "2021-07-13",
+              "transactionDate": "2020-07-13",
+              "accountCheckedDate": "2021-12-25",
+              "inputDate": "2020-07-13",
+              "typeCode": "101",
+              "branchCode": "0450",
+              "vehicleNo": "KBUB9BDRLMTG35211",
+              "unit": "UNI",
+              "productCode": "W95T2-00000",
+              "accountChecked": 1640398932000,
+              "expenseId": "WWAypiSJGN1gXev9geNt",
+              "billNoSKC": "NV8010379738",
+              "warehouseChecked": 1626149130000,
+              "importTime": 1714500000000
+            }
+          }
+        },
+        "otherVehicleIn": {
+          "sample": {
+            "id": "WH-VEH2025042301146",
+            "data": {
+              "importDate": "2025-04-23",
+              "docNo": "IVB/KO680423/1",
+              "transferType": "other",
+              "subType": "auction",
+              "origin": "โคกกรวด",
+              "toDestination": "0453",
+              "deliveredBy": "KBN10013",
+              "deliveredDate": "2025-04-23",
+              "recordedBy": "KBN40058",
+              "recordedDate": "2025-04-22",
+              "verifiedBy": "KBN10029",
+              "verifiedDate": "2025-04-22",
+              "approvedBy": null,
+              "approvedDate": null,
+              "receivedBy": "KBN50005",
+              "receivedDate": "2025-04-23",
+              "remark": null,
+              "isUsed": true,
+              "saleNo": null,
+              "saleId": null,
+              "customer": null,
+              "customerId": null,
+              "importId": "WH-VEH2025042301146",
+              "items": [
+                {
+                  "vehicleType": "รถแทรกเตอร์",
+                  "vehicleItemType": "vehicle",
+                  "productName": "แทรกเตอร์ L5018SP + ใบมีด FD186F + FG186F (มือ2)",
+                  "productCode": "2-TC892-15112",
+                  "vehicleNo": ["29032"],
+                  "peripheralNo": ["083149"],
+                  "engineNo": ["BNE1194"],
+                  "detail": "",
+                  "completed": null,
+                  "rejected": null,
+                  "cancelled": null,
+                  "deleted": null,
+                  "toDestination": "0453",
+                  "year": null,
+                  "model": null,
+                  "workHours": 2000,
+                  "unitPrice": 555000,
+                  "qty": 42,
+                  "total": 42,
+                  "importItemId": "WH-VH-ITEM2025042308613",
+                  "importId": "WH-VEH2025042301146",
+                  "origin": null,
+                  "branchCode": "0453",
+                  "isUsed": true,
+                  "id": 42,
+                  "key": 42
+                },
+                {
+                  "vehicleNo": [],
+                  "peripheralNo": [],
+                  "vehicleType": "อุปกรณ์",
+                  "vehicleItemType": "vehicle",
+                  "productName": "ผานพรวน  DH246F-Heavy Plus - L4708 /L5018 (มือ2)",
+                  "productCode": "2-W9574-30000",
+                  "engineNo": ["2033446"],
+                  "detail": "",
+                  "completed": null,
+                  "rejected": null,
+                  "cancelled": null,
+                  "deleted": null,
+                  "toDestination": "0453",
+                  "year": null,
+                  "model": null,
+                  "workHours": null,
+                  "unitPrice": 42,
+                  "qty": 42,
+                  "total": 42,
+                  "id": 42,
+                  "key": 42,
+                  "importItemId": "WH-VH-ITEM2025042309313",
+                  "importId": "WH-VEH2025042301146",
+                  "origin": null,
+                  "branchCode": "0453",
+                  "isUsed": true
+                },
+                {
+                  "vehicleType": "รถแทรกเตอร์",
+                  "vehicleItemType": "vehicle",
+                  "productName": "แทรกเตอร์ L5018SP + ใบมีด FD186F + FG186F (มือ2)",
+                  "productCode": "2-TC892-15112",
+                  "vehicleNo": ["43769"],
+                  "peripheralNo": ["096155"],
+                  "engineNo": ["BPA7035"],
+                  "detail": "",
+                  "completed": null,
+                  "rejected": null,
+                  "cancelled": null,
+                  "deleted": null,
+                  "toDestination": "0453",
+                  "year": null,
+                  "model": null,
+                  "workHours": 1000,
+                  "unitPrice": 565000,
+                  "qty": 42,
+                  "total": 42,
+                  "id": 42,
+                  "key": 42,
+                  "importItemId": "WH-VH-ITEM2025042307696",
+                  "importId": "WH-VEH2025042301146",
+                  "origin": null,
+                  "branchCode": "0453",
+                  "isUsed": true
+                }
+              ],
+              "keywords": ["i", "iv", "ivb"],
+              "docNo_lower": "ivb/ko680423/1",
+              "docNo_partial": "ivb/ko680423/1",
+              "deleted": false,
+              "completed": false,
+              "rejected": false,
+              "created": 1745381057000,
+              "inputBy": "1D7HmfWlnQSEqfSYSW1ljzNPb3W2"
+            }
+          }
+        },
+        "otherVehicleOut": {
+          "sample": {
+            "id": "WH-VEH2025042506839",
+            "data": {
+              "exportDate": "2025-04-09",
+              "importDate": null,
+              "docNo": "IVB/J680409/2",
+              "transferType": "other",
+              "fromOrigin": "0452",
+              "destination": "โคกกรวด",
+              "deliveredBy": "KBN20089",
+              "deliveredDate": "2025-04-09",
+              "exportRecordedBy": "KBN10038",
+              "exportRecordedDate": "2025-04-09",
+              "exportVerifiedBy": "KBN10038",
+              "exportVerifiedDate": "2025-04-09",
+              "approvedBy": null,
+              "approvedDate": null,
+              "receivedBy": "เต้ย (สต็อกรถแม็ก สาขาโคกกรวด)",
+              "receivedDate": "2025-04-09",
+              "remark": null,
+              "isUsed": true,
+              "exportId": "WH-VEH2025042506839",
+              "items": [
+                {
+                  "peripheralNo": [],
+                  "engineNo": [],
+                  "vehicleType": "อุปกรณ์",
+                  "vehicleItemType": "vehicle",
+                  "productName": "คานใบดันมือสอง ",
+                  "productCode": "2-คานใบดัน-มือสอง",
+                  "vehicleNo": ["คาน+ใบมีด L50 ทำสี"],
+                  "detail": "",
+                  "qty": 42,
+                  "completed": null,
+                  "rejected": null,
+                  "cancelled": null,
+                  "deleted": null,
+                  "destination": "โคกกรวด",
+                  "exportItemId": "WH-VH-ITEM2025042507164",
+                  "exportId": "WH-VEH2025042506839",
+                  "fromOrigin": "0452",
+                  "branchCode": "0452",
+                  "isUsed": true,
+                  "id": 42,
+                  "key": 42
+                }
+              ],
+              "branchCode": "0452",
+              "keywords": ["i", "iv", "ivb"],
+              "docNo_lower": "ivb/j680409/2",
+              "docNo_partial": "ivb/j680409/2",
+              "deleted": false,
+              "completed": false,
+              "rejected": false,
+              "created": 1745569169000,
+              "inputBy": "BFeNUMIWAnTmicinHVjjoDsC4Av1"
+            }
+          }
+        },
+        "peripherals": {
+          "sample": {
+            "id": "SD142-1439",
+            "data": {
+              "sold": null,
+              "productPCode": "tc87215114",
+              "keywords": ["s", "sd", "sd1"],
+              "peripheralNo_partial": "1439",
+              "docNo": "NV8010371957",
+              "productName": "",
+              "peripheralNoFull": "SD142-1439",
+              "peripheralNo": "1439",
+              "branchCode": "0450",
+              "productCode": "TC872-15114",
+              "reserved": null,
+              "peripheralModel": "SD142",
+              "productType": "อุปกรณ์ใหม่",
+              "peripheralNo_lower": "1439"
+            }
+          }
+        },
+        "purchasePlan": {
+          "sample": {
+            "id": "WH-PLAN-PUR2025043007952",
+            "data": {
+              "branchCode": "0455",
+              "month": "2025-05",
+              "date": "2025-04-30",
+              "productCode": "W95CD-70191",
+              "productType": "โดรนการเกษตร",
+              "productName": "ชุดหัวพ่นเจ็ท T25",
+              "qty": 42,
+              "recordedBy": "KBN30005",
+              "remark": null,
+              "deleted": false,
+              "created": 1746002871000,
+              "inputBy": "0QBqQshibIZM4R6o3wT9BAp5OpA3",
+              "_key": "WH-PLAN-PUR2025043007952"
+            }
+          }
+        },
+        "saleOut": {
+          "sample": {
+            "id": "WH-VEH2025043004606",
+            "data": {
+              "turnOverItems": [],
+              "date": "2025-04-30",
+              "docNo": "IVC/S680429/1",
+              "transferType": "saleOut",
+              "saleDate": "2025-04-24",
+              "saleId": "SALE-VEH2025043007890",
+              "saleNo": "372/18600",
+              "saleType": "sklLeasing",
+              "customerId": "KBN-CUS-04502025042406673",
+              "customer": "นายพิภพ นิกรรัมย์",
+              "address": {
+                "address": "Sample text",
+                "moo": "6",
+                "village": "ระหาร",
+                "province": "สุรินทร์",
+                "amphoe": "เมืองสุรินทร์",
+                "tambol": "เทนมีย์",
+                "postcode": "32000"
+              },
+              "phoneNumber": "Sample text",
+              "salesPerson": ["KBN50005", "BAS70001", "KBN50028"],
+              "deliveredBy": "KBN30001",
+              "deliveredDate": "2025-04-29",
+              "recordedBy": "KBN50005",
+              "recordedDate": "2025-04-29",
+              "verifiedBy": "KBN30001",
+              "verifiedDate": "2025-04-29",
+              "approvedBy": "BAS70001",
+              "approvedDate": "2025-04-29",
+              "receivedBy": "นายพิภพ นิกรรัมย์",
+              "receivedDate": "2025-04-29",
+              "deliverId": "WH-VEH2025043004606",
+              "items": [
+                {
+                  "pressureBladeNo": [],
+                  "bucketNo": [],
+                  "sugarcanePickerNo": [],
+                  "giveaways": [],
+                  "vehicleType": "รถแทรกเตอร์",
+                  "vehicleItemType": "vehicle",
+                  "productCode": "TC942-19112",
+                  "productName": "แทรกเตอร์ L5228 + ใบมีด FD187F + FG187F",
+                  "vehicleNo": ["03690"],
+                  "peripheralNo": ["002609"],
+                  "engineNo": ["BSE7069"],
+                  "remark": null,
+                  "saleNo": "372/18600",
+                  "saleId": "SALE-VEH2025043007890",
+                  "completed": null,
+                  "rejected": null,
+                  "cancelled": null,
+                  "deleted": null,
+                  "qty": 42,
+                  "saleItemId": "SALE-VEH-ITEM2025043009291",
+                  "id": 42,
+                  "key": 42,
+                  "deliverItemId": "WH-VH-ITEM2025043002586",
+                  "deliverId": "WH-VEH2025043004606",
+                  "branchCode": "0453",
+                  "isUsed": false
+                }
+              ],
+              "branchCode": "0453",
+              "isUsed": false,
+              "bookId": "BOOK-VEH2025042401196",
+              "giveaways": [
+                {
+                  "unit": "ชุด",
+                  "unitPrice": 3000,
+                  "total": 3000,
+                  "name": "ทะเบียน พรบ",
+                  "qty": 42
+                },
+                {
+                  "unit": "ชุด",
+                  "name": "ประกันภัยธรรมชาติ",
+                  "unitPrice": 42,
+                  "total": 42,
+                  "qty": 42
+                },
+                {
+                  "total": 42,
+                  "qty": 42,
+                  "unit": "ตัว",
+                  "unitPrice": 42,
+                  "name": "เสื้อ"
+                }
+              ],
+              "remark": null,
+              "docPNo": "ivcs6804291",
+              "keywords": ["i", "iv", "ivc"],
+              "docNo_lower": "ivc/s680429/1",
+              "docNo_partial": "ivc/s680429/1",
+              "deleted": false,
+              "completed": true,
+              "rejected": false,
+              "canceled": false,
+              "created": 1746005447000,
+              "inputBy": "1D7HmfWlnQSEqfSYSW1ljzNPb3W2"
+            }
+          }
+        },
+        "saleOutItems": {
+          "sample": {
+            "id": "loSq59GgrovcEH4S4kq7",
+            "data": {
+              "sugarcanePickerNo": [],
+              "engineNo": [],
+              "bucketNo": [],
+              "vehicleNo": [],
+              "pressureBladeNo": [],
+              "giveaways": [],
+              "date": "2022-02-11",
+              "saleId": "SALE-VEH2022021107323",
+              "rejected": null,
+              "toDestination": null,
+              "remark": null,
+              "saleDate": "2022-02-08",
+              "_key": "loSq59GgrovcEH4S4kq7",
+              "productName": "ชุดโครงกันอ้อย SG270 - B Series S (รถตัวเปล่า)",
+              "peripheralNo": ["-"],
+              "saleItemId": "SALE-VEH-ITEM2022021107438",
+              "created": 1644913056000,
+              "completed": null,
+              "docNo": "IVC/S650211/1",
+              "deliverId": "SALE-VEH2022021107323",
+              "saleNo": "245/12208",
+              "branchCode": "0453",
+              "recordedBy": "BAS70001",
+              "productCode": "W95A0-00000",
+              "deleted": null,
+              "exportType": "saleOut",
+              "qty": 42,
+              "deliverItemId": "loSq59GgrovcEH4S4kq7",
+              "cancelled": null
+            }
+          }
+        },
+        "transfer": {
+          "sample": {
+            "id": "WH-VEH2025033104859",
+            "data": {
+              "exportDate": "2025-04-01",
+              "importDate": null,
+              "docNo": "IVB/M680401/1",
+              "transferType": "transfer",
+              "fromOrigin": "0450",
+              "toDestination": "0454",
+              "deliveredBy": "KBN10013",
+              "deliveredDate": "2025-05-01",
+              "importRecordedBy": null,
+              "importRecordedDate": null,
+              "exportRecordedBy": "KBN10135",
+              "exportRecordedDate": "2025-05-01",
+              "importVerifiedBy": null,
+              "importVerifiedDate": null,
+              "exportVerifiedBy": "KBN10002",
+              "exportVerifiedDate": "2025-05-01",
+              "approvedBy": null,
+              "approvedDate": null,
+              "receivedBy": "KBN40033",
+              "receivedDate": "2025-05-01",
+              "remark": null,
+              "isUsed": false,
+              "completed": null,
+              "rejected": null,
+              "cancelled": null,
+              "deleted": null,
+              "transferId": "WH-VEH2025033104859",
+              "items": [
+                {
+                  "vehicleType": "รถแทรกเตอร์",
+                  "vehicleItemType": "vehicle",
+                  "productName": "แทรกเตอร์ L4028 + ใบมีด FD165E+ FG187F",
+                  "productCode": "TC922-19112",
+                  "vehicleNo": ["02682"],
+                  "peripheralNo": ["001696"],
+                  "engineNo": ["BRW3944"],
+                  "detail": "",
+                  "qty": 42,
+                  "toDestination": "0454",
+                  "completed": null,
+                  "rejected": null,
+                  "cancelled": null,
+                  "deleted": null,
+                  "transferItemId": "WH-VH-ITEM2025033107277",
+                  "transferId": "WH-VEH2025033104859",
+                  "fromOrigin": "0450",
+                  "branchCode": "0450",
+                  "isUsed": false,
+                  "id": 42,
+                  "key": 42
+                },
+                {
+                  "vehicleNo": [],
+                  "engineNo": [],
+                  "vehicleType": "อุปกรณ์",
+                  "vehicleItemType": "vehicle",
+                  "productName": "จอบหมุน RX165E - L32/L40",
+                  "productCode": "W951W-70000",
+                  "peripheralNo": ["169238"],
+                  "detail": "",
+                  "qty": 42,
+                  "toDestination": "0454",
+                  "completed": null,
+                  "rejected": null,
+                  "cancelled": null,
+                  "deleted": null,
+                  "id": 42,
+                  "key": 42,
+                  "transferItemId": "WH-VH-ITEM2025033101511",
+                  "transferId": "WH-VEH2025033104859",
+                  "fromOrigin": "0450",
+                  "branchCode": "0450",
+                  "isUsed": false
+                },
+                {
+                  "vehicleNo": [],
+                  "peripheralNo": [],
+                  "engineNo": [],
+                  "vehicleType": "อุปกรณ์",
+                  "vehicleItemType": "vehicle",
+                  "productName": "ปั้มลม 25 ลิตร",
+                  "productCode": "KBN-ปั้มลม 25 ลิตร",
+                  "detail": "",
+                  "qty": 42,
+                  "toDestination": "0454",
+                  "completed": null,
+                  "rejected": null,
+                  "cancelled": null,
+                  "deleted": null,
+                  "id": 42,
+                  "key": 42,
+                  "transferItemId": "WH-VH-ITEM2025033108944",
+                  "transferId": "WH-VEH2025033104859",
+                  "fromOrigin": "0450",
+                  "branchCode": "0450",
+                  "isUsed": false
+                }
+              ],
+              "branchCode": "0450",
+              "docNo_lower": "ivb/m680401/1",
+              "keywords": ["i", "iv", "ivb"],
+              "docNo_partial": "ivb/m680401/1",
+              "created": 1743406937000,
+              "inputBy": "PCEQaIxsNBQrhF0n8fjc6jVpftK2"
+            }
+          }
+        },
+        "transferIn": {
+          "sample": {
+            "id": "WH-VEH202201310036",
+            "data": {
+              "date": "2022-01-28",
+              "deliveredBy": "KBN10013",
+              "docNo_partial": "ivb/m650128/1",
+              "inputBy": "PCEQaIxsNBQrhF0n8fjc6jVpftK2",
+              "created": 1643606585000,
+              "remark": null,
+              "completed": {
+                "verifiedBy": "KBN30005",
+                "ref": "WH-VEH202201310036",
+                "time": 1714500000000
+              },
+              "transferId": "WH-VEH202201310036",
+              "docNo": "IVB/M650128/1",
+              "verifiedBy": "KBN30005",
+              "docNo_lower": "ivb/m650128/1",
+              "branchCode": "0455",
+              "recordedBy": "KBN10038",
+              "exportVerifiedBy": "KBN10001",
+              "deleted": false,
+              "month": "2022-01",
+              "transferType": "transfer",
+              "fromOrigin": "0450",
+              "items": [
+                {
+                  "engineNo": ["8MW4322"],
+                  "rejected": null,
+                  "vehicleItemType": "vehicle",
+                  "completed": {
+                    "verifiedBy": "KBN30005",
+                    "ref": "WH-VEH202201310036",
+                    "time": 1714500000000
+                  },
+                  "_key": "",
+                  "transferId": "WH-VEH202201310036",
+                  "productName": "แทรกเตอร์ M7040-B + ใบมีด FD206J",
+                  "peripheralNo": ["014840"],
+                  "vehicleNo": ["16160"],
+                  "productCode": "W9560-00210",
+                  "deleted": false,
+                  "transferItemId": "WH-VEH-ITEM202201310509",
+                  "qty": 42,
+                  "cancelled": null,
+                  "id": 42,
+                  "detail": "",
+                  "key": 42,
+                  "vehicleType": "รถแทรกเตอร์"
+                }
+              ],
+              "keywords": ["i", "iv", "ivb"]
+            }
+          }
+        },
+        "transferItems": {
+          "sample": {
+            "id": "WH-VH-ITEM2025043008463",
+            "data": {
+              "branchCode": "0453",
+              "cancelled": null,
+              "completed": null,
+              "deleted": null,
+              "detail": "",
+              "engineNo": ["ฺBRY7270"],
+              "fromOrigin": "0453",
+              "id": 42,
+              "isUsed": false,
+              "key": 42,
+              "peripheralNo": ["121597"],
+              "productCode": "TC892-15112",
+              "productName": "แทรกเตอร์ L5018SP + ใบมีด FD186F + FG186F",
+              "qty": 42,
+              "rejected": null,
+              "toDestination": "0451",
+              "transferId": "WH-VEH2025043009285",
+              "transferItemId": "WH-VH-ITEM2025043008463",
+              "vehicleItemType": "vehicle",
+              "vehicleNo": ["70160"],
+              "vehicleType": "รถแทรกเตอร์",
+              "exportDate": "2025-04-29",
+              "docNo": "IVB/S680430/1",
+              "docNo_lower": "ivb/s680430/1",
+              "importDate": null,
+              "exportVerifiedBy": "BAS70001",
+              "exportRecordedBy": "KBN50005",
+              "receivedBy": "KBN00003",
+              "deliveredBy": "KBN00001",
+              "model": "L5018SP + FD186F + FG186F"
+            }
+          }
+        },
+        "transferOut": {
+          "sample": {
+            "id": "WH-VEH202201310960",
+            "data": {
+              "date": "2022-01-28",
+              "deliveredBy": "KBN10013",
+              "docNo_partial": "ivb/m650128/1",
+              "inputBy": "PCEQaIxsNBQrhF0n8fjc6jVpftK2",
+              "toDestination": "0455",
+              "created": 1643606516000,
+              "remark": null,
+              "completed": {
+                "verifiedBy": "KBN30005",
+                "ref": "WH-VEH202201310036",
+                "time": 1714500000000
+              },
+              "verifiedBy": "KBN10001",
+              "docNo": "IVB/M650128/1",
+              "transferId": "WH-VEH202201310960",
+              "docNo_lower": "ivb/m650128/1",
+              "branchCode": "0450",
+              "recordedBy": "KBN10038",
+              "deleted": false,
+              "month": "2022-01",
+              "qty": 42,
+              "transferType": "transfer",
+              "items": [
+                {
+                  "engineNo": ["8MW4322"],
+                  "rejected": null,
+                  "vehicleItemType": "vehicle",
+                  "completed": null,
+                  "transferId": "WH-VEH202201310960",
+                  "_key": "",
+                  "productName": "แทรกเตอร์ M7040-B + ใบมีด FD206J",
+                  "peripheralNo": ["014840"],
+                  "branchCode": "0450",
+                  "vehicleNo": ["16160"],
+                  "deleted": null,
+                  "productCode": "W9560-00210",
+                  "transferItemId": "WH-VEH-ITEM202201310509",
+                  "qty": 42,
+                  "cancelled": null,
+                  "id": 42,
+                  "detail": "",
+                  "vehicleType": "รถแทรกเตอร์",
+                  "key": 42
+                }
+              ],
+              "keywords": ["i", "iv", "ivb"]
+            }
+          }
+        },
+        "vehicles": {
+          "sample": {
+            "id": "KBULLADRMTR01408",
+            "data": {
+              "productPCode": "tc87215114",
+              "keywords": ["0", "01", "014"],
+              "peripheralNo_partial": "1439",
+              "kbnLeasing": null,
+              "productName": "แทรกเตอร์ L3218SP + ใบมีด SD142",
+              "peripheralNoFull": "SD142-1439",
+              "peripheralNo": "1439",
+              "baac": null,
+              "isFIFO": false,
+              "skl": null,
+              "vehicleNo_lower": "01408",
+              "model": "L3218SP + SD142",
+              "vehicleNoFull": "KBULLADRMTR01408",
+              "productType": "รถใหม่",
+              "engineNo": null,
+              "sold": null,
+              "vehicleNo_partial": "01408",
+              "docNo": "NV8010371957",
+              "branchCode": "0450",
+              "vehicleNo": "01408",
+              "productCode": "TC872-15114",
+              "reserved": null,
+              "isVehicle": true,
+              "peripheralNo_lower": "1439",
+              "transfer": null,
+              "transactions": [
+                {
+                  "docDate": "2021-07-27",
+                  "type": "import",
+                  "docNo": "NV8010371957",
+                  "by": "Kbc9EYYgExW0BX7YvFkYDEXXFO82",
+                  "billNoSKC": "NV8010371957",
+                  "ts": 1627371768000
+                }
+              ],
+              "isUsed": false,
+              "exported": null,
+              "wreck": null,
+              "seize": null,
+              "turnOver": null,
+              "auction": null,
+              "decal": null,
+              "decalTaken": null
+            }
+          }
+        }
+      }
+    }
+  },
+  "metadata": {
+    "collectedAt": "2025-04-30T19:31:43.296Z",
+    "projectId": "kubota-benjapol-test"
+  },
+  "changeLogs": [
+    {
+      "version": "1.2.0",
+      "releaseDate": 1651363200000,
+      "changes": [
+        {
+          "type": "feature",
+          "description": "Added expense tracking module"
+        },
+        {
+          "type": "fix",
+          "description": "Fixed customer form validation issues"
+        }
+      ],
+      "created": 1651363200000,
+      "inputBy": "admin123"
+    }
+  ],
+  "data": {
+    "account": {
+      "expenseCategories": [
+        {
+          "expenseCategoryId": "exp-cat-001",
+          "name": "Office Supplies",
+          "description": "General office supplies and stationery",
+          "created": 1650672000000,
+          "inputBy": "user123",
+          "branchCode": "BKK001",
+          "keywords": ["office", "supplies", "stationery"],
+          "deleted": false
+        }
+      ],
+      "expenseNames": [
+        {
+          "expenseNameId": "exp-name-001",
+          "name": "Printer Paper",
+          "expenseCategoryId": "exp-cat-001",
+          "description": "A4 printing paper",
+          "created": 1650672000000,
+          "inputBy": "user123",
+          "branchCode": "BKK001",
+          "keywords": ["printer", "paper", "a4"],
+          "deleted": false
+        }
+      ]
+    },
+    "company": {
+      "branches": [
+        {
+          "branchCode": "BKK001",
+          "name": "Bangkok Headquarters",
+          "address": {
+            "address": "123 Sukhumvit Road",
+            "province": "Bangkok",
+            "amphoe": "Watthana",
+            "tambol": "Khlong Toei Nuea",
+            "postcode": "10110"
+          },
+          "phoneNumber": "021234567",
+          "created": 1649462400000,
+          "inputBy": "admin123",
+          "keywords": ["bangkok", "headquarters", "main"],
+          "deleted": false,
+          "isHeadOffice": true
+        }
+      ],
+      "employees": [
+        {
+          "employeeId": "emp-001",
+          "prefix": "Mr.",
+          "firstName": "Somchai",
+          "lastName": "Jaidee",
+          "nickname": "Chai",
+          "phoneNumber": "0891234567",
+          "position": "Service Manager",
+          "departmentId": "dept-001",
+          "branchCode": "BKK001",
+          "created": 1649462400000,
+          "inputBy": "admin123",
+          "keywords": ["somchai", "jaidee", "chai", "service", "manager"],
+          "deleted": false,
+          "status": "active"
+        }
+      ]
+    },
+    "sales": {
+      "customers": [
+        {
+          "customerId": "cust-001",
+          "prefix": "Mr.",
+          "firstName": "Preecha",
+          "lastName": "Suksawat",
+          "phoneNumber": "0812345678",
+          "address": {
+            "address": "88/42 Happy Condo",
+            "moo": "5",
+            "village": "Greenview Village",
+            "province": "Bangkok",
+            "amphoe": "Bangna",
+            "tambol": "Bangna Nuea",
+            "postcode": "10260"
+          },
+          "branchCode": "BKK001",
+          "inputBy": "emp-001",
+          "created": 1650672000000,
+          "keywords": ["preecha", "suksawat", "bangna"],
+          "deleted": false,
+          "referrerId": "ref-001",
+          "sourceId": "source-001"
+        }
+      ]
+    }
+  },
+  "sections": {
+    "services": [
+      {
+        "serviceId": "serv-001",
+        "customerId": "cust-001", 
+        "vehicleId": "veh-001",
+        "branchCode": "BKK001",
+        "date": 1650758400000,
+        "status": "completed",
+        "services": [
+          {
+            "serviceId": "srv-type-001",
+            "name": "Oil Change",
+            "price": 1500,
+            "quantity": 1
+          },
+          {
+            "serviceId": "srv-type-002",
+            "name": "Air Filter Replacement",
+            "price": 500,
+            "quantity": 1
+          }
+        ],
+        "parts": [
+          {
+            "partId": "part-001",
+            "name": "Engine Oil 5W-30",
+            "price": 800,
+            "quantity": 4
+          },
+          {
+            "partId": "part-002",
+            "name": "Oil Filter",
+            "price": 350,
+            "quantity": 1
+          }
+        ],
+        "totalAmount": 5000,
+        "paymentMethod": "cash",
+        "inputBy": "emp-001",
+        "created": 1650758400000,
+        "keywords": ["oil change", "filter", "cust-001", "toyota"],
+        "deleted": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+.ant-input-number-handler-wrap {
+  visibility: hidden;
+}
+
+/* .ant-input-number:hover,
+.ant-input-number:focus,
+.ant-input-number-focused {
+  border: none;
+  border-bottom: 1px solid white !important;
+  box-shadow: none;
+  text-align: right;
+} */

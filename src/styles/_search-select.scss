@@ -1,0 +1,72 @@
+// SearchSelect Adjustments
+
+.editable-cell {
+  position: relative;
+}
+
+.editable-cell-value-wrap {
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.editable-row .ant-form-item-explain {
+  position: absolute;
+  top: 100%;
+  font-size: 12px;
+}
+
+.editable-row:hover .editable-cell-value-wrap {
+  padding: 4px 11px;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+}
+
+.deleted-row :before {
+  content: ' ';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  border-bottom: 1px solid #ff9999;
+  width: 100%;
+}
+
+.deleted-row {
+  background-color: #ffe6e6;
+}
+
+.rejected-row {
+  background-color: #ffe6e6;
+}
+
+.completed-row {
+  background-color: #eeffe6;
+}
+
+.recorded-row {
+  background-color: #e6ffe6;
+}
+
+.selected-row {
+  background-color: #e0f6ff;
+}
+
+.incompleted-row {
+  background-color: #fffae6;
+}
+
+.header-row {
+  background-color: #f9f9f9;
+}
+
+[data-theme='dark'] .editable-row:hover .editable-cell-value-wrap {
+  border: 1px solid #434343;
+}
+
+.print-row :before {
+  content: ' ';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  border-bottom: 1px solid #d3d3d3;
+  width: 100%;
+}
