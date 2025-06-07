@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { Row, Col, Card, Button, Alert, Spin, Badge, Progress } from 'antd';
+import { Row, Col, Card, Button, Alert, Spin, Badge, Progress, Tabs } from 'antd';
 import { usePermissions } from 'hooks/usePermissions';
 import { useGeographicData } from 'hooks/useGeographicData';
 import  GeographicBranchSelector  from 'components/GeographicBranchSelector';
 import ProvinceSelector from 'components/ProvinceSelector';
 import BranchSelector from 'components/BranchSelector';
+import { RBACDemo } from 'components';
 import { executePhase1Migration, validatePreProductionReadiness } from 'utils/migration/executeMigration';
 import { getDatabaseInfo } from 'utils/environmentConfig';
 import { executePhase1Rollback, verifyCurrentState } from 'utils/migration/rollbackUtility';
+
+const { TabPane } = Tabs;
 
 const TestMultiProvince = () => {
   const { user } = useSelector(state => state.auth);
@@ -36,13 +39,11 @@ const TestMultiProvince = () => {
   
   const { 
     userScope,
+    accessibleProvinces,
+    accessibleBranches,
     checkProvinceAccess,
     checkBranchAccess
   } = useGeographicData();
-
-  // Get accessible data
-  const accessibleProvinces = getAccessibleProvinces(provinces);
-  const accessibleBranches = getAccessibleBranches(branches);
 
   useEffect(() => {
     // Get database info on component mount
@@ -205,7 +206,13 @@ const TestMultiProvince = () => {
         {getEnvironmentBadge()}
       </div>
 
-      <Row gutter={[16, 16]}>
+      <Tabs defaultActiveKey="rbac-demo" size="large">
+        <TabPane tab={<span>🎭 RBAC Demo & Role Switcher</span>} key="rbac-demo">
+          <RBACDemo />
+        </TabPane>
+        
+        <TabPane tab={<span>🚀 Migration Tools</span>} key="migration">
+          <Row gutter={[16, 16]}>
         <Col span={24}>
           <Card>
             <h2>🚀 Phase 1 Migration</h2>
@@ -562,6 +569,8 @@ const TestMultiProvince = () => {
           </Card>
         </Col>
       </Row>
+        </TabPane>
+      </Tabs>
     </div>
   );
 };

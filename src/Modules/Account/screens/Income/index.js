@@ -21,15 +21,19 @@ import { Fade } from 'react-awesome-reveal';
 import { getFilterData } from 'Modules/Account/api';
 import { IncomeDailyCategories } from 'data/Constant';
 import { IncomePartColumns, IncomeOtherColumns } from 'Modules/Account/api';
+import { PermissionGate, GeographicBranchSelector } from 'components';
+import { usePermissions } from 'hooks/usePermissions';
 
 const Income = forwardRef((props, ref) => {
   const { user } = useSelector(state => state.auth);
   const { branches, giveaways, equipmentLists } = useSelector(state => state.data);
   const { firestore, api } = useContext(FirebaseContext);
+  const { filterDataByUserAccess, hasPermission, getAccessibleBranches } = usePermissions();
   // const history = useHistory();
 
-  const grant = true;
-  // user.isDev || (user.permissions && user.permissions.permission202);
+  const grant = hasPermission('accounting.view');
+  // Preserve existing logic while adding RBAC check
+  const originalGrant = true; // user.isDev || (user.permissions && user.permissions.permission202);
 
   const [incomeVehicles, setOrderVehicles] = useState([]);
   const [orderServices, setOrderServices] = useState([]);
@@ -358,7 +362,7 @@ const Income = forwardRef((props, ref) => {
               <option key="all" value="all">
                 ทุกสาขา
               </option>,
-              ...Object.keys(branches).map(key => (
+              ...Object.keys(getAccessibleBranches(branches)).map(key => (
                 <option key={key} value={key}>
                   {branches[key].branchName}
                 </option>
@@ -525,17 +529,25 @@ const Income = forwardRef((props, ref) => {
           </div>
         </div>
       ) : (
-        <div>
+        <PermissionGate permission="accounting.view">
           <Card small>
             {renderCardHeader()}
             <CardHeader className="border-bottom text-primary">รถและอุปกรณ์</CardHeader>
-            {renderOrderVehicles()}
+            <PermissionGate permission="sales.view">
+              {renderOrderVehicles()}
+            </PermissionGate>
             <CardHeader className="border-bottom text-primary">งานบริการ</CardHeader>
-            {renderOrderService()}
+            <PermissionGate permission="service.view">
+              {renderOrderService()}
+            </PermissionGate>
             <CardHeader className="border-bottom text-primary">อะไหล่</CardHeader>
-            {renderOrderPart()}
+            <PermissionGate permission="inventory.view">
+              {renderOrderPart()}
+            </PermissionGate>
             <CardHeader className="border-bottom text-primary">อื่นๆ</CardHeader>
-            {renderOrderOther()}
+            <PermissionGate permission="accounting.view">
+              {renderOrderOther()}
+            </PermissionGate>
           </Card>
           {/* <Fab
             onClick={_addNewOrder}
@@ -545,7 +557,7 @@ const Income = forwardRef((props, ref) => {
           >
             <AddIcon />
           </Fab> */}
-        </div>
+        </PermissionGate>
       )}
 
       <OverlaySlideComponent open={showOrder}>
@@ -554,5 +566,7 @@ const Income = forwardRef((props, ref) => {
     </Container>
   );
 });
+
+Income.displayName = 'Income';
 
 export default memo(Income);

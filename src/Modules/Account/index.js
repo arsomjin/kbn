@@ -2,6 +2,7 @@ import React from 'react';
 import { Switch, Route, useRouteMatch, useParams } from 'react-router-dom';
 import Income from './screens/Income';
 import Expense from './screens/Expense';
+import { PermissionGate } from 'components';
 
 const Accounts = () => {
   let match = useRouteMatch();
@@ -25,10 +26,18 @@ function Account() {
   let component;
   switch (accountId) {
     case 'income':
-      component = <Income />;
+      component = (
+        <PermissionGate permission="accounting.view">
+          <Income />
+        </PermissionGate>
+      );
       break;
     case 'expense':
-      component = <Expense />;
+      component = (
+        <PermissionGate permission="accounting.view">
+          <Expense />
+        </PermissionGate>
+      );
       break;
 
     default:

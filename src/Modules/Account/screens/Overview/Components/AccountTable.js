@@ -3,7 +3,9 @@ import React from 'react';
 import { Table } from 'antd';
 import moment from 'moment';
 import numeral from 'numeral';
+import PropTypes from 'prop-types';
 import { Card } from 'shards-react';
+import { RBACDataTable } from 'components';
 
 const AccountTable = ({ data, range }) => {
   const columns = [
@@ -44,9 +46,27 @@ const AccountTable = ({ data, range }) => {
 
   return (
     <Card small className="px-4 py-4">
-      <Table columns={columns} dataSource={data} />
+      <RBACDataTable 
+        columns={columns} 
+        dataSource={data}
+        actionPermissions={{
+          view: 'accounting.view',
+          edit: 'accounting.edit',
+          delete: 'accounting.approve'
+        }}
+        rbacConfig={{
+          showSummary: false,
+          enableSelection: false
+        }}
+        size="small"
+      />
     </Card>
   );
+};
+
+AccountTable.propTypes = {
+  data: PropTypes.array.isRequired,
+  range: PropTypes.string.isRequired
 };
 
 export default AccountTable;

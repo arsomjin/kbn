@@ -14,8 +14,8 @@ export const THAILAND_REGIONS = {
 
 // Province codes mapping
 export const PROVINCE_CODES = {
-  "นครราชสีมา": "30",
-  "นครสวรรค์": "60"
+  "นครราชสีมา": "NMA",
+  "นครสวรรค์": "NSN"
 };
 
 /**

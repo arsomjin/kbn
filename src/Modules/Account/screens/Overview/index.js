@@ -8,14 +8,20 @@ import { Select, Skeleton } from 'antd';
 import { dateData, monthData, weekData, yearData } from './data';
 import AccountTable from './Components/AccountTable';
 import { Numb } from 'functions';
+import { PermissionGate, GeographicBranchSelector } from 'components';
+import { usePermissions } from 'hooks/usePermissions';
 const { Option } = Select;
 
 const Overview = () => {
   const { branches } = useSelector(state => state.data);
+  const { getAccessibleBranches, hasPermission, shouldShowProvinceSelector } = usePermissions();
   const [branchCode, setBranch] = useState('all');
   const [range, setRange] = useState('เดือน');
   const [data, setData] = useState([]);
   const [pieData, setPieData] = useState([]);
+
+  // Filter branches based on user's geographic access
+  const accessibleBranches = getAccessibleBranches(branches);
 
   const _getData = range => {
     //TODO
@@ -69,9 +75,9 @@ const Overview = () => {
     <Option key="all" value="all">
       ทุกสาขา
     </Option>,
-    ...Object.keys(branches).map(key => (
+    ...Object.keys(accessibleBranches).map(key => (
       <Option key={key} value={key}>
-        {branches[key].branchName}
+        {accessibleBranches[key].branchName}
       </Option>
     ))
   ];
@@ -81,15 +87,16 @@ const Overview = () => {
       <Row noGutters className="page-header py-4">
         <PageTitle title="บัญชี" subtitle="ภาพรวม" className="text-sm-left mb-3" />
         <Col sm="4" className="d-flex mt-3">
-          <Select
-            placeholder="เลือกสาขา"
-            defaultValue="all"
-            onChange={ev => _onBranchSelected(ev)}
-            style={{ width: 240 }}
-            // allowClear
-          >
-            {selectOptions}
-          </Select>
+          <PermissionGate permission="accounting.view">
+            <GeographicBranchSelector
+              placeholder="เลือกสาขา"
+              value={branchCode}
+              onChange={_onBranchSelected}
+              hasAll={true}
+              style={{ width: 240 }}
+              respectRBAC={true}
+            />
+          </PermissionGate>
         </Col>
         {/* <Col sm="4" className="col d-flex align-items-center">
         <ButtonGroup size="sm" className="d-inline-flex mb-3 mb-sm-0 mx-auto">
@@ -115,7 +122,7 @@ const Overview = () => {
               data={data}
               range={range}
               onRangeChange={_onRangeChange}
-              branchName={branchCode === 'all' ? 'ทั้งหมด' : branches[branchCode].branchName}
+              branchName={branchCode === 'all' ? 'ทั้งหมด' : accessibleBranches[branchCode]?.branchName || 'ไม่พบสาขา'}
             />
           ) : (
             <Skeleton active />
@@ -126,12 +133,14 @@ const Overview = () => {
         <Col lg="4" md="6" sm="6" className="mb-4">
           <AccountPieChart
             data={pieData}
-            branchName={branchCode === 'all' ? 'ทั้งหมด' : branches[branchCode].branchName}
+            branchName={branchCode === 'all' ? 'ทั้งหมด' : accessibleBranches[branchCode]?.branchName || 'ไม่พบสาขา'}
             range={`ราย${range}`}
           />
         </Col>
       </Row>
-      <AccountTable data={data} range={range} />
+      <PermissionGate permission="accounting.view">
+        <AccountTable data={data} range={range} />
+      </PermissionGate>
       <p className="text-light text-right my-4 mx-4">หมายเหตุ: ข้อมูลที่แสดง ยังไม่ใข่ข้อมูลจริง *</p>
     </Container>
   );

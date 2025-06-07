@@ -26,6 +26,8 @@ import { load } from 'functions';
 import { showSuccess } from 'functions';
 import { updateNewOrderCustomer } from 'Modules/Utils';
 import { errorHandler } from 'functions';
+import { PermissionGate } from 'components';
+import { usePermissions } from 'hooks/usePermissions';
 const { Option } = Select;
 
 const initProps = {
@@ -37,7 +39,7 @@ const initProps = {
   grant: true
 };
 
-export default () => {
+const IncomeDaily = () => {
   const history = useHistory();
   let location = useLocation();
   const params = location.state?.params;
@@ -46,6 +48,7 @@ export default () => {
 
   const { firestore, api } = useContext(FirebaseContext);
   const { user } = useSelector(state => state.auth);
+  const { hasPermission } = usePermissions();
   const [mProps, setProps] = useMergeState(initProps);
   const [ready, setReady] = useState(false);
   const [category, setCategory] = useState(params?.category || 'vehicles');
@@ -187,65 +190,75 @@ export default () => {
   switch (category) {
     case 'vehicles':
       currentView = (
-        <IncomeVehicles
-          onConfirm={_onConfirmOrder}
-          order={mProps.order}
-          readOnly={mProps.readOnly}
-          onBack={mProps.onBack}
-          isEdit={mProps.isEdit}
-          reset={() => setProps(initProps)}
-        />
+        <PermissionGate permission="view_vehicle_income">
+          <IncomeVehicles
+            onConfirm={_onConfirmOrder}
+            order={mProps.order}
+            readOnly={mProps.readOnly}
+            onBack={mProps.onBack}
+            isEdit={mProps.isEdit}
+            reset={() => setProps(initProps)}
+          />
+        </PermissionGate>
       );
       break;
     case 'service':
       currentView = (
-        <IncomeService
-          onBack={mProps.onBack}
-          onConfirm={_onConfirmOrder}
-          order={mProps.order}
-          readOnly={mProps.readOnly}
-          isEdit={mProps.isEdit}
-          firestore={firestore}
-          reset={() => setProps(initProps)}
-        />
+        <PermissionGate permission="view_service_income">
+          <IncomeService
+            onBack={mProps.onBack}
+            onConfirm={_onConfirmOrder}
+            order={mProps.order}
+            readOnly={mProps.readOnly}
+            isEdit={mProps.isEdit}
+            firestore={firestore}
+            reset={() => setProps(initProps)}
+          />
+        </PermissionGate>
       );
       break;
     case 'parts':
       currentView = (
-        <IncomeParts
-          onBack={mProps.onBack}
-          onConfirm={_onConfirmOrder}
-          order={mProps.order}
-          readOnly={mProps.readOnly}
-          isEdit={mProps.isEdit}
-          reset={() => setProps(initProps)}
-        />
+        <PermissionGate permission="view_parts_income">
+          <IncomeParts
+            onBack={mProps.onBack}
+            onConfirm={_onConfirmOrder}
+            order={mProps.order}
+            readOnly={mProps.readOnly}
+            isEdit={mProps.isEdit}
+            reset={() => setProps(initProps)}
+          />
+        </PermissionGate>
       );
       break;
     case 'other':
       currentView = (
-        <IncomeOther
-          onBack={mProps.onBack}
-          onConfirm={_onConfirmOrder}
-          order={mProps.order}
-          readOnly={mProps.readOnly}
-          isEdit={mProps.isEdit}
-        />
+        <PermissionGate permission="view_other_income">
+          <IncomeOther
+            onBack={mProps.onBack}
+            onConfirm={_onConfirmOrder}
+            order={mProps.order}
+            readOnly={mProps.readOnly}
+            isEdit={mProps.isEdit}
+          />
+        </PermissionGate>
       );
       break;
 
     default:
       currentView = (
-        <IncomeVehicles
-          onConfirm={_onConfirmOrder}
-          firestore={firestore}
-          api={api}
-          order={mProps.order}
-          readOnly={mProps.readOnly}
-          onBack={mProps.onBack}
-          isEdit={mProps.isEdit}
-          reset={() => setProps(initProps)}
-        />
+        <PermissionGate permission="sales.view">
+          <IncomeVehicles
+            onConfirm={_onConfirmOrder}
+            firestore={firestore}
+            api={api}
+            order={mProps.order}
+            readOnly={mProps.readOnly}
+            onBack={mProps.onBack}
+            isEdit={mProps.isEdit}
+            reset={() => setProps(initProps)}
+          />
+        </PermissionGate>
       );
 
       break;
@@ -273,7 +286,7 @@ export default () => {
                 onChange={ev => _changeCategory(ev)}
                 value={category}
                 className="text-primary"
-                disabled={!mProps.grant || mProps.isEdit}
+                disabled={!hasPermission('accounting.edit') || mProps.isEdit}
               >
                 {Object.keys(IncomeDailyCategories).map((type, i) => (
                   <Option
@@ -287,7 +300,11 @@ export default () => {
           </Col>
         </Row>
       </div>
-      {ready ? currentView : <Skeleton active />}
+      <PermissionGate permission="accounting.view">
+        {ready ? currentView : <Skeleton active />}
+      </PermissionGate>
     </Container>
   );
 };
+
+export default IncomeDaily;

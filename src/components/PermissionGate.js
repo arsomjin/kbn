@@ -6,6 +6,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { usePermissions } from '../hooks/usePermissions';
+import { showLog } from 'functions';
 
 /**
  * Permission Gate Component
@@ -44,6 +45,7 @@ const PermissionGate = ({
     hasFullAccess,
     userRole,
     isSuperAdmin,
+    isExecutive,
     canUserAccessProvince,
     canUserAccessBranch
   } = usePermissions();
@@ -60,8 +62,8 @@ const PermissionGate = ({
     });
   }
 
-  // Super admin bypass
-  if (isSuperAdmin) {
+  // Super admin and executive bypass
+  if (isSuperAdmin || isExecutive) {
     return (
       <div className={className} style={style}>
         {children}
@@ -236,7 +238,8 @@ export const usePermissionGate = (permissionConfig) => {
     hasGeographicAccess,
     hasFullAccess,
     userRole,
-    isSuperAdmin
+    isSuperAdmin,
+    isExecutive
   } = usePermissions();
 
   const {
@@ -249,8 +252,8 @@ export const usePermissionGate = (permissionConfig) => {
     allOf
   } = permissionConfig;
 
-  // Super admin bypass
-  if (isSuperAdmin) return true;
+  // Super admin and executive bypass
+  if (isSuperAdmin || isExecutive) return true;
 
   // Role-based check
   if (role && userRole !== role) return false;

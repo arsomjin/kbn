@@ -5,7 +5,7 @@ import { showSuccess, showWarn } from 'functions';
 
 const INITIAL_PROVINCES = [
   {
-    provinceCode: '30',
+    provinceCode: 'NMA',
     provinceName: 'นครราชสีมา',
     provinceNameEn: 'Nakhon Ratchasima',
     region: 'อีสาน',
@@ -17,7 +17,7 @@ const INITIAL_PROVINCES = [
     remark: 'จังหวัดหลัก - ดำเนินการมาแล้ว'
   },
   {
-    provinceCode: '60',
+    provinceCode: 'NSN',
     provinceName: 'นครสวรรค์',
     provinceNameEn: 'Nakhon Sawan',
     region: 'กลาง',

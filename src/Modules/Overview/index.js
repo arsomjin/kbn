@@ -9,13 +9,27 @@ import LandingPage from './components/LandingPage';
 import { checkDoc } from 'firebase/api';
 import { FirebaseContext } from '../../firebase';
 
-export default () => {
+// ✅ Add RBAC imports
+import { PermissionGate } from 'components';
+import { usePermissions } from 'hooks/usePermissions';
+
+// Lazy load the enhanced role-based dashboard with hierarchical switching
+const EnhancedRoleBasedDashboard = React.lazy(() => import('./components/EnhancedRoleBasedDashboard'));
+
+const OverviewModule = () => {
   const { api } = useContext(FirebaseContext);
   const { user } = useSelector(state => state.auth);
   const { branches, departments } = useSelector(state => state.data);
   const [userData, setUser] = useState({});
   const [ready, setReady] = useState(false);
   const alertRef = useRef();
+
+  // ✅ Add RBAC hooks
+  const { 
+    hasPermission, 
+    hasDepartmentAccess, 
+    isSuperAdmin,
+  } = usePermissions();
 
   const dispatch = useDispatch();
 
@@ -106,8 +120,34 @@ export default () => {
   if (!ready) {
     return <Skeleton active />;
   }
-  if (user?.isDev || (user?.permCats && user.permCats?.permCat001)) {
-    return <Dashboard />;
+
+  // ✅ Enhanced permission logic with RBAC
+  const canAccessDashboard = user?.isDev || 
+                            isSuperAdmin || 
+                            hasPermission('reports.view') ||
+                            hasDepartmentAccess('reports') ||
+                            (user?.permCats && user.permCats?.permCat001);
+
+  // Use enhanced role-based dashboard with hierarchical switching
+  if (canAccessDashboard) {
+    return (
+      <React.Suspense fallback={<div>Loading dashboard...</div>}>
+        <EnhancedRoleBasedDashboard />
+      </React.Suspense>
+    );
   }
-  return <LandingPage userData={userData} />;
+
+  // For users who don't meet dashboard criteria, use PermissionGate as fallback
+  return (
+    <PermissionGate
+      anyOf={['reports.view', 'accounting.view', 'sales.view', 'service.view']}
+      fallback={<LandingPage userData={userData} />}
+    >
+      <React.Suspense fallback={<div>Loading dashboard...</div>}>
+        <EnhancedRoleBasedDashboard />
+      </React.Suspense>
+    </PermissionGate>
+  );
 };
+
+export default OverviewModule;

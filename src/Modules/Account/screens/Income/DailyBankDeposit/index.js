@@ -29,6 +29,8 @@ import EditableCellTable from 'components/EditableCellTable';
 import { TableSummary } from 'api/Table';
 import HiddenItem from 'components/HiddenItem';
 import { errorHandler } from 'functions';
+import { PermissionGate } from 'components';
+import { usePermissions } from 'hooks/usePermissions';
 
 const initProps = {
   order: {},
@@ -39,7 +41,7 @@ const initProps = {
   grant: true
 };
 
-export default () => {
+const DailyBankDeposit = () => {
   const history = useHistory();
   let location = useLocation();
   const params = location.state?.params;
@@ -47,6 +49,7 @@ export default () => {
   const { user } = useSelector(state => state.auth);
   const { users } = useSelector(state => state.data);
   const { firestore, api } = useContext(FirebaseContext);
+  const { hasPermission } = usePermissions();
 
   const [form] = Form.useForm();
 
@@ -269,18 +272,19 @@ export default () => {
   return !ready ? (
     <Skeleton active />
   ) : (
-    <Container fluid className="main-content-container p-3">
-      <Form
-        form={form}
-        initialValues={{
-          ...getInitItem(mProps.order),
-          branchCode: mProps.order?.branchCode || user.branch || '0450'
-        }}
-        layout="vertical"
-        size="small"
-        onFinish={_onPreConfirm}
-        onValuesChange={_onValuesChange}
-      >
+    <PermissionGate permission="accounting.view">
+      <Container fluid className="main-content-container p-3">
+        <Form
+          form={form}
+          initialValues={{
+            ...getInitItem(mProps.order),
+            branchCode: mProps.order?.branchCode || user.branch || '0450'
+          }}
+          layout="vertical"
+          size="small"
+          onFinish={_onPreConfirm}
+          onValuesChange={_onValuesChange}
+        >
         {values => {
           let editData = [];
           if (values.editedBy) {
@@ -303,15 +307,17 @@ export default () => {
               <Collapse className="mb-3">
                 <Collapse.Panel header="บันทึกข้อมูล" key="1">
                   {renderInput()}
-                  <Footer
-                    onConfirm={() => form.submit()}
-                    onCancel={() => form.resetFields()}
-                    cancelText="ล้างหน้าจอ"
-                    cancelPopConfirmText="ล้าง?"
-                    okPopConfirmText="ยืนยัน?"
-                    okText="บันทึกรายการ"
-                    okIcon={<PlusOutlined />}
-                  />
+                  <PermissionGate permission="accounting.edit">
+                    <Footer
+                      onConfirm={() => form.submit()}
+                      onCancel={() => form.resetFields()}
+                      cancelText="ล้างหน้าจอ"
+                      cancelPopConfirmText="ล้าง?"
+                      okPopConfirmText="ยืนยัน?"
+                      okText="บันทึกรายการ"
+                      okIcon={<PlusOutlined />}
+                    />
+                  </PermissionGate>
                 </Collapse.Panel>
               </Collapse>
             </>
@@ -348,6 +354,9 @@ export default () => {
           </Row>
         </CardFooter>
       )}
-    </Container>
+      </Container>
+    </PermissionGate>
   );
 };
+
+export default DailyBankDeposit;

@@ -141,7 +141,7 @@ export const getBookingData = sValues =>
   });
 
 export const RenderSearch = ({ type }) => {
-  showLog({ type });
+  // showLog({ type });
   return (
     <div className="border bg-light px-3 pt-3 mb-3">
       <Row>

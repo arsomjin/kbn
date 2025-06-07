@@ -12,7 +12,7 @@ import {
 import { ExecMenu, DevMenu } from 'data/Constant';
 import Load from 'elements/Load';
 import { getAllPaths } from 'navigation/api';
-import routes from 'routes';
+import routes from 'navigation/routes';
 import { FirebaseContext } from '../../firebase';
 import { logoutUser } from 'redux/actions/auth';
 import { vapidKey } from 'firebase/firebaseConfig';

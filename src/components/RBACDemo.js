@@ -22,7 +22,9 @@ import ProvinceSelector, { useProvinceSelector } from './ProvinceSelector';
 import GeographicBranchSelector, { useGeographicBranchSelector } from './GeographicBranchSelector';
 import { usePermissions } from '../hooks/usePermissions';
 import { fetchProvinces, setCurrentProvince } from '../redux/actions/provinces';
-import { setUserPermissions, checkPermission } from '../redux/actions/rbac';
+import { setUserPermissions, setUserRole, setGeographicAccess, checkPermission } from '../redux/actions/rbac';
+import { USER_UPDATE } from '../redux/actions/auth';
+import { ROLE_PERMISSIONS } from '../data/permissions';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -46,6 +48,7 @@ const RBACDemo = () => {
     hasGeographicAccess,
     hasFullAccess,
     isSuperAdmin,
+    isExecutive,
     hasProvinceAccess,
     hasBranchAccessOnly,
     userRole,
@@ -61,33 +64,36 @@ const RBACDemo = () => {
 
   // Permission gate hook examples
   const canViewReports = usePermissionGate({
-    permission: 'view_reports',
+    permission: 'reports.view',
     province: provinceSelector.selectedProvince,
     requireGeographic: true
   });
 
   const canManageBranch = usePermissionGate({
-    anyOf: ['manage_branch', 'manage_all_branches'],
+    anyOf: ['admin.view', 'sales.approve', 'accounting.approve'],
     branch: branchSelector.selectedBranch
   });
 
   // Demo data
   const demoRoles = [
     { key: 'SUPER_ADMIN', label: 'Super Admin', color: 'red' },
+    { key: 'EXECUTIVE', label: 'Executive', color: 'purple' },
     { key: 'PROVINCE_MANAGER', label: 'Province Manager', color: 'blue' },
     { key: 'BRANCH_MANAGER', label: 'Branch Manager', color: 'green' },
     { key: 'BRANCH_STAFF', label: 'Branch Staff', color: 'orange' }
   ];
 
   const demoPermissions = [
-    'view_reports',
-    'manage_branch',
-    'manage_users',
-    'view_all_data',
-    'edit_settings',
-    'manage_inventory',
-    'process_sales',
-    'view_finances'
+    'accounting.view',
+    'accounting.edit',
+    'sales.view',
+    'sales.edit',
+    'service.view',
+    'service.edit',
+    'inventory.view',
+    'inventory.edit',
+    'reports.view',
+    'admin.view'
   ];
 
   const demoProvinces = [
@@ -106,6 +112,70 @@ const RBACDemo = () => {
   useEffect(() => {
     if (Object.keys(provinces).length === 0) {
       dispatch(fetchProvinces());
+      
+      // For demo purposes, add mock province data if none exists
+      const mockProvinces = {
+        'nakhon-ratchasima': {
+          key: 'nakhon-ratchasima',
+          id: 'nakhon-ratchasima',
+          provinceName: 'นครราชสีมา',
+          provinceNameEn: 'Nakhon Ratchasima',
+          code: 'NMA',
+          region: 'northeast',
+          isActive: true,
+          branches: ['0450']
+        },
+        'nakhon-sawan': {
+          key: 'nakhon-sawan',
+          id: 'nakhon-sawan',
+          provinceName: 'นครสวรรค์',
+          provinceNameEn: 'Nakhon Sawan',
+          code: 'NSN',
+          region: 'central',
+          isActive: true,
+          branches: ['NSN001', 'NSN002', 'NSN003']
+        }
+      };
+      
+      // Add mock provinces to Redux store for demo
+      setTimeout(() => {
+        dispatch({ type: 'SET_PROVINCES', payload: mockProvinces });
+        
+        // Also add mock branch data if needed
+        const mockBranches = {
+          '0450': {
+            branchCode: '0450',
+            branchName: 'สาขานครราชสีมา',
+            provinceId: 'nakhon-ratchasima',
+            province: 'นครราชสีมา',
+            isActive: true
+          },
+          'NSN001': {
+            branchCode: 'NSN001',
+            branchName: 'สาขานครสวรรค์ 1',
+            provinceId: 'nakhon-sawan',
+            province: 'นครสวรรค์',
+            isActive: true
+          },
+          'NSN002': {
+            branchCode: 'NSN002',
+            branchName: 'สาขานครสวรรค์ 2',
+            provinceId: 'nakhon-sawan',
+            province: 'นครสวรรค์',
+            isActive: true
+          },
+          'NSN003': {
+            branchCode: 'NSN003',
+            branchName: 'สาขานครสวรรค์ 3',
+            provinceId: 'nakhon-sawan',
+            province: 'นครสวรรค์',
+            isActive: true
+          }
+        };
+        
+        // Add branches to data Redux store
+        dispatch({ type: 'SET_BRANCHES', payload: mockBranches });
+      }, 100);
     }
   }, [dispatch, provinces]);
 
@@ -113,45 +183,69 @@ const RBACDemo = () => {
   const handleRoleChange = (role) => {
     setDemoRole(role);
     
-    // Simulate different RBAC configs
+    // Simulate different RBAC configs using correct province keys and permissions
     const roleConfigs = {
       SUPER_ADMIN: {
         accessLevel: 'all',
-        permissions: ['*'],
-        allowedProvinces: [],
-        allowedBranches: [],
+        permissions: ROLE_PERMISSIONS.SUPER_ADMIN,
+        allowedProvinces: ['nakhon-ratchasima', 'nakhon-sawan'],
+        allowedBranches: ['0450', 'NSN001', 'NSN002', 'NSN003'],
+        homeProvince: null,
+        homeBranch: null
+      },
+      EXECUTIVE: {
+        accessLevel: 'all',
+        permissions: ROLE_PERMISSIONS.EXECUTIVE,
+        allowedProvinces: ['nakhon-ratchasima', 'nakhon-sawan'],
+        allowedBranches: ['0450', 'NSN001', 'NSN002', 'NSN003'],
         homeProvince: null,
         homeBranch: null
       },
       PROVINCE_MANAGER: {
         accessLevel: 'province',
-        permissions: ['view_reports', 'manage_branch', 'manage_users', 'view_all_data'],
-        allowedProvinces: ['นครสวรรค์'],
+        permissions: ROLE_PERMISSIONS.PROVINCE_MANAGER,
+        allowedProvinces: ['nakhon-sawan'],
         allowedBranches: ['NSN001', 'NSN002', 'NSN003'],
-        homeProvince: 'นครสวรรค์',
+        homeProvince: 'nakhon-sawan',
         homeBranch: null
       },
       BRANCH_MANAGER: {
         accessLevel: 'branch',
-        permissions: ['view_reports', 'manage_branch', 'view_all_data', 'manage_inventory'],
-        allowedProvinces: ['นครสวรรค์'],
+        permissions: ROLE_PERMISSIONS.BRANCH_MANAGER,
+        allowedProvinces: ['nakhon-sawan'],
         allowedBranches: ['NSN001'],
-        homeProvince: 'นครสวรรค์',
+        homeProvince: 'nakhon-sawan',
         homeBranch: 'NSN001'
       },
       BRANCH_STAFF: {
         accessLevel: 'branch',
-        permissions: ['process_sales', 'view_reports'],
-        allowedProvinces: ['นครสวรรค์'],
+        permissions: ROLE_PERMISSIONS.INVENTORY_STAFF, // Using inventory staff as branch staff example
+        allowedProvinces: ['nakhon-sawan'],
         allowedBranches: ['NSN001'],
-        homeProvince: 'นครสวรรค์',
+        homeProvince: 'nakhon-sawan',
         homeBranch: 'NSN001'
       }
     };
 
     const config = roleConfigs[role];
     if (config && user?.uid) {
-      dispatch(setUserPermissions(user.uid, config));
+      // Extract permissions and geographic data from config
+      const { permissions, ...geographic } = config;
+      
+      // For demo purposes, also update the user object flags
+      const updatedUser = {
+        ...user,
+        isExecutive: role === 'EXECUTIVE',
+        accessLevel: role
+      };
+      
+      // Dispatch auth update first
+      dispatch({ type: USER_UPDATE, user: updatedUser });
+      
+      // Dispatch all three RBAC actions
+      dispatch(setUserPermissions(user.uid, permissions, geographic));
+      dispatch(setUserRole(user.uid, role));
+      dispatch(setGeographicAccess(user.uid, geographic));
     }
   };
 
@@ -173,10 +267,12 @@ const RBACDemo = () => {
             <Row gutter={16}>
               <Col span={12}>
                 <Descriptions column={1} size="small">
-                  <Descriptions.Item label="Role">{userRole || 'Unknown'}</Descriptions.Item>
+                  <Descriptions.Item label="Role">
+                    {typeof userRole === 'object' && userRole?.role ? userRole.role : userRole || 'Unknown'}
+                  </Descriptions.Item>
                   <Descriptions.Item label="Access Level">
-                    <Tag color={isSuperAdmin ? 'red' : hasProvinceAccess ? 'blue' : 'green'}>
-                      {isSuperAdmin ? 'Super Admin' : hasProvinceAccess ? 'Province' : 'Branch'}
+                    <Tag color={isExecutive ? 'purple' : isSuperAdmin ? 'red' : hasProvinceAccess ? 'blue' : 'green'}>
+                      {isExecutive ? 'Executive' : isSuperAdmin ? 'Super Admin' : hasProvinceAccess ? 'Province' : 'Branch'}
                     </Tag>
                   </Descriptions.Item>
                   <Descriptions.Item label="Home Province">{permissions.userProvinces?.[0] || 'None'}</Descriptions.Item>
@@ -227,7 +323,7 @@ const RBACDemo = () => {
                 value={provinceSelector.selectedProvince}
                 onChange={provinceSelector.handleProvinceChange}
                 placeholder="เลือกจังหวัด"
-                showAll={isSuperAdmin}
+                showAll={isSuperAdmin || isExecutive}
                 respectRBAC={true}
                 style={{ width: '100%' }}
               />
@@ -252,7 +348,7 @@ const RBACDemo = () => {
                 onChange={branchSelector.handleBranchChange}
                 province={provinceSelector.selectedProvince}
                 placeholder="เลือกสาขา"
-                showAll={hasProvinceAccess}
+                showAll={hasProvinceAccess || isExecutive}
                 respectRBAC={true}
                 showBranchCode={true}
                 style={{ width: '100%' }}
@@ -275,7 +371,7 @@ const RBACDemo = () => {
             <Row gutter={[16, 16]}>
               <Col span={8}>
                 <PermissionGate 
-                  permission="view_reports"
+                  permission="reports.view"
                   province={provinceSelector.selectedProvince}
                   fallback={
                     <Alert message="No permission to view reports" type="error" showIcon />
@@ -298,7 +394,7 @@ const RBACDemo = () => {
 
               <Col span={8}>
                 <PermissionGate 
-                  anyOf={['manage_branch', 'manage_all_branches']}
+                  anyOf={['admin.view', 'sales.approve', 'accounting.approve']}
                   branch={branchSelector.selectedBranch}
                   fallback={
                     <Alert message="Cannot manage selected branch" type="error" showIcon />
@@ -348,6 +444,7 @@ const RBACDemo = () => {
               <Col span={8}>
                 <Title level={5}>Access Checks</Title>
                 <ul>
+                  <li>Executive: <Tag color={isExecutive ? 'green' : 'red'}>{isExecutive.toString()}</Tag></li>
                   <li>Super Admin: <Tag color={isSuperAdmin ? 'green' : 'red'}>{isSuperAdmin.toString()}</Tag></li>
                   <li>Province Access: <Tag color={hasProvinceAccess ? 'green' : 'red'}>{hasProvinceAccess.toString()}</Tag></li>
                   <li>Branch Only: <Tag color={hasBranchAccessOnly ? 'green' : 'red'}>{hasBranchAccessOnly.toString()}</Tag></li>

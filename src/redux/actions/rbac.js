@@ -1,7 +1,9 @@
 /**
  * RBAC Actions for KBN Multi-Province System
- * Handles Role-Based Access Control with Geographic Restrictions
+ * Simplified Department + Document Flow Permission System
  */
+
+import { ROLE_PERMISSIONS } from '../../data/permissions';
 
 // Action Types
 export const SET_USER_PERMISSIONS = 'SET_USER_PERMISSIONS';
@@ -14,43 +16,54 @@ export const CLEAR_ACCESS_CACHE = 'CLEAR_ACCESS_CACHE';
 export const SET_RBAC_LOADING = 'SET_RBAC_LOADING';
 export const SET_RBAC_ERROR = 'SET_RBAC_ERROR';
 
-// RBAC Role Definitions
+// New Simplified RBAC Role Definitions
 export const ACCESS_LEVELS = {
   SUPER_ADMIN: {
     level: 'all',
     description: 'ผู้ดูแลระบบสูงสุด',
-    permissions: ['*'],
+    permissions: ROLE_PERMISSIONS.SUPER_ADMIN,
+    geographic: { type: 'all' }
+  },
+  EXECUTIVE: {
+    level: 'all',
+    description: 'ผู้บริหารระดับสูง',
+    permissions: ROLE_PERMISSIONS.EXECUTIVE,
     geographic: { type: 'all' }
   },
   PROVINCE_MANAGER: {
     level: 'province',
     description: 'ผู้จัดการจังหวัด',
-    permissions: [
-      'view_province_reports',
-      'manage_branches_in_province',
-      'view_all_data_in_province',
-      'manage_users_in_province'
-    ],
+    permissions: ROLE_PERMISSIONS.PROVINCE_MANAGER,
     geographic: { type: 'province', restrictions: 'allowedProvinces' }
   },
   BRANCH_MANAGER: {
     level: 'branch',
     description: 'ผู้จัดการสาขา',
-    permissions: [
-      'view_branch_reports',
-      'manage_branch_operations',
-      'view_branch_data'
-    ],
+    permissions: ROLE_PERMISSIONS.BRANCH_MANAGER,
     geographic: { type: 'branch', restrictions: 'allowedBranches' }
   },
-  BRANCH_STAFF: {
+  ACCOUNTING_STAFF: {
     level: 'branch',
-    description: 'พนักงานสาขา',
-    permissions: [
-      'view_branch_data',
-      'create_sales',
-      'manage_customers'
-    ],
+    description: 'พนักงานบัญชี',
+    permissions: ROLE_PERMISSIONS.ACCOUNTING_STAFF,
+    geographic: { type: 'branch', restrictions: 'allowedBranches' }
+  },
+  SALES_STAFF: {
+    level: 'branch',
+    description: 'พนักงานขาย',
+    permissions: ROLE_PERMISSIONS.SALES_STAFF,
+    geographic: { type: 'branch', restrictions: 'allowedBranches' }
+  },
+  SERVICE_STAFF: {
+    level: 'branch',
+    description: 'พนักงานบริการ',
+    permissions: ROLE_PERMISSIONS.SERVICE_STAFF,
+    geographic: { type: 'branch', restrictions: 'allowedBranches' }
+  },
+  INVENTORY_STAFF: {
+    level: 'branch',
+    description: 'พนักงานคลัง',
+    permissions: ROLE_PERMISSIONS.INVENTORY_STAFF,
     geographic: { type: 'branch', restrictions: 'allowedBranches' }
   }
 };

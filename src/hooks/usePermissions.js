@@ -1,17 +1,21 @@
 /**
  * usePermissions Hook for KBN Multi-Province System
- * Provides easy access to user permissions and geographic restrictions in React components
+ * With automatic legacy permission migration
  */
 
-import { useSelector } from 'react-redux';
-import { useMemo } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useMemo, useEffect } from 'react';
 import {
   checkPermission,
   checkGeographicAccess,
   hasAccess,
   filterDataByAccess,
   getAccessibleProvinces,
-  getAccessibleBranches
+  getAccessibleBranches,
+  hasDepartmentAccess,
+  hasFlowAccess,
+  getAccessibleDepartments,
+  getAccessibleFlows
 } from '../utils/rbac';
 import {
   getCurrentUserRBAC,
@@ -21,6 +25,15 @@ import {
   canAccessProvince,
   canAccessBranch
 } from '../redux/reducers/rbac';
+import { setUserPermissions, setUserRole, setGeographicAccess } from '../redux/actions/rbac';
+import { 
+  needsMigration, 
+  migrateUserToRBAC, 
+  validateMigratedRBAC,
+  createFallbackRBAC,
+  logMigration 
+} from '../utils/userMigration';
+import { parsePermission } from '../data/permissions';
 
 /**
  * Custom hook for accessing user permissions and geographic restrictions
@@ -36,14 +49,49 @@ export const usePermissions = () => {
   // Get provinces and branches data
   const { provinces } = useSelector((state) => state.provinces);
   const { branches } = useSelector((state) => state.data);
+  
+  const dispatch = useDispatch();
 
   // Memoized user ID
   const userId = useMemo(() => user?.uid || null, [user]);
 
+  // AUTO-MIGRATION: Check if user needs migration and perform it
+  // Only run when user or branches change, NOT when currentUserRBAC changes
+  // to prevent conflicts with manual role switching
+  useEffect(() => {
+    if (user && userId && needsMigration(user, currentUserRBAC)) {
+      const migratedRBAC = migrateUserToRBAC(user, branches);
+      
+      if (validateMigratedRBAC(migratedRBAC)) {
+        // Only migrate if there's no existing RBAC role (to avoid overriding demo roles)
+        if (!currentUserRBAC?.role) {
+          // Dispatch the migrated RBAC to Redux
+          dispatch(setUserPermissions(userId, migratedRBAC.permissions, migratedRBAC.geographic));
+          dispatch(setUserRole(userId, migratedRBAC.role));
+          dispatch(setGeographicAccess(userId, migratedRBAC.geographic));
+          
+          logMigration(user, migratedRBAC);
+        }
+      } else {
+        // Create fallback RBAC if migration fails
+        const fallbackRBAC = createFallbackRBAC(user, branches);
+        if (fallbackRBAC && !currentUserRBAC?.role) {
+          dispatch(setUserPermissions(userId, fallbackRBAC.permissions, fallbackRBAC.geographic));
+          dispatch(setUserRole(userId, fallbackRBAC.role));
+          dispatch(setGeographicAccess(userId, fallbackRBAC.geographic));
+          
+          console.warn('Migration failed, using fallback RBAC for user:', userId);
+        }
+      }
+    }
+  }, [user, userId, branches, dispatch]); // Removed currentUserRBAC from deps to prevent infinite loop
+
   // Memoized user permissions and geographic data
   const userPermissions = useMemo(() => {
     if (!currentUserRBAC) return [];
-    return currentUserRBAC.permissions || [];
+    const permissions = currentUserRBAC.permissions || [];
+    // Ensure permissions is always an array
+    return Array.isArray(permissions) ? permissions : [];
   }, [currentUserRBAC]);
 
   const userGeographic = useMemo(() => {
@@ -56,14 +104,42 @@ export const usePermissions = () => {
     return currentUserRBAC.role || null;
   }, [currentUserRBAC]);
 
-  // Core permission checking function
+  // Enhanced permission checking function for new system
   const hasPermission = useMemo(() => {
     return (permission, context = {}) => {
       if (!userPermissions.length) return false;
       
-      // Use the utility function for permission checking
+      // Use the new permission checking logic
       return checkPermission(userPermissions, permission, context);
     };
+  }, [userPermissions]);
+
+  // Department access checker
+  const hasDepartmentAccessFunc = useMemo(() => {
+    return (department) => {
+      return hasDepartmentAccess(userPermissions, department);
+    };
+  }, [userPermissions]);
+
+  // Document flow access checker
+  const hasFlowAccessFunc = useMemo(() => {
+    return (flow, department = null) => {
+      if (!Array.isArray(userPermissions)) return false;
+      if (userPermissions.includes('*')) return true;
+      
+      if (department) {
+        // Check for specific department.flow combination
+        return userPermissions.includes(`${department}.${flow}`);
+      }
+      
+      // Check if user has this flow in any department
+      return hasFlowAccess(userPermissions, flow);
+    };
+  }, [userPermissions]);
+
+  // Get user's accessible departments
+  const accessibleDepartments = useMemo(() => {
+    return getAccessibleDepartments(userPermissions);
   }, [userPermissions]);
 
   // Geographic access checking
@@ -98,8 +174,27 @@ export const usePermissions = () => {
       ...provinces[key]
     }));
     
+    // For branch-level users, we need to find provinces that contain their allowed branches
+    if (userGeographic.accessLevel === 'branch' && branches) {
+      const userBranchCodes = userGeographic.allowedBranches || [];
+      const accessibleProvinceKeys = new Set();
+      
+      // Find provinces by looking at branch data
+      userBranchCodes.forEach(branchCode => {
+        const branch = branches[branchCode];
+        if (branch && branch.provinceId) {
+          accessibleProvinceKeys.add(branch.provinceId);
+        }
+      });
+      
+      // Return provinces that contain user's branches
+      return allProvincesArray.filter(province => 
+        accessibleProvinceKeys.has(province.key)
+      );
+    }
+    
     return getAccessibleProvinces(userGeographic, allProvincesArray);
-  }, [userGeographic, provinces]);
+  }, [userGeographic, provinces, branches]);
 
   // Get accessible branches
   const accessibleBranches = useMemo(() => {
@@ -168,15 +263,20 @@ export const usePermissions = () => {
     };
   }, [userGeographic, branches]);
 
+  // Check if user is executive
+  const isExecutive = useMemo(() => {
+    return userRole === 'EXECUTIVE';
+  }, [userRole]);
+
   // Check if user is super admin
   const isSuperAdmin = useMemo(() => {
-    return userPermissions.includes('*');
-  }, [userPermissions]);
+    return Array.isArray(userPermissions) && userPermissions.includes('*') && userRole !== 'EXECUTIVE';
+  }, [userPermissions, userRole]);
 
   // Check if user has province-level access
   const hasProvinceAccess = useMemo(() => {
-    return userGeographic?.accessLevel === 'province' || userGeographic?.accessLevel === 'all';
-  }, [userGeographic]);
+    return userGeographic?.accessLevel === 'province' || userGeographic?.accessLevel === 'all' || isExecutive;
+  }, [userGeographic, isExecutive]);
 
   // Check if user has branch-level access only
   const hasBranchAccessOnly = useMemo(() => {
@@ -226,17 +326,26 @@ export const usePermissions = () => {
     userPermissions,
     userGeographic,
     
-    // Permission checking
+    // Permission checking (new system)
     hasPermission,
+    hasDepartmentAccess: hasDepartmentAccessFunc,
+    hasFlowAccess: hasFlowAccessFunc,
+    
+    // Department and flow access
+    accessibleDepartments,
+    getAccessibleFlows: (department) => getAccessibleFlows(userPermissions, department),
+    
+    // Geographic access (enhanced)
     hasGeographicAccess,
     hasFullAccess,
     
     // Access level checks
     isSuperAdmin,
+    isExecutive,
     hasProvinceAccess,
     hasBranchAccessOnly,
     
-    // Geographic access
+    // Geographic access data
     accessibleProvinces,
     accessibleBranches,
     accessibleProvinceKeys,
@@ -253,6 +362,14 @@ export const usePermissions = () => {
     // Filtered data for components
     userBranches,
     userProvinces,
+    
+    // Legacy compatibility
+    checkLegacyPermission: (permission) => {
+      // Support for old permission format during migration
+      if (user?.isDev) return true;
+      if (user?.permissions && user.permissions[permission]) return true;
+      return hasPermission(permission);
+    },
     
     // Utility getters
     getUserAccessLevel: () => userGeographic?.accessLevel || 'none',

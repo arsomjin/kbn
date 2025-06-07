@@ -12,7 +12,7 @@ export const useGeographicData = () => {
   const { user } = useSelector((state) => state.auth);
   const { provinces } = useSelector((state) => state.provinces);
   const { branches } = useSelector((state) => state.data);
-  const { getAccessibleProvinces, getAccessibleBranches } = usePermissions();
+  const { accessibleProvinces: permissionAccessibleProvinces, accessibleBranches: permissionAccessibleBranches } = usePermissions();
 
   // Get user's geographic scope
   const userScope = useMemo(() => {
@@ -53,13 +53,13 @@ export const useGeographicData = () => {
 
   // Get provinces user can access
   const accessibleProvinces = useMemo(() => {
-    return getAccessibleProvinces(provinces);
-  }, [getAccessibleProvinces, provinces]);
+    return permissionAccessibleProvinces || [];
+  }, [permissionAccessibleProvinces]);
 
   // Get branches user can access
   const accessibleBranches = useMemo(() => {
-    return getAccessibleBranches(branches);
-  }, [getAccessibleBranches, branches]);
+    return permissionAccessibleBranches || [];
+  }, [permissionAccessibleBranches]);
 
   // Check if user can access specific province
   const checkProvinceAccess = useCallback((provinceKey) => {

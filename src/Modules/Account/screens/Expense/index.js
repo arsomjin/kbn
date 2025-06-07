@@ -25,6 +25,8 @@ import ExecutiveExpenses from "./Components/ExecutiveExpenses";
 import { errorHandler } from "functions";
 import LeavePageBlocker from "components/LeavePageBlocker";
 import { showLog } from "functions";
+import { PermissionGate } from "components";
+import { usePermissions } from "hooks/usePermissions";
 
 const initProps = {
   order: {},
@@ -45,6 +47,7 @@ const ExpenseScreen = () => {
   const { firestore, api } = useContext(FirebaseContext);
   const { user } = useSelector((state) => state.auth);
   const { expenseAccountNames = {} } = useSelector((state) => state.data);
+  const { hasPermission } = usePermissions();
   const [mProps, setProps] = useMergeState(initProps);
   const [ready, setReady] = useState(false);
   const [category, setCategory] = useState(params?.category || "dailyChange");
@@ -402,7 +405,7 @@ const ExpenseScreen = () => {
                   onChange={_changeCategory}
                   value={category}
                   className="text-primary"
-                  disabled={!mProps.grant || mProps.isEdit}
+                  disabled={!hasPermission('accounting.edit') || mProps.isEdit}
                 >
                   {Object.keys(ExpenseType).map((type, i) => (
                     <Select.Option
@@ -415,7 +418,9 @@ const ExpenseScreen = () => {
             </Col>
           </Row>
         </div>
-        {ready ? currentView : <Skeleton active />}
+        <PermissionGate permission="accounting.view">
+          {ready ? currentView : <Skeleton active />}
+        </PermissionGate>
       </Container>
     </>
   );

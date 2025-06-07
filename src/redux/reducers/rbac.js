@@ -186,11 +186,12 @@ export const getCurrentUserRBAC = (state) => {
   if (!auth?.user?.uid) return null;
   
   const userId = auth.user.uid;
+  const userRoleObj = getUserRole(state, userId);
   
   return {
     userId,
     permissions: getUserPermissions(state, userId),
-    role: getUserRole(state, userId),
+    role: userRoleObj?.role || userRoleObj, // Extract role string from object or use directly if string
     geographic: getUserGeographic(state, userId)
   };
 };

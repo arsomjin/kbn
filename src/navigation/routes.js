@@ -2,23 +2,23 @@ import React from 'react';
 import { Redirect } from 'react-router-dom';
 
 // Layout Types
-import { DefaultLayout, HeaderNavigation, IconSidebar } from './layouts';
+import { DefaultLayout, HeaderNavigation, IconSidebar } from '../layouts';
 
 // Route Views
-import ForgotPassword from './views/ForgotPassword';
-import ChangePassword from './views/ChangePassword';
-import FileManagerList from './views/FileManagerList';
-import FileManagerCards from './views/FileManagerCards';
-import TransactionHistory from './views/TransactionHistory';
-import Calendar from './views/Calendar';
-import AddNewPost from './views/AddNewPost';
-import Errors from './views/Errors';
+import ForgotPassword from '../views/ForgotPassword';
+import ChangePassword from '../views/ChangePassword';
+import FileManagerList from '../views/FileManagerList';
+import FileManagerCards from '../views/FileManagerCards';
+import TransactionHistory from '../views/TransactionHistory';
+import Calendar from '../views/Calendar';
+import AddNewPost from '../views/AddNewPost';
+import Errors from '../views/Errors';
 import NotFound from 'views/NotFound';
-import ComponentsOverview from './views/ComponentsOverview';
-import Tables from './views/Tables';
-import BlogPosts from './views/BlogPosts';
-import HeaderNav from './views/HeaderNavigation';
-import IconSidebarView from './views/IconSidebar';
+import ComponentsOverview from '../views/ComponentsOverview';
+import Tables from '../views/Tables';
+import BlogPosts from '../views/BlogPosts';
+import HeaderNav from '../views/HeaderNavigation';
+import IconSidebarView from '../views/IconSidebar';
 import AccountOverview from 'Modules/Account/screens/Overview';
 import Income from 'Modules/Account/screens/Income';
 import IncomeOverview from 'Modules/Account/screens/Income/IncomeOverview';

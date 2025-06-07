@@ -1,26 +1,136 @@
 /**
- * RBAC Utility Functions for KBN Multi-Province System
- * Provides functions for permission checking, geographic access, and data filtering
+ * Simplified RBAC Utility Functions for KBN Multi-Province System
+ * Department + Document Flow Permission System
  */
 
+import { parsePermission, DEPARTMENTS, DOCUMENT_FLOWS } from '../data/permissions';
 import { ACCESS_LEVELS } from '../redux/actions/rbac';
 
 /**
- * Check if user has a specific permission
+ * Check if user has a specific permission (department.flow format)
  * @param {Array} userPermissions - Array of user permissions
- * @param {string} requiredPermission - Permission to check
+ * @param {string} requiredPermission - Permission to check (e.g., "accounting.view")
  * @param {Object} context - Context for geographic checks
  * @returns {boolean}
  */
 export const checkPermission = (userPermissions, requiredPermission, context = {}) => {
+  // Ensure userPermissions is always an array
+  const permissions = Array.isArray(userPermissions) ? userPermissions : [];
+  
   // Super admin check
-  if (userPermissions.includes('*')) return true;
+  if (permissions.includes('*')) return true;
 
-  // Direct permission check
-  if (!userPermissions.includes(requiredPermission)) return false;
+  // Parse the permission
+  const { department, flow, isValid } = parsePermission(requiredPermission);
+  
+  if (!isValid) {
+    // Direct permission check for non-standard permissions
+    return permissions.includes(requiredPermission);
+  }
 
-  // If permission exists, check geographic access
-  return true; // Geographic checks are handled separately
+  // Check for exact permission match
+  if (permissions.includes(requiredPermission)) return true;
+
+  // Check for department-level access (department.*)
+  const departmentWildcard = `${department}.*`;
+  if (permissions.includes(departmentWildcard)) return true;
+
+  // Check for flow-level access (*.flow)
+  const flowWildcard = `*.${flow}`;
+  if (permissions.includes(flowWildcard)) return true;
+
+  return false;
+};
+
+/**
+ * Check if user has access to a department
+ * @param {Array} userPermissions - Array of user permissions
+ * @param {string} department - Department to check
+ * @returns {boolean}
+ */
+export const hasDepartmentAccess = (userPermissions, department) => {
+  // Ensure userPermissions is always an array
+  const permissions = Array.isArray(userPermissions) ? userPermissions : [];
+  
+  if (permissions.includes('*')) return true;
+  
+  // Check if user has any permission in this department
+  const departmentPermissions = permissions.filter(perm => {
+    const { department: permDept } = parsePermission(perm);
+    return permDept === department;
+  });
+  
+  return departmentPermissions.length > 0;
+};
+
+/**
+ * Check if user has specific flow access across departments
+ * @param {Array} userPermissions - Array of user permissions
+ * @param {string} flow - Document flow to check
+ * @returns {boolean}
+ */
+export const hasFlowAccess = (userPermissions, flow) => {
+  // Ensure userPermissions is always an array
+  const permissions = Array.isArray(userPermissions) ? userPermissions : [];
+  
+  if (permissions.includes('*')) return true;
+  
+  // Check if user has this flow permission in any department
+  const flowPermissions = permissions.filter(perm => {
+    const { flow: permFlow } = parsePermission(perm);
+    return permFlow === flow;
+  });
+  
+  return flowPermissions.length > 0;
+};
+
+/**
+ * Get user's accessible departments
+ * @param {Array} userPermissions - Array of user permissions
+ * @returns {Array} List of accessible departments
+ */
+export const getAccessibleDepartments = (userPermissions) => {
+  // Ensure userPermissions is always an array
+  const permissions = Array.isArray(userPermissions) ? userPermissions : [];
+  
+  if (permissions.includes('*')) {
+    return Object.values(DEPARTMENTS);
+  }
+  
+  const departments = new Set();
+  permissions.forEach(perm => {
+    const { department, isValid } = parsePermission(perm);
+    if (isValid && department) {
+      departments.add(department);
+    }
+  });
+  
+  return Array.from(departments);
+};
+
+/**
+ * Get user's accessible document flows for a department
+ * @param {Array} userPermissions - Array of user permissions
+ * @param {string} department - Department to check
+ * @returns {Array} List of accessible flows for the department
+ */
+export const getAccessibleFlows = (userPermissions, department) => {
+  // Ensure userPermissions is always an array
+  const permissions = Array.isArray(userPermissions) ? userPermissions : [];
+  
+  if (permissions.includes('*')) {
+    return Object.values(DOCUMENT_FLOWS);
+  }
+  
+  const flows = new Set();
+  permissions.forEach(perm => {
+    const { department: permDept, flow, isValid } = parsePermission(perm);
+    if (isValid && permDept === department && flow) {
+      flows.add(flow);
+    }
+  });
+  
+  return Array.from(flows);
 };
 
 /**
@@ -216,24 +326,46 @@ const getBranchesInProvince = (provinceId) => {
 
 // Export commonly used permission constants
 export const PERMISSIONS = {
+  // Super admin
+  ALL: '*',
+  
+  // Accounting permissions
+  ACCOUNTING_VIEW: 'accounting.view',
+  ACCOUNTING_EDIT: 'accounting.edit',
+  ACCOUNTING_REVIEW: 'accounting.review',
+  ACCOUNTING_APPROVE: 'accounting.approve',
+  
+  // Sales permissions
+  SALES_VIEW: 'sales.view',
+  SALES_EDIT: 'sales.edit',
+  SALES_REVIEW: 'sales.review',
+  SALES_APPROVE: 'sales.approve',
+  
+  // Service permissions
+  SERVICE_VIEW: 'service.view',
+  SERVICE_EDIT: 'service.edit',
+  SERVICE_REVIEW: 'service.review',
+  SERVICE_APPROVE: 'service.approve',
+  
+  // Inventory permissions
+  INVENTORY_VIEW: 'inventory.view',
+  INVENTORY_EDIT: 'inventory.edit',
+  INVENTORY_REVIEW: 'inventory.review',
+  INVENTORY_APPROVE: 'inventory.approve',
+  
+  // HR permissions
+  HR_VIEW: 'hr.view',
+  HR_EDIT: 'hr.edit',
+  HR_REVIEW: 'hr.review',
+  HR_APPROVE: 'hr.approve',
+  
   // Admin permissions
-  MANAGE_SYSTEM: 'manage_system',
-  MANAGE_USERS: 'manage_users',
+  ADMIN_VIEW: 'admin.view',
+  ADMIN_EDIT: 'admin.edit',
+  ADMIN_REVIEW: 'admin.review',
+  ADMIN_APPROVE: 'admin.approve',
   
-  // Province management
-  VIEW_PROVINCE_REPORTS: 'view_province_reports',
-  MANAGE_BRANCHES_IN_PROVINCE: 'manage_branches_in_province',
-  VIEW_ALL_DATA_IN_PROVINCE: 'view_all_data_in_province',
-  MANAGE_USERS_IN_PROVINCE: 'manage_users_in_province',
-  
-  // Branch management
-  VIEW_BRANCH_REPORTS: 'view_branch_reports',
-  MANAGE_BRANCH_OPERATIONS: 'manage_branch_operations',
-  VIEW_BRANCH_DATA: 'view_branch_data',
-  
-  // Operations
-  CREATE_SALES: 'create_sales',
-  MANAGE_CUSTOMERS: 'manage_customers',
-  MANAGE_INVENTORY: 'manage_inventory',
-  VIEW_FINANCIAL_DATA: 'view_financial_data'
+  // Reports permissions
+  REPORTS_VIEW: 'reports.view',
+  REPORTS_EDIT: 'reports.edit'
 }; 
