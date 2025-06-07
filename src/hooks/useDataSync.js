@@ -1,6 +1,5 @@
 import { useCollectionSync } from 'api/CustomHooks';
 import {
-  setProvinces,
   setBanks,
   setBankNames,
   setBranches,
@@ -19,6 +18,7 @@ import {
   setUsers,
   setWarehouses
 } from 'redux/actions/data';
+import { setProvinces } from 'redux/actions/provinces';
 
 /**
  * Collection sync configuration

@@ -13,7 +13,6 @@ import { useDispatch } from 'react-redux';
 
 import {
   setBranches,
-  setProvinces,
   setLocations,
   setWarehouses,
   setUserGroups,
@@ -74,6 +73,7 @@ import {
 } from './api';
 import { setVersion } from 'redux/actions/global';
 import { setUsers } from 'redux/actions/data';
+import { setProvinces } from 'redux/actions/provinces';
 import { getPathFromCollectionName } from 'Modules/Utils';
 import { removeAllNonAlphaNumericCharacters } from 'utils/RegEx';
 import { checkIsVehicleFromName } from 'utils';

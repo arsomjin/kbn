@@ -24,21 +24,24 @@ const SettingProvince = ({ province, onCancel, showBranches }) => {
 
   // Get branches for this province
   const provinceBranches = Object.keys(branches).filter(branchCode => 
-    branches[branchCode].provinceCode === province.provinceName
+    branches[branchCode].provinceId === province.key || 
+    branches[branchCode].provinceId === province._key ||
+    branches[branchCode].provinceId === province.provinceName
   );
 
   const _onConfirm = async values => {
     try {
       const provinceData = {
         ...values,
-        provinceCode: values.provinceCode || shortid.generate(),
+        key: province.key || province._key || values.provinceName,
+        code: values.code || shortid.generate(),
         branches: provinceBranches,
         createdAt: province.createdAt || Date.now(),
         updatedAt: Date.now()
       };
 
       await api.setProvince(provinceData);
-      await api.updateData('provinces', values.provinceName);
+      await api.updateData('provinces', values.provinceName || province.key);
       
       const oldValues = province;
       const newValues = provinceData;
@@ -49,11 +52,11 @@ const SettingProvince = ({ province, onCancel, showBranches }) => {
           time: Date.now(),
           type: province.provinceName ? 'edited' : 'created',
           by: user.uid,
-          docId: values.provinceName,
+          docId: values.provinceName || province.key,
           changes
         },
         'provinces',
-        values.provinceName
+        values.provinceName || province.key
       );
       
       showSuccess(() => onCancel(), 'บันทึกข้อมูลสำเร็จ');
@@ -67,18 +70,18 @@ const SettingProvince = ({ province, onCancel, showBranches }) => {
       <ListGroupItem className="p-3">
         <Formik
           initialValues={{
-            provinceCode: province.provinceCode || '',
-            provinceName: province.provinceName || '',
-            provinceNameEn: province.provinceNameEn || '',
+            code: province.code || '',
+            name: province.name || province.provinceName || '',
+            nameEn: province.nameEn || province.provinceNameEn || '',
             region: province.region || '',
-            isActive: province.isActive !== undefined ? province.isActive : true,
+            status: province.status !== undefined ? province.status : 'active',
             manager: province.manager || '',
-            remark: province.remark || ''
+            description: province.description || province.remark || ''
           }}
           validate={values => {
             const errors = {};
-            if (!values.provinceName) {
-              errors.provinceName = 'กรุณาระบุชื่อจังหวัด';
+            if (!values.name) {
+              errors.name = 'กรุณาระบุชื่อจังหวัด';
             }
             if (!values.region) {
               errors.region = 'กรุณาเลือกภูมิภาค';
@@ -106,9 +109,9 @@ const SettingProvince = ({ province, onCancel, showBranches }) => {
                 <Col md="3" className="form-group">
                   <label>รหัสจังหวัด</label>
                   <FormInput
-                    name="provinceCode"
+                    name="code"
                     placeholder="รหัสจังหวัด"
-                    value={values.provinceCode}
+                    value={values.code}
                     onChange={handleChange}
                     onBlur={handleBlur}
                   />
@@ -116,26 +119,26 @@ const SettingProvince = ({ province, onCancel, showBranches }) => {
                 <Col md="4" className="form-group">
                   <label>ชื่อจังหวัด *</label>
                   <FormInput
-                    name="provinceName"
+                    name="name"
                     placeholder="ชื่อจังหวัด"
-                    value={values.provinceName}
+                    value={values.name}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    invalid={touched.provinceName && !!errors.provinceName}
-                    disabled={!!province.provinceName} // Disable editing existing province name
+                    invalid={touched.name && !!errors.name}
+                    disabled={!!province.name || !!province.provinceName} // Disable editing existing province name
                   />
-                  {touched.provinceName && errors.provinceName && (
+                  {touched.name && errors.name && (
                     <div className="invalid-feedback" style={{ display: 'block' }}>
-                      {errors.provinceName}
+                      {errors.name}
                     </div>
                   )}
                 </Col>
                 <Col md="4" className="form-group">
                   <label>ชื่อภาษาอังกฤษ</label>
                   <FormInput
-                    name="provinceNameEn"
+                    name="nameEn"
                     placeholder="Province Name (English)"
-                    value={values.provinceNameEn}
+                    value={values.nameEn}
                     onChange={handleChange}
                     onBlur={handleBlur}
                   />
@@ -165,65 +168,61 @@ const SettingProvince = ({ province, onCancel, showBranches }) => {
                   )}
                 </Col>
                 <Col md="3" className="form-group">
+                  <label>สถานะ</label>
+                  <FormSelect
+                    name="status"
+                    value={values.status}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                  >
+                    <option value="active">ใช้งาน</option>
+                    <option value="inactive">ไม่ใช้งาน</option>
+                  </FormSelect>
+                </Col>
+                <Col md="6" className="form-group">
                   <label>ผู้จัดการจังหวัด</label>
                   <FormInput
                     name="manager"
-                    placeholder="ชื่อผู้จัดการ"
+                    placeholder="ผู้จัดการจังหวัด"
                     value={values.manager}
                     onChange={handleChange}
                     onBlur={handleBlur}
                   />
                 </Col>
-                <Col md="2" className="form-group">
-                  <label style={{ display: 'block' }}>&nbsp;</label>
-                  <FormCheckbox
-                    name="isActive"
-                    checked={values.isActive}
-                    onChange={handleChange}
-                  >
-                    เปิดใช้งาน
-                  </FormCheckbox>
-                </Col>
               </Row>
 
               <Row form>
                 <Col className="form-group">
-                  <label>สาขาในจังหวัด</label>
-                  <Row>
-                    <Col md="6">
-                      <div className="border rounded p-2 bg-light">
-                        {provinceBranches.length > 0 ? (
-                          <ul className="list-unstyled mb-0">
-                            {provinceBranches.map(branchCode => (
-                              <li key={branchCode} className="mb-1">
-                                • {branches[branchCode]?.branchName || branchCode}
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <small className="text-muted">ยังไม่มีสาขาในจังหวัดนี้</small>
-                        )}
-                      </div>
-                    </Col>
-                    <Button size="sm" className="btn-white ml-3 mt-2" onClick={() => showBranches()}>
-                      จัดการสาขา &rarr;
-                    </Button>
-                  </Row>
-                </Col>
-              </Row>
-
-              <Row form>
-                <Col className="form-group">
-                  <label htmlFor="feInputCity">หมายเหตุ</label>
+                  <label>หมายเหตุ</label>
                   <FormTextarea
-                    name="remark"
+                    name="description"
                     placeholder="หมายเหตุ"
-                    value={values.remark}
+                    value={values.description}
                     onChange={handleChange}
                     onBlur={handleBlur}
                   />
                 </Col>
               </Row>
+
+              {showBranches && provinceBranches.length > 0 && (
+                <Row>
+                  <Col md="12">
+                    <h6>สาขาในจังหวัดนี้ ({provinceBranches.length} สาขา)</h6>
+                    <ul className="list-unstyled">
+                      {provinceBranches.map(branchCode => {
+                        const branch = branches[branchCode];
+                        return (
+                          <li key={branchCode} className="mb-1">
+                            <small className="text-muted">
+                              {branch.branchName} ({branchCode})
+                            </small>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </Col>
+                </Row>
+              )}
 
               <Row style={{ justifyContent: 'flex-end' }} form>
                 <Button className="btn-white mr-3" onClick={onCancel}>

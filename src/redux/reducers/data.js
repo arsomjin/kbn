@@ -2,7 +2,6 @@ import { distinctArr } from 'functions';
 import {
   GET_PRODUCTS_SUCCESS,
   GET_BRANCHES,
-  GET_PROVINCES,
   GET_LOCATIONS,
   GET_WAREHOUSES,
   GET_USER_GROUPS,
@@ -45,7 +44,6 @@ const initialState = {
   bankNames: {},
   banks: {},
   branches: {},
-  provinces: {},
   dealers: {},
   departments: {},
   employees: {},
@@ -99,22 +97,6 @@ export default function reducer(state = initialState, action) {
         return { ...state, branches: merged };
       } else {
         return { ...state, branches: action.branches };
-      }
-    }
-
-    case GET_PROVINCES: {
-      if (action.isPartial) {
-        const merged = { ...state.provinces };
-        Object.keys(action.provinces).forEach(docId => {
-          if (action.provinces[docId] === null) {
-            delete merged[docId];
-          } else {
-            merged[docId] = action.provinces[docId];
-          }
-        });
-        return { ...state, provinces: merged };
-      } else {
-        return { ...state, provinces: action.provinces };
       }
     }
 

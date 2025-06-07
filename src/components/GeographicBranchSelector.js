@@ -1,119 +1,415 @@
-import React, { useState, useCallback } from 'react';
-import { Row, Col } from 'antd';
-import { useSelector } from 'react-redux';
-import { usePermissions } from 'hooks/usePermissions';
-import BranchSelector from './BranchSelector';
-import ProvinceSelector from './ProvinceSelector';
+/**
+ * GeographicBranchSelector Component for KBN Multi-Province System
+ * Branch selector with geographic filtering and province context
+ */
+
+import React, { useMemo, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { Select, Spin } from 'antd';
+import { useSelector } from 'react-redux';
+import { usePermissions } from '../hooks/usePermissions';
 
+const { Option } = Select;
+
+/**
+ * Geographic Branch Selector Component
+ * @param {Object} props
+ * @param {string} props.value - Selected branch value
+ * @param {Function} props.onChange - Change handler
+ * @param {string} props.province - Selected province to filter branches
+ * @param {boolean} props.allowClear - Allow clearing selection
+ * @param {string} props.placeholder - Placeholder text
+ * @param {boolean} props.disabled - Disable the selector
+ * @param {string} props.size - Size of the selector
+ * @param {string} props.className - CSS class name
+ * @param {Object} props.style - Inline styles
+ * @param {boolean} props.showAll - Show "All Branches" option
+ * @param {string} props.allText - Text for "All" option
+ * @param {boolean} props.respectRBAC - Whether to filter by user permissions
+ * @param {Function} props.onBranchChange - Additional callback with branch data
+ * @param {boolean} props.autoSelect - Auto-select if only one option
+ * @param {boolean} props.includeInactive - Include inactive branches
+ * @param {boolean} props.showBranchCode - Show branch codes in options
+ * @param {boolean} props.groupByProvince - Group branches by province
+ */
 const GeographicBranchSelector = ({
-  onProvinceChange,
-  onBranchChange,
-  provinceValue,
-  branchValue,
-  hasAllProvinces = false,
-  hasAllBranches = false,
-  provincePlaceholder = "เลือกจังหวัด",
-  branchPlaceholder = "เลือกสาขา",
-  showProvinceSelector = true,
+  value,
+  onChange,
+  province,
+  allowClear = true,
+  placeholder = 'เลือกสาขา',
   disabled = false,
-  colLayout = { province: 12, branch: 12 },
-  ...props
+  size = 'default',
+  className,
+  style,
+  showAll = false,
+  allText = 'ทุกสาขา',
+  respectRBAC = true,
+  onBranchChange,
+  autoSelect = false,
+  includeInactive = false,
+  showBranchCode = true,
+  groupByProvince = false,
+  loading: externalLoading = false,
+  error: externalError = null,
+  ...rest
 }) => {
-  const { user } = useSelector(state => state.auth);
-  const { branches, provinces } = useSelector(state => state.data);
-  const { getAccessibleBranches, getAccessibleProvinces } = usePermissions();
-  
-  const [selectedProvince, setSelectedProvince] = useState(provinceValue);
+  const [internalLoading, setInternalLoading] = useState(false);
 
-  const handleProvinceChange = useCallback((value) => {
-    setSelectedProvince(value);
-    if (onProvinceChange) {
-      onProvinceChange(value);
+  // Redux state
+  const { branches } = useSelector((state) => state.data);
+  const { provinces } = useSelector((state) => state.provinces);
+
+  // RBAC permissions
+  const {
+    userBranches,
+    accessibleBranches,
+    accessibleProvinces,
+    isSuperAdmin,
+    canUserAccessBranch,
+    canUserAccessProvince,
+    hasProvinceAccess,
+    hasBranchAccessOnly,
+    getDefaultBranch
+  } = usePermissions();
+
+  // Filter branches based on RBAC and province
+  const availableBranches = useMemo(() => {
+    let branchList = [];
+
+    if (respectRBAC && !isSuperAdmin) {
+      // Use RBAC-filtered branches
+      branchList = accessibleBranches.map(branch => ({
+        ...branch,
+        branchCode: branch.branchCode || branch.key
+      }));
+    } else {
+      // Use all branches
+      branchList = Object.keys(branches || {}).map(key => ({
+        key,
+        branchCode: key,
+        ...branches[key]
+      }));
     }
-    // Clear branch selection when province changes
+
+    // Filter by province if specified
+    if (province && province !== 'all') {
+      branchList = branchList.filter(branch => 
+        branch.provinceId === province || 
+        branch.province === province ||
+        branch.provinceCode === province
+      );
+    }
+
+    // Filter by active status
+    if (!includeInactive) {
+      branchList = branchList.filter(branch => branch.status !== 'inactive' && branch.isActive !== false);
+    }
+
+    // Sort by name
+    return branchList.sort((a, b) => {
+      const nameA = a.branchName || a.name || a.branchCode || a.key;
+      const nameB = b.branchName || b.name || b.branchCode || b.key;
+      return nameA.localeCompare(nameB, 'th');
+    });
+  }, [branches, respectRBAC, isSuperAdmin, accessibleBranches, province, includeInactive]);
+
+  // Group branches by province for display
+  const groupedBranches = useMemo(() => {
+    if (!groupByProvince) return null;
+
+    const grouped = {};
+    availableBranches.forEach(branch => {
+      const provinceKey = branch.provinceId || branch.province || 'unknown';
+      if (!grouped[provinceKey]) {
+        grouped[provinceKey] = [];
+      }
+      grouped[provinceKey].push(branch);
+    });
+
+    return grouped;
+  }, [availableBranches, groupByProvince]);
+
+  // Auto-select logic
+  useEffect(() => {
+    if (autoSelect && !value && availableBranches.length === 1) {
+      const defaultBranch = availableBranches[0];
+      if (onChange) {
+        onChange(defaultBranch.branchCode, defaultBranch);
+      }
+      if (onBranchChange) {
+        onBranchChange(defaultBranch);
+      }
+    }
+  }, [autoSelect, value, availableBranches, onChange, onBranchChange]);
+
+  // Clear selection when province changes and current selection is not valid
+  useEffect(() => {
+    if (value && province && availableBranches.length > 0) {
+      const isCurrentSelectionValid = availableBranches.some(
+        branch => branch.branchCode === value || branch.key === value
+      );
+      
+      if (!isCurrentSelectionValid) {
+        if (onChange) {
+          onChange(undefined, null);
+        }
+        if (onBranchChange) {
+          onBranchChange(null);
+        }
+      }
+    }
+  }, [province, value, availableBranches, onChange, onBranchChange]);
+
+  // Handle selection change
+  const handleChange = (selectedValue, option) => {
+    if (onChange) {
+      onChange(selectedValue, option);
+    }
+
+    // Find branch data and call additional callback
+    if (onBranchChange) {
+      if (selectedValue && selectedValue !== 'all') {
+        const selectedBranch = availableBranches.find(
+          b => b.branchCode === selectedValue || b.key === selectedValue
+        );
+        onBranchChange(selectedBranch);
+      } else {
+        onBranchChange(null);
+      }
+    }
+  };
+
+  // Handle clear
+  const handleClear = () => {
+    if (onChange) {
+      onChange(undefined, null);
+    }
     if (onBranchChange) {
       onBranchChange(null);
     }
-  }, [onProvinceChange, onBranchChange]);
+  };
 
-  const handleBranchChange = useCallback((value) => {
-    if (onBranchChange) {
-      onBranchChange(value);
-    }
-  }, [onBranchChange]);
+  // Loading state
+  if (internalLoading || externalLoading) {
+    return (
+      <Select
+        className={className}
+        style={style}
+        size={size}
+        disabled
+        placeholder={placeholder}
+        suffixIcon={<Spin size="small" />}
+        {...rest}
+      />
+    );
+  }
 
-  // Get accessible data based on user permissions
-  const accessibleProvinces = getAccessibleProvinces(provinces);
-  const accessibleBranches = getAccessibleBranches(branches);
+  // Error state
+  if (externalError) {
+    return (
+      <Select
+        className={className}
+        style={style}
+        size={size}
+        disabled
+        placeholder="เกิดข้อผิดพลาด"
+        status="error"
+        {...rest}
+      />
+    );
+  }
 
-  // Filter branches by selected province
-  const getFilteredBranches = useCallback(() => {
-    if (!selectedProvince || selectedProvince === 'all') {
-      return accessibleBranches;
-    }
+  // No province selected
+  if (province === null || province === undefined) {
+    return (
+      <Select
+        className={className}
+        style={style}
+        size={size}
+        disabled
+        placeholder="เลือกจังหวัดก่อน"
+        {...rest}
+      />
+    );
+  }
+
+  // No access
+  if (respectRBAC && !isSuperAdmin && availableBranches.length === 0) {
+    return (
+      <Select
+        className={className}
+        style={style}
+        size={size}
+        disabled
+        placeholder="ไม่มีสิทธิ์เข้าถึงสาขา"
+        {...rest}
+      />
+    );
+  }
+
+  // Format option display
+  const formatBranchOption = (branch) => {
+    const branchCode = branch.branchCode || branch.key;
+    const branchName = branch.branchName || branch.name || branchCode;
     
-    return Object.keys(accessibleBranches)
-      .filter(branchCode => {
-        const branch = accessibleBranches[branchCode];
-        return branch.provinceCode === selectedProvince;
-      })
-      .reduce((acc, branchCode) => {
-        acc[branchCode] = accessibleBranches[branchCode];
-        return acc;
-      }, {});
-  }, [selectedProvince, accessibleBranches]);
+    if (showBranchCode && branchCode !== branchName) {
+      return `${branchCode} - ${branchName}`;
+    }
+    return branchName;
+  };
 
-  // If user has only one province access, auto-select it
-  const shouldShowProvinceSelector = showProvinceSelector && 
-    (user.accessLevel === 'all' || 
-     (user.accessLevel === 'province' && user.allowedProvinces?.length > 1));
+  // Render grouped options
+  const renderGroupedOptions = () => {
+    return Object.keys(groupedBranches).map(provinceKey => {
+      const provinceName = provinces[provinceKey]?.provinceName || provinceKey;
+      const provinceBranches = groupedBranches[provinceKey];
+
+      return (
+        <Select.OptGroup key={provinceKey} label={provinceName}>
+          {provinceBranches.map(branch => (
+            <Option 
+              key={branch.branchCode || branch.key} 
+              value={branch.branchCode || branch.key}
+              title={`${formatBranchOption(branch)} (${provinceName})`}
+            >
+              {formatBranchOption(branch)}
+            </Option>
+          ))}
+        </Select.OptGroup>
+      );
+    });
+  };
+
+  // Render regular options
+  const renderOptions = () => {
+    return availableBranches.map(branch => (
+      <Option 
+        key={branch.branchCode || branch.key} 
+        value={branch.branchCode || branch.key}
+        title={formatBranchOption(branch)}
+      >
+        {formatBranchOption(branch)}
+        {branch.address && (
+          <span style={{ color: '#999', fontSize: '12px', marginLeft: 8 }}>
+            {branch.address}
+          </span>
+        )}
+      </Option>
+    ));
+  };
 
   return (
-    <Row gutter={8} {...props}>
-      {shouldShowProvinceSelector && (
-        <Col span={colLayout.province}>
-          <ProvinceSelector
-            value={provinceValue}
-            placeholder={provincePlaceholder}
-            onChange={handleProvinceChange}
-            hasAll={hasAllProvinces}
-            disabled={disabled}
-            style={{ width: '100%' }}
-          />
-        </Col>
+    <Select
+      value={value}
+      onChange={handleChange}
+      onClear={handleClear}
+      allowClear={allowClear}
+      placeholder={placeholder}
+      disabled={disabled}
+      size={size}
+      className={className}
+      style={style}
+      showSearch
+      optionFilterProp="children"
+      filterOption={(input, option) => {
+        if (option.children) {
+          if (Array.isArray(option.children)) {
+            return option.children.some(child => 
+              typeof child === 'string' && child.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            );
+          }
+          return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+        }
+        return false;
+      }}
+      {...rest}
+    >
+      {showAll && (
+        <Option key="all" value="all">
+          {allText}
+        </Option>
       )}
-      <Col span={shouldShowProvinceSelector ? colLayout.branch : 24}>
-        <BranchSelector
-          value={branchValue}
-          placeholder={branchPlaceholder}
-          onChange={handleBranchChange}
-          provinceFilter={selectedProvince !== 'all' ? selectedProvince : null}
-          hasAll={hasAllBranches}
-          onlyUserBranch={user.accessLevel === 'branch' ? user.homeBranch : null}
-          disabled={disabled}
-          style={{ width: '100%' }}
-        />
-      </Col>
-    </Row>
+      
+      {groupByProvince ? renderGroupedOptions() : renderOptions()}
+    </Select>
   );
 };
 
 GeographicBranchSelector.propTypes = {
-  onProvinceChange: PropTypes.func,
-  onBranchChange: PropTypes.func,
-  provinceValue: PropTypes.string,
-  branchValue: PropTypes.string,
-  hasAllProvinces: PropTypes.bool,
-  hasAllBranches: PropTypes.bool,
-  provincePlaceholder: PropTypes.string,
-  branchPlaceholder: PropTypes.string,
-  showProvinceSelector: PropTypes.bool,
+  value: PropTypes.string,
+  onChange: PropTypes.func,
+  province: PropTypes.string,
+  allowClear: PropTypes.bool,
+  placeholder: PropTypes.string,
   disabled: PropTypes.bool,
-  colLayout: PropTypes.shape({
-    province: PropTypes.number,
-    branch: PropTypes.number
-  })
+  size: PropTypes.oneOf(['small', 'default', 'large']),
+  className: PropTypes.string,
+  style: PropTypes.object,
+  showAll: PropTypes.bool,
+  allText: PropTypes.string,
+  respectRBAC: PropTypes.bool,
+  onBranchChange: PropTypes.func,
+  autoSelect: PropTypes.bool,
+  includeInactive: PropTypes.bool,
+  showBranchCode: PropTypes.bool,
+  groupByProvince: PropTypes.bool,
+  loading: PropTypes.bool,
+  error: PropTypes.string
+};
+
+/**
+ * Hook for geographic branch selector state management
+ */
+export const useGeographicBranchSelector = (initialProvince = null, initialBranch = null) => {
+  const [selectedProvince, setSelectedProvince] = useState(initialProvince);
+  const [selectedBranch, setSelectedBranch] = useState(initialBranch);
+  const [provinceData, setProvinceData] = useState(null);
+  const [branchData, setBranchData] = useState(null);
+
+  const handleProvinceChange = (provinceValue, provinceOption) => {
+    setSelectedProvince(provinceValue);
+    setProvinceData(provinceOption || null);
+    
+    // Clear branch selection when province changes
+    setSelectedBranch(null);
+    setBranchData(null);
+  };
+
+  const handleBranchChange = (branchValue, branchOption) => {
+    setSelectedBranch(branchValue);
+    setBranchData(branchOption || null);
+  };
+
+  const reset = () => {
+    setSelectedProvince(null);
+    setSelectedBranch(null);
+    setProvinceData(null);
+    setBranchData(null);
+  };
+
+  return {
+    // Values
+    selectedProvince,
+    selectedBranch,
+    provinceData,
+    branchData,
+    
+    // Handlers
+    handleProvinceChange,
+    handleBranchChange,
+    reset,
+    
+    // Convenience methods
+    isProvinceSelected: selectedProvince !== null && selectedProvince !== undefined,
+    isBranchSelected: selectedBranch !== null && selectedBranch !== undefined,
+    isAllProvinces: selectedProvince === 'all',
+    isAllBranches: selectedBranch === 'all',
+    
+    // Setters
+    setProvince: setSelectedProvince,
+    setBranch: setSelectedBranch
+  };
 };
 
 export default GeographicBranchSelector; 

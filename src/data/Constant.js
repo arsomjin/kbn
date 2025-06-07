@@ -55,6 +55,11 @@ export const DevMenu = [
                 title: 'Test',
                 key: '1241',
                 to: '/developer/test-general'
+              },
+              {
+                title: 'Test multi province',
+                key: '1242',
+                to: '/developer/test-multi-province'
               }
             ]
           },

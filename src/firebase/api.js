@@ -766,7 +766,7 @@ export const getCollection = (collection, wheres, limit, orderBy) =>
           result[doc.id] = item;
         });
       }
-      r(result === {} ? false : result);
+      r(Object.keys(result).length === 0 ? false : result);
     } catch (e) {
       j(e);
     }
@@ -785,3 +785,337 @@ export const getDoc = (collection, docPath) =>
       j(e);
     }
   });
+
+// Enhanced Province Management API Functions
+export const getProvinces = async () => {
+  try {
+    const snapshot = await app.firestore()
+      .collection('data')
+      .doc('company') 
+      .collection('provinces')
+      .get();
+    
+    const provinces = {};
+    snapshot.forEach((doc) => {
+      provinces[doc.id] = { 
+        ...doc.data(), 
+        id: doc.id,
+        _key: doc.id
+      };
+    });
+    return provinces;
+  } catch (error) {
+    console.warn('Error getting provinces:', error);
+    throw error;
+  }
+};
+
+export const createProvince = async (provinceData) => {
+  try {
+    // Use key field or generate kebab-case key from name
+    const provinceKey = provinceData.key || 
+      (provinceData.name ? provinceData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') : '');
+    
+    const docRef = app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('provinces')
+      .doc(provinceKey);
+    
+    await docRef.set({
+      ...provinceData,
+      key: provinceKey,
+      createdAt: { seconds: Math.floor(Date.now() / 1000), nanoseconds: 0 },
+      updatedAt: new Date().toISOString(),
+      status: provinceData.status || 'active'
+    });
+    
+    return provinceKey;
+  } catch (error) {
+    console.warn('Error creating province:', error);
+    throw error;
+  }
+};
+
+export const updateProvince = async (provinceKey, updateData) => {
+  try {
+    const docRef = app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('provinces')
+      .doc(provinceKey);
+    
+    await docRef.update({
+      ...updateData,
+      updatedAt: new Date().toISOString(),
+    });
+    
+    return true;
+  } catch (error) {
+    console.warn('Error updating province:', error);
+    throw error;
+  }
+};
+
+export const deleteProvince = async (provinceKey) => {
+  try {
+    await app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('provinces')
+      .doc(provinceKey)
+      .delete();
+    
+    return true;
+  } catch (error) {
+    console.warn('Error deleting province:', error);
+    throw error;
+  }
+};
+
+export const getProvinceByKey = async (provinceKey) => {
+  try {
+    const doc = await app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('provinces')
+      .doc(provinceKey)
+      .get();
+    
+    if (doc.exists) {
+      return { 
+        ...doc.data(), 
+        id: doc.id,
+        _key: doc.id
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn('Error getting province by key:', error);
+    throw error;
+  }
+};
+
+export const getProvinceByName = async (provinceName) => {
+  try {
+    const snapshot = await app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('provinces')
+      .where('name', '==', provinceName)
+      .get();
+    
+    if (!snapshot.empty) {
+      const doc = snapshot.docs[0];
+      return { 
+        ...doc.data(), 
+        id: doc.id,
+        _key: doc.id
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn('Error getting province by name:', error);
+    throw error;
+  }
+};
+
+export const getProvinceByCode = async (provinceCode) => {
+  try {
+    const snapshot = await app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('provinces')
+      .where('code', '==', provinceCode)
+      .get();
+    
+    if (!snapshot.empty) {
+      const doc = snapshot.docs[0];
+      return { 
+        ...doc.data(), 
+        id: doc.id,
+        _key: doc.id
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    console.warn('Error getting province by code:', error);
+    throw error;
+  }
+};
+
+export const getProvincesByRegion = async (region) => {
+  try {
+    const snapshot = await app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('provinces')
+      .where('region', '==', region)
+      .get();
+    
+    const provinces = {};
+    snapshot.forEach((doc) => {
+      provinces[doc.id] = { 
+        ...doc.data(), 
+        id: doc.id,
+        _key: doc.id
+      };
+    });
+    
+    return provinces;
+  } catch (error) {
+    console.warn('Error getting provinces by region:', error);
+    throw error;
+  }
+};
+
+// RBAC Management API Functions
+export const updateUserRBAC = async (userId, rbacData) => {
+  try {
+    const userRef = app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('employees')
+      .doc(userId);
+
+    await userRef.update({
+      accessLevel: rbacData.accessLevel,
+      allowedProvinces: rbacData.allowedProvinces || [],
+      allowedBranches: rbacData.allowedBranches || [],
+      permissions: rbacData.permissions || [],
+      homeProvince: rbacData.homeProvince || null,
+      homeBranch: rbacData.homeBranch || null,
+      role: rbacData.role || null,
+      updatedAt: Date.now(),
+    });
+
+    return true;
+  } catch (error) {
+    console.warn('Error updating user RBAC:', error);
+    throw error;
+  }
+};
+
+export const getUserRBAC = async (userId) => {
+  try {
+    const doc = await app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('employees')
+      .doc(userId)
+      .get();
+
+    if (doc.exists) {
+      const userData = doc.data();
+      return {
+        accessLevel: userData.accessLevel || "all",
+        allowedProvinces: userData.allowedProvinces || [],
+        allowedBranches: userData.allowedBranches || [],
+        permissions: userData.permissions || [],
+        homeProvince: userData.homeProvince || null,
+        homeBranch: userData.homeBranch || null,
+        role: userData.role || null
+      };
+    }
+
+    return null;
+  } catch (error) {
+    console.warn('Error getting user RBAC:', error);
+    throw error;
+  }
+};
+
+export const setUserPermissions = async (userId, permissions) => {
+  try {
+    const userRef = app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('employees')
+      .doc(userId);
+
+    await userRef.update({
+      permissions: permissions,
+      updatedAt: Date.now(),
+    });
+
+    return true;
+  } catch (error) {
+    console.warn('Error setting user permissions:', error);
+    throw error;
+  }
+};
+
+export const setUserGeographicAccess = async (userId, accessLevel, provinces, branches) => {
+  try {
+    const userRef = app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('employees')
+      .doc(userId);
+
+    await userRef.update({
+      accessLevel: accessLevel,
+      allowedProvinces: provinces || [],
+      allowedBranches: branches || [],
+      updatedAt: Date.now(),
+    });
+
+    return true;
+  } catch (error) {
+    console.warn('Error setting user geographic access:', error);
+    throw error;
+  }
+};
+
+export const getUsersByAccessLevel = async (accessLevel) => {
+  try {
+    const snapshot = await app.firestore()
+      .collection('data')
+      .doc('company')
+      .collection('employees')
+      .where('accessLevel', '==', accessLevel)
+      .get();
+
+    const users = {};
+    snapshot.forEach((doc) => {
+      users[doc.id] = {
+        ...doc.data(),
+        id: doc.id,
+        _key: doc.id
+      };
+    });
+
+    return users;
+  } catch (error) {
+    console.warn('Error getting users by access level:', error);
+    throw error;
+  }
+};
+
+export const getUsersByProvince = async (provinceKey) => {
+  try {
+    const snapshot = await app.firestore()
+      .collection('users')
+      .where('allowedProvinces', 'array-contains', provinceKey)
+      .get();
+
+    if (!snapshot.empty) {
+      const users = {};
+      snapshot.docs.forEach(doc => {
+        users[doc.id] = {
+          ...doc.data(),
+          uid: doc.id
+        };
+      });
+      return users;
+    }
+    
+    return {};
+  } catch (error) {
+    console.warn('Error getting users by province:', error);
+    throw error;
+  }
+};

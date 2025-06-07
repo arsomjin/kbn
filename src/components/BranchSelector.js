@@ -22,9 +22,11 @@ const BranchSelector = forwardRef(({
   provinceFilter, 
   regionFilter, 
   placeholder = 'สาขา',
+  showProvinceInfo = false,
   ...props 
 }, ref) => {
-  const { branches = {}, provinces = {} } = useSelector(state => state.data || {});
+  const { branches = {} } = useSelector(state => state.data || {});
+  const { provinces = {} } = useSelector(state => state.provinces || {});
   const { getAccessibleBranches } = usePermissions();
   const [sBranches, setBranches] = useState([]);
   
@@ -82,7 +84,7 @@ const BranchSelector = forwardRef(({
         .filter(branch => branch && branch.branchCode); // Filter out null/undefined branches
       
       if (provinceFilter) {
-        filtered = filtered.filter(branch => branch.provinceCode === provinceFilter);
+        filtered = filtered.filter(branch => branch.provinceId === provinceFilter);
       }
       
       if (regionFilter) {
@@ -121,10 +123,20 @@ const BranchSelector = forwardRef(({
         ? [
             ...sBranches.map(branch => (
               <Option key={branch.branchCode} value={branch.branchCode}>
-                {branch.branchName || branch.branchCode}
-                {provinceFilter && provinces[branch.provinceCode] && (
+                <div>
+                  <div style={{ fontWeight: 'bold' }}>
+                    {branch.branchName || branch.branchCode}
+                  </div>
+                  {showProvinceInfo && provinces[branch.provinceId] && (
+                    <div style={{ fontSize: '12px', color: '#666' }}>
+                      ({provinces[branch.provinceId].name})
+                    </div>
+                  )}
+                </div>
+                {/* For regular display without provinceFilter, show province info */}
+                {showProvinceInfo && !provinceFilter && provinces[branch.provinceId] && (
                   <span style={{ color: '#999', fontSize: '12px', marginLeft: '8px' }}>
-                    ({provinces[branch.provinceCode].provinceName})
+                    - {provinces[branch.provinceId].name}
                   </span>
                 )}
               </Option>
@@ -139,10 +151,20 @@ const BranchSelector = forwardRef(({
               value={branch.branchCode}
               disabled={!!onlyUserBranch && onlyUserBranch !== '0450' && onlyUserBranch !== branch.branchCode}
             >
-              {branch.branchName || branch.branchCode}
-              {provinceFilter && provinces[branch.provinceCode] && (
+              <div>
+                <div style={{ fontWeight: 'bold' }}>
+                  {branch.branchName || branch.branchCode}
+                </div>
+                {showProvinceInfo && provinces[branch.provinceId] && (
+                  <div style={{ fontSize: '12px', color: '#666' }}>
+                    ({provinces[branch.provinceId].name})
+                  </div>
+                )}
+              </div>
+              {/* For regular display without provinceFilter, show province info */}
+              {showProvinceInfo && !provinceFilter && provinces[branch.provinceId] && (
                 <span style={{ color: '#999', fontSize: '12px', marginLeft: '8px' }}>
-                  ({provinces[branch.provinceCode].provinceName})
+                  - {provinces[branch.provinceId].name}
                 </span>
               )}
             </Option>
@@ -159,7 +181,8 @@ BranchSelector.propTypes = {
   onlyUserBranch: PropTypes.string,
   provinceFilter: PropTypes.string,
   regionFilter: PropTypes.string,
-  placeholder: PropTypes.string
+  placeholder: PropTypes.string,
+  showProvinceInfo: PropTypes.bool
 };
 
 export default BranchSelector;

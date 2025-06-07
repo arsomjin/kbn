@@ -1,6 +1,5 @@
 export const GET_PRODUCTS_SUCCESS = 'GET_PRODUCTS_SUCCESS';
 export const GET_BRANCHES = 'GET_BRANCHES';
-export const GET_PROVINCES = 'GET_PROVINCES';
 export const GET_LOCATIONS = 'GET_LOCATIONS';
 export const GET_WAREHOUSES = 'GET_WAREHOUSES';
 export const GET_USERS = 'GET_USERS';
@@ -39,12 +38,6 @@ export function getProductsSuccess(products, isPartial = false) {
 export const setBranches = (branches, isPartial = false) => ({
   type: GET_BRANCHES,
   branches,
-  isPartial
-});
-
-export const setProvinces = (provinces, isPartial = false) => ({
-  type: GET_PROVINCES,
-  provinces,
   isPartial
 });
 

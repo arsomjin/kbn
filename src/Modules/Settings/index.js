@@ -15,9 +15,9 @@ import UserGroupList from './components/UserGroupList';
 import PermissionList from './components/PermissionList';
 import AccountSettings from './components/AccountSettings';
 import PromotionSettings from './components/PromotionSettings';
-import ProvinceMigration from './components/ProvinceMigration';
 import SystemSettings from './components/SystemSettings';
 import { useRouteMatch } from 'react-router-dom';
+import ProvinceMigration from './components/ProvinceMigration';
 
 const Settings = () => {
   const [settingItem, setSettingItem] = useState(SettingItems.branch);
