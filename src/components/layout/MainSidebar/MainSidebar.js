@@ -24,6 +24,8 @@ const MainSidebar = forwardRef((props, ref) => {
   );
 });
 
+MainSidebar.displayName = 'MainSidebar';
+
 MainSidebar.propTypes = {
   /**
    * Whether to hide the logo text, or not.

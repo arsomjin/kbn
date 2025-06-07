@@ -4,7 +4,8 @@ import {
   GET_LANGUAGUE_SUCCESS,
   GET_DEVICE,
   SET_VERSION,
-  SET_ALERT_ON_START
+  SET_ALERT_ON_START,
+  SET_NETWORK_STATUS_CONFIG
 } from '../actions/global';
 import { niceAndClean } from '../../api/styles';
 
@@ -15,7 +16,22 @@ const initialState = {
   lan: null,
   device: {},
   version: '',
-  showAlertOnStart: true
+  showAlertOnStart: true,
+  networkStatus: {
+    enabled: true,
+    detailedStatus: true,
+    showRetryButton: true,
+    autoRetry: true,
+    enableQualityCheck: true,
+    showWhenOnline: false,
+    retryInterval: 5000,
+    position: {
+      top: 140,
+      right: 20,
+      mobileTop: 100,
+      mobileRight: 10
+    }
+  }
 };
 
 const resetState = initialState;
@@ -48,6 +64,14 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         showAlertOnStart: action.showAlertOnStart
+      };
+    case SET_NETWORK_STATUS_CONFIG:
+      return {
+        ...state,
+        networkStatus: {
+          ...state.networkStatus,
+          ...action.config
+        }
       };
     case RESET_GLOBAL_STATES:
       return resetState;

@@ -26,6 +26,8 @@ const HeaderNavbar = forwardRef((props, ref) => {
   );
 });
 
+HeaderNavbar.displayName = 'HeaderNavbar';
+
 HeaderNavbar.propTypes = {
   /**
    * The array of header navbar items.

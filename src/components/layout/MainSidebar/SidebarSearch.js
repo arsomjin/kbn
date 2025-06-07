@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Spin } from 'antd';
 import { useHistory } from 'react-router-dom';
 import {
@@ -17,7 +17,7 @@ import { showWarn } from 'functions';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleSidebar } from 'redux/actions/unPersisted';
 
-export default () => {
+const SidebarSearch = () => {
   const history = useHistory();
   const { menuVisible } = useSelector(state => state.unPersisted);
   const [loading, setLoading] = useState(false);
@@ -26,25 +26,56 @@ export default () => {
   const [allData, setAllData] = useState([]);
 
   const dispatch = useDispatch();
+  const isMountedRef = useRef(true);
+
+  // Safe dispatch wrapper
+  const safeDispatch = useCallback((action) => {
+    if (isMountedRef.current) {
+      dispatch(action);
+    }
+  }, [dispatch]);
+
+  // Safe setState wrappers
+  const safeSetLoading = useCallback((value) => {
+    if (isMountedRef.current) {
+      setLoading(value);
+    }
+  }, []);
+
+  const safeSetData = useCallback((value) => {
+    if (isMountedRef.current) {
+      setData(value);
+    }
+  }, []);
+
+  const safeSetAllData = useCallback((value) => {
+    if (isMountedRef.current) {
+      setAllData(value);
+    }
+  }, []);
+
+  const safeSetSearchText = useCallback((value) => {
+    if (isMountedRef.current) {
+      setSearchText(value);
+    }
+  }, []);
 
   useEffect(() => {
     let arr = getNavBarSearchData();
     // showLog({ nav_search_arr: arr });
-    setAllData(arr);
-  }, []);
+    safeSetAllData(arr);
 
-  const _onSearch = debounce(ev => {
-    const txt = ev.target.value;
-    setSearchText(txt);
-    _search(txt);
-  }, 200);
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, [safeSetAllData]);
 
-  const _search = async (txt, iType) => {
+  const _search = useCallback(async (txt, iType) => {
     try {
       if (!txt) {
-        return setData([]);
+        return safeSetData([]);
       }
-      setLoading(true);
+      safeSetLoading(true);
       // let arr = searchArr(allData, Numb(txt), ['title']);
       const arr = allData.filter(item =>
         ['title'].some(key => {
@@ -53,20 +84,26 @@ export default () => {
           return sTxt.toLowerCase().includes(txt.toLowerCase());
         })
       );
-      setData(arr);
-      setLoading(false);
+      safeSetData(arr);
+      safeSetLoading(false);
     } catch (e) {
       showWarn(e);
-      setLoading(false);
+      safeSetLoading(false);
     }
-  };
+  }, [allData, safeSetData, safeSetLoading]);
 
-  const _onClick = path => {
-    setSearchText(null);
-    setData([]);
-    dispatch(toggleSidebar(!menuVisible));
+  const _onSearch = useCallback(debounce(ev => {
+    const txt = ev.target.value;
+    safeSetSearchText(txt);
+    _search(txt);
+  }, 200), [_search, safeSetSearchText]);
+
+  const _onClick = useCallback((path) => {
+    safeSetSearchText(null);
+    safeSetData([]);
+    safeDispatch(toggleSidebar(!menuVisible));
     history.push(path);
-  };
+  }, [safeSetSearchText, safeSetData, safeDispatch, menuVisible, history]);
 
   return (
     <>
@@ -100,3 +137,6 @@ export default () => {
     </>
   );
 };
+
+SidebarSearch.displayName = 'SidebarSearch';
+export default SidebarSearch;

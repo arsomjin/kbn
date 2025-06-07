@@ -159,6 +159,10 @@ SmallStats.propTypes = {
    */
   increase: PropTypes.bool,
   /**
+   * Whether the component is loading.
+   */
+  loading: PropTypes.bool,
+  /**
    * The Chart.js configuration object.
    */
   chartConfig: PropTypes.object,

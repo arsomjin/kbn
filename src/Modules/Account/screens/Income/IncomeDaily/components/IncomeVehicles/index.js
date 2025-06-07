@@ -25,7 +25,7 @@ import { getEditArr } from 'utils';
 import DocViewer from './DocViewer';
 import { checkPayments } from 'Modules/Utils';
 
-export default ({ order, onConfirm, onBack, isEdit, readOnly, reset }) => {
+const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) => {
   // showLog({ order, onConfirm, onBack, isEdit, readOnly, reset });
   const { user } = useSelector(state => state.auth);
   const { users } = useSelector(state => state.data);
@@ -727,3 +727,5 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, reset }) => {
     </div>
   );
 };
+
+export default IncomeVehicles;

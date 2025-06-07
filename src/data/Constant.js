@@ -251,7 +251,8 @@ export const SettingItems = {
   permission: 'สิทธิ์การเข้าถึง',
   account: 'บัญชี',
   promotions: 'โปรโมชั่น',
-  migration: 'การย้ายข้อมูล'
+  migration: 'การย้ายข้อมูล',
+  system: 'การตั้งค่าระบบ'
 };
 
 export const UserManualItems = {

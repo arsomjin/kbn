@@ -1,6 +1,7 @@
 import Success from './Success';
 import ActionSheet from './ActionSheet';
 import NoWifi from './NoWifi';
+import NetworkStatusIndicator from './NetworkStatusIndicator';
 import TextInput from './TextInput';
 import UploadPhoto from './UploadPhoto';
 import Loader from './Loader';
@@ -34,6 +35,7 @@ export {
   Success,
   ActionSheet,
   NoWifi,
+  NetworkStatusIndicator,
   TextInput,
   UploadPhoto,
   Load,

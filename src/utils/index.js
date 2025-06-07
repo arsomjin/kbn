@@ -21,7 +21,7 @@ const _ = require('lodash');
 
 export const tagColors = ['blue', 'gold', 'cyan', 'red', 'green'];
 
-export const __DEV__ = process.env.NODE_ENV !== 'production';
+export const __DEV__ = typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production';
 
 export const tagRender = props => {
   const { label, closable, onClose, ...mProps } = props;

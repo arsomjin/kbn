@@ -4,32 +4,11 @@ import 'firebase/messaging';
 import { Redirect, Route, useHistory } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import {
-  useCollectionSync, // NEW HOOK
   useNotificationAdd,
   useStatusListener,
   useSelfListener,
   useSelfUpdate
 } from 'api/CustomHooks';
-import {
-  setBanks,
-  setBankNames,
-  setBranches,
-  setDataSources,
-  setDealers,
-  setDepartments,
-  setExecutives,
-  setEmployees,
-  setExpenseAccountNames,
-  setExpenseCategories,
-  setLocations,
-  setPermissions,
-  setPermissionCategories,
-  setPlants,
-  setUserGroups,
-  setUsers,
-  setWarehouses
-  // etc. any other set* you need
-} from 'redux/actions/data';
 import { ExecMenu, DevMenu } from 'data/Constant';
 import Load from 'elements/Load';
 import { getAllPaths } from 'navigation/api';

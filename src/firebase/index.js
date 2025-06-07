@@ -565,7 +565,9 @@ const FirebaseProvider = ({ children }) => {
 
       await arrayForEach(arrUser, async us => {
         let status = await getEmployeeStatus(us);
-        users[us.uid].status = status;
+        if (users[us.uid]) {
+          users[us.uid].status = status;
+        }
       });
       dispatch(setUsers(users));
     });

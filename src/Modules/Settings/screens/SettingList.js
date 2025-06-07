@@ -1,4 +1,5 @@
 import React, { Fragment } from 'react';
+import PropTypes from 'prop-types';
 import { Card, CardHeader, CardBody, ListGroup, ListGroupItem } from 'shards-react';
 
 import { SettingItems } from 'data/Constant';
@@ -15,6 +16,7 @@ const SettingList = ({ onSelect, selected }) => {
   const grantBranch = user.isDev || (user.permissions && user.permissions.permission601);
   const grantViewUser = user.isDev || (user.permissions && user.permissions.permission613);
   const grantProvince = user.isDev || (user.permissions && user.permissions.permission601); // Same as branch for now
+  const grantSystem = user.isDev || (user.permissions && user.permissions.permission601); // System settings for admins
 
   const _onSelect = it => {
     onSelect(it);
@@ -68,6 +70,14 @@ const SettingList = ({ onSelect, selected }) => {
                 disabled={!grantBranch}
               >
                 สถานที่
+              </ListGroupItem>
+              <ListGroupItem
+                action
+                active={selected === SettingItems.system}
+                onClick={() => _onSelect(SettingItems.system)}
+                disabled={!grantSystem}
+              >
+                การตั้งค่าระบบ
               </ListGroupItem>
             </ListGroup>
           </CardBody>
@@ -123,6 +133,11 @@ const SettingList = ({ onSelect, selected }) => {
         </CardBody> */}
     </Card>
   );
+};
+
+SettingList.propTypes = {
+  onSelect: PropTypes.func.isRequired,
+  selected: PropTypes.string.isRequired,
 };
 
 export default SettingList;

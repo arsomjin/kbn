@@ -9,6 +9,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import 'assets/main.scss';
 import 'antd/dist/antd.css';
 import 'styles/print.css';
+import 'styles/network-status.css';
 
 import moment from 'moment';
 import 'moment/locale/th';
@@ -19,7 +20,7 @@ import Load from 'elements/Load';
 
 export const NotFoundRedirect = () => <Redirect to="/not-found" />;
 
-export default () => {
+const Navigation = () => {
   const { isAuthenticated, isLoggingOut } = useSelector(state => state.auth);
   const dispatch = useDispatch();
 
@@ -44,7 +45,7 @@ export default () => {
 
   return (
     <FirebaseProvider>
-      <Router basename={process.env.REACT_APP_BASENAME || ''}>
+      <Router basename={(typeof process !== 'undefined' && process.env?.REACT_APP_BASENAME) || ''}>
         <Switch>
           {!isAuthenticated ? (
             <AuthRoutes />
@@ -60,3 +61,6 @@ export default () => {
     </FirebaseProvider>
   );
 };
+
+Navigation.displayName = 'Navigation';
+export default Navigation;

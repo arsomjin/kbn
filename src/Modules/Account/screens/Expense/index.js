@@ -6,7 +6,6 @@ import { StatusMap } from "data/Constant";
 import { StatusMapToStep } from "data/Constant";
 import { AccountSteps } from "data/Constant";
 import { Stepper } from "elements";
-import { getCollection } from "firebase/api";
 import { getChanges } from "functions";
 import { showSuccess } from "functions";
 import { sortArrByMultiKeys } from "functions";
@@ -15,7 +14,7 @@ import { load } from "functions";
 import { getArrayChanges } from "functions";
 import { createNewOrderId } from "Modules/Account/api";
 import moment from "moment-timezone";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
 import { Container, Row, Col } from "shards-react";
@@ -25,6 +24,7 @@ import HeadOfficeTransfer from "./Components/HeadOfficeTransfer";
 import ExecutiveExpenses from "./Components/ExecutiveExpenses";
 import { errorHandler } from "functions";
 import LeavePageBlocker from "components/LeavePageBlocker";
+import { showLog } from "functions";
 
 const initProps = {
   order: {},
@@ -44,45 +44,56 @@ const ExpenseScreen = () => {
 
   const { firestore, api } = useContext(FirebaseContext);
   const { user } = useSelector((state) => state.auth);
+  const { expenseAccountNames = {} } = useSelector((state) => state.data);
   const [mProps, setProps] = useMergeState(initProps);
   const [ready, setReady] = useState(false);
   const [category, setCategory] = useState(params?.category || "dailyChange");
-  const [expenseNames, setExpenseNames] = useState([]);
   const [saved, setSaved] = useState(true);
+  
+  // Refs for cleanup
+  const isMountedRef = useRef(true);
 
+  // Memoize the params to prevent unnecessary re-renders
+  const memoizedParams = useMemo(() => params || {}, [params]);
+
+  // Process expense names from Redux store (synced via useDataSync)
+  const expenseNames = useMemo(() => {
+    if (!expenseAccountNames || Object.keys(expenseAccountNames).length === 0) {
+      return [];
+    }
+
+    let itArr = [];
+    try {
+      Object.keys(expenseAccountNames).map((k) => {
+        let item = expenseAccountNames[k];
+        item.expenseItemId = item._key;
+        item.key = itArr.length + 1;
+        itArr.push(item);
+        return k;
+      });
+
+      return sortArrByMultiKeys(itArr, [
+        "expenseCategoryId",
+        "expenseItemId",
+      ]);
+    } catch (e) {
+      console.error('Error processing expense names:', e);
+      return [];
+    }
+  }, [expenseAccountNames]);
+
+  // Cleanup function
   useEffect(() => {
-    const getExpenseNames = async () => {
-      let itArr = [];
-      try {
-        const cSnap = await getCollection("data/account/expenseName");
-        if (!cSnap) {
-          return setExpenseNames(itArr);
-        }
-        Object.keys(cSnap).map((k) => {
-          let item = cSnap[k];
-          item.expenseItemId = item._key;
-          item.key = itArr.length + 1;
-          itArr.push(item);
-          return k;
-        });
-        //  showLog('expenseNames', itArr);
-        itArr = sortArrByMultiKeys(itArr, [
-          "expenseCategoryId",
-          "expenseItemId",
-        ]);
-        setExpenseNames(itArr);
-      } catch (e) {
-        showWarn(e);
-      }
+    return () => {
+      isMountedRef.current = false;
     };
-    getExpenseNames();
-    api.getExpenseAccountNames();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    const { onBack } = params || {};
-    let pOrder = params?.order;
+    if (!memoizedParams) return;
+    
+    const { onBack } = memoizedParams || {};
+    let pOrder = memoizedParams?.order;
     let isEdit =
       !!pOrder && !!pOrder.date && !!pOrder.created && !!pOrder.expenseId;
     const activeStep = !(pOrder && pOrder.date)
@@ -95,34 +106,45 @@ const ExpenseScreen = () => {
 
     if (!isEdit) {
       let expenseId = createNewOrderId("KBN-ACC-EXP");
-      setProps({
-        order: { expenseId },
-        isEdit,
-        activeStep,
-        readOnly,
-        onBack,
-        isInput,
-      });
+      if (isMountedRef.current) {
+        setProps({
+          order: { expenseId },
+          isEdit,
+          activeStep,
+          readOnly,
+          onBack,
+          isInput,
+        });
+      }
     } else {
-      setProps({
-        order: pOrder,
-        isEdit,
-        activeStep,
-        readOnly,
-        onBack,
-        isInput,
-      });
+      if (isMountedRef.current) {
+        setProps({
+          order: pOrder,
+          isEdit,
+          activeStep,
+          readOnly,
+          onBack,
+          isInput,
+        });
+      }
     }
-    setReady(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, category]);
+    
+    if (isMountedRef.current) {
+      setReady(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memoizedParams, location.pathname]);
 
-  const _changeCategory = (ev) => {
+  const _changeCategory = useCallback((ev) => {
     //  showLog('category', ev);
-    setCategory(ev);
-  };
+    if (isMountedRef.current) {
+      setCategory(ev);
+    }
+  }, []);
 
   const _onConfirmOrder = async (values, resetToInitial) => {
+    if (!isMountedRef.current) return;
+    
     try {
       //  showLog('confirm_values', values);
 
@@ -227,6 +249,7 @@ const ExpenseScreen = () => {
           expenseRef.set(mValues);
         }
       }
+      
       // Record log.
       api.addLog(
         mProps.isEdit
@@ -245,34 +268,46 @@ const ExpenseScreen = () => {
         "expenses",
         "daily"
       );
+      
       load(false);
-      setSaved(true);
-      showSuccess(
-        () => {
-          if (mProps.isEdit) {
-            history.push(mProps.onBack.path, { params: mProps.onBack });
-          } else {
-            let expenseId = createNewOrderId("KBN-ACC-EXP");
-            resetToInitial();
-            setProps({ ...initProps, order: { expenseId } });
-          }
-        },
-        mValues.expenseNo
-          ? `บันทึกข้อมูลเลขที่ ${mValues.expenseNo} สำเร็จ`
-          : "บันทึกข้อมูลสำเร็จ",
-        true
-      );
+      
+      if (isMountedRef.current) {
+        setSaved(true);
+        showSuccess(
+          () => {
+            if (!isMountedRef.current) return;
+            
+            if (mProps.isEdit) {
+              history.push(mProps.onBack.path, { params: mProps.onBack });
+            } else {
+              let expenseId = createNewOrderId("KBN-ACC-EXP");
+              resetToInitial();
+              setProps({ ...initProps, order: { expenseId } });
+            }
+          },
+          mValues.expenseNo
+            ? `บันทึกข้อมูลเลขที่ ${mValues.expenseNo} สำเร็จ`
+            : "บันทึกข้อมูลสำเร็จ",
+          true
+        );
+      }
     } catch (e) {
-      showWarn(e);
-      errorHandler({
-        code: e?.code || "",
-        message: e?.message || "",
-        snap: { ...values, module: "Expense" },
-      });
+      if (isMountedRef.current) {
+        showWarn(e);
+        errorHandler({
+          code: e?.code || "",
+          message: e?.message || "",
+          snap: { ...values, module: "Expense" },
+        });
+      }
     }
   };
 
-  const _setUnsaved = () => setSaved(false);
+  const _setUnsaved = useCallback(() => {
+    if (isMountedRef.current) {
+      setSaved(false);
+    }
+  }, []);
 
   let currentView = (
     <DailyChange
@@ -364,7 +399,7 @@ const ExpenseScreen = () => {
               <Form.Item label="ประเภทการจ่ายเงิน">
                 <Select
                   placeholder="ประเภทการจ่ายเงิน"
-                  onChange={(ev) => _changeCategory(ev)}
+                  onChange={_changeCategory}
                   value={category}
                   className="text-primary"
                   disabled={!mProps.grant || mProps.isEdit}

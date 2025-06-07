@@ -38,6 +38,23 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>คูโบต้าเบญจพล นครราชสีมา</title>
+    
+    <!-- Polyfill for process global to prevent 'process is not defined' errors -->
+    <script>
+      if (typeof global === 'undefined') {
+        var global = window;
+      }
+      if (typeof process === 'undefined') {
+        var process = {
+          env: {},
+          nextTick: function(callback) {
+            setTimeout(callback, 0);
+          },
+          version: '',
+          browser: true
+        };
+      }
+    </script>
   </head>
   <body>
     <noscript

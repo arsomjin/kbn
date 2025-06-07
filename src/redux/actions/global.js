@@ -9,6 +9,7 @@ export const RESET_GLOBAL_STATES = 'RESET_GLOBAL_STATES';
 export const GET_DEVICE = 'GET_DEVICE';
 export const SET_VERSION = 'SET_VERSION';
 export const SET_ALERT_ON_START = 'SET_ALERT_ON_START';
+export const SET_NETWORK_STATUS_CONFIG = 'SET_NETWORK_STATUS_CONFIG';
 
 export function getThemeSuccess(nightMode) {
   let mTheme = 'Nice And Clean';
@@ -50,6 +51,13 @@ export const setAlertOnStart = showAlertOnStart => {
   return {
     type: SET_ALERT_ON_START,
     showAlertOnStart
+  };
+};
+
+export const setNetworkStatusConfig = config => {
+  return {
+    type: SET_NETWORK_STATUS_CONFIG,
+    config
   };
 };
 

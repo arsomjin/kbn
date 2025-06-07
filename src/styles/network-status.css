@@ -1,0 +1,313 @@
+/* Network Status Component Animations */
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideOutRight {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%, 43% {
+    transform: translate3d(0, -8px, 0);
+  }
+  70% {
+    transform: translate3d(0, -4px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+@keyframes connectionPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(24, 144, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
+  }
+}
+
+@keyframes errorPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(255, 77, 79, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 77, 79, 0);
+  }
+}
+
+@keyframes successPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(82, 196, 26, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(82, 196, 26, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(82, 196, 26, 0);
+  }
+}
+
+/* Network Status Card Styles */
+.network-status-card {
+  position: fixed;
+  right: 20px;
+  top: 140px; /* Increased to clear top navigation */
+  z-index: 99999; /* Higher z-index to ensure visibility */
+  min-width: 320px;
+  max-width: 400px;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
+  background-color: rgba(255, 255, 255, 0.95);
+  animation: slideInRight 0.3s ease-out;
+}
+
+.network-status-card.mobile {
+  right: 10px;
+  top: 100px; /* Increased for mobile to clear mobile navigation */
+  min-width: 280px;
+  max-width: 90vw;
+}
+
+.network-status-card.hiding {
+  animation: slideOutRight 0.3s ease-in;
+}
+
+/* Connection Quality Indicators */
+.connection-excellent {
+  border: 2px solid #52c41a;
+  animation: successPulse 2s infinite;
+}
+
+.connection-good {
+  border: 2px solid #1890ff;
+  animation: connectionPulse 2s infinite;
+}
+
+.connection-fair {
+  border: 2px solid #faad14;
+}
+
+.connection-poor {
+  border: 2px solid #ff4d4f;
+  animation: errorPulse 2s infinite;
+}
+
+.connection-offline {
+  border: 2px solid #ff4d4f;
+  animation: errorPulse 1.5s infinite;
+}
+
+/* Icon Animations */
+.network-icon {
+  transition: all 0.3s ease;
+}
+
+.network-icon.spinning {
+  animation: spin 2s linear infinite;
+}
+
+.network-icon.pulsing {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+.network-icon.bouncing {
+  animation: bounce 1s ease-in-out;
+}
+
+/* Connection Status Text */
+.connection-status-text {
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.connection-details-text {
+  font-size: 11px;
+  color: #8c8c8c;
+  margin-top: 4px;
+}
+
+/* Retry Button Styles */
+.retry-button {
+  transition: all 0.2s ease;
+  border-radius: 6px;
+}
+
+.retry-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.retry-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.retry-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Progress Bar Customization */
+.connection-progress .ant-progress-bg {
+  transition: all 0.3s ease;
+}
+
+.connection-progress.reconnecting .ant-progress-bg {
+  background: linear-gradient(90deg, #1890ff, #52c41a);
+}
+
+/* Status Tag Styles */
+.status-tag {
+  border-radius: 12px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.status-tag.online {
+  background-color: #f6ffed;
+  border-color: #52c41a;
+  color: #52c41a;
+}
+
+.status-tag.offline {
+  background-color: #fff2f0;
+  border-color: #ff4d4f;
+  color: #ff4d4f;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .network-status-card {
+    right: 10px;
+    top: 100px; /* Adjusted for mobile navigation height */
+    min-width: 280px;
+    max-width: 90vw;
+    font-size: 14px;
+  }
+  
+  .network-icon {
+    font-size: 24px !important;
+  }
+  
+  .connection-status-text {
+    font-size: 14px !important;
+  }
+}
+
+/* Additional responsive breakpoints */
+@media (max-width: 480px) {
+  .network-status-card {
+    right: 8px;
+    top: 90px;
+    min-width: 260px;
+    max-width: 95vw;
+  }
+}
+
+/* Large screens - more space from top */
+@media (min-width: 1200px) {
+  .network-status-card {
+    top: 160px;
+    right: 30px;
+  }
+}
+
+/* Extra high z-index for modal overlays */
+.network-status-overlay {
+  z-index: 999999 !important;
+}
+
+/* Antd Notification z-index override to appear above navigation */
+.ant-notification {
+  z-index: 100000 !important;
+}
+
+.ant-notification-notice {
+  z-index: 100001 !important;
+}
+
+/* Ensure all notification components are above navigation */
+.ant-notification-topRight,
+.ant-notification-topLeft,
+.ant-notification-top,
+.ant-notification-bottomRight,
+.ant-notification-bottomLeft,
+.ant-notification-bottom {
+  z-index: 100000 !important;
+}
+
+/* Dark Theme Support */
+@media (prefers-color-scheme: dark) {
+  .network-status-card {
+    background-color: rgba(30, 30, 30, 0.95);
+    color: #ffffff;
+  }
+  
+  .connection-details-text {
+    color: #a6a6a6;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .network-icon.spinning,
+  .network-icon.pulsing,
+  .network-icon.bouncing {
+    animation: none;
+  }
+  
+  .connection-excellent,
+  .connection-good,
+  .connection-poor,
+  .connection-offline {
+    animation: none;
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .network-status-card {
+    border: 3px solid;
+    box-shadow: none;
+  }
+  
+  .status-tag {
+    border-width: 2px;
+  }
+} 

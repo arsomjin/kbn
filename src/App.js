@@ -17,7 +17,9 @@ const persistor = persistStore(store, null, () => {
 const App = () => {
   const onBeforeLift = () => {
     console.log('PersistGate OPEN!');
-    console.log("🔥 Connected to Firebase Project:", process.env.REACT_APP_FIREBASE_PROJECT_ID);
+    // Safe access to process.env with fallback
+    const projectId = (typeof process !== 'undefined' && process.env?.REACT_APP_FIREBASE_PROJECT_ID) || 'development';
+    console.log("🔥 Connected to Firebase Project:", projectId);
   };
 
   return (

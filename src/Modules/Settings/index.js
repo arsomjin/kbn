@@ -16,6 +16,7 @@ import PermissionList from './components/PermissionList';
 import AccountSettings from './components/AccountSettings';
 import PromotionSettings from './components/PromotionSettings';
 import ProvinceMigration from './components/ProvinceMigration';
+import SystemSettings from './components/SystemSettings';
 import { useRouteMatch } from 'react-router-dom';
 
 const Settings = () => {
@@ -47,6 +48,10 @@ const Settings = () => {
       case '/setting-promotions':
         onSelect(SettingItems.promotions);
         setTitle(SettingItems.promotions);
+        break;
+      case '/setting-system':
+        onSelect(SettingItems.system);
+        setTitle(SettingItems.system);
         break;
 
       default:
@@ -100,6 +105,9 @@ const Settings = () => {
       break;
     case SettingItems.migration:
       currentView = <ProvinceMigration />;
+      break;
+    case SettingItems.system:
+      currentView = <SystemSettings toggleMain={() => _showMain()} hideMain={hideMain} />;
       break;
 
     default:

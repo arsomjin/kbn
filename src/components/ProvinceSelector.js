@@ -1,16 +1,16 @@
-import React, { forwardRef, useRef, useImperativeHandle, useContext, useEffect, useState, useCallback } from 'react';
+import React, { forwardRef, useRef, useImperativeHandle, useEffect, useState, useMemo } from 'react';
 import { Select } from 'antd';
 import { useSelector } from 'react-redux';
-import { FirebaseContext } from '../firebase';
 import { usePermissions } from 'hooks/usePermissions';
 import { sortArr } from 'functions';
-import { waitFor } from 'functions';
 import PropTypes from 'prop-types';
 
 const { Option } = Select;
 
 const getSortProvinces = pr => {
-  let pArr = Object.keys(pr).map(k => pr[k]);
+  if (!pr || typeof pr !== 'object') return [];
+  
+  let pArr = Object.keys(pr).map(k => pr[k]).filter(province => province && province.provinceName);
   return pArr.length > 0 && pArr[0]?.queue > 0 ? sortArr(pArr, 'queue') : pArr;
 };
 
@@ -23,83 +23,92 @@ const ProvinceSelector = forwardRef(({
   showBranchCount = false,
   ...props 
 }, ref) => {
-  const { api } = useContext(FirebaseContext);
-  const { provinces } = useSelector(state => state.data);
+  const { provinces = {} } = useSelector(state => state.data || {});
   const { getAccessibleProvinces } = usePermissions();
   const [sProvinces, setProvinces] = useState([]);
+  
+  // Add ref to track component mount status
+  const isMountedRef = useRef(true);
 
   const selectRef = useRef();
+
+  // Cleanup function
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   useImperativeHandle(
     ref,
     () => ({
       focus: () => {
-        selectRef.current.focus();
+        return selectRef.current?.focus();
       },
 
       blur: () => {
-        selectRef.current.blur();
+        return selectRef.current?.blur();
       },
 
       clear: () => {
-        selectRef.current.clear();
+        return selectRef.current?.clear();
       },
 
       isFocused: () => {
-        return selectRef.current.isFocused();
+        return selectRef.current?.isFocused();
       },
 
-      setNativeProps(nativeProps) {
-        selectRef.current.setNativeProps(nativeProps);
+      setNativeProps: (nativeProps) => {
+        return selectRef.current?.setNativeProps(nativeProps);
       }
     }),
     []
   );
 
-  const initProvinces = useCallback(
-    async pr => {
-      api.getProvinces();
-      await waitFor(1000);
-      const accessibleProvinces = getAccessibleProvinces(pr);
-      let arr = getSortProvinces(accessibleProvinces);
-      setProvinces(arr);
-    },
-    [api, getAccessibleProvinces]
-  );
-
-  const filterProvinces = useCallback((allProvinces) => {
-    // First apply geographic access control
-    const accessibleProvinces = getAccessibleProvinces(allProvinces);
-    
-    // Then apply region filter if provided
-    let filtered = Object.keys(accessibleProvinces).map(k => accessibleProvinces[k]);
-    
-    if (regionFilter) {
-      filtered = filtered.filter(province => province.region === regionFilter);
+  // Memoize the filtered provinces to prevent unnecessary recalculations
+  const filteredProvinces = useMemo(() => {
+    if (!provinces || Object.keys(provinces).length === 0) {
+      return [];
     }
-    
-    if (onlyUserProvince) {
-      filtered = filtered.filter(province => province.provinceName === onlyUserProvince);
-    }
-    
-    return getSortProvinces(
-      filtered.reduce((acc, province) => {
-        acc[province.provinceName || province._key] = province;
-        return acc;
-      }, {})
-    );
-  }, [getAccessibleProvinces, regionFilter, onlyUserProvince]);
 
+    try {
+      // First apply geographic access control
+      const accessibleProvinces = getAccessibleProvinces(provinces);
+      
+      // Then apply region filter if provided
+      let filtered = Object.keys(accessibleProvinces)
+        .map(k => accessibleProvinces[k])
+        .filter(province => province && province.provinceName); // Filter out null/undefined provinces
+      
+      if (regionFilter) {
+        filtered = filtered.filter(province => province.region === regionFilter);
+      }
+      
+      if (onlyUserProvince) {
+        filtered = filtered.filter(province => province.provinceName === onlyUserProvince);
+      }
+      
+      return getSortProvinces(
+        filtered.reduce((acc, province) => {
+          if (province && (province.provinceName || province._key)) {
+            const key = province.provinceName || province._key;
+            acc[key] = province;
+          }
+          return acc;
+        }, {})
+      );
+    } catch (error) {
+      console.error('Error filtering provinces:', error);
+      return [];
+    }
+  }, [provinces, getAccessibleProvinces, regionFilter, onlyUserProvince]);
+
+  // Update local state when filtered provinces change, but only if component is still mounted
   useEffect(() => {
-    // Checking added provinces.
-    let pArr = Object.keys(provinces).map(k => provinces[k]);
-    if (pArr.length <= 1 || (pArr.length > 0 && !pArr[0]?.provinceName)) {
-      initProvinces(provinces);
-    } else {
-      const filteredProvinces = filterProvinces(provinces);
+    if (isMountedRef.current) {
       setProvinces(filteredProvinces);
     }
-  }, [provinces, initProvinces, filterProvinces]);
+  }, [filteredProvinces]);
 
   return (
     <Select
@@ -124,7 +133,7 @@ const ProvinceSelector = forwardRef(({
             value={value}
             disabled={!!onlyUserProvince && onlyUserProvince !== province.provinceName}
           >
-            {province.provinceName}
+            {province.provinceName || key}
             {showBranchCount && (
               <span style={{ color: '#999', fontSize: '12px', marginLeft: '8px' }}>
                 ({branchCount} สาขา)
