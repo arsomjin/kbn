@@ -7,6 +7,8 @@ import { useSelector } from 'react-redux';
 import SidebarMainNavbar from './SidebarMainNavbar';
 import SidebarSearch from './SidebarSearch';
 import SidebarNavItems from './SidebarNavItems';
+import EnhancedSidebarNavItems from './EnhancedSidebarNavItems';
+import 'styles/enhanced-navigation.css';
 
 const MainSidebar = forwardRef((props, ref) => {
   const { menuVisible } = useSelector(state => state.unPersisted);
@@ -18,7 +20,11 @@ const MainSidebar = forwardRef((props, ref) => {
       <SidebarMainNavbar hideLogoText={props.hideLogoText} />
       <SidebarSearch />
       <div>
-        <SidebarNavItems />
+        {/* Enhanced RBAC Navigation */}
+        <EnhancedSidebarNavItems />
+        
+        {/* Fallback to original navigation if needed */}
+        {/* <SidebarNavItems /> */}
       </div>
     </Col>
   );

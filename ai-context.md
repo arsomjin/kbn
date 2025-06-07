@@ -56,6 +56,8 @@ react-bootstrap     → antd
 semantic-ui-react   → antd
 react-datepicker    → antd DatePicker
 react-chartjs-2     → antd Charts / @ant-design/charts
+moment              → dayjs
+moment-timezone     → dayjs
 ```
 
 ## Technical Implementation (Completed)

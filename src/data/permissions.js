@@ -11,7 +11,8 @@ export const DEPARTMENTS = {
   INVENTORY: 'inventory',
   HR: 'hr',
   ADMIN: 'admin',
-  REPORTS: 'reports'
+  REPORTS: 'reports',
+  NOTIFICATIONS: 'notifications'
 };
 
 // Document Flow Permissions
@@ -30,7 +31,8 @@ export const DEPARTMENT_DESCRIPTIONS = {
   [DEPARTMENTS.INVENTORY]: 'คลังสินค้าและอะไหล่',
   [DEPARTMENTS.HR]: 'ทรัพยากรบุคคล',
   [DEPARTMENTS.ADMIN]: 'ระบบและผู้ดูแล',
-  [DEPARTMENTS.REPORTS]: 'รายงานทั้งหมด'
+  [DEPARTMENTS.REPORTS]: 'รายงานทั้งหมด',
+  [DEPARTMENTS.NOTIFICATIONS]: 'การแจ้งเตือนและเผยแพร่'
 };
 
 // Document Flow Descriptions
@@ -150,7 +152,11 @@ export const ROLE_PERMISSIONS = {
     combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW),
     combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.EDIT),
     
-    combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.VIEW)
+    combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.VIEW),
+    
+    // Notification permissions for province managers
+    combinePermission(DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.VIEW),
+    combinePermission(DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.EDIT)
   ],
   
   BRANCH_MANAGER: [
@@ -175,7 +181,10 @@ export const ROLE_PERMISSIONS = {
     combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.EDIT),
     
     // Reports access
-    combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW)
+    combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW),
+    
+    // Notification permissions for branch managers  
+    combinePermission(DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.VIEW)
   ],
   
   ACCOUNTING_STAFF: [

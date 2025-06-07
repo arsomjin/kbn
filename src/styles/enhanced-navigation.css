@@ -1,0 +1,423 @@
+/* Enhanced Navigation Styles */
+/* 
+ * Production Mode Notes:
+ * - Debug elements (search count, navigation stats) are hidden via JS logic
+ * - All CSS animations and transitions remain for smooth UX
+ * - Search functionality is preserved but without verbose feedback
+ */
+
+.enhanced-navigation {
+  height: calc(100vh - 3.75rem - 1px); /* Account for navbar and search height */
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  scroll-behavior: smooth;
+  padding-bottom: 16px; /* Extra space at bottom for last menu items */
+}
+
+/* Search Box Styling */
+.enhanced-navigation .menu-search-box {
+  margin: 8px 8px 16px 8px;
+  position: sticky;
+  top: 60px; /* Below user context */
+  z-index: 19;
+  background: #fff;
+  padding: 8px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  border: 1px solid #f0f0f0;
+}
+
+.enhanced-navigation .menu-search-box:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  border-color: #d9d9d9;
+}
+
+.enhanced-navigation .menu-search-box .ant-input {
+  border: none;
+  box-shadow: none;
+  font-size: 12px;
+}
+
+.enhanced-navigation .menu-search-box .ant-input:focus {
+  border: none;
+  box-shadow: none;
+}
+
+.enhanced-navigation .search-results-count {
+  font-size: 10px;
+  color: #8c8c8c;
+  margin-top: 4px;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* Search Term Highlighting */
+.enhanced-navigation .search-highlight {
+  background-color: #fff3cd;
+  color: #856404;
+  font-weight: bold;
+  padding: 1px 2px;
+  border-radius: 2px;
+  animation: highlightPulse 0.5s ease-in;
+}
+
+@keyframes highlightPulse {
+  0% { background-color: #ffeaa7; }
+  50% { background-color: #fdcb6e; }
+  100% { background-color: #fff3cd; }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(-5px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Search Empty State */
+.enhanced-navigation .search-empty-state {
+  padding: 20px;
+  text-align: center;
+  animation: fadeIn 0.3s ease-in;
+}
+
+.enhanced-navigation .search-empty-state .ant-empty-description {
+  color: #8c8c8c;
+  font-size: 12px;
+}
+
+/* User Context Card Styling */
+.enhanced-navigation .user-context {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin: 8px 8px 0 8px;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 20; /* Higher than scroll indicators */
+  margin-bottom: 8px;
+}
+
+/* High Priority Menu Items */
+.enhanced-navigation .high-priority-item {
+  background: rgba(24, 144, 255, 0.1) !important;
+  border-left: 3px solid #1890ff !important;
+  margin: 2px 8px;
+  border-radius: 4px;
+}
+
+.enhanced-navigation .high-priority-item:hover {
+  background: rgba(24, 144, 255, 0.2) !important;
+}
+
+/* Menu Item Content Layout */
+.enhanced-navigation .menu-item-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.enhanced-navigation .menu-title {
+  flex: 1;
+  font-weight: 500;
+}
+
+.enhanced-navigation .menu-badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Submenu Styling */
+.enhanced-navigation .enhanced-submenu .ant-menu-submenu-title {
+  padding-left: 16px !important;
+  margin: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.enhanced-navigation .enhanced-submenu .ant-menu-submenu-title:hover {
+  background: rgba(0, 0, 0, 0.06) !important;
+  color: #1890ff !important;
+}
+
+.enhanced-navigation .submenu-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+/* Menu Item Groups */
+.enhanced-navigation .ant-menu-item-group-title {
+  padding: 8px 16px 4px 16px !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #8c8c8c !important;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Individual Menu Items */
+.enhanced-navigation .ant-menu-item {
+  margin: 2px 8px !important;
+  border-radius: 4px !important;
+  padding-left: 16px !important;
+  line-height: 1.2 !important;
+  height: auto !important;
+  min-height: 36px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.enhanced-navigation .ant-menu-item:hover {
+  background: rgba(24, 144, 255, 0.08) !important;
+  color: #1890ff !important;
+}
+
+.enhanced-navigation .ant-menu-item.ant-menu-item-selected {
+  background: rgba(24, 144, 255, 0.15) !important;
+  color: #1890ff !important;
+  border-right: 3px solid #1890ff;
+}
+
+/* Sub-menu items */
+.enhanced-navigation .ant-menu-sub .ant-menu-item {
+  margin: 1px 4px 1px 20px !important;
+  padding-left: 20px !important;
+  border-radius: 3px !important;
+  min-height: 32px !important;
+}
+
+/* Icons */
+.enhanced-navigation .anticon {
+  font-size: 14px;
+  margin-right: 8px;
+  color: inherit;
+}
+
+/* Badge Customization */
+.enhanced-navigation .ant-badge-count {
+  font-size: 9px;
+  min-width: auto;
+  height: 16px;
+  line-height: 14px;
+  padding: 0 4px;
+  border-radius: 8px;
+}
+
+/* Enhanced Scrollbar Styling */
+.enhanced-navigation::-webkit-scrollbar {
+  width: 6px;
+}
+
+.enhanced-navigation::-webkit-scrollbar-track {
+  background: #f5f5f5;
+  border-radius: 3px;
+  margin: 4px 0;
+}
+
+.enhanced-navigation::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #c0c0c0, #a0a0a0);
+  border-radius: 3px;
+  transition: background 0.3s ease;
+}
+
+.enhanced-navigation::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #a0a0a0, #808080);
+}
+
+.enhanced-navigation::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #808080, #606060);
+}
+
+/* For Firefox */
+.enhanced-navigation {
+  scrollbar-width: thin;
+  scrollbar-color: #c0c0c0 #f5f5f5;
+}
+
+/* Scroll indicators - subtle gradients at top and bottom */
+.enhanced-navigation::before,
+.enhanced-navigation::after {
+  content: '';
+  position: sticky;
+  left: 0;
+  right: 0;
+  height: 12px;
+  pointer-events: none;
+  z-index: 15;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.enhanced-navigation::before {
+  top: 0;
+  margin-bottom: -12px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 50%, transparent 100%);
+}
+
+.enhanced-navigation::after {
+  bottom: 0;
+  margin-top: -12px;
+  background: linear-gradient(0deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 50%, transparent 100%);
+}
+
+/* Show scroll indicators when content is scrollable */
+.enhanced-navigation:hover::before,
+.enhanced-navigation:hover::after {
+  opacity: 1;
+}
+
+/* Quick Access Section */
+.enhanced-navigation .quick-access {
+  margin: 16px 8px 8px 8px;
+  padding: 8px;
+  background: #fafafa;
+  border-radius: 6px;
+  border: 1px solid #f0f0f0;
+}
+
+.enhanced-navigation .quick-access-item {
+  font-size: 10px;
+  padding: 2px 0;
+  cursor: pointer;
+  color: #1890ff;
+  transition: color 0.3s ease;
+}
+
+.enhanced-navigation .quick-access-item:hover {
+  color: #40a9ff;
+  text-decoration: underline;
+}
+
+/* Navigation Statistics */
+.enhanced-navigation .nav-stats {
+  padding: 8px 16px;
+  fontSize: 10px;
+  color: #8c8c8c;
+  border-bottom: 1px solid #f0f0f0;
+  background: #fafafa;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .enhanced-navigation {
+    height: calc(100vh - 3rem - 1px); /* Smaller navbar on mobile */
+  }
+  
+  .enhanced-navigation .ant-menu-item {
+    margin: 1px 4px !important;
+    min-height: 40px !important;
+    font-size: 14px;
+  }
+  
+  .enhanced-navigation .menu-item-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  
+  .enhanced-navigation .menu-badges {
+    align-self: flex-end;
+  }
+  
+  /* Larger scrollbar on mobile for touch devices */
+  .enhanced-navigation::-webkit-scrollbar {
+    width: 8px;
+  }
+}
+
+/* Dark Theme Support (Optional) */
+.enhanced-navigation.dark-theme {
+  background: #001529;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.enhanced-navigation.dark-theme .ant-menu-item:hover {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #1890ff !important;
+}
+
+.enhanced-navigation.dark-theme .high-priority-item {
+  background: rgba(24, 144, 255, 0.2) !important;
+  border-left-color: #40a9ff !important;
+}
+
+/* Animation for smooth transitions */
+.enhanced-navigation .ant-menu {
+  transition: all 0.3s ease;
+}
+
+.enhanced-navigation .ant-menu-item,
+.enhanced-navigation .ant-menu-submenu-title {
+  transition: all 0.3s ease;
+}
+
+/* Focus states for accessibility */
+.enhanced-navigation .ant-menu-item:focus,
+.enhanced-navigation .ant-menu-submenu-title:focus {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+/* Icon mappings for navigation */
+.nav-icon {
+  font-style: normal;
+  font-size: 16px;
+  margin-right: 8px;
+}
+
+.nav-icon.setting:before {
+  content: "⚙️";
+}
+
+.nav-icon.code:before {
+  content: "💻";
+}
+
+.nav-icon.sales:before {
+  content: "🛒";
+}
+
+.nav-icon.purchase:before {
+  content: "📦";
+}
+
+.nav-icon.warehouse:before {
+  content: "🏪";
+}
+
+.nav-icon.service:before {
+  content: "🔧";
+}
+
+.nav-icon.accounting:before {
+  content: "💰";
+}
+
+.nav-icon.hr:before {
+  content: "👥";
+}
+
+.nav-icon.reports:before {
+  content: "📊";
+}
+
+.nav-icon.notification:before {
+  content: "📢";
+}
+
+.nav-icon.database:before {
+  content: "📚";
+}
+
+/* Print styles */
+@media print {
+  .enhanced-navigation {
+    display: none;
+  }
+} 

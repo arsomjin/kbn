@@ -1,0 +1,129 @@
+import React from 'react';
+import { useSelector } from 'react-redux';
+import { Card, Tag, Typography } from 'antd';
+import { EnvironmentOutlined, HomeOutlined, UserOutlined } from '@ant-design/icons';
+
+const { Text } = Typography;
+
+const UserContext = () => {
+  const { user } = useSelector(state => state.auth);
+  const { provinces, branches } = useSelector(state => state.data);
+  const { currentProvince, currentBranch } = useSelector(state => state.rbac);
+
+  // Get province and branch names
+  const provinceName = currentProvince?.provinceName || 
+    (user?.homeProvince && provinces[user.homeProvince]?.provinceName) || 
+    'ทั้งหมด';
+    
+  const branchName = currentBranch?.branchName || 
+    (user?.homeBranch && branches[user.homeBranch]?.branchName) || 
+    'ทั้งหมด';
+
+  // Determine access level display
+  const getAccessLevelInfo = () => {
+    switch (user?.accessLevel) {
+      case 'SUPER_ADMIN':
+        return { label: 'ผู้ดูแลสูงสุด', color: 'red' };
+      case 'PROVINCE_MANAGER':
+        return { label: 'ผู้จัดการจังหวัด', color: 'purple' };
+      case 'BRANCH_MANAGER':
+        return { label: 'ผู้จัดการสาขา', color: 'blue' };
+      case 'ACCOUNTING_STAFF':
+        return { label: 'เจ้าหน้าที่บัญชี', color: 'green' };
+      case 'SALES_STAFF':
+        return { label: 'เจ้าหน้าที่ขาย', color: 'orange' };
+      case 'SERVICE_STAFF':
+        return { label: 'เจ้าหน้าที่บริการ', color: 'cyan' };
+      case 'INVENTORY_STAFF':
+        return { label: 'เจ้าหน้าที่คลัง', color: 'geekblue' };
+      default:
+        return { label: 'ผู้ใช้งาน', color: 'default' };
+    }
+  };
+
+  const accessLevelInfo = getAccessLevelInfo();
+
+  // Simplified version for production
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (isProduction) {
+    return (
+      <Card 
+        size="small" 
+        className="mb-3 mx-2" 
+        style={{ 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          border: 'none',
+          color: 'white'
+        }}
+        bodyStyle={{ padding: '8px 12px' }}
+      >
+        <div style={{ fontSize: '11px', textAlign: 'center' }}>
+          <div style={{ marginBottom: '4px' }}>
+            <UserOutlined className="mr-1" />
+            <Text strong style={{ color: 'white', fontSize: '11px' }}>
+              {user?.name || user?.displayName || 'ผู้ใช้งาน'}
+            </Text>
+          </div>
+          <div style={{ fontSize: '10px', opacity: 0.8 }}>
+            {provinceName} • {branchName}
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  // Full development version
+  return (
+    <Card 
+      size="small" 
+      className="mb-3 mx-2" 
+      style={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        border: 'none',
+        color: 'white'
+      }}
+      bodyStyle={{ padding: '12px' }}
+    >
+      <div style={{ fontSize: '12px' }}>
+        {/* User Info */}
+        <div className="mb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '8px' }}>
+          <UserOutlined className="mr-1" />
+          <Text strong style={{ color: 'white', fontSize: '12px' }}>
+            {user?.name || user?.displayName || 'ผู้ใช้งาน'}
+          </Text>
+        </div>
+
+        {/* Geographic Context */}
+        <div className="mb-1">
+          <EnvironmentOutlined className="mr-1" />
+          <Text strong style={{ color: 'white', fontSize: '11px' }}>จังหวัด:</Text>{' '}
+          <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px' }}>
+            {provinceName}
+          </Text>
+        </div>
+        
+        <div className="mb-2">
+          <HomeOutlined className="mr-1" />
+          <Text strong style={{ color: 'white', fontSize: '11px' }}>สาขา:</Text>{' '}
+          <Text style={{ color: 'rgba(255,255,255,0.9)', fontSize: '11px' }}>
+            {branchName}
+          </Text>
+        </div>
+
+        {/* Access Level */}
+        <div style={{ textAlign: 'center' }}>
+          <Tag 
+            color={accessLevelInfo.color} 
+            size="small"
+            style={{ fontSize: '10px', margin: 0 }}
+          >
+            {accessLevelInfo.label}
+          </Tag>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+export default UserContext; 
