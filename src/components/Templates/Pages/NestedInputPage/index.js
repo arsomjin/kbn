@@ -12,7 +12,7 @@ import { showWarn } from 'functions';
 import { load } from 'functions';
 import { getArrayChanges } from 'functions';
 import { createNewOrderId } from 'Modules/Account/api';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
@@ -99,7 +99,7 @@ export default () => {
           ? [...mProps.order.editedBy, { uid: user.uid, time: Date.now(), changes }]
           : [{ uid: user.uid, time: Date.now(), changes }];
       } else {
-        mValues.created = moment().valueOf();
+        mValues.created = dayjs().valueOf();
         mValues.createdBy = user.uid;
         mValues.status = StatusMap.pending;
       }

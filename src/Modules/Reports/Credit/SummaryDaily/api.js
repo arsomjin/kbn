@@ -3,12 +3,12 @@ import { getCollection } from 'firebase/api';
 import { distinctArr } from 'functions';
 import { Numb } from 'functions';
 import { arrayForEach } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 
 export const getColumns = date => {
-  let prevMonth = date ? moment(date, 'YYYY-MM-DD').subtract(1, 'month').locale('th').format('MMM') : '';
-  let nextMonth = date ? moment(date, 'YYYY-MM-DD').add(1, 'month').locale('th').format('MMM') : '';
-  let curMonth = date ? moment(date, 'YYYY-MM-DD').locale('th').format('MMM') : '';
+  let prevMonth = date ? dayjs(date, 'YYYY-MM-DD').subtract(1, 'month').locale('th').format('MMM') : '';
+  let nextMonth = date ? dayjs(date, 'YYYY-MM-DD').add(1, 'month').locale('th').format('MMM') : '';
+  let curMonth = date ? dayjs(date, 'YYYY-MM-DD').locale('th').format('MMM') : '';
   return [
     {
       title: 'สาขา',
@@ -305,7 +305,7 @@ export const sumKeys = Object.keys(initData)
 export const getDailyCreditData = ({ date, branches, vehicle }) =>
   new Promise(async (r, j) => {
     try {
-      let start = moment(date, 'YYYY-MM-DD').subtract(1, 'months').startOf('month').format('YYYY-MM-DD');
+      let start = dayjs(date, 'YYYY-MM-DD').subtract(1, 'months').startOf('month').format('YYYY-MM-DD');
       let dSnap = {};
       let branchArr = Object.keys(branches || {}).map(k => {
         dSnap[k] = {
@@ -404,7 +404,7 @@ export const getDailyCreditData = ({ date, branches, vehicle }) =>
       );
       let todaySale = sales.filter(l => l.date === date);
       const nextDaySaleData = await getCollection('sections/sales/vehicles', [
-        ['date', '==', moment(date, 'YYYY-MM-DD').add(1, 'day').format('YYYY-MM-DD')]
+        ['date', '==', dayjs(date, 'YYYY-MM-DD').add(1, 'day').format('YYYY-MM-DD')]
       ]);
       let nextDaySales = Object.keys(nextDaySaleData || {}).map(k => {
         let items = !!nextDaySaleData[k]?.items
@@ -424,27 +424,27 @@ export const getDailyCreditData = ({ date, branches, vehicle }) =>
       let todayBook = books.filter(l => l.date === date);
       let todayBookCanceled = books.filter(l => !!l.canceled && l.canceled.date === date);
       let lastMonthBookArr = books.filter(
-        l => l.date >= start && l.date <= moment(start, 'YYYY-MM-DD').endOf('month').format('YYYY-MM-DD')
+        l => l.date >= start && l.date <= dayjs(start, 'YYYY-MM-DD').endOf('month').format('YYYY-MM-DD')
       );
       let thisMonthBook = books.filter(
-        l => l.date >= moment(date, 'YYYY-MM-DD').startOf('month').format('YYYY-MM-DD') && l.date <= date
+        l => l.date >= dayjs(date, 'YYYY-MM-DD').startOf('month').format('YYYY-MM-DD') && l.date <= date
       );
       let lastMonthSoldArr = sales.filter(
-        l => l.date >= start && l.date <= moment(start, 'YYYY-MM-DD').endOf('month').format('YYYY-MM-DD')
+        l => l.date >= start && l.date <= dayjs(start, 'YYYY-MM-DD').endOf('month').format('YYYY-MM-DD')
       );
       let thisMonthSoldArr = sales.filter(
-        l => l.date >= moment(date, 'YYYY-MM-DD').startOf('month').format('YYYY-MM-DD') && l.date <= date
+        l => l.date >= dayjs(date, 'YYYY-MM-DD').startOf('month').format('YYYY-MM-DD') && l.date <= date
       );
       let lastMonthBook = lastMonthBookArr.filter(
         l =>
           !l.soldDate ||
-          (l.soldDate >= moment(date, 'YYYY-MM-DD').startOf('month').format('YYYY-MM-DD') && l.soldDate <= date)
+          (l.soldDate >= dayjs(date, 'YYYY-MM-DD').startOf('month').format('YYYY-MM-DD') && l.soldDate <= date)
       );
       let lastMonthSold = lastMonthSoldArr.filter(
-        l => l.bookDate >= start && l.bookDate <= moment(start, 'YYYY-MM-DD').endOf('month').format('YYYY-MM-DD')
+        l => l.bookDate >= start && l.bookDate <= dayjs(start, 'YYYY-MM-DD').endOf('month').format('YYYY-MM-DD')
       );
       let thisMonthSold = thisMonthSoldArr.filter(
-        l => l.bookDate >= moment(date, 'YYYY-MM-DD').startOf('month').format('YYYY-MM-DD') && l.bookDate <= date
+        l => l.bookDate >= dayjs(date, 'YYYY-MM-DD').startOf('month').format('YYYY-MM-DD') && l.bookDate <= date
       );
       await arrayForEach(todaySale, async tdSale => {
         switch (tdSale.saleType) {

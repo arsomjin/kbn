@@ -1,4 +1,5 @@
 import { Form } from 'antd';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { getRules } from 'api/Table';
 import ArrayInput from 'components/ArrayInput';
 import DocSelector from 'components/DocSelector';
@@ -12,7 +13,7 @@ import { CardBody, Row, Col } from 'shards-react';
 
 export const getInitialValues = user => {
   return {
-    branchCode: user?.branch || '0450',
+    branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     date: moment(),
     docNo: null,
     exportType: 'saleOut',

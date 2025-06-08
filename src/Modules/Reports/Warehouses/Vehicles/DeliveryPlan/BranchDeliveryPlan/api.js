@@ -1,7 +1,7 @@
 import { ListItem } from 'elements';
 import { checkCollection } from 'firebase/api';
 import { getBranchName } from 'Modules/Utils';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React from 'react';
 
 export const getColums = employees => [
@@ -75,7 +75,7 @@ export const getColums = employees => [
         width: 120,
         render: text => (
           <div className={!text ? 'transparent' : ''}>
-            {!!text ? moment(text, 'YYYY-MM-DD').format('DD/MM/YYYY') : '-'}
+            {!!text ? dayjs(text, 'YYYY-MM-DD').format('DD/MM/YYYY') : '-'}
           </div>
         ),
         align: 'center'

@@ -24,7 +24,7 @@ import {
   showSuccess
 } from 'functions';
 import { createNewOrderId } from 'Modules/Account/api';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import numeral from 'numeral';
 import React, { useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -266,7 +266,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expen
           expenseType,
           ...(!nProps.isEdit && {
             created: Date.now(),
-            inputDate: moment().format('YYYY-MM-DD'),
+            inputDate: dayjs().format('YYYY-MM-DD'),
             inputBy: user.uid
           })
         };
@@ -317,7 +317,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expen
       mValues = cleanValuesBeforeSave(mValues);
       showConfirm(
         () => onConfirm(mValues, _resetInitState),
-        `การบันทึกรายจ่าย${ExpenseType[expenseType]} สาขา${branches[mValues.branchCode].branchName} วันที่ ${moment(
+        `การบันทึกรายจ่าย${ExpenseType[expenseType]} สาขา${branches[mValues.branchCode].branchName} วันที่ ${dayjs(
           mValues.date,
           'YYYY-MM-DD'
         ).format('DD/MM/YYYY')} จำนวน ${nItems.length} รายการ`

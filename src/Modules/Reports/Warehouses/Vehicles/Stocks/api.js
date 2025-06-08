@@ -1,6 +1,6 @@
 import EditableCellTable from 'components/EditableCellTable';
 import { checkCollection } from 'firebase/api';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React from 'react';
 import { TransferType } from 'data/Constant';
 import { distinctArr } from 'functions';
@@ -180,7 +180,7 @@ const formatTransactions = trans => {
     let info = it?.info || null;
     let fromOrigin = it?.fromOrigin || it?.origin || null;
     let toDestination = it?.toDestination || it?.destination || null;
-    let date = it?.docDate || (!!it?.ts ? moment(it.ts) : it.exportDate);
+    let date = it?.docDate || (!!it?.ts ? dayjs(it.ts) : it.exportDate);
 
     return {
       ...it,

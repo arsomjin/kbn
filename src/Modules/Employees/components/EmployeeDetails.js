@@ -259,7 +259,7 @@ const EmployeeDetails = ({ title, app, onCancel, selectedEmployee }) => {
                     amphoe: selectedEmployee.amphoe || '',
                     province: selectedEmployee.province || 'นครราชสีมา',
                     postcode: selectedEmployee.postcode || '',
-                    branch: selectedEmployee.branch || '0450',
+                    branch: selectedEmployee.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
                     remark: selectedEmployee.remark || ''
                   }}
                   validationSchema={EmployeeSchema}

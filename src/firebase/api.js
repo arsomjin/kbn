@@ -4,7 +4,7 @@ import { showWarn, showLog } from 'functions';
 import { goOnline, goOffline } from 'redux/actions/unPersisted';
 import { vapidKey } from './firebaseConfig';
 import { sortArrByMultiKeys } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { isMobile, browserName, browserVersion, osName, osVersion } from 'react-device-detect';
 import { createNewId } from 'utils';
 import { cleanValuesBeforeSave } from 'functions';
@@ -725,9 +725,9 @@ export const addErrorLogs = error =>
         r(false);
       }
       const { user, isAuthenticated } = store.getState().auth;
-      let eYear = moment().format('YYYY');
-      let eMonth = moment().format('YYYY-MM');
-      let eTime = moment().format('YYYYMMDDHHmm');
+      let eYear = dayjs().format('YYYY');
+      let eMonth = dayjs().format('YYYY-MM');
+      let eTime = dayjs().format('YYYYMMDDHHmm');
       let collection = `errors/no_auth/handler`;
       if (!!user?.uid && isAuthenticated) {
         collection = `errors/auth/handler`;

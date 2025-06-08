@@ -10,12 +10,18 @@ import {
   SELECTED_KEYS
 } from '../actions/unPersisted';
 
+// Check if we're on mobile to determine initial sidebar state
+const isMobileDevice = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth <= 768;
+};
+
 const initialState = {
   isPortrait: false,
   screenHeight: 719,
   screenWidth: 414,
   isOnline: true,
-  menuVisible: false,
+  menuVisible: !isMobileDevice(), // Show sidebar by default on desktop, hide on mobile
   navItems: getSidebarNavItems(),
   openKeys: [],
   selectedKeys: []

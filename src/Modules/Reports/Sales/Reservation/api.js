@@ -1,6 +1,6 @@
 import React from 'react';
 import { parser } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { getCollection } from 'firebase/api';
 import { sortArr } from 'functions';
 import { distinctArr } from 'functions';
@@ -156,7 +156,7 @@ export const getColumns = (type, allBranch) => {
           title: isMobile ? 'เดือน' : 'เดือนที่จอง',
           dataIndex: 'month',
           align: 'center',
-          render: txt => <div>{moment(txt, 'YYYY-MM').format(isMobile ? 'MMM YY' : 'MMMM YYYY')}</div>,
+          render: txt => <div>{dayjs(txt, 'YYYY-MM').format(isMobile ? 'MMM YY' : 'MMMM YYYY')}</div>,
           defaultSortOrder: 'descend',
           sorter: (a, b) => parser(a.month) - parser(b.month),
           ellipsis: true,
@@ -257,8 +257,8 @@ export const formatReservationData = snap => {
     salesPerson,
     sourceOfData,
     date,
-    resMonth: date ? moment(date, 'YYYY-MM-DD').format('YYYY-MM') : null,
-    resYear: date ? moment(date, 'YYYY-MM-DD').format('YYYY') : null,
+    resMonth: date ? dayjs(date, 'YYYY-MM-DD').format('YYYY-MM') : null,
+    resYear: date ? dayjs(date, 'YYYY-MM-DD').format('YYYY') : null,
     assessmentResult: typeof assessment?.result !== 'undefined' ? assessment.result : null,
     resultDetails,
     result: !!canceled

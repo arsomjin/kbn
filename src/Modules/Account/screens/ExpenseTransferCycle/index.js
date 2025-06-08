@@ -9,7 +9,7 @@ import { InitValues, columns, getTransferCycleData } from './api';
 import { TableSummary } from 'api/Table';
 import { showWarn } from 'functions';
 import { useForm } from 'antd/lib/form/Form';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import Footer from 'components/Footer';
 import { CheckOutlined } from '@ant-design/icons';
 import { arrayForEach } from 'functions';
@@ -108,7 +108,7 @@ export default () => {
       load(false);
       showSuccess(
         () => _resetToInitial(),
-        `บันทึกรายการจ่ายเงินโอนตามรอบเงินโอนประจำวันที่ ${moment(filters.date).format('D/M/YYYY')} สำเร็จ`,
+        `บันทึกรายการจ่ายเงินโอนตามรอบเงินโอนประจำวันที่ ${dayjs(filters.date).format('D/M/YYYY')} สำเร็จ`,
         true
       );
     } catch (e) {
@@ -190,7 +190,7 @@ export default () => {
 
   const title = () => (
     <h6 className="m-3 text-center text-primary">
-      {`รายการจ่ายเงินโอน ประจำวันที่ ${moment(filters.date).format('D/M/YYYY')}`}
+      {`รายการจ่ายเงินโอน ประจำวันที่ ${dayjs(filters.date).format('D/M/YYYY')}`}
     </h6>
   );
 
@@ -221,7 +221,7 @@ export default () => {
         <div className="m-2 text-muted">
           <label>
             กรุณาเลือกรายการ เพื่อสรุปรายการจ่ายเงินโอนตามรอบเงินโอนประจำวันที่{' '}
-            {moment(filters.date).format('D/M/YYYY')}
+            {dayjs(filters.date).format('D/M/YYYY')}
           </label>
         </div>
       )}

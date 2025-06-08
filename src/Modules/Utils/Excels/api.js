@@ -1,4 +1,4 @@
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { createArrOfLength, showWarning, showLog } from 'functions';
 
 const IMPORT_VEHICLES_FIELD_NAME = [
@@ -302,8 +302,8 @@ export const formatExcelImportArr = excelData => {
           // val = getJsDateFromExcel(val);
           val = parseDateExcel(val);
           val = cName.startsWith('วันที่')
-            ? moment.tz(val, 'Asia/Bangkok').format('DD/MM/YYYY')
-            : moment.tz(val, 'Asia/Bangkok').format('HH:mm:ss');
+            ? dayjs.tz(val, 'Asia/Bangkok').format('DD/MM/YYYY')
+            : dayjs.tz(val, 'Asia/Bangkok').format('HH:mm:ss');
         }
       }
       it[n] = val;

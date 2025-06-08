@@ -1,4 +1,5 @@
 import React from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Form } from 'antd';
 import { Container } from 'shards-react';
 import { useHistory } from 'react-router';
@@ -14,6 +15,7 @@ import { ExtraPositions } from 'data/Constant';
 export default () => {
   const history = useHistory();
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const { employees } = useSelector(state => state.data);
   const [form] = Form.useForm();
 
@@ -39,7 +41,7 @@ export default () => {
       <Form
         form={form}
         initialValues={{
-          branchCode: user?.branch || '0450',
+          branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           date: undefined,
           employeeId: null,
           department: null,

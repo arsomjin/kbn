@@ -27,7 +27,7 @@
 import {
   PermissionGate, // Permission-based component wrapping
   GeographicBranchSelector, // RBAC-filtered branch selection
-  AccountLayoutWithRBAC, // Account page layout with geographic filtering
+  LayoutWithRBAC, // Account page layout with geographic filtering
   RBACDataTable, // Table with geographic filtering
   usePermissions, // Permission checking hooks
   useGeographicData, // Geographic data filtering
@@ -56,14 +56,14 @@ const IncomePage = () => {
   };
 
   return (
-    <AccountLayoutWithRBAC
+    <LayoutWithRBAC
       title="รับเงินประจำวัน"
       permission="accounting.view"
       editPermission="accounting.edit"
       onBranchChange={handleBranchChange}
     >
       <PageContent />
-    </AccountLayoutWithRBAC>
+    </LayoutWithRBAC>
   );
 };
 ```
@@ -97,7 +97,7 @@ const saveIncomeData = async (values, geographic) => {
 
 **Immediate Next Steps**:
 
-1. **Apply AccountLayoutWithRBAC to remaining Account pages**:
+1. **Apply LayoutWithRBAC to remaining Account pages**:
 
    - ✅ `IncomeDaily` - RBAC integrated
    - 🔄 `IncomeAfterCloseAccount`

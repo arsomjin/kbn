@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Form, Modal } from 'antd';
 import { Container, Row, Col } from 'shards-react';
 import { useSelector } from 'react-redux';
@@ -23,6 +24,7 @@ import { h } from 'api';
 
 export default () => {
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [allData, setAllData] = useState([]);
@@ -35,7 +37,7 @@ export default () => {
   });
 
   const searchValues = useRef({
-    branchCode: user?.branch || '0450',
+    branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     year: moment().format('YYYY')
   });
 
@@ -111,7 +113,7 @@ export default () => {
       <Form
         form={form}
         initialValues={{
-          branchCode: user?.branch || '0450',
+          branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           isRange: false,
           year: moment(),
           yearRange: [moment().subtract(1, 'year'), moment()],

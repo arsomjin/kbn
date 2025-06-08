@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Form } from 'antd';
 import BranchMonthHeader from 'components/branch-month-header';
 import EditableRowTable from 'components/EditableRowTable';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
 import { Container, Row, Col } from 'shards-react';
 import { getSearchData } from 'firebase/api';
@@ -17,16 +18,17 @@ import { Checkbox } from 'elements';
 
 export default () => {
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [mColumns, setColumns] = useState(getColumns(moment().format('YYYY-MM')));
-  const [month, setMonth] = useState(moment().format('YYYY-MM'));
+  const [mColumns, setColumns] = useState(getColumns(dayjs().format('YYYY-MM')));
+  const [month, setMonth] = useState(dayjs().format('YYYY-MM'));
   const [valOnly, setValueOnly] = useState(false);
 
   const searchValues = useRef({
-    branchCode: user?.branch || '0450',
-    month: moment().format('YYYY-MM')
+    branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
+    month: dayjs().format('YYYY-MM')
   });
 
   const _onValuesChange = async val => {
@@ -68,10 +70,10 @@ export default () => {
       <Form
         form={form}
         initialValues={{
-          branchCode: user?.branch || '0450',
+          branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           isRange: false,
-          month: moment(),
-          monthRange: [moment().subtract(1, 'month'), moment()]
+          month: dayjs(),
+          monthRange: [dayjs().subtract(1, 'month'), dayjs()]
         }}
         layout="vertical"
         size="small"

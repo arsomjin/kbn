@@ -15,7 +15,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import { StatusMapToStep } from 'data/Constant';
 import { createNewOrderId } from 'Modules/Account/api';
 import { useMergeState } from 'api/CustomHooks';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { waitFor } from 'functions';
 import { NotificationIcon } from 'elements';
 import { getEditArr } from 'utils';
@@ -53,7 +53,7 @@ export default () => {
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [branch, setBranch] = useState(user?.branch || '0450');
-  const [date, setDate] = useState(moment().format('YYYY-MM-DD'));
+  const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
   const [mProps, setProps] = useMergeState(initProps);
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -90,7 +90,7 @@ export default () => {
       });
     }
     setBranch(pOrder?.branchCode || user.branch || '0450');
-    setDate(pOrder?.date || moment().format('YYYY-MM-DD'));
+    setDate(pOrder?.date || dayjs().format('YYYY-MM-DD'));
     setReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);

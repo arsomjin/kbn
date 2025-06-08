@@ -94,6 +94,8 @@ import Chevrolet from 'Modules/Account/screens/Expense/Components/Chevrolet';
 import ExpenseTransferCycle from 'Modules/Account/screens/ExpenseTransferCycle';
 import TestPrint from 'dev/screens/TestPrint';
 import TestMultiProvince from 'dev/screens/TestMultiProvince';
+import AuditTrailDemo from 'components/AuditTrail/AuditTrailDemo';
+
 import IncomeParts from 'Modules/Reports/Parts/Income';
 import SaleAssessmentReport from 'Modules/Reports/Sales/Assessment';
 import SaleAssessmentReportDetails from 'Modules/Reports/Sales/Assessment/details';
@@ -1011,5 +1013,10 @@ export default [
     path: '/developer/test-multi-province',
     layout: DefaultLayout,
     component: TestMultiProvince
+  },
+  {
+    path: '/developer/audit-trail-demo',
+    layout: DefaultLayout,
+    component: AuditTrailDemo
   }
 ];

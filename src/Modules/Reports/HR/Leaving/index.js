@@ -1,4 +1,5 @@
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Form } from 'antd';
 import EditableCellTable from 'components/EditableCellTable';
 import { FirebaseContext } from '../../../../firebase';
@@ -9,7 +10,9 @@ import { getColumns, getInitialValues } from './api';
 import BranchDateHeader from 'components/branch-date-header';
 import { showLog } from 'functions';
 import { useMergeState } from 'api/CustomHooks';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
+import timezone from 'dayjs/plugin/timezone';
+import utc from 'dayjs/plugin/utc';
 import { NotificationIcon } from 'elements';
 import { getEditArr } from 'utils';
 import { uniq } from 'lodash';
@@ -25,12 +28,16 @@ import { getDates } from 'functions';
 import { h } from 'api';
 import { queryFirestoreArrayContainAny } from 'utils';
 
-export default () => {
+// Configure dayjs plugins
+dayjs.extend(timezone);
+dayjs.extend(utc);
+
+const HRLeaving = () => {
   const initRange = useMemo(
     () => [
-      // moment().subtract(7, 'day').format('YYYY-MM-DD'),
-      moment().format('YYYY-MM-DD'),
-      moment().format('YYYY-MM-DD')
+      // dayjs().subtract(7, 'day').format('YYYY-MM-DD'),
+      dayjs().format('YYYY-MM-DD'),
+      dayjs().format('YYYY-MM-DD')
     ],
     []
   );
@@ -38,6 +45,7 @@ export default () => {
   const { api } = useContext(FirebaseContext);
 
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const { employees, users } = useSelector(state => state.data);
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
@@ -46,7 +54,7 @@ export default () => {
 
   // Ref to store search parameters without triggering re-renders
   const searchValues = useRef({
-    branchCode: user?.branch || '0450',
+    branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     date: initRange
   });
 
@@ -115,7 +123,7 @@ export default () => {
           employees
         });
         let ts = rec.editedBy[rec.editedBy.length - 1].time;
-        showAlert('ลบรายการแล้ว', `โดย ${lastEditor} วันที่ ${moment.tz(ts, 'Asia/Bangkok').format('lll')}`, 'warning');
+        showAlert('ลบรายการแล้ว', `โดย ${lastEditor} วันที่ ${dayjs.tz(ts, 'Asia/Bangkok').format('lll')}`, 'warning');
       }
       return;
     }
@@ -207,3 +215,5 @@ export default () => {
     </Container>
   );
 };
+
+export default HRLeaving;

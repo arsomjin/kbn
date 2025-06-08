@@ -2,7 +2,7 @@ import React from 'react';
 import { getCollection } from 'firebase/api';
 import { distinctArr } from 'functions';
 import { uniq } from 'lodash';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import numeral from 'numeral';
 import { parser } from 'functions';
 import { isMobile } from 'react-device-detect';
@@ -119,8 +119,8 @@ export const getCancelledData = ({ branchCode, saleType }) =>
       let dateArr = dArr
         .map((l, i) => ({
           ...l,
-          month: l?.date ? moment(l.date, 'YYYY-MM-DD').format('YYYY-MM') : null,
-          year: l?.date ? moment(l.date, 'YYYY-MM-DD').format('YYYY') : null,
+          month: l?.date ? dayjs(l.date, 'YYYY-MM-DD').format('YYYY-MM') : null,
+          year: l?.date ? dayjs(l.date, 'YYYY-MM-DD').format('YYYY') : null,
           id: i,
           key: i
         }))
@@ -225,7 +225,7 @@ export const getColumns = (type, allBranch, arrType) => {
           title: 'เดือน',
           dataIndex: 'month',
           align: 'center',
-          render: txt => <div>{moment(txt, 'YYYY-MM').format(isMobile ? 'MMM YY' : 'MMMM YYYY')}</div>,
+          render: txt => <div>{dayjs(txt, 'YYYY-MM').format(isMobile ? 'MMM YY' : 'MMMM YYYY')}</div>,
           defaultSortOrder: 'descend',
           sorter: (a, b) => parser(a.month) - parser(b.month),
           ellipsis: true,

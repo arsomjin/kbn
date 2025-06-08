@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Collapse, Form } from 'antd';
 import { Container } from 'shards-react';
 import { useHistory } from 'react-router';
@@ -27,11 +28,12 @@ export default () => {
   const { api, firestore } = useContext(FirebaseContext);
   const history = useHistory();
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [saleItems, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [branch, setBranch] = useState(user?.branch || '0450');
+  const [branch, setBranch] = useState(user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450');
   const [date, setDate] = useState(moment().format('YYYY-MM-DD'));
   const [saleDoc, setSaleDoc] = useState(null);
 

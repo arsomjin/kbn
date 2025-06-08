@@ -1,7 +1,7 @@
 import { daysInMonth } from 'functions';
 import { arrayForEach } from 'functions';
 import { distinctArr } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import numeral from 'numeral';
 import React from 'react';
 import { isMobile } from 'react-device-detect';
@@ -19,7 +19,7 @@ export const getColumns = (mth, data) => {
     return [];
   }
   let mIdx = [...Array(daysInMonth(mth)).keys()].map(it => ({
-    title: moment(`${mth}-${it + 1}`, 'YYYY-MM-D')
+    title: dayjs(`${mth}-${it + 1}`, 'YYYY-MM-D')
       .add(543, 'year')
       .locale('th')
       .format('D MMM YY'),
@@ -221,7 +221,7 @@ export const formatExpenseSummary = (allArr, mth, dbValues, branchCode) =>
         .map(it => {
           let expenseTitle = 'n/a';
           let amount = Numb(it.netTotal);
-          let D = moment(it.date, 'YYYY-MM-DD').format('D');
+          let D = dayjs(it.date, 'YYYY-MM-DD').format('D');
           if (['dailyChange', 'headOfficeTransfer', 'executive'].includes(it.expenseType)) {
             if (!!categoryName[it.expenseCategoryId]) {
               expenseTitle =

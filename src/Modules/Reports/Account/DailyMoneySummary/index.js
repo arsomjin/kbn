@@ -1,4 +1,5 @@
 import React, { useRef, useState, useCallback, useMemo } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Form } from 'antd';
 import { Container } from 'shards-react';
 import { useSelector } from 'react-redux';
@@ -31,6 +32,7 @@ const initRange = [moment().subtract(7, 'day').format('YYYY-MM-DD'), moment().fo
 const DailyMoneySummary = () => {
   // Extract user info from redux state
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const { executives } = useSelector(state => state.data);
 
   const [form] = Form.useForm();
@@ -40,7 +42,7 @@ const DailyMoneySummary = () => {
 
   // Store search parameters in a ref to avoid unnecessary re-renders
   const searchValues = useRef({
-    branchCode: user?.branch || '0450',
+    branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     date: initRange
   });
 
@@ -170,7 +172,7 @@ const DailyMoneySummary = () => {
       <Form
         form={form}
         initialValues={{
-          branchCode: user?.branch || '0450',
+          branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           isRange: true,
           date: initRange
         }}

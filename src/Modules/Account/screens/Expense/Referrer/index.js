@@ -9,7 +9,7 @@ import PageTitle from 'components/common/PageTitle';
 import InputDataModal from './InputDataModal';
 import { useMergeState } from 'api/CustomHooks';
 import { showAlert } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { formatValuesBeforeLoad } from 'functions';
 import { getNameFromEmployeeCode } from 'Modules/Utils';
 import { useSelector } from 'react-redux';
@@ -133,7 +133,7 @@ export default ({ subtitle, saleType }) => {
           `ใบขายเลขที่ ${saleData.saleNo} ตรวจสอบแล้วโดย ${getNameFromEmployeeCode({
             employeeCode: saleData.referringDetails.forHQ?.hqAccountAuditor,
             employees
-          })} เมื่อวันที่ ${moment(saleData.referringDetails.forHQ?.hqAuditorDate, 'YYYY-MM-DD')
+          })} เมื่อวันที่ ${dayjs(saleData.referringDetails.forHQ?.hqAuditorDate, 'YYYY-MM-DD')
             .locale('th')
             .format('D MMM YYYY')}`,
           'success'

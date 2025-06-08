@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Form } from 'antd';
 import { Container } from 'shards-react';
 import { useSelector } from 'react-redux';
@@ -22,6 +23,7 @@ const initSnap = {
 
 export default () => {
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const { banks, employees, customers } = useSelector(state => state.data);
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
@@ -29,7 +31,7 @@ export default () => {
   const [cState, setCState] = useMergeState(initSnap);
 
   const searchValues = useRef({
-    branchCode: user?.branch || '0450',
+    branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     month: moment().format('YYYY-MM')
   });
 
@@ -75,7 +77,7 @@ export default () => {
       <Form
         form={form}
         initialValues={{
-          branchCode: user?.branch || '0450',
+          branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           isRange: false,
           month: moment(),
           monthRange: [moment().subtract(1, 'month'), moment()]

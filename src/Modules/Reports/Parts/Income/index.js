@@ -1,6 +1,7 @@
 import { Form } from 'antd';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { ReportSteps } from 'data/Constant';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React, { useCallback, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { Container } from 'shards-react';
@@ -57,7 +58,7 @@ export default () => {
     // if (params && params?.branchCode) {
     _onValuesChange({
       branchCode: params && params?.branchCode ? params.branchCode : '0450',
-      date: params && params?.date ? moment(params.date, 'YYYY-MM-DD') : moment()
+      date: params && params?.date ? dayjs(params.date, 'YYYY-MM-DD') : dayjs()
     });
     // }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -69,7 +70,7 @@ export default () => {
         form={form}
         initialValues={{
           branchCode: params && params?.branchCode ? params.branchCode : '0450',
-          date: params && params?.date ? moment(params.date, 'YYYY-MM-DD') : moment(),
+          date: params && params?.date ? dayjs(params.date, 'YYYY-MM-DD') : dayjs(),
           incomeItems: [],
           expenseItems: []
         }}

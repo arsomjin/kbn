@@ -1,7 +1,7 @@
 import { arrayForEach } from 'functions';
 import { distinctArr } from 'functions';
 import { showLog } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import numeral from 'numeral';
 import React from 'react';
 import { isMobile } from 'react-device-detect';
@@ -21,7 +21,7 @@ export const getColumnsFromRange = range => {
     return [];
   }
   let mIdx = getDates(range[0], range[1], 'YYYY-MM-DD').map(it => ({
-    title: moment(it, 'YYYY-MM-D').add(543, 'year').locale('th').format('D MMM YY'),
+    title: dayjs(it, 'YYYY-MM-D').add(543, 'year').locale('th').format('D MMM YY'),
     dataIndex: `D${it}`,
     width: 120,
     align: 'center',

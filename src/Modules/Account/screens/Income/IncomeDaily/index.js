@@ -1,14 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Container, Row, Col, Card } from 'shards-react';
-import { CommonSteps } from 'data/Constant';
-import { Stepper } from 'elements';
+import React, { useContext, useEffect, useState, useCallback } from 'react';
+import { Row, Col } from 'antd';
 import { useHistory, useLocation } from 'react-router-dom';
 import { createNewOrderId } from 'Modules/Account/api';
 import { FirebaseContext } from '../../../../../firebase';
 
 import { useSelector } from 'react-redux';
 import { StatusMapToStep } from 'data/Constant';
-import PageTitle from 'components/common/PageTitle';
 import { useMergeState } from 'api/CustomHooks';
 import IncomeVehicles from './components/IncomeVehicles';
 import IncomeService from './components/IncomeService';
@@ -26,9 +23,9 @@ import { load } from 'functions';
 import { showSuccess } from 'functions';
 import { updateNewOrderCustomer } from 'Modules/Utils';
 import { errorHandler } from 'functions';
-import AccountLayoutWithRBAC from 'components/layout/AccountLayoutWithRBAC';
-import useAuditTrail from 'hooks/useAuditTrail';
-import { PermissionGate } from 'components';
+import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
+import PropTypes from 'prop-types';
+import { useResponsive } from 'hooks/useResponsive';
 
 const { Option } = Select;
 
@@ -48,6 +45,55 @@ const initProps = {
   grant: true
 };
 
+// Content component to properly handle props from LayoutWithRBAC
+const IncomeDailyContent = ({ category, _changeCategory, currentView, mProps, selectedBranch, canEditData, geographic, auditTrail, ...otherProps }) => {
+  const { isMobile } = useResponsive();
+  // Create a wrapper function that includes the auditTrail
+  const enhancedCurrentView = React.cloneElement(currentView, {
+    ...currentView.props,
+    auditTrail: auditTrail
+  });
+
+  return (
+    <div >
+      <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#ffffff', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+        <Row gutter={16} align="middle">
+          <Col md={12} sm={24}>
+            <Form.Item label={<span style={{ marginRight: '8px' }}>ประเภทการรับเงิน</span>} style={{ marginBottom: 0 }}>
+              <Select
+                placeholder="ประเภทการรับเงิน"
+                onChange={_changeCategory}
+                value={category}
+                disabled={mProps.isEdit}
+                style={{ width: '100%' }}
+              >
+                {Object.keys(IncomeDailyCategories).map((type, i) => (
+                  <Option key={i} value={type}>
+                    {`${IncomeDailyCategories[type]}`}
+                  </Option>
+                ))}
+              </Select>
+            </Form.Item>
+          </Col>
+        </Row>
+      </div>
+      
+      {enhancedCurrentView}
+    </div>
+  );
+};
+
+IncomeDailyContent.propTypes = {
+  category: PropTypes.string.isRequired,
+  _changeCategory: PropTypes.func.isRequired,
+  currentView: PropTypes.node.isRequired,
+  mProps: PropTypes.object.isRequired,
+  selectedBranch: PropTypes.string,
+  canEditData: PropTypes.bool,
+  geographic: PropTypes.object,
+  auditTrail: PropTypes.object
+};
+
 const IncomeDaily = () => {
   const history = useHistory();
   let location = useLocation();
@@ -62,11 +108,6 @@ const IncomeDaily = () => {
   const [geographic, setGeographic] = useState({});
 
   const documentId = mProps.order?.incomeId;
-  
-  const auditTrail = useAuditTrail(
-    documentId && mProps.isEdit ? documentId : null,
-    'income_daily'
-  );
 
   useEffect(() => {
     const { onBack } = params || {};
@@ -90,7 +131,7 @@ const IncomeDaily = () => {
     setCategory(ev);
   };
 
-  const _onConfirmOrder = async (values, resetToInitial) => {
+  const _onConfirmOrder = async (values, resetToInitial, auditTrailFromProps = null) => {
     try {
       let mValues = JSON.parse(JSON.stringify(values));
       mValues.incomeCategory = 'daily';
@@ -108,20 +149,20 @@ const IncomeDaily = () => {
         }
       }
       
-      if (auditTrail && mProps.isEdit) {
-        await auditTrail.saveWithAuditTrail({
+      if (auditTrailFromProps && mProps.isEdit) {
+        await auditTrailFromProps.saveWithAuditTrail({
           collection: 'sections/account/incomes',
           data: mValues,
           isEdit: true,
           oldData: mProps.order,
           notes: `แก้ไขรายการรับเงินประจำวัน - ${IncomeDailyCategories[category]}`
         });
-      } else if (auditTrail && !mProps.isEdit) {
+      } else if (auditTrailFromProps && !mProps.isEdit) {
         mValues.created = dayjs().valueOf();
         mValues.createdBy = user.uid;
         mValues.status = StatusMap.pending;
         
-        await auditTrail.saveWithAuditTrail({
+        await auditTrailFromProps.saveWithAuditTrail({
           collection: 'sections/account/incomes',
           data: mValues,
           isEdit: false,
@@ -207,9 +248,9 @@ const IncomeDaily = () => {
     }
   };
 
-  const handleGeographicChange = (geoContext) => {
+  const handleGeographicChange = useCallback((geoContext) => {
     setGeographic(geoContext);
-  };
+  }, []);
 
   let currentView = (
     <IncomeVehicles
@@ -225,81 +266,71 @@ const IncomeDaily = () => {
   switch (category) {
     case 'vehicles':
       currentView = (
-        <PermissionGate permission="view_vehicle_income">
-          <IncomeVehicles
-            onConfirm={_onConfirmOrder}
-            order={mProps.order}
-            readOnly={mProps.readOnly}
-            onBack={mProps.onBack}
-            isEdit={mProps.isEdit}
-            reset={() => setProps(initProps)}
-          />
-        </PermissionGate>
+        <IncomeVehicles
+          onConfirm={_onConfirmOrder}
+          order={mProps.order}
+          readOnly={mProps.readOnly}
+          onBack={mProps.onBack}
+          isEdit={mProps.isEdit}
+          reset={() => setProps(initProps)}
+        />
       );
       break;
     case 'service':
       currentView = (
-        <PermissionGate permission="view_service_income">
-          <IncomeService
-            onBack={mProps.onBack}
-            onConfirm={_onConfirmOrder}
-            order={mProps.order}
-            readOnly={mProps.readOnly}
-            isEdit={mProps.isEdit}
-            firestore={firestore}
-            reset={() => setProps(initProps)}
-          />
-        </PermissionGate>
+        <IncomeService
+          onBack={mProps.onBack}
+          onConfirm={_onConfirmOrder}
+          order={mProps.order}
+          readOnly={mProps.readOnly}
+          isEdit={mProps.isEdit}
+          firestore={firestore}
+          reset={() => setProps(initProps)}
+        />
       );
       break;
     case 'parts':
       currentView = (
-        <PermissionGate permission="view_parts_income">
-          <IncomeParts
-            onBack={mProps.onBack}
-            onConfirm={_onConfirmOrder}
-            order={mProps.order}
-            readOnly={mProps.readOnly}
-            isEdit={mProps.isEdit}
-            reset={() => setProps(initProps)}
-          />
-        </PermissionGate>
+        <IncomeParts
+          onBack={mProps.onBack}
+          onConfirm={_onConfirmOrder}
+          order={mProps.order}
+          readOnly={mProps.readOnly}
+          isEdit={mProps.isEdit}
+          reset={() => setProps(initProps)}
+        />
       );
       break;
     case 'other':
       currentView = (
-        <PermissionGate permission="view_other_income">
-          <IncomeOther
-            onBack={mProps.onBack}
-            onConfirm={_onConfirmOrder}
-            order={mProps.order}
-            readOnly={mProps.readOnly}
-            isEdit={mProps.isEdit}
-          />
-        </PermissionGate>
+        <IncomeOther
+          onBack={mProps.onBack}
+          onConfirm={_onConfirmOrder}
+          order={mProps.order}
+          readOnly={mProps.readOnly}
+          isEdit={mProps.isEdit}
+        />
       );
       break;
     default:
       currentView = (
-        <PermissionGate permission="sales.view">
-          <IncomeVehicles
-            onConfirm={_onConfirmOrder}
-            firestore={firestore}
-            api={api}
-            order={mProps.order}
-            readOnly={mProps.readOnly}
-            onBack={mProps.onBack}
-            isEdit={mProps.isEdit}
-            reset={() => setProps(initProps)}
-          />
-        </PermissionGate>
+        <IncomeVehicles
+          onConfirm={_onConfirmOrder}
+          firestore={firestore}
+          api={api}
+          order={mProps.order}
+          readOnly={mProps.readOnly}
+          onBack={mProps.onBack}
+          isEdit={mProps.isEdit}
+          reset={() => setProps(initProps)}
+        />
       );
       break;
   }
 
   if (!ready) {
     return (
-      <AccountLayoutWithRBAC
+      <LayoutWithRBAC
         title="รับเงินประจำวัน"
         subtitle="Management"
         permission="accounting.view"
@@ -307,64 +338,32 @@ const IncomeDaily = () => {
         loading={true}
       >
         <div />
-      </AccountLayoutWithRBAC>
+      </LayoutWithRBAC>
     );
   }
 
   return (
-    <AccountLayoutWithRBAC
+    <LayoutWithRBAC
       title="รับเงินประจำวัน"
       subtitle="Management"
       permission="accounting.view"
       editPermission="accounting.edit"
-      requireBranchSelection={true}
+      requireBranchSelection={false}
       onBranchChange={handleGeographicChange}
-      // documentId={documentId}
-      // documentType="income_daily"
-      // showAuditTrail={mProps.isEdit && !!documentId}
-      // steps={INCOME_DAILY_STEPS}
-      // currentStep={mProps.activeStep}
+      documentId={documentId}
+      documentType="income_daily"
+      showAuditTrail={true}
+      showStepper={true}
+      steps={INCOME_DAILY_STEPS}
+      currentStep={mProps.activeStep}
     >
-      <Container fluid className="main-content-container p-3">
-        <Row noGutters className="page-header px-3 bg-light">
-          <PageTitle sm="4" title="รับเงินประจำวัน" subtitle="บัญชี" className="text-sm-left" />
-          <Col>
-            <Stepper
-              className="bg-light"
-              steps={CommonSteps}
-              activeStep={mProps.activeStep}
-              alternativeLabel={false}
-            />
-          </Col>
-        </Row>
-        
-        <div className="px-3 pt-3 bg-white border-bottom">
-          <Row style={{ alignItems: 'center' }}>
-            <Col md="4">
-              <Form.Item label="ประเภทการรับเงิน">
-                <Select
-                  placeholder="ประเภทการรับเงิน"
-                  onChange={_changeCategory}
-                  value={category}
-                  className="text-primary"
-                  disabled={mProps.isEdit}
-                >
-                  {Object.keys(IncomeDailyCategories).map((type, i) => (
-                    <Option key={i} value={type}>
-                      {`${IncomeDailyCategories[type]}`}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-        </div>
-        
-        <PermissionGate permission="accounting.view">
-          {currentView}
-        </PermissionGate>
-      </Container>
-    </AccountLayoutWithRBAC>
+      <IncomeDailyContent 
+        category={category}
+        _changeCategory={_changeCategory}
+        currentView={currentView}
+        mProps={mProps}
+      />
+    </LayoutWithRBAC>
   );
 };
 

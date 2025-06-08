@@ -7,12 +7,21 @@
  */
 
 .enhanced-navigation {
-  height: calc(100vh - 3.75rem - 1px); /* Account for navbar and search height */
+  height: calc(100vh - 120px); /* Account for navbar and search height with new layout */
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
   scroll-behavior: smooth;
   padding-bottom: 16px; /* Extra space at bottom for last menu items */
+}
+
+/* Main sidebar styles for antd Layout integration */
+.main-sidebar.ant-layout-sider {
+  background: #fff !important;
+}
+
+.main-sidebar .ant-layout-sider-children {
+  background: #fff;
 }
 
 /* Search Box Styling */
@@ -328,6 +337,11 @@
   /* Larger scrollbar on mobile for touch devices */
   .enhanced-navigation::-webkit-scrollbar {
     width: 8px;
+  }
+
+  /* Mobile toggle button */
+  .toggle-sidebar {
+    display: flex !important;
   }
 }
 

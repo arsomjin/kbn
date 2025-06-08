@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { useHistory, useLocation } from 'react-router-dom';
 import PageTitle from 'components/common/PageTitle';
 import { DatePicker } from 'elements';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { getColumns, getDailyCreditData, sumKeys } from './api';
 import { showWarn } from 'functions';
 import EditableRowTable from 'components/EditableRowTable';
@@ -26,7 +26,7 @@ export default () => {
   const { user } = useSelector(state => state.auth);
   const { branches } = useSelector(state => state.data);
 
-  const [date, setDate] = useState(moment().format('YYYY-MM-DD'));
+  const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
   const [vehicle, setVGroup] = useState('tracktor');
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -34,7 +34,7 @@ export default () => {
   const [form] = Form.useForm();
 
   const searchValues = useRef({
-    date: moment().format('YYYY-MM-DD'),
+    date: dayjs().format('YYYY-MM-DD'),
     vehicle: 'tracktor',
     branches
   });
@@ -68,7 +68,7 @@ export default () => {
         form={form}
         onValuesChange={_onValuesChange}
         initialValues={{
-          date: moment().format('YYYY-MM-DD'),
+          date: dayjs().format('YYYY-MM-DD'),
           vehicle: 'tracktor'
         }}
         size="small"

@@ -8,13 +8,13 @@ import { Input } from 'elements';
 import { ListItem } from 'elements';
 import { UploadImage } from 'elements';
 import { InputGroup } from 'elements';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React from 'react';
 import { Row, Col } from 'shards-react';
 
 export const InitValue = {
   branchCode: null,
-  date: moment().format('YYYY-MM-DD'),
+  date: dayjs().format('YYYY-MM-DD'),
   docNo: null,
   productCode: null,
   productPCode: null,

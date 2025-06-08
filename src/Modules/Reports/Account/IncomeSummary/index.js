@@ -1,7 +1,8 @@
 import React, { useRef, useState, useCallback, useMemo } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Form } from 'antd';
 import EditableRowTable from 'components/EditableRowTable';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { useSelector } from 'react-redux';
 import { Container, Row, Col } from 'shards-react';
 import { getSearchData } from 'firebase/api';
@@ -19,11 +20,12 @@ import { getBranchName } from 'Modules/Utils';
 const IncomeSummaryReport = () => {
   // Initialize date range for the past 7 days
   const initRange = useMemo(
-    () => [moment().subtract(7, 'day').format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')],
+    () => [dayjs().subtract(7, 'day').format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')],
     []
   );
 
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -32,7 +34,7 @@ const IncomeSummaryReport = () => {
 
   // Ref to store search parameters without triggering re-renders
   const searchValues = useRef({
-    branchCode: user?.branch || '0450',
+    branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     date: initRange
   });
 
@@ -159,7 +161,7 @@ const IncomeSummaryReport = () => {
             },
             { value: getBranchName(searchValues.current.branchCode, true) },
             {
-              value: `${dateToThai(moment().format('YYYY-MM-DD'))} เวลา ${moment().format('HH:mm')}`
+              value: `${dateToThai(dayjs().format('YYYY-MM-DD'))} เวลา ${dayjs().format('HH:mm')}`
             }
           ]
         ]
@@ -175,7 +177,7 @@ const IncomeSummaryReport = () => {
       <Form
         form={form}
         initialValues={{
-          branchCode: user?.branch || '0450',
+          branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           isRange: true,
           date: initRange
         }}

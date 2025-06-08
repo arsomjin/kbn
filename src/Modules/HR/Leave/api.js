@@ -5,13 +5,13 @@ import DepartmentSelector from 'components/DepartmentSelector';
 import EmployeeSelector from 'components/EmployeeSelector';
 import { Checkbox } from 'elements';
 import { InputGroup } from 'elements';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React from 'react';
 import { Row, Col, CardBody } from 'shards-react';
 
 export const InitValue = {
   branchCode: null,
-  date: moment().format('YYYY-MM-DD'),
+  date: dayjs().format('YYYY-MM-DD'),
   employeeId: null,
   department: null,
   position: null,

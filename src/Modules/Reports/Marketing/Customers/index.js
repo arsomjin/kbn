@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import PropTypes from 'prop-types';
 import { Container, Row, Col } from 'shards-react';
 import SmallStats from './components/SmallStats';
@@ -21,6 +22,7 @@ import { getAllCustomers, getAllVehicles } from 'Modules/Utils';
 
 const CustomersReport = ({ smallStats }) => {
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const { branches } = useSelector(state => state.data);
   const history = useHistory();
   let location = useLocation();
@@ -28,7 +30,7 @@ const CustomersReport = ({ smallStats }) => {
 
   const initValues = {
     // branch: 'all',
-    branch: user?.branch || '0450',
+    branch: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     duration: initDuration
   };
 

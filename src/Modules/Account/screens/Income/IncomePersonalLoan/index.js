@@ -11,7 +11,7 @@ import PageTitle from 'components/common/PageTitle';
 import InputDataModal from './InputDataModal';
 import { useMergeState } from 'api/CustomHooks';
 import { useSelector } from 'react-redux';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { cleanValuesBeforeSave } from 'functions';
 import Payments from 'components/Payments';
 import MTable from 'components/Table';
@@ -28,8 +28,8 @@ export default () => {
 
   const initSearchValue = {
     incomeSubCategory: 'vehicles',
-    startDate: moment().format('YYYY-MM-DD'),
-    endDate: moment().format('YYYY-MM-DD'),
+    startDate: dayjs().format('YYYY-MM-DD'),
+    endDate: dayjs().format('YYYY-MM-DD'),
     branchCode: user.branch || '0450'
   };
 
@@ -86,7 +86,7 @@ export default () => {
             incomeNo: kbnReceipt || incomeNo,
             customerId,
             branchCode,
-            incomeDate: date || moment().format('YYYY-MM-DD'),
+            incomeDate: date || dayjs().format('YYYY-MM-DD'),
             hasPLoan,
             prefix,
             firstName,

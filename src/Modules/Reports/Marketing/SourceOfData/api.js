@@ -1,6 +1,6 @@
 import React from 'react';
 import { parser } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { getCollection } from 'firebase/api';
 import { sortArr } from 'functions';
 import { distinctArr } from 'functions';
@@ -106,7 +106,7 @@ export const getColumns = (type, allBranch, headers) => {
           title: 'เดือน',
           dataIndex: 'month',
           align: 'center',
-          render: txt => <div>{moment(txt, 'YYYY-MM').format(isMobile ? 'MMM YY' : 'MMMM YYYY')}</div>,
+          render: txt => <div>{dayjs(txt, 'YYYY-MM').format(isMobile ? 'MMM YY' : 'MMMM YYYY')}</div>,
           defaultSortOrder: 'descend',
           sorter: (a, b) => parser(a.month) - parser(b.month),
           ellipsis: true,
@@ -215,8 +215,8 @@ export const formatMktChannelsData = snap => {
         result.push({
           ...it,
           ...(!!channel && { channel: recheckChannel(channel) }),
-          month: moment(it.date, 'YYYY-MM-DD').format('YYYY-MM'),
-          year: moment(it.date, 'YYYY-MM-DD').format('YYYY'),
+          month: dayjs(it.date, 'YYYY-MM-DD').format('YYYY-MM'),
+          year: dayjs(it.date, 'YYYY-MM-DD').format('YYYY'),
           customerName: `${it.firstName} ${it.lastName}`
         });
         return channel;

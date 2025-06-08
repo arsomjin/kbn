@@ -60,6 +60,11 @@ export const DevMenu = [
                 title: 'Test multi province',
                 key: '1242',
                 to: '/developer/test-multi-province'
+              },
+              {
+                title: 'Audit Trail Demo',
+                key: '1243',
+                to: '/developer/audit-trail-demo'
               }
             ]
           },

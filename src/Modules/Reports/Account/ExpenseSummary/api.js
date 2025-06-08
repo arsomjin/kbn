@@ -1,7 +1,7 @@
 // utils/expenseUtils.js (suggested file name)
 
 import { arrayForEach, distinctArr, Numb, getDates, insertArr, sortArr, showLog } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import numeral from 'numeral';
 import React from 'react';
 import { isMobile } from 'react-device-detect';
@@ -23,7 +23,7 @@ export const getColumnsFromRange = range => {
   }
 
   const dateColumns = getDates(range[0], range[1], 'YYYY-MM-DD').map(dateStr => ({
-    title: moment(dateStr, 'YYYY-MM-DD') // use consistent date format
+    title: dayjs(dateStr, 'YYYY-MM-DD') // use consistent date format
       .add(543, 'year')
       .locale('th')
       .format('D MMM YY'),

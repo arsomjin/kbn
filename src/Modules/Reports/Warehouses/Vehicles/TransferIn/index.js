@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Form } from 'antd';
 import { Col, Container, Row } from 'shards-react';
 import moment from 'moment';
@@ -17,6 +18,7 @@ import { useMergeState } from 'api/CustomHooks';
 
 export default () => {
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const { branches } = useSelector(state => state.data);
   const [form] = Form.useForm();
   const [data, setData] = useMergeState({
@@ -28,7 +30,7 @@ export default () => {
   const [loading, setLoading] = useState(false);
   const [headers, setHeaders] = useMergeState({
     month: moment().format('YYYY-MM'),
-    branchCode: user.branch || '0450',
+    branchCode: user.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     vehicleType: 'รถแทรกเตอร์'
   });
 
@@ -59,7 +61,7 @@ export default () => {
         form={form}
         initialValues={{
           month: moment().format('YYYY-MM'),
-          branchCode: user.branch || '0450',
+          branchCode: user.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           vehicleType: 'รถแทรกเตอร์'
         }}
         // layout="vertical"

@@ -1,7 +1,7 @@
-import React, { Fragment, useState, useMemo } from 'react';
+import React, { Fragment, useState, useMemo, useEffect } from 'react';
 import { Menu, Badge, Tooltip, Typography, Input, Empty } from 'antd';
 import { useHistory, useLocation } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { 
   DashboardOutlined, 
   CalculatorOutlined, 
@@ -46,12 +46,35 @@ const ICON_MAP = {
 
 const EnhancedSidebarNavItems = () => {
   const { navigation, highPriorityItems, dailyItems, navigationStats } = useNavigationGenerator();
+  const { openKeys, selectedKeys } = useSelector(state => state.unPersisted);
+  const { user } = useSelector(state => state.auth);
   const history = useHistory();
   const location = useLocation();
   const dispatch = useDispatch();
 
   // Search state
   const [searchTerm, setSearchTerm] = useState('');
+
+  // Auto-expand developer menu for developer users (only on initial load)
+  useEffect(() => {
+    if (user?.isDev && navigation.length > 0 && openKeys.length === 0) {
+      const developerSection = navigation.find(section => section.key === 'developer');
+      if (developerSection) {
+        // Expand both the main developer section and its primary sub-section
+        const keysToOpen = ['developer'];
+        
+        // Also expand the main developer sub-section if it exists
+        if (developerSection.items && developerSection.items.length > 0) {
+          const mainDeveloperItem = developerSection.items[0]; // 'developer-main'
+          if (mainDeveloperItem && mainDeveloperItem.key) {
+            keysToOpen.push(mainDeveloperItem.key);
+          }
+        }
+        
+        dispatch(setOpenKeys(keysToOpen));
+      }
+    }
+  }, [user?.isDev, navigation, dispatch]); // Removed openKeys from dependencies
 
   /*
    * Production Mode Behavior:
@@ -374,6 +397,7 @@ const EnhancedSidebarNavItems = () => {
         <Menu
           mode="inline"
           selectedKeys={getSelectedKeys()}
+          openKeys={openKeys}
           onClick={handleMenuClick}
           onOpenChange={handleOpenChange}
           className="enhanced-menu"

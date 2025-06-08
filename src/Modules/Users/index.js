@@ -16,7 +16,7 @@ import { columns, columns_mobile } from './api';
 import { searchArr, showWarn, load, arrayForEach, showLog } from 'functions';
 import { getEmployeeStatus } from 'utils';
 import { checkDoc } from 'firebase/api';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 
 const { Search } = Input;
 
@@ -45,7 +45,7 @@ export default function UserManagement() {
         if (stateDoc) {
           const data = stateDoc.data() || {};
           const lastActive = data.lastActive || data.last_online;
-          const isActive = moment(lastActive).isAfter(moment().subtract(1, 'hour'));
+          const isActive = dayjs(lastActive).isAfter(dayjs().subtract(1, 'hour'));
           await api.updateItem({ state: isActive ? 'online' : 'offline' }, 'status', usr._key);
         }
       });

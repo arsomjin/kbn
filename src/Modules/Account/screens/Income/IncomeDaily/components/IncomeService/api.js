@@ -1,4 +1,4 @@
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { StatusMap } from 'data/Constant';
 import { getItemId } from 'Modules/Account/api';
 import { Numb } from 'functions';
@@ -64,7 +64,7 @@ export const getInitialValues = income => {
     ...InitValue,
     incomeId: income?.incomeId,
     items: getInitialItems(income),
-    serviceDate: income?.serviceDate ? moment(income.serviceDate, 'YYYY-MM-DD') : undefined
+    serviceDate: income?.serviceDate ? dayjs(income.serviceDate, 'YYYY-MM-DD') : undefined
   };
 };
 

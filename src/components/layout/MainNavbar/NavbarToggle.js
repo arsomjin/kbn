@@ -1,4 +1,6 @@
 import React from 'react';
+import { Button } from 'antd';
+import { MenuOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleSidebar } from 'redux/actions/unPersisted';
 
@@ -10,16 +12,22 @@ const NavbarToggle = props => {
   };
 
   return (
-    <nav className="nav">
-      {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-      <a
-        href="#"
-        onClick={() => handleClick()}
-        className="nav-link nav-link-icon toggle-sidebar d-sm-inline d-md-inline d-lg-none text-center"
-      >
-        <i className="material-icons">&#xE5D2;</i>
-      </a>
-    </nav>
+    <Button
+      type="text"
+      icon={menuVisible ? <MenuFoldOutlined /> : <MenuOutlined />}
+      onClick={handleClick}
+      style={{
+        fontSize: '16px',
+        width: '46px',
+        height: '46px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        margin: '8px',
+        border: 'none'
+      }}
+      title={menuVisible ? 'Hide Sidebar' : 'Show Sidebar'}
+    />
   );
 };
 

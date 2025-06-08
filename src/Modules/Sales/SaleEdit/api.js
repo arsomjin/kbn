@@ -1,7 +1,7 @@
 import { checkCollection } from 'firebase/api';
 import { showAlert, dateToThai } from 'functions';
 import { getArrayChanges, getChanges, showLog, formatValuesBeforeLoad, arrayForEach } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 
 export const onSaleSelect = (refNo, values, form, user) =>
   new Promise(async (r, j) => {
@@ -35,7 +35,7 @@ export const onSaleSelect = (refNo, values, form, user) =>
             // sale has been recorded by account dep!
             return showAlert(
               'บัญชีบันทึกแล้ว',
-              `ใบสั่งขายเลขที่ ${refNo} มีการบันทึกบัญชีแล้ว วันที่ ${moment(sale.data()?.accountRecorded.time).format(
+              `ใบสั่งขายเลขที่ ${refNo} มีการบันทึกบัญชีแล้ว วันที่ ${dayjs(sale.data()?.accountRecorded.time).format(
                 'D/MM/YYYY'
               )}`,
               'warning'

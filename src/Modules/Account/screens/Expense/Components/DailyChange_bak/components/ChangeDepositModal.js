@@ -4,7 +4,7 @@ import { TableSummary } from 'api/Table';
 import EditableRowTable from 'components/EditableRowTable';
 import { showConfirm } from 'functions';
 import { getNameFromUid } from 'Modules/Utils';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useSelector } from 'react-redux';
@@ -34,7 +34,7 @@ export default ({ obj, onOk, ...props }) => {
     {
       title: 'เวลา',
       dataIndex: 'time',
-      render: ts => moment(ts).format('lll'),
+      render: ts => dayjs(ts).format('lll'),
       align: 'center'
     },
     {

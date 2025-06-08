@@ -3,6 +3,7 @@ import { Collapse, Form, Popconfirm, Select } from 'antd';
 import { getBookingData, getInitialValues, getSalesData, RenderSearch, searchKeys } from './api';
 import IncomeDailyHeader from '../../income-daily-header';
 import { useSelector } from 'react-redux';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { DuringDayMoney } from 'components/common/DuringDayMoney';
 import { CardFooter, Col, Row } from 'shards-react';
 import { useHistory } from 'react-router-dom';
@@ -29,6 +30,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) =
   // showLog({ order, onConfirm, onBack, isEdit, readOnly, reset });
   const { user } = useSelector(state => state.auth);
   const { users } = useSelector(state => state.data);
+  const { getDefaultBranch } = useGeographicData();
   const [form] = Form.useForm();
   const [form2] = Form.useForm();
   const history = useHistory();
@@ -65,7 +67,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) =
     const distributeValues = mOrder => {
       form.setFieldsValue({
         incomeType: mOrder.incomeType,
-        branchCode: mOrder?.branchCode || user.branch || '0450',
+        branchCode: mOrder?.branchCode || user.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
         date: mOrder?.date || undefined
       });
       switch (mOrder.incomeType) {
@@ -142,7 +144,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) =
       distributeValues(order);
     } else {
       form.setFieldsValue({
-        branchCode: order?.branchCode || user.branch || '0450'
+        branchCode: order?.branchCode || user.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450'
       });
       form2.setFieldsValue(getInitialValues(order));
     }
@@ -406,6 +408,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) =
       ? IncomeTypeArr.filter(l => l === 'reservation')
       : IncomeTypeArr.filter(l => l !== 'reservation');
 
+
   return (
     <div className="bg-white px-3 py-3">
       <Form
@@ -415,7 +418,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) =
         initialValues={{
           ...searchKeys,
           incomeType: 'down',
-          branchCode: order?.branchCode || user.branch || '0450',
+          branchCode: order?.branchCode || user.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           date: undefined,
           amtReceived: null
         }}

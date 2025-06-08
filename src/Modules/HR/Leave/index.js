@@ -1,4 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Collapse, Form, Skeleton } from 'antd';
 import EditableCellTable from 'components/EditableCellTable';
 import Footer from 'components/Footer';
@@ -14,7 +15,7 @@ import { showLog } from 'functions';
 import { useHistory, useLocation } from 'react-router-dom';
 import { createNewOrderId } from 'Modules/Account/api';
 import { useMergeState } from 'api/CustomHooks';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { waitFor } from 'functions';
 import { firstKey } from 'functions';
 import { NotificationIcon } from 'elements';
@@ -46,11 +47,12 @@ export default () => {
   const params = location.state?.params;
 
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const { employees, users } = useSelector(state => state.data);
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
-  const [branch, setBranch] = useState(user?.branch || '0450');
-  const [date, setDate] = useState(moment().format('YYYY-MM-DD'));
+  const [branch, setBranch] = useState(user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450');
+  const [date, setDate] = useState(dayjs().format('YYYY-MM-DD'));
   const [mProps, setProps] = useMergeState(initProps);
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -137,14 +139,14 @@ export default () => {
         !!val[changeKey] &&
         Numb(val[changeKey]) >= 1 &&
         form.setFieldsValue({
-          toDate: moment(fromDate, 'YYYY-MM-DD').add(val[changeKey] - 1, 'day')
+          toDate: dayjs(fromDate, 'YYYY-MM-DD').add(val[changeKey] - 1, 'day')
         });
     } else if (changeKey === 'fromDate') {
       let leaveDays = form.getFieldValue('leaveDays');
       !!leaveDays &&
         Numb(leaveDays) >= 1 &&
         form.setFieldsValue({
-          toDate: moment(val[changeKey], 'YYYY-MM-DD').add(leaveDays - 1, 'day')
+          toDate: dayjs(val[changeKey], 'YYYY-MM-DD').add(leaveDays - 1, 'day')
         });
     }
   };
@@ -250,7 +252,7 @@ export default () => {
           employees
         });
         let ts = rec.editedBy[rec.editedBy.length - 1].time;
-        showAlert('ลบรายการแล้ว', `โดย ${lastEditor} วันที่ ${moment.tz(ts, 'Asia/Bangkok').format('lll')}`, 'warning');
+        showAlert('ลบรายการแล้ว', `โดย ${lastEditor} วันที่ ${dayjs.tz(ts, 'Asia/Bangkok').format('lll')}`, 'warning');
       }
       return;
     }

@@ -1,4 +1,5 @@
 import { Form } from 'antd';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { getRules } from 'api/Table';
 import CommonSelector from 'components/CommonSelector';
 import EmployeeSelector from 'components/EmployeeSelector';
@@ -11,7 +12,7 @@ import { CardBody, Row, Col } from 'shards-react';
 
 export const getInitialValues = user => {
   return {
-    branchCode: user?.branch || '0450',
+    branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     date: moment(),
     docNo: null,
     importType: null,

@@ -19,7 +19,7 @@ import { DatePicker } from 'elements';
 import { getRules } from 'api/Table';
 import ArrayInput from 'components/ArrayInput';
 import { arrayInputColumns } from 'data/Constant';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { TotalSummary } from 'components/common/TotalSummary';
 import Payments from 'components/Payments';
 import EmployeeSelector from 'components/EmployeeSelector';
@@ -54,7 +54,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, firestore, reset }
   });
   const [deductDepositLabel, setDeductDepositLabel] = useState(
     order?.depositRef
-      ? `เลขที่ ${order.depositRef.orderId} วันที่ ${moment(order.depositRef.date, 'YYYY-MM-DD').format('DD/MM/YYYY')}`
+      ? `เลขที่ ${order.depositRef.orderId} วันที่ ${dayjs(order.depositRef.date, 'YYYY-MM-DD').format('DD/MM/YYYY')}`
       : null
   );
   const [deductDepositOrderId, setDeductDepositOrderId] = useState(null);
@@ -278,7 +278,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, firestore, reset }
     });
     //  showLog('order', order);
     setDeductDepositOrderId(order._key);
-    setDeductDepositLabel(`เลขที่ ${order.incomeNo} วันที่ ${moment(order.date, 'YYYY-MM-DD').format('DD/MM/YYYY')}`);
+    setDeductDepositLabel(`เลขที่ ${order.incomeNo} วันที่ ${dayjs(order.date, 'YYYY-MM-DD').format('DD/MM/YYYY')}`);
     form.setFieldsValue({
       deductDeposit: order.amtDeposit,
       depositRef: {

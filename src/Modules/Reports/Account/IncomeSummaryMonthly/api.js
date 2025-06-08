@@ -1,7 +1,7 @@
 import { daysInMonth } from 'functions';
 import { distinctArr } from 'functions';
 import { showLog } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import numeral from 'numeral';
 import React from 'react';
 import { isMobile } from 'react-device-detect';
@@ -18,7 +18,7 @@ export const getColumns = mth => {
     return [];
   }
   let mIdx = [...Array(daysInMonth(mth)).keys()].map(it => ({
-    title: moment(`${mth}-${it + 1}`, 'YYYY-MM-D')
+    title: dayjs(`${mth}-${it + 1}`, 'YYYY-MM-D')
       .add(543, 'year')
       .locale('th')
       .format('D MMM YY'),
@@ -129,7 +129,7 @@ export const formatIncomeSummary = (dataArr, mth) =>
       let arr = dataArr.map(it => {
         let incomeTitle = 'n/a';
         let amount = Numb(it.total);
-        let D = moment(it.date, 'YYYY-MM-DD').format('D');
+        let D = dayjs(it.date, 'YYYY-MM-DD').format('D');
         // cash: 'เงินสด',
         // down: 'เงินดาวน์',
         // reservation: 'เงินจอง',

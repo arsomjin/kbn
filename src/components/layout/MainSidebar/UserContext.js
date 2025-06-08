@@ -8,16 +8,59 @@ const { Text } = Typography;
 const UserContext = () => {
   const { user } = useSelector(state => state.auth);
   const { provinces, branches } = useSelector(state => state.data);
-  const { currentProvince, currentBranch } = useSelector(state => state.rbac);
 
-  // Get province and branch names
-  const provinceName = currentProvince?.provinceName || 
-    (user?.homeProvince && provinces[user.homeProvince]?.provinceName) || 
-    'ทั้งหมด';
+  // For BRANCH_MANAGER, show their specific branch and province
+  // For PROVINCE_MANAGER, show their province(s)
+  // For SUPER_ADMIN, show "ทั้งหมด"
+  const getProvinceDisplay = () => {
+    if (user?.accessLevel === 'SUPER_ADMIN') {
+      return 'ทั้งหมด';
+    }
     
-  const branchName = currentBranch?.branchName || 
-    (user?.homeBranch && branches[user.homeBranch]?.branchName) || 
-    'ทั้งหมด';
+    if (user?.accessLevel === 'PROVINCE_MANAGER') {
+      if (user?.allowedProvinces && user.allowedProvinces.length === 1) {
+        return provinces[user.allowedProvinces[0]]?.provinceName || 'ไม่ระบุ';
+      } else if (user?.allowedProvinces && user.allowedProvinces.length > 1) {
+        return `${user.allowedProvinces.length} จังหวัด`;
+      }
+    }
+    
+    if (user?.accessLevel === 'BRANCH_MANAGER') {
+      if (user?.allowedBranches && user.allowedBranches.length > 0) {
+        const firstBranch = branches[user.allowedBranches[0]];
+        if (firstBranch) {
+          return provinces[firstBranch.provinceId]?.provinceName || 'ไม่ระบุ';
+        }
+      }
+    }
+    
+    // Fallback to home province
+    return user?.homeProvince && provinces[user.homeProvince]?.provinceName || 'ไม่ระบุ';
+  };
+
+  const getBranchDisplay = () => {
+    if (user?.accessLevel === 'SUPER_ADMIN') {
+      return 'ทั้งหมด';
+    }
+    
+    if (user?.accessLevel === 'PROVINCE_MANAGER') {
+      return 'ทั้งหมดในจังหวัด';
+    }
+    
+    if (user?.accessLevel === 'BRANCH_MANAGER') {
+      if (user?.allowedBranches && user.allowedBranches.length === 1) {
+        return branches[user.allowedBranches[0]]?.branchName || 'ไม่ระบุ';
+      } else if (user?.allowedBranches && user.allowedBranches.length > 1) {
+        return `${user.allowedBranches.length} สาขา`;
+      }
+    }
+    
+    // Fallback to home branch
+    return user?.homeBranch && branches[user.homeBranch]?.branchName || 'ไม่ระบุ';
+  };
+
+  const provinceName = getProvinceDisplay();
+  const branchName = getBranchDisplay();
 
   // Determine access level display
   const getAccessLevelInfo = () => {

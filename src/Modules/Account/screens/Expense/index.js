@@ -13,7 +13,7 @@ import { showWarn } from "functions";
 import { load } from "functions";
 import { getArrayChanges } from "functions";
 import { createNewOrderId } from "Modules/Account/api";
-import moment from "moment-timezone";
+import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState, useRef, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { useHistory, useLocation } from "react-router-dom";
@@ -183,9 +183,9 @@ const ExpenseScreen = () => {
             ]
           : [{ uid: user.uid, time: Date.now(), changes }];
       } else {
-        mValues.created = moment().valueOf();
+        mValues.created = dayjs().valueOf();
         mValues.inputBy = user.uid;
-        mValues.inputDate = moment().format("YYYY-MM-DD");
+        mValues.inputDate = dayjs().format("YYYY-MM-DD");
         mValues.status = StatusMap.pending;
       }
 

@@ -2,7 +2,7 @@ import React from 'react';
 import { showLog, distinctArr } from 'functions';
 import numeral from 'numeral';
 import { createArrOfLength } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { VehicleGroup } from 'data/Constant';
 import { ServiceCustomerReportHeader } from '../Constant';
 
@@ -74,7 +74,7 @@ export const formatServiceCustomers = dataArr =>
       let initData = createInitData().map((it, id) => ({ ...it, id, key: id }));
       let arr = dataArr.map(it => {
         let serviceTitle = 'n/a';
-        let month = moment(it.recordedDate, 'YYYY-MM-DD').format('M');
+        let month = dayjs(it.recordedDate, 'YYYY-MM-DD').format('M');
         let vGroup = 'n/a';
         if (it.vehicleType.search(VehicleGroup.tracktor.keyword) > -1) {
           vGroup = 'tracktor';

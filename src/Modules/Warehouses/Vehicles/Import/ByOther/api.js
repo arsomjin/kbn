@@ -11,7 +11,7 @@ import { OtherVehicleImportType } from 'data/Constant';
 import { DatePicker } from 'elements';
 import { Input, InputGroup } from 'elements';
 import { getItemId } from 'Modules/Account/api';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React from 'react';
 import { Row, Col } from 'shards-react';
 import ImportItems from './ImportItems';
@@ -51,7 +51,7 @@ export const getInitialItems = (order, branchCode) => [
 ];
 
 const InitValue = {
-  importDate: moment().format('YYYY-MM-DD'),
+  importDate: dayjs().format('YYYY-MM-DD'),
   docNo: null,
   transferType: 'other',
   subType: null,

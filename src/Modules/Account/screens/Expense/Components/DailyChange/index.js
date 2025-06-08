@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { CheckOutlined, PlusOutlined } from '@ant-design/icons';
 import { ChevronLeftOutlined, EditOutlined } from '@material-ui/icons';
 import { Collapse, Form } from 'antd';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import numeral from 'numeral';
 import { useSelector } from 'react-redux';
 import { useHistory } from 'react-router-dom';
@@ -247,7 +247,7 @@ const ExpenseForm = ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, 
           expenseType,
           ...(!isEdit && {
             created: Date.now(),
-            inputDate: moment().format('YYYY-MM-DD'),
+            inputDate: dayjs().format('YYYY-MM-DD'),
             inputBy: user.uid
           })
         };
@@ -292,7 +292,7 @@ const ExpenseForm = ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, 
       mValues = cleanValuesBeforeSave(mValues);
       showConfirm(
         () => onConfirm(mValues, resetInitState),
-        `การบันทึกรายจ่ายเงินทอนประจำวัน สาขา${branches[mValues.branchCode].branchName} วันที่ ${moment(
+        `การบันทึกรายจ่ายเงินทอนประจำวัน สาขา${branches[mValues.branchCode].branchName} วันที่ ${dayjs(
           mValues.date,
           'YYYY-MM-DD'
         ).format('DD/MM/YYYY')} จำนวน ${nItems.length} รายการ`

@@ -8,12 +8,12 @@ import HiddenItem from 'components/HiddenItem';
 import EmployeeSelector from 'components/EmployeeSelector';
 import { DatePicker } from 'elements';
 import { dateToThai } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import ExecutiveSelector from 'components/ExecutiveSelector';
 
 export const initItem = {
   depositId: null,
-  date: moment().format('YYYY-MM-DD'),
+  date: dayjs().format('YYYY-MM-DD'),
   depositDate: undefined,
   branchCode: null,
   depositor: null,

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import PageTitle from 'components/common/PageTitle';
 import { Form, Tabs } from 'antd';
 import { ReportSteps } from 'data/Constant';
@@ -24,6 +25,7 @@ export default () => {
   //  showLog({ params });
 
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const { users } = useSelector(state => state.data);
   const activeStep = 0;
 
@@ -40,7 +42,7 @@ export default () => {
   const [form] = Form.useForm();
 
   const searchValues = useRef({
-    branchCode: params && params?.branchCode ? params.branchCode : user?.branch || '0450',
+    branchCode: params && params?.branchCode ? params.branchCode : user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     date: params && params?.date ? moment(params.date, 'YYYY-MM-DD') : moment(),
     excludeParts: 1
   });
@@ -97,7 +99,7 @@ export default () => {
     // showLog('Init_Income_Expense_Report');
     // if (params && params?.branchCode) {
     onChange({
-      branchCode: params && params?.branchCode ? params.branchCode : user?.branch || '0450',
+      branchCode: params && params?.branchCode ? params.branchCode : user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
       date: params && params?.date ? moment(params.date, 'YYYY-MM-DD') : moment()
     });
     // }
@@ -120,7 +122,7 @@ export default () => {
       <Form
         form={form}
         initialValues={{
-          branchCode: params && params?.branchCode ? params.branchCode : user?.branch || '0450',
+          branchCode: params && params?.branchCode ? params.branchCode : user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           date: params && params?.date ? moment(params.date, 'YYYY-MM-DD') : moment(),
           excludeParts: 1,
           incomeItems: [],

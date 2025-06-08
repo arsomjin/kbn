@@ -9,11 +9,11 @@ import EmployeeSelector from 'components/EmployeeSelector';
 import { DatePicker } from 'elements';
 import SelfBankSelector from 'components/SelfBankSelector';
 import { dateToThai } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 
 export const initItem = {
   depositId: null,
-  date: moment().format('YYYY-MM-DD'),
+  date: dayjs().format('YYYY-MM-DD'),
   depositDate: undefined,
   branchCode: null,
   depositor: null,

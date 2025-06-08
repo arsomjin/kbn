@@ -1,6 +1,6 @@
 import React from 'react';
 import { distinctArr, showLog, Numb, getDates } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import numeral from 'numeral';
 import { isMobile } from 'react-device-detect';
 import { IncomeReportHeader, IncomeReportTitle } from '../Constant';
@@ -15,7 +15,7 @@ export const titles = Object.keys(IncomeReportTitle).map(k => IncomeReportTitle[
 export const getColumns = range => {
   if (!range) return [];
   const mIdx = getDates(range[0], range[1], 'YYYY-MM-DD').map(it => ({
-    title: moment(it, 'YYYY-MM-DD').add(543, 'year').locale('th').format('D MMM YY'),
+    title: dayjs(it, 'YYYY-MM-DD').add(543, 'year').locale('th').format('D MMM YY'),
     dataIndex: `D${it}`,
     width: 120,
     align: 'center',
@@ -61,7 +61,7 @@ export const getColumnsFromRange = range => {
   const dates = getDates(range[0], range[1], 'YYYY-MM-DD');
   dates.forEach(it => {
     mIdx.push({
-      title: moment(it, 'YYYY-MM-DD').add(543, 'year').locale('th').format('D MMM YY'),
+      title: dayjs(it, 'YYYY-MM-DD').add(543, 'year').locale('th').format('D MMM YY'),
       dataIndex: `D${it}`,
       width: 120,
       align: 'center',
@@ -106,11 +106,11 @@ export const getColumnsFromRange = range => {
 export const getDatesFromRange = range => {
   if (!range) return [];
   const dates = [];
-  const mth = moment(range[0], 'YYYY-MM-DD').format('YYYY-MM');
-  const startI = moment(range[0], 'YYYY-MM-DD').format('D');
-  const endI = moment(range[1], 'YYYY-MM-DD').format('D');
+  const mth = dayjs(range[0], 'YYYY-MM-DD').format('YYYY-MM');
+  const startI = dayjs(range[0], 'YYYY-MM-DD').format('D');
+  const endI = dayjs(range[1], 'YYYY-MM-DD').format('D');
   for (let i = Numb(startI) - 1; i < Numb(endI); i++) {
-    dates.push(moment(`${mth}-${i + 1}`, 'YYYY-MM-DD').format('YYYY-MM-DD'));
+    dates.push(dayjs(`${mth}-${i + 1}`, 'YYYY-MM-DD').format('YYYY-MM-DD'));
   }
   return dates;
 };

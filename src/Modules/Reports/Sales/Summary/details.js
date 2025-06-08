@@ -10,7 +10,7 @@ import { sortArr } from 'functions';
 import { useHistory, useLocation } from 'react-router-dom';
 import { Button } from 'elements';
 import { ChevronLeftOutlined } from '@material-ui/icons';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { Modal } from 'antd';
 import { isMobile } from 'react-device-detect';
 import { useMergeState } from 'api/CustomHooks';
@@ -82,7 +82,7 @@ export default () => {
     <Container fluid className="main-content-container px-4">
       <PageHeader
         subtitle={`ประจำวัน${
-          params?.record ? (params.record?.date ? `ที่ ${moment(params.record.date).format('D MMMM YYYY')}` : '') : ''
+          params?.record ? (params.record?.date ? `ที่ ${dayjs(params.record.date).format('D MMMM YYYY')}` : '') : ''
         } ${params.record?.branchCode ? getBranchName(params.record.branchCode) : ''}`}
         title="รายงานการขาย"
       />

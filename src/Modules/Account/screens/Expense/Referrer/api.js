@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import DocSelector from 'components/DocSelector';
 import { Row, Col } from 'shards-react';
 import { Form } from 'antd';
@@ -75,8 +75,8 @@ export const initSearchValue = {
   customerId: null,
   saleNo: null,
   // saleType: null,
-  startDate: moment().format('YYYY-MM-DD'),
-  endDate: moment().format('YYYY-MM-DD'),
+  startDate: dayjs().format('YYYY-MM-DD'),
+  endDate: dayjs().format('YYYY-MM-DD'),
   branchCode: null
 };
 

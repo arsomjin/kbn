@@ -5,15 +5,15 @@ import { isMobile } from 'react-device-detect';
 
 import { registerLocale } from 'react-datepicker';
 import th from 'date-fns/locale/th';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 
 class RangeDatePicker extends React.Component {
   constructor(props) {
     super(props);
     registerLocale('th', th);
     this.state = {
-      startDate: props?.startDateDefaultValue ? new Date(moment(props.startDateDefaultValue, 'YYYY-MM-DD')) : undefined,
-      endDate: props?.endDateDefaultValue ? new Date(moment(props.endDateDefaultValue, 'YYYY-MM-DD')) : undefined
+      startDate: props?.startDateDefaultValue ? new Date(dayjs(props.startDateDefaultValue, 'YYYY-MM-DD')) : undefined,
+      endDate: props?.endDateDefaultValue ? new Date(dayjs(props.endDateDefaultValue, 'YYYY-MM-DD')) : undefined
     };
 
     this.handleStartDateChange = this.handleStartDateChange.bind(this);

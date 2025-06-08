@@ -7,7 +7,7 @@ import Toggles from 'components/Toggles';
 import { DatePicker } from 'elements';
 import { Input, InputGroup } from 'elements';
 import { getItemId } from 'Modules/Account/api';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React from 'react';
 import { Row, Col } from 'shards-react';
 import TransferItems from './TransferItems';
@@ -46,7 +46,7 @@ export const getInitialItems = (order, branchCode) => [
 ];
 
 const InitValue = {
-  date: moment().format('YYYY-MM-DD'),
+  date: dayjs().format('YYYY-MM-DD'),
   docNo: null,
   deliverType: 'branchDelivery',
   fromOrigin: null,

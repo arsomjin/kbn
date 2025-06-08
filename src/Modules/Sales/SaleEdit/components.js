@@ -7,7 +7,7 @@ import { Button } from 'elements';
 import { isMobile } from 'react-device-detect';
 import { w } from 'api';
 import numeral from 'numeral';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import Payments from 'components/Payments';
 
 export const GuarantorDocs = ({ value: guarantorDoc, onChange, grant, readOnly }) => {
@@ -214,7 +214,7 @@ export const MoreReservationInfo = ({ visible, values, onOk, onCancel, employees
           </Col>
           <Col md="6">
             <Input
-              value={bookDate ? moment(bookDate, 'YYYY-MM-DD').format('D/MM/YYYY') : null}
+              value={bookDate ? dayjs(bookDate, 'YYYY-MM-DD').format('D/MM/YYYY') : null}
               addonBefore="วันที่รับจอง"
               readOnly
             />

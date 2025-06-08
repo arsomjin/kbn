@@ -1,4 +1,4 @@
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { StatusMap } from 'data/Constant';
 import { getItemId } from 'Modules/Account/api';
 import { Numb } from 'functions';
@@ -59,7 +59,7 @@ export const getInitialValues = service => {
     ...InitValue,
     serviceId: service?.serviceId,
     items: getInitialItems(service),
-    serviceDate: service?.serviceDate ? moment(service.serviceDate, 'YYYY-MM-DD') : undefined
+    serviceDate: service?.serviceDate ? dayjs(service.serviceDate, 'YYYY-MM-DD') : undefined
   };
 };
 

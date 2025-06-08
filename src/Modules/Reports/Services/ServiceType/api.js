@@ -1,7 +1,7 @@
 import React from 'react';
 import { distinctArr } from 'functions';
 import numeral from 'numeral';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { VehicleGroup } from 'data/Constant';
 
 export const columns = [
@@ -9,7 +9,7 @@ export const columns = [
     title: 'เดือน',
     dataIndex: 'month',
     width: 120,
-    render: text => <div className="text-primary">{moment(text, 'M').local().format('MMMM')}</div>,
+    render: text => <div className="text-primary">{dayjs(text, 'M').local().format('MMMM')}</div>,
     align: 'center',
     fixed: 'left'
   },
@@ -685,7 +685,7 @@ export const formatServiceType = dataArr =>
         let otherService_glue = null;
         let vGroup = 'n/a';
         let serviceTitle = 'n/a';
-        let month = moment(it.recordedDate, 'YYYY-MM-DD').format('M');
+        let month = dayjs(it.recordedDate, 'YYYY-MM-DD').format('M');
         if (it.vehicleType.search(VehicleGroup.tracktor.keyword) > -1) {
           vGroup = 'tracktor';
         } else if (it.vehicleType.search(VehicleGroup.harvester.keyword) > -1) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { getItemId } from 'Modules/Account/api';
 import { Numb } from 'functions';
 import { initItem } from './ServiceItems';
@@ -86,7 +86,7 @@ export const getInitialValues = service => {
     ...InitValue,
     serviceId: service?.serviceId,
     items: getInitialItems(service),
-    serviceDate: service?.serviceDate ? moment(service.serviceDate, 'YYYY-MM-DD') : undefined
+    serviceDate: service?.serviceDate ? dayjs(service.serviceDate, 'YYYY-MM-DD') : undefined
   };
 };
 

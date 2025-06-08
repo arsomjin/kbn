@@ -1,29 +1,23 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Spin } from 'antd';
+import { Input, Dropdown, Menu, Spin, Typography } from 'antd';
+import { SearchOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { useHistory } from 'react-router-dom';
-import {
-  Collapse,
-  DropdownItem,
-  DropdownMenu,
-  Form,
-  FormInput,
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText
-} from 'shards-react';
 import { getNavBarSearchData } from 'utils';
 import { debounce } from 'lodash';
 import { showWarn } from 'functions';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleSidebar } from 'redux/actions/unPersisted';
 
+const { Text } = Typography;
+
 const SidebarSearch = () => {
   const history = useHistory();
   const { menuVisible } = useSelector(state => state.unPersisted);
   const [loading, setLoading] = useState(false);
-  const [searchText, setSearchText] = useState(null);
+  const [searchText, setSearchText] = useState('');
   const [data, setData] = useState([]);
   const [allData, setAllData] = useState([]);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   const dispatch = useDispatch();
   const isMountedRef = useRef(true);
@@ -62,7 +56,6 @@ const SidebarSearch = () => {
 
   useEffect(() => {
     let arr = getNavBarSearchData();
-    // showLog({ nav_search_arr: arr });
     safeSetAllData(arr);
 
     return () => {
@@ -70,71 +63,143 @@ const SidebarSearch = () => {
     };
   }, [safeSetAllData]);
 
-  const _search = useCallback(async (txt, iType) => {
+  const _search = useCallback(async (txt) => {
     try {
       if (!txt) {
-        return safeSetData([]);
+        safeSetData([]);
+        setDropdownVisible(false);
+        return;
       }
+
       safeSetLoading(true);
-      // let arr = searchArr(allData, Numb(txt), ['title']);
       const arr = allData.filter(item =>
         ['title'].some(key => {
           let sTxt = item[key].toString().replace(/(\r\n|\n|\r|,| |-)/g, '');
-          // showLog({ sTxt });
           return sTxt.toLowerCase().includes(txt.toLowerCase());
         })
       );
       safeSetData(arr);
+      setDropdownVisible(arr.length > 0);
       safeSetLoading(false);
     } catch (e) {
       showWarn(e);
       safeSetLoading(false);
+      setDropdownVisible(false);
     }
   }, [allData, safeSetData, safeSetLoading]);
 
-  const _onSearch = useCallback(debounce(ev => {
-    const txt = ev.target.value;
-    safeSetSearchText(txt);
-    _search(txt);
+  const _onSearch = useCallback(debounce((value) => {
+    safeSetSearchText(value);
+    _search(value);
   }, 200), [_search, safeSetSearchText]);
 
   const _onClick = useCallback((path) => {
-    safeSetSearchText(null);
+    safeSetSearchText('');
     safeSetData([]);
-    safeDispatch(toggleSidebar(!menuVisible));
+    setDropdownVisible(false);
+    safeDispatch(toggleSidebar(false));
     history.push(path);
-  }, [safeSetSearchText, safeSetData, safeDispatch, menuVisible, history]);
+  }, [safeSetSearchText, safeSetData, safeDispatch, history]);
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchText(value);
+    _onSearch(value);
+  };
+
+  const handleInputFocus = () => {
+    if (searchText && data.length > 0) {
+      setDropdownVisible(true);
+    }
+  };
+
+  const handleInputBlur = () => {
+    // Delay hiding dropdown to allow for menu item clicks
+    setTimeout(() => {
+      setDropdownVisible(false);
+    }, 200);
+  };
+
+  // Create menu items for dropdown
+  const menuItems = data.map((item, index) => ({
+    key: index,
+    label: (
+      <div 
+        style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          padding: '4px 0',
+          cursor: 'pointer'
+        }}
+        onClick={() => _onClick(item.to)}
+      >
+        <ClockCircleOutlined style={{ marginRight: '8px', color: '#8c8c8c' }} />
+        <Text style={{ fontSize: '13px' }}>{item.title}</Text>
+      </div>
+    ),
+    onClick: () => _onClick(item.to)
+  }));
+
+  if (loading && data.length === 0) {
+    menuItems.push({
+      key: 'loading',
+      label: (
+        <div style={{ textAlign: 'center', padding: '8px' }}>
+          <Spin size="small" />
+        </div>
+      ),
+      disabled: true
+    });
+  }
+
+  const searchMenu = (
+    <Menu 
+      items={menuItems}
+      style={{ maxHeight: '300px', overflowY: 'auto' }}
+    />
+  );
 
   return (
-    <>
-      <Form
-        className="main-sidebar__search w-100 border-right d-sm-flex d-md-none d-lg-none"
-        style={{ display: 'flex', minHeight: '45px' }}
+    <div 
+      className="main-sidebar__search"
+      style={{
+        padding: '8px 12px',
+        borderBottom: '1px solid #f0f0f0',
+        background: '#fafafa',
+        display: 'block'
+      }}
+    >
+      <Dropdown
+        overlay={searchMenu}
+        open={dropdownVisible && (data.length > 0 || loading)}
+        trigger={[]}
+        placement="bottomLeft"
+        overlayStyle={{ minWidth: '250px' }}
       >
-        <InputGroup seamless className="ml-3">
-          <InputGroupAddon type="prepend">
-            <InputGroupText>
-              <i className="material-icons">search</i>
-            </InputGroupText>
-            <FormInput className="navbar-search" placeholder="ค้นหา..." aria-label="Search" onChange={_onSearch} />
-          </InputGroupAddon>
-        </InputGroup>
-      </Form>
-      <div>
-        <Collapse tag={DropdownMenu} small open={!!searchText && data.length > 0}>
-          {data.map((it, i) => (
-            <DropdownItem key={i} onClick={() => _onClick(it.to)}>
-              <i className="material-icons mr-1">schedule</i> {it.title}
-            </DropdownItem>
-          ))}
-          {loading && (
-            <DropdownItem key="load">
-              <Spin size="small" />
-            </DropdownItem>
-          )}
-        </Collapse>
-      </div>
-    </>
+        <Input
+          placeholder="ค้นหาเมนู..."
+          prefix={<SearchOutlined style={{ color: '#8c8c8c' }} />}
+          value={searchText}
+          onChange={handleInputChange}
+          onFocus={handleInputFocus}
+          onBlur={handleInputBlur}
+          size="small"
+          allowClear
+          style={{
+            borderRadius: '6px',
+            border: '1px solid #d9d9d9'
+          }}
+        />
+      </Dropdown>
+
+      <style>{`
+        @media (min-width: 769px) {
+          .main-sidebar__search {
+            display: none !important;
+          }
+        }
+      `}</style>
+    </div>
   );
 };
 

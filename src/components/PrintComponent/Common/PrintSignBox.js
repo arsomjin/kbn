@@ -1,4 +1,4 @@
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React from 'react';
 
 export class PrintSignBox extends React.PureComponent {
@@ -25,7 +25,7 @@ export class PrintSignBox extends React.PureComponent {
             ...(date && { textDecorationLine: 'underline' })
           }}
         >
-          {date ? `วันที่  ${moment(date, 'YYYY-MM-DD').format('D/MM/YYYY')}` : 'วันที่ _______/________/__________'}
+          {date ? `วันที่  ${dayjs(date, 'YYYY-MM-DD').format('D/MM/YYYY')}` : 'วันที่ _______/________/__________'}
         </div>
       </div>
     );

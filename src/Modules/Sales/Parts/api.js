@@ -4,7 +4,7 @@ import { arrayForEach } from 'functions';
 import { getChanges } from 'functions';
 import { Numb } from 'functions';
 import { getItemId } from 'Modules/Account/api';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 
 const InitValue = {
   date: undefined,
@@ -95,7 +95,7 @@ export const onConfirmSaleOrder = ({ values, category, order, isEdit, user, fire
       let mValues = JSON.parse(JSON.stringify(values));
       mValues.saleCategory = 'daily';
       mValues.saleSubCategory = category;
-      mValues.date = order?.date ? order.date : moment(values.date).format('YYYY-MM-DD');
+      mValues.date = order?.date ? order.date : dayjs(values.date).format('YYYY-MM-DD');
       if (isEdit) {
         let changes = getChanges(order, values);
         if (order.items && values.items) {
@@ -108,7 +108,7 @@ export const onConfirmSaleOrder = ({ values, category, order, isEdit, user, fire
           ? [...order.editedBy, { uid: user.uid, time: Date.now(), changes }]
           : [{ uid: user.uid, time: Date.now(), changes }];
       } else {
-        mValues.created = moment().valueOf();
+        mValues.created = dayjs().valueOf();
         mValues.createdBy = user.uid;
         mValues.status = StatusMap.pending;
       }

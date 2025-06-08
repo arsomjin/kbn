@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Form } from 'antd';
 import { Col, Container, Row } from 'shards-react';
 import { useSelector } from 'react-redux';
@@ -13,6 +14,7 @@ import { InputGroup } from 'elements';
 
 export default () => {
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [modelFilters, setModelFilters] = useState();
@@ -20,7 +22,7 @@ export default () => {
   const [headers, setHeaders] = useMergeState({
     isVehicle: true,
     isUsed: false,
-    branchCode: user?.branch || '0450'
+    branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450'
   });
 
   const _onValuesChange = val => {
@@ -60,7 +62,7 @@ export default () => {
         form={form}
         initialValues={{
           // productPCode: 'tc88215112',
-          branchCode: user?.branch || '0450',
+          branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           isVehicle: true,
           isUsed: false
         }}

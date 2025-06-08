@@ -1,7 +1,7 @@
 import React from 'react';
 import { distinctArr } from 'functions';
 import numeral from 'numeral';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { isMobile } from 'react-device-detect';
 import { Numb } from 'functions';
 import { sortArr } from 'functions';
@@ -95,7 +95,7 @@ export const formatServiceMechanic = dataArr =>
         let wage = Numb(it.amtWage);
         let distance = Numb(it.amtDistance);
         let other = Numb(it.amtOther);
-        let month = moment(it.recordedDate, 'YYYY-MM-DD').format('M');
+        let month = dayjs(it.recordedDate, 'YYYY-MM-DD').format('M');
         if (!!it?.technicianId && Array.isArray(it.technicianId) && it.technicianId.length > 0) {
           let techArr = it.technicianId.filter(l => !!l).map(it => it.trim());
           techArr.map(technician => {

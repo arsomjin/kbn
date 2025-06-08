@@ -1,6 +1,6 @@
 import React from 'react';
 import { createArrOfLength } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { distinctArr } from 'functions';
 import { isMobile } from 'react-device-detect';
 import { Numb } from 'functions';
@@ -60,7 +60,7 @@ const getSubColumns = col => {
 
 export const getColumns = (yr, data) => {
   let mIdx = createArrOfLength(12).map(it => ({
-    title: moment().month(it).locale('th').format('MMMM'),
+    title: dayjs().month(it).locale('th').format('MMMM'),
     width: 100,
     align: 'center',
     children: getSubColumns(`${yr}-M${it}`)
@@ -119,7 +119,7 @@ export const attendanceSumKeys = () => {
 
 export const createInitSnap = () => {
   let mKeys = {};
-  let yr = moment().format('YYYY');
+  let yr = dayjs().format('YYYY');
 
   createArrOfLength(12).map(it => {
     mKeys[`${yr}-M${it}-sick`] = null;
@@ -174,9 +174,9 @@ export const formatAttendance = (dataArr, employees) =>
               position: it.position,
               ...initSnap
             };
-        let yr = moment(it.fromDate, 'YYYY-MM-DD').format('YYYY');
-        let m1 = moment(it.fromDate, 'YYYY-MM-DD').format('M');
-        let m2 = moment(it.toDate, 'YYYY-MM-DD').format('M');
+        let yr = dayjs(it.fromDate, 'YYYY-MM-DD').format('YYYY');
+        let m1 = dayjs(it.fromDate, 'YYYY-MM-DD').format('M');
+        let m2 = dayjs(it.toDate, 'YYYY-MM-DD').format('M');
         let nextMonth = (Number(m1) + 1).toString();
         let mSnap = `${yr}-M${m1 - 1}`;
         let nextSnap = `${yr}-M${nextMonth - 1}`;
@@ -189,8 +189,8 @@ export const formatAttendance = (dataArr, employees) =>
         if (m1 !== m2) {
           // fromMonth !== toMonth
           let leaveDaysFirstMonth =
-            Numb(moment(it.fromDate, 'YYYY-MM-DD').daysInMonth()) -
-            Numb(moment(it.fromDate, 'YYYY-MM-DD').format('D')) +
+            Numb(dayjs(it.fromDate, 'YYYY-MM-DD').daysInMonth()) -
+            Numb(dayjs(it.fromDate, 'YYYY-MM-DD').format('D')) +
             1;
           if (leaveDaysFirstMonth < leaveDays) {
             leaveDaysNextMonth = leaveDays - leaveDaysFirstMonth;

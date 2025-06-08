@@ -495,7 +495,7 @@ export const NAVIGATION_CONFIG = {
                 description: 'รายงานรายรับจากการขายอะไหล่ KBN'
               },
               {
-                key: 'income-personal-loan',
+                key: 'income-personal-loan-report',
                 title: 'รายรับ - สินเชื่อส่วนบุคคล',
                 to: '/reports/income-personal-loan',
                 permission: 'accounting.view',
@@ -764,14 +764,14 @@ export const NAVIGATION_CONFIG = {
                 description: 'รายงานทะเบียนคุมลอกลายรถ'
               },
               {
-                key: 'customer-delivery-plan',
+                key: 'customer-delivery-plan-report',
                 title: 'แผนการส่งรถลูกค้า',
                 to: '/reports/warehouse/vehicles/customerDeliveryPlan',
                 permission: 'inventory.view',
                 description: 'รายงานแผนการส่งรถให้ลูกค้า'
               },
               {
-                key: 'branch-delivery-plan', 
+                key: 'branch-delivery-plan-report', 
                 title: 'แผนการส่งรถสาขา',
                 to: '/reports/warehouse/vehicles/branchDeliveryPlan',
                 permission: 'inventory.view',
@@ -1073,15 +1073,10 @@ export const NAVIGATION_CONFIG = {
   },
 
   developer: {
-    title: 'Developer',
+    title: 'พัฒนาระบบ',
     icon: 'code',
     permission: null, // Special handling - only for isDev users
     isDeveloperOnly: true, // Special flag for developer menu
-    items: [
-      {
-        key: 'developer-main',
-        title: 'พัฒนาระบบ',
-        type: 'section',
         items: [
           {
             key: 'test-group',
@@ -1105,6 +1100,13 @@ export const NAVIGATION_CONFIG = {
                 title: 'Test multi province',
                 to: '/developer/test-multi-province',
                 description: 'ทดสอบระบบหลายจังหวัด',
+                priority: 'high'
+              },
+              {
+                key: 'audit-trail-demo',
+                title: 'Audit Trail & Stepper Demo',
+                to: '/developer/audit-trail-demo',
+                description: 'ทดสอบระบบ Audit Trail และ ResponsiveStepper พร้อม RBAC',
                 priority: 'high'
               }
             ]
@@ -1166,10 +1168,9 @@ export const NAVIGATION_CONFIG = {
               }
             ]
           }
-        ]
-      }
     ]
   }
+
 };
 
 // Helper function to get all navigation items in flat structure

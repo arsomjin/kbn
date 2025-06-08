@@ -16,7 +16,7 @@ import { getEditArr } from 'utils';
 import { getColumns, getInitItem, renderInput } from './api';
 import Footer from 'components/Footer';
 import { FirebaseContext } from '../../../../../firebase';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { waitFor } from 'functions';
 import { deepEqual } from 'functions';
 import { checkEditRecord } from 'Modules/Utils';
@@ -124,7 +124,7 @@ const DailyBankDeposit = () => {
       .doc('account')
       .collection('bankDeposit')
       .where('branchCode', '==', branch)
-      .where('date', '==', date || moment().format('YYYY-MM-DD'));
+      .where('date', '==', date || dayjs().format('YYYY-MM-DD'));
     let unsubscribe;
     unsubscribe = query.onSnapshot(handleUpdates, err => showLog(err));
     return () => {
@@ -191,7 +191,7 @@ const DailyBankDeposit = () => {
           ? [...mProps.order.editedBy, { uid: user.uid, time: Date.now(), changes }]
           : [{ uid: user.uid, time: Date.now(), changes }];
       } else {
-        mValues.created = moment().valueOf();
+        mValues.created = dayjs().valueOf();
         mValues.createdBy = user.uid;
         mValues.status = StatusMap.pending;
       }

@@ -1,6 +1,7 @@
 import { Form, Select } from 'antd';
 import { ExpenseType } from 'data/Constant';
 import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import { Row, Col } from 'shards-react';
 import { DatePicker } from 'elements';
@@ -18,7 +19,8 @@ const ExpenseInputHeader = ({
   readOnly
 }) => {
   const { branches } = useSelector(state => state.data);
-  const [branchCode, setBranch] = useState(defaultBranch || (disableAllBranches ? '0450' : 'all'));
+  const { user } = useSelector(state => state.auth);
+  const [branchCode, setBranch] = useState(defaultBranch || (disableAllBranches ? (user?.homeBranch || (user?.allowedBranches?.[0]) || '0450') : 'all'));
   const [selectedDate, setDate] = useState(defaultDate || new Date());
   const [eType, setType] = useState(defaultType || ExpenseType.dailyChange);
 
@@ -97,6 +99,18 @@ const ExpenseInputHeader = ({
       </Row>
     </div>
   );
+};
+
+ExpenseInputHeader.propTypes = {
+  disabled: PropTypes.bool,
+  onBranchChange: PropTypes.func.isRequired,
+  onDateChange: PropTypes.func.isRequired,
+  onTypeChange: PropTypes.func.isRequired,
+  disableAllBranches: PropTypes.bool,
+  defaultType: PropTypes.string,
+  defaultDate: PropTypes.instanceOf(Date),
+  defaultBranch: PropTypes.string,
+  readOnly: PropTypes.bool
 };
 
 export default ExpenseInputHeader;

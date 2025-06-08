@@ -1,11 +1,12 @@
 import { Form } from 'antd';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { useMergeState } from 'api/CustomHooks';
 import BranchSelector from 'components/BranchSelector';
 import SaleTypeSelector from 'components/SaleTypeSelector';
 import PageTitle from 'components/common/PageTitle';
 import { showWarn } from 'functions';
 import { firstKey } from 'functions';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React, { useEffect, useRef, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 import { useSelector } from 'react-redux';
@@ -22,14 +23,15 @@ export default () => {
   const history = useHistory();
 
   const { user } = useSelector(state => state.auth);
-  const [branch, setBranch] = useState(params?.branch || user?.branch || '0450');
+  const { getDefaultBranch } = useGeographicData();
+  const [branch, setBranch] = useState(params?.branch || user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450');
   const [data, setData] = useMergeState(initData);
   const [loading, setLoading] = useState(false);
 
   const [form] = Form.useForm();
 
   const searchValues = useRef({
-    branchCode: params?.branch || user?.branch || '0450',
+    branchCode: params?.branch || user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     saleType: 'sklLeasing'
   });
 
@@ -41,11 +43,11 @@ export default () => {
     getData({ ...searchValues.current, ...val });
   };
   const [selected, setSelected] = useMergeState({
-    year: moment().format('YYYY'),
-    month: moment().format('YYYY-MM'),
-    date: moment().format('YYYY-MM-DD'),
+    year: dayjs().format('YYYY'),
+    month: dayjs().format('YYYY-MM'),
+    date: dayjs().format('YYYY-MM-DD'),
     saleType: 'sklLeasing',
-    branchCode: params?.branch || user?.branch || '0450'
+    branchCode: params?.branch || user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450'
   });
 
   const getData = async search => {
@@ -156,7 +158,7 @@ export default () => {
         form={form}
         onValuesChange={_onValuesChange}
         initialValues={{
-          branchCode: params?.branch || user?.branch || '0450',
+          branchCode: params?.branch || user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           saleType: 'sklLeasing'
         }}
         size="small"
@@ -252,7 +254,7 @@ export default () => {
         <div className="d-flex mx-3 mt-3">
           <label className="text-primary text-center">
             {data.dateArr.length > 0
-              ? `รายวัน ประจำเดือน ${moment(selected.month, 'YYYY-MM').format('MMMM YYYY')}`
+              ? `รายวัน ประจำเดือน ${dayjs(selected.month, 'YYYY-MM').format('MMMM YYYY')}`
               : 'รายวัน'}
           </label>
         </div>

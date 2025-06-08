@@ -21,7 +21,7 @@ import { Input } from 'elements';
 import { NotificationIcon } from 'elements';
 import { StatusMapToStep } from 'data/Constant';
 import { createNewId } from 'utils';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { SearchOutlined } from '@ant-design/icons';
 import DocSelector from 'components/DocSelector';
 import { Checkbox } from 'elements';
@@ -111,7 +111,7 @@ export default () => {
         readOnly,
         onBack,
         deductDepositLabel: pOrder?.depositRef
-          ? `เลขที่ ${pOrder.depositRef.serviceId} วันที่ ${moment(pOrder.depositRef.date, 'YYYY-MM-DD').format(
+          ? `เลขที่ ${pOrder.depositRef.serviceId} วันที่ ${dayjs(pOrder.depositRef.date, 'YYYY-MM-DD').format(
               'DD/MM/YYYY'
             )}`
           : null
@@ -133,7 +133,7 @@ export default () => {
               'ปิดงานแล้ว',
               `ใบแจ้งบริการเลขที่ ${val['serviceNo']} ได้ปิดงานเรียบร้อยแล้ว ${
                 !!mData[0]?.closedDate
-                  ? `เมื่อวันที่ ${moment(mData[0]?.closedDate, 'YYYY-MM-DD').format('D MMM YYYY')}`
+                  ? `เมื่อวันที่ ${dayjs(mData[0]?.closedDate, 'YYYY-MM-DD').format('D MMM YYYY')}`
                   : ''
               }`,
               'warning',
@@ -207,7 +207,7 @@ export default () => {
           ? [...nProps.order.editedBy, { uid: user.uid, time: Date.now(), changes }]
           : [{ uid: user.uid, time: Date.now(), changes }];
       } else {
-        mValues.created = moment().valueOf();
+        mValues.created = dayjs().valueOf();
         mValues.createdBy = user.uid;
         mValues.status = StatusMap.pending;
       }

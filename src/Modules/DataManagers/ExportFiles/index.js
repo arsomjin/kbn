@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Form } from 'antd';
 import { CardFooter, Container } from 'shards-react';
 import { useHistory } from 'react-router';
@@ -43,6 +44,7 @@ const multiDataSet = [
 export default () => {
   const history = useHistory();
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const [form] = Form.useForm();
   const [dataSet, setDataSet] = useState([]);
 
@@ -60,7 +62,7 @@ export default () => {
       <Form
         form={form}
         initialValues={{
-          branchCode: user?.branch || '0450',
+          branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           date: moment(),
           vehicleRegNumber: null,
           gasCost: null,

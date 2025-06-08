@@ -1,5 +1,5 @@
 import { checkCollection } from 'firebase/api';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React from 'react';
 
 export const columns = [
@@ -147,13 +147,13 @@ export const getVehicleData = branches =>
         let importData = it.transactions.filter(l => l.type === 'import');
         let transferData = it.transactions.filter(l => l.type === 'transfer');
         let saleOutData = it.transactions.filter(l => l.type === 'saleOut');
-        importDate = importData.length > 0 ? moment(importData[0].ts).format('DD/MM/YYYY') : undefined;
+        importDate = importData.length > 0 ? dayjs(importData[0].ts).format('DD/MM/YYYY') : undefined;
         transferInDate = transferData.length > 0 ? transferData[transferData.length - 1].importDate : transferInDate;
         transferOutDate = transferData.length > 0 ? transferData[transferData.length - 1].exportDate : transferOutDate;
       }
       if (!!it?.sold) {
         customer = it.sold?.customer || null;
-        saleDate = moment(it.sold.ts).format('DD/MM/YYYY');
+        saleDate = dayjs(it.sold.ts).format('DD/MM/YYYY');
       }
       status = !!it?.sold ? 'ขายแล้ว' : !!it?.reserved ? 'จอง' : !!it?.transfer ? 'โอนย้าย' : '';
 

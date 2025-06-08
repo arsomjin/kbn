@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Container } from 'shards-react';
 import PageHeader from 'components/common/PageHeader';
 import EditableCellTable from 'components/EditableCellTable';
@@ -7,7 +8,7 @@ import { TableSummary } from 'api/Table';
 import { columns, getMktChannelsData, getColumns, initData, formatDataByArea, getAreaColumns } from './api';
 import { useSelector } from 'react-redux';
 import { useMergeState } from 'api/CustomHooks';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import { sortArr } from 'functions';
 import { useHistory, useLocation } from 'react-router-dom';
 
@@ -18,7 +19,8 @@ export default () => {
   const history = useHistory();
 
   const { user } = useSelector(state => state.auth);
-  const [branch, setBranch] = useState(params?.branch || user?.branch || '0450');
+  const { getDefaultBranch } = useGeographicData();
+  const [branch, setBranch] = useState(params?.branch || user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450');
   const [data, setData] = useMergeState(initData);
   const [loading, setLoading] = useState(false);
   const [eLoading, setELoading] = useState(false);
@@ -34,9 +36,9 @@ export default () => {
     getData(val.branch);
   };
   const [selected, setSelected] = useMergeState({
-    year: moment().format('YYYY'),
-    month: moment().format('YYYY-MM'),
-    date: moment().format('YYYY-MM-DD')
+    year: dayjs().format('YYYY'),
+    month: dayjs().format('YYYY-MM'),
+    date: dayjs().format('YYYY-MM-DD')
   });
 
   const getData = async branch => {
@@ -252,7 +254,7 @@ export default () => {
         <div className="d-flex mx-3 mt-3">
           <label className="text-primary text-center">
             {data.dateArr.length > 0
-              ? `ช่องทางการตลาดรายวัน ประจำเดือน ${moment(selected.month, 'YYYY-MM').format('MMMM YYYY')}`
+              ? `ช่องทางการตลาดรายวัน ประจำเดือน ${dayjs(selected.month, 'YYYY-MM').format('MMMM YYYY')}`
               : 'ช่องทางการตลาดรายวัน'}
           </label>
         </div>

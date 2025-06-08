@@ -1,7 +1,7 @@
 import EditableCellTable from 'components/EditableCellTable';
 import { FilterSnap } from 'data/Constant';
 import { checkCollection } from 'firebase/api';
-import moment from 'moment-timezone';
+import dayjs from 'dayjs';
 import React from 'react';
 import { TransferType } from 'data/Constant';
 
@@ -190,7 +190,7 @@ export const getVehicleData = (pCode, branches) =>
       }
       if (!!it?.sold) {
         mIt.customer = it.sold?.customer || null;
-        mIt.saleDate = moment(it.sold.ts).format('DD/MM/YYYY');
+        mIt.saleDate = dayjs(it.sold.ts).format('DD/MM/YYYY');
         if (saleOutData.length === 0) {
           mIt.transactions = mIt.transactions.concat([
             {
@@ -303,7 +303,7 @@ const formatTransactions = trans => {
     let info = it?.info || null;
     let fromOrigin = it?.fromOrigin || it?.origin || null;
     let toDestination = it?.toDestination || it?.destination || null;
-    let date = it?.docDate || (!!it?.ts ? moment(it.ts) : it.exportDate);
+    let date = it?.docDate || (!!it?.ts ? dayjs(it.ts) : it.exportDate);
 
     return {
       ...it,

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useGeographicData } from 'hooks/useGeographicData';
 import { Form, Modal } from 'antd';
 import { Container } from 'shards-react';
 import { useSelector } from 'react-redux';
@@ -17,8 +18,9 @@ import { showAlert } from 'functions';
 import { useMergeState } from 'api/CustomHooks';
 import ServiceViewer from 'Modules/Service/Components/ServiceViewer';
 
-export default () => {
+const ServiceDailyList = () => {
   const { user } = useSelector(state => state.auth);
+  const { getDefaultBranch } = useGeographicData();
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -29,7 +31,7 @@ export default () => {
   });
 
   const searchValues = useRef({
-    branchCode: user?.branch || '0450',
+    branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
     month: moment().format('YYYY-MM')
   });
 
@@ -78,7 +80,7 @@ export default () => {
       <Form
         form={form}
         initialValues={{
-          branchCode: user?.branch || '0450',
+          branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           isRange: false,
           month: moment(),
           monthRange: [moment().subtract(1, 'month'), moment()]
@@ -144,3 +146,5 @@ export default () => {
     </Container>
   );
 };
+
+export default ServiceDailyList;

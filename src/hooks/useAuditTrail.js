@@ -1,287 +1,334 @@
 /**
- * useAuditTrail Hook
- * Provides easy access to audit trail functionality with automatic RBAC integration
- * Manages document audit trails, change history, and step progression
+ * Audit Trail Hook for KBN System
+ * Designed for easy integration into 80+ components
+ * Includes RBAC, geographic filtering, and complete workflow support
  */
 
-import { useState, useEffect, useCallback, useContext } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { usePermissions } from './usePermissions';
 import { useGeographicData } from './useGeographicData';
-import { FirebaseContext } from '../firebase';
-import {
-  getDocumentAuditTrail,
-  getDocumentChangeHistory,
-  saveDocumentWithAuditTrail,
-  progressStepWithAuditTrail,
-  addAuditTrail,
-  addChangeHistory,
-  saveAuditTrail,
-  saveChangeHistory
-} from 'utils/auditTrail';
+import { useAuditTrail as useBaseAuditTrail } from 'components/AuditTrail';
+import dayjs from 'dayjs';
 
-const useAuditTrail = (documentId, documentType) => {
-  const [auditTrail, setAuditTrail] = useState([]);
-  const [changeHistory, setChangeHistory] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  // Get required dependencies
-  const { user } = useSelector(state => state.auth);
-  const { firestore } = useContext(FirebaseContext);
-  const { hasPermission } = usePermissions();
-  const { getCurrentProvince, getDefaultBranch, homeBranch, homeProvince } = useGeographicData();
-  const { branches } = useSelector(state => state.data);
-
-  // Create geographic context function
-  const getCurrentGeographicContext = useCallback(() => {
-    const currentProvince = getCurrentProvince();
-    const defaultBranch = getDefaultBranch();
-    const branch = branches[defaultBranch];
+/**
+ * One-line integration audit trail hook
+ * 
+ * Usage Examples:
+ * 
+ * // Simple integration:
+ * const audit = useAuditTrail('income_daily', documentId);
+ * 
+ * // With stepper integration:
+ * const audit = useAuditTrail('income_daily', documentId, {
+ *   steps: INCOME_STEPS,
+ *   currentStep: activeStep
+ * });
+ * 
+ * // With custom collection:
+ * const audit = useAuditTrail('service_order', documentId, {
+ *   collection: 'sections/service/orders'
+ * });
+ */
+export const useAuditTrail = (
+  documentType,
+  documentId = null,
+  options = {}
+) => {
+  const {
+    // Collection path for Firestore
+    collection = `sections/account/${documentType}s`,
     
-    return {
-      branchCode: defaultBranch || homeBranch,
-      provinceId: currentProvince || homeProvince,
-      branchName: branch?.branchName,
-      recordedProvince: currentProvince || homeProvince,
-      recordedBranch: defaultBranch || homeBranch
+    // Stepper integration
+    steps = [],
+    currentStep = 0,
+    onStepChange = null,
+    
+    // Display options
+    showGeographicInfo = true,
+    showChangeDetails = true,
+    excludeFields = ['updatedAt', 'modifiedAt', 'timestamp', 'lastModified'],
+    
+    // Auto-save options
+    autoSave = true,
+    saveOnMount = false,
+    
+    // Permission mapping
+    departmentPermissions = null, // Auto-detect from documentType
+    
+    // Custom configuration
+    customConfig = {}
+  } = options;
+
+  // Core hooks
+  const { user } = useSelector(state => state.auth);
+  const { hasPermission } = usePermissions();
+  const { getCurrentProvince, getCurrentBranch, getGeographicContext } = useGeographicData();
+  
+  // Auto-detect department from documentType
+  const department = useMemo(() => {
+    if (departmentPermissions) return departmentPermissions;
+    
+    const typeMapping = {
+      'income_daily': 'accounting',
+      'income_vehicle': 'accounting', 
+      'income_service': 'accounting',
+      'expense_daily': 'accounting',
+      'service_order': 'service',
+      'service_close': 'service',
+      'parts_order': 'sales',
+      'vehicle_sales': 'sales',
+      'inventory_import': 'inventory',
+      'inventory_export': 'inventory',
+      'hr_attendance': 'hr',
+      'hr_payroll': 'hr'
     };
-  }, [getCurrentProvince, getDefaultBranch, homeBranch, homeProvince, branches]);
+    
+    return typeMapping[documentType] || 'general';
+  }, [documentType, departmentPermissions]);
 
-  /**
-   * Load audit trail and change history for the document
-   */
-  const loadAuditData = useCallback(async () => {
-    if (!documentId || !hasPermission('audit.view')) return;
-
-    setLoading(true);
-    setError(null);
-
-    try {
-      const [auditData, changeData] = await Promise.all([
-        getDocumentAuditTrail(firestore, documentId),
-        getDocumentChangeHistory(firestore, documentId)
-      ]);
-
-      setAuditTrail(auditData);
-      setChangeHistory(changeData);
-    } catch (err) {
-      console.error('Error loading audit data:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
+  // Initialize base audit trail
+  const baseAuditTrail = useBaseAuditTrail({
+    documentId: documentId,
+    documentType: documentType,
+    config: {
+      showGeographicInfo,
+      showChangeDetails,
+      excludeFields,
+      ...customConfig
     }
-  }, [documentId, firestore, hasPermission]);
+  });
 
-  /**
-   * Save document with automatic audit trail creation
-   */
-  const saveWithAuditTrail = useCallback(async ({
-    collection,
+  // Enhanced state
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [lastSaveTime, setLastSaveTime] = useState(null);
+  const [errors, setErrors] = useState([]);
+
+  // Permission helpers
+  const permissions = useMemo(() => ({
+    canView: hasPermission(`${department}.view`),
+    canEdit: hasPermission(`${department}.edit`),
+    canReview: hasPermission(`${department}.review`),
+    canApprove: hasPermission(`${department}.approve`),
+    canDelete: hasPermission(`${department}.delete`),
+    canViewAuditDetails: hasPermission(`${department}.audit`) || hasPermission(`${department}.approve`),
+    canViewAllAudits: hasPermission('audit.view_all') || hasPermission('super_admin.all')
+  }), [department, hasPermission]);
+
+  // Geographic context
+  const geoContext = useMemo(() => getGeographicContext(), [getGeographicContext]);
+
+  // Enhanced save function with comprehensive audit trail
+  const saveWithCompleteAudit = useCallback(async ({
     data,
     isEdit = false,
-    step = null,
-    notes = null,
-    oldData = {}
+    oldData = null,
+    notes = '',
+    status = null,
+    stepAdvancement = null, // { from: stepIndex, to: stepIndex }
+    customMetadata = {}
   }) => {
-    if (!hasPermission(isEdit ? 'audit.edit' : 'audit.create')) {
-      throw new Error('ไม่มีสิทธิ์ในการดำเนินการนี้');
+    setIsProcessing(true);
+    setErrors([]);
+
+    try {
+      // Prepare enhanced data with geographic and user context
+      const enhancedData = {
+        ...data,
+        // Geographic context
+        provinceId: geoContext.provinceId,
+        branchCode: geoContext.branchCode,
+        recordedProvince: geoContext.provinceName,
+        recordedBranch: geoContext.branchName,
+        
+        // User context
+        [isEdit ? 'lastModifiedBy' : 'createdBy']: user.uid,
+        [isEdit ? 'lastModified' : 'created']: dayjs().valueOf(),
+        
+        // Document context
+        documentType: documentType,
+        
+        // Custom metadata
+        ...customMetadata
+      };
+
+      // Status update if provided
+      if (status) {
+        enhancedData.status = status;
+      }
+
+      // Call base audit trail save
+      const result = await baseAuditTrail.saveWithAuditTrail({
+        collection,
+        data: enhancedData,
+        isEdit,
+        oldData,
+        notes: notes || (isEdit ? `แก้ไข${documentType}` : `สร้าง${documentType}`)
+      });
+
+      // Step advancement tracking
+      if (stepAdvancement && steps.length > 0) {
+        await baseAuditTrail.addStatusEntry(
+          documentId,
+          `step_${stepAdvancement.to}`,
+          {
+            uid: user.uid,
+            displayName: user.displayName || user.email,
+            role: user.role,
+            department: user.department,
+            provinceName: geoContext.provinceName,
+            branchName: geoContext.branchName
+          },
+          `ก้าวไปยังขั้นตอน: ${steps[stepAdvancement.to]?.title || stepAdvancement.to + 1}`
+        );
+
+        // Notify parent of step change
+        if (onStepChange) {
+          onStepChange(stepAdvancement.to);
+        }
+      }
+
+      setLastSaveTime(dayjs().valueOf());
+      return result;
+
+    } catch (error) {
+      const errorMessage = error.message || 'เกิดข้อผิดพลาดในการบันทึก';
+      setErrors(prev => [...prev, errorMessage]);
+      throw error;
+    } finally {
+      setIsProcessing(false);
     }
+  }, [
+    baseAuditTrail, collection, documentType, documentId, user, geoContext, 
+    steps, onStepChange
+  ]);
 
-    const geographic = getCurrentGeographicContext();
-    
-    const result = await saveDocumentWithAuditTrail({
-      firestore,
-      collection,
-      documentId,
-      documentType,
-      data,
-      user,
-      geographic,
-      isEdit,
-      step,
-      notes,
-      oldData
+  // Quick status update
+  const updateStatus = useCallback(async (newStatus, comment = '') => {
+    return await saveWithCompleteAudit({
+      data: { status: newStatus },
+      isEdit: true,
+      notes: comment || `เปลี่ยนสถานะเป็น: ${newStatus}`,
+      status: newStatus
     });
+  }, [saveWithCompleteAudit]);
 
-    // Refresh audit data after save
-    await loadAuditData();
-
-    return result;
-  }, [documentId, documentType, firestore, user, hasPermission, getCurrentGeographicContext, loadAuditData]);
-
-  /**
-   * Progress to next step with audit trail
-   */
-  const progressStep = useCallback(async ({
-    collection,
-    newStep,
-    action,
-    notes = null,
-    additionalData = {}
-  }) => {
-    if (!hasPermission('audit.approve')) {
-      throw new Error('ไม่มีสิทธิ์ในการอนุมัติ/ดำเนินการ');
+  // Step progression
+  const advanceStep = useCallback(async (targetStep, comment = '') => {
+    if (targetStep >= 0 && targetStep < steps.length && targetStep > currentStep) {
+      return await saveWithCompleteAudit({
+        data: { activeStep: targetStep },
+        isEdit: true,
+        stepAdvancement: { from: currentStep, to: targetStep },
+        notes: comment || `ไปยังขั้นตอน: ${steps[targetStep]?.title || targetStep + 1}`
+      });
     }
+  }, [saveWithCompleteAudit, steps, currentStep]);
 
-    const geographic = getCurrentGeographicContext();
-
-    const result = await progressStepWithAuditTrail({
-      firestore,
-      collection,
-      documentId,
-      documentType,
-      newStep,
-      action,
-      user,
-      geographic,
-      notes,
-      additionalData
+  // Approval workflow
+  const approveDocument = useCallback(async (comment = '') => {
+    return await saveWithCompleteAudit({
+      data: { 
+        status: 'approved',
+        approvedBy: user.uid,
+        approvedAt: dayjs().valueOf()
+      },
+      isEdit: true,
+      notes: comment || 'อนุมัติเอกสาร',
+      status: 'approved'
     });
+  }, [saveWithCompleteAudit, user.uid]);
 
-    // Refresh audit data after step progression
-    await loadAuditData();
-
-    return result;
-  }, [documentId, documentType, firestore, user, hasPermission, getCurrentGeographicContext, loadAuditData]);
-
-  /**
-   * Add custom audit trail entry
-   */
-  const addAuditEntry = useCallback(async ({
-    action,
-    step = null,
-    notes = null,
-    metadata = {}
-  }) => {
-    if (!hasPermission('audit.create')) {
-      throw new Error('ไม่มีสิทธิ์ในการสร้าง audit trail');
-    }
-
-    const geographic = getCurrentGeographicContext();
-
-    const auditEntry = addAuditTrail({
-      documentId,
-      documentType,
-      action,
-      step,
-      user,
-      geographic,
-      notes,
-      metadata
+  // Rejection workflow  
+  const rejectDocument = useCallback(async (reason = '') => {
+    return await saveWithCompleteAudit({
+      data: { 
+        status: 'rejected',
+        rejectedBy: user.uid,
+        rejectedAt: dayjs().valueOf(),
+        rejectionReason: reason
+      },
+      isEdit: true,
+      notes: `ปฏิเสธเอกสาร: ${reason}`,
+      status: 'rejected'
     });
+  }, [saveWithCompleteAudit, user.uid]);
 
-    const auditId = await saveAuditTrail(firestore, auditEntry);
-    
-    // Refresh audit data
-    await loadAuditData();
-
-    return auditId;
-  }, [documentId, documentType, user, hasPermission, getCurrentGeographicContext, firestore, loadAuditData]);
-
-  /**
-   * Add custom change history entry
-   */
-  const addChangeEntry = useCallback(async ({
-    type,
-    notes = null,
-    oldData = {},
-    newData = {},
-    customChanges = null
-  }) => {
-    if (!hasPermission('audit.create')) {
-      throw new Error('ไม่มีสิทธิ์ในการสร้าง change history');
-    }
-
-    const geographic = getCurrentGeographicContext();
-
-    const changeEntry = addChangeHistory({
-      documentId,
-      documentType,
-      type,
-      user,
-      geographic,
-      oldData,
-      newData,
-      notes,
-      customChanges
-    });
-
-    const changeId = await saveChangeHistory(firestore, changeEntry);
-    
-    // Refresh audit data
-    await loadAuditData();
-
-    return changeId;
-  }, [documentId, documentType, user, hasPermission, getCurrentGeographicContext, firestore, loadAuditData]);
-
-  /**
-   * Get formatted audit trail for stepper component
-   */
-  const getFormattedAuditTrail = useCallback(() => {
-    return auditTrail.map(entry => ({
-      ...entry,
-      formattedTimestamp: new Date(entry.timestamp).toLocaleString('th-TH'),
-      isCurrentUser: entry.actionBy === user?.uid
-    }));
-  }, [auditTrail, user]);
-
-  /**
-   * Get formatted change history for timeline component
-   */
-  const getFormattedChangeHistory = useCallback(() => {
-    return changeHistory.map(entry => ({
-      ...entry,
-      formattedTimestamp: new Date(entry.timestamp).toLocaleString('th-TH'),
-      isCurrentUser: entry.changedBy === user?.uid
-    }));
-  }, [changeHistory, user]);
-
-  /**
-   * Check if user can view audit details
-   */
-  const canViewAuditDetails = useCallback(() => {
-    return hasPermission('audit.view');
-  }, [hasPermission]);
-
-  /**
-   * Check if user can edit/create audit entries
-   */
-  const canCreateAuditEntries = useCallback(() => {
-    return hasPermission('audit.create');
-  }, [hasPermission]);
-
-  // Load audit data when document ID changes
+  // Auto-save on mount if enabled
   useEffect(() => {
-    if (documentId) {
-      loadAuditData();
+    if (saveOnMount && documentId && autoSave) {
+      saveWithCompleteAudit({
+        data: { lastViewed: dayjs().valueOf() },
+        isEdit: true,
+        notes: 'เปิดดูเอกสาร'
+      }).catch(console.error);
     }
-  }, [documentId, loadAuditData]);
+  }, [saveOnMount, documentId, autoSave, saveWithCompleteAudit]);
 
+  // Return comprehensive audit trail interface
   return {
-    // Data
-    auditTrail,
-    changeHistory,
-    loading,
-    error,
+    // Core audit trail data
+    ...baseAuditTrail,
+    
+    // Enhanced functions
+    saveWithCompleteAudit,
+    updateStatus,
+    advanceStep,
+    approveDocument,
+    rejectDocument,
+    
+    // Status information
+    isProcessing,
+    lastSaveTime,
+    errors,
+    clearErrors: () => setErrors([]),
+    
+    // Permission helpers
+    permissions,
+    
+    // Geographic context
+    geoContext,
+    
+    // Configuration
+    config: {
+      documentType,
+      collection,
+      department,
+      steps,
+      currentStep,
+      showGeographicInfo,
+      showChangeDetails
+    },
+    
+    // Helper functions for UI integration
+    getStatusColor: (status) => {
+      const statusColors = {
+        'pending': '#faad14',
+        'in_progress': '#1890ff', 
+        'completed': '#52c41a',
+        'approved': '#52c41a',
+        'rejected': '#ff4d4f',
+        'cancelled': '#d9d9d9'
+      };
+      return statusColors[status] || '#d9d9d9';
+    },
+    
+    getStepStatus: (stepIndex) => {
+      if (stepIndex < currentStep) return 'completed';
+      if (stepIndex === currentStep) return 'current';
+      return 'pending';
+    },
 
-    // Actions
-    loadAuditData,
-    saveWithAuditTrail,
-    progressStep,
-    addAuditEntry,
-    addChangeEntry,
-
-    // Formatted data
-    getFormattedAuditTrail,
-    getFormattedChangeHistory,
-
-    // Permissions
-    canViewAuditDetails,
-    canCreateAuditEntries,
-
-    // Refresh function
-    refresh: loadAuditData
+    // Quick integration props for LayoutWithRBAC
+    getLayoutProps: () => ({
+      documentId,
+      documentType,
+      showAuditTrail: true,
+      showStepper: steps.length > 0,
+      steps,
+      currentStep,
+      onAuditApprove: permissions.canApprove ? approveDocument : null
+    })
   };
 };
 
