@@ -1,0 +1,13 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+---
+description: Enforce project tooling standards
+globs: ["**/*"]
+alwaysApply: true
+---
+
+- Utilize **Dayjs** for date and time operations. Do not use `moment.js`.
+- Prefer **Dayjs** for all date/time manipulation to maintain compatibility with Ant Design components

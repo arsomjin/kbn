@@ -93,7 +93,8 @@ import SalesByPerson from 'Modules/Reports/Sales/SalesByPerson';
 import Chevrolet from 'Modules/Account/screens/Expense/Components/Chevrolet';
 import ExpenseTransferCycle from 'Modules/Account/screens/ExpenseTransferCycle';
 import TestPrint from 'dev/screens/TestPrint';
-import TestMultiProvince from 'dev/screens/TestMultiProvince';
+import TestAccessControl from 'dev/screens/TestAccessControl';
+import MigrationTools from 'dev/screens/MigrationTools';
 import AuditTrailDemo from 'components/AuditTrail/AuditTrailDemo';
 
 import IncomeParts from 'Modules/Reports/Parts/Income';
@@ -1012,7 +1013,12 @@ export default [
   {
     path: '/developer/test-multi-province',
     layout: DefaultLayout,
-    component: TestMultiProvince
+    component: TestAccessControl
+  },
+  {
+    path: '/developer/migration-tools',
+    layout: DefaultLayout,
+    component: MigrationTools
   },
   {
     path: '/developer/audit-trail-demo',

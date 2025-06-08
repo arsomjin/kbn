@@ -57,7 +57,7 @@ export const DevMenu = [
                 to: '/developer/test-general'
               },
               {
-                title: 'Test multi province',
+                title: 'Test access control',
                 key: '1242',
                 to: '/developer/test-multi-province'
               },

@@ -1,3 +1,23 @@
+# Your assigned roles
+
+You are an expert developer assisting with a large-scale JavaScript/TypeScript project.
+You are a skilled RBAC, permission project implementation.
+You are a professional React developer.
+You are a skilled professional UI/UX designer.
+You are a skilled Firebase developer.
+
+## KBN Project Overview
+
+KBN is an enterprise-level business management platform built with React, JavaScript, and Firebase. The platform is undergoing a major upgrade to support multi-province operations with comprehensive Role-Based Access Control (RBAC).
+
+## Core Upgrade Goals
+
+- Redesign to simplify and remove duplicated code/logic, improve/enhance for easier maintainability while preserving data structure ✅
+- Upgrade from Single province to Multi-province architecture ✅
+- Implement full RBAC across provinces, branches, departments ✅
+- Maintain backward compatibility with existing data ✅
+- Replace outdated libraries with Ant Design equivalents ✅
+
 # AI Context: KBN Multi-Province RBAC System - Integration Phase
 
 **Project**: KBN (Kubota Benja-pol) - Multi-Province RBAC Integration & Library Modernization
@@ -193,7 +213,7 @@ src/components/RBACNavigationFilter.js (167 lines)
 src/utils/migration/phase1Migration.js (551 lines)
 src/utils/migration/executeMigration.js (416 lines)
 src/utils/migration/rollbackUtility.js (440 lines)
-src/dev/screens/TestMultiProvince/index.js
+src/dev/screens/TestAccessControl/index.js
 ```
 
 ## Integration Priorities

@@ -1,27 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { Row, Col, Card, Button, Alert, Spin, Badge, Progress, Tabs } from 'antd';
+import { Row, Col, Card, Button, Alert, Badge, Progress, Typography } from 'antd';
+import { 
+  DatabaseOutlined,
+  UploadOutlined,
+  RollbackOutlined,
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+  ReloadOutlined
+} from '@ant-design/icons';
 import { usePermissions } from 'hooks/usePermissions';
 import { useGeographicData } from 'hooks/useGeographicData';
-import  GeographicBranchSelector  from 'components/GeographicBranchSelector';
-import ProvinceSelector from 'components/ProvinceSelector';
-import BranchSelector from 'components/BranchSelector';
-import { RBACDemo } from 'components';
 import { executePhase1Migration, validatePreProductionReadiness } from 'utils/migration/executeMigration';
 import { getDatabaseInfo } from 'utils/environmentConfig';
 import { executePhase1Rollback, verifyCurrentState } from 'utils/migration/rollbackUtility';
 
-const { TabPane } = Tabs;
+const { Title, Text } = Typography;
 
-const TestMultiProvince = () => {
+const MigrationTools = () => {
   const { user } = useSelector(state => state.auth);
   const { provinces } = useSelector(state => state.provinces);
   const { branches } = useSelector(state => state.data);
   
-  const [selectedProvince, setSelectedProvince] = useState(null);
-  const [selectedBranch, setSelectedBranch] = useState(null);
   const [migrationResult, setMigrationResult] = useState(null);
-  const [testing, setTesting] = useState(false);
   const [migrationStatus, setMigrationStatus] = useState('idle');
   const [logs, setLogs] = useState([]);
   const [dbInfo, setDbInfo] = useState(null);
@@ -30,8 +31,6 @@ const TestMultiProvince = () => {
   const [currentState, setCurrentState] = useState(null);
   
   const { 
-    getAccessibleProvinces, 
-    getAccessibleBranches,
     userAccessLevel,
     userProvinces,
     userBranches
@@ -67,7 +66,6 @@ const TestMultiProvince = () => {
         addLog('✅ System ready for production migration');
       } else {
         addLog('❌ System not ready for production migration');
-        // result.recommendations?.forEach(rec => addLog(`   • ${rec}`));
         if (result.recommendations) {
           result.recommendations.forEach(rec => addLog(`   • ${rec}`));
         }
@@ -202,27 +200,23 @@ const TestMultiProvince = () => {
   return (
     <div style={{ padding: '24px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h2>🧪 KBN Multi-Province Test Dashboard</h2>
+        <Title level={2}>
+          <DatabaseOutlined /> Migration Tools
+        </Title>
         {getEnvironmentBadge()}
       </div>
 
-      <Tabs defaultActiveKey="rbac-demo" size="large">
-        <TabPane tab={<span>🎭 RBAC Demo & Role Switcher</span>} key="rbac-demo">
-          <RBACDemo />
-        </TabPane>
-        
-        <TabPane tab={<span>🚀 Migration Tools</span>} key="migration">
-          <Row gutter={[16, 16]}>
+      <Row gutter={[16, 16]}>
         <Col span={24}>
           <Card>
-            <h2>🚀 Phase 1 Migration</h2>
-            <p>Test the multi-province functionality and data structure alignment.</p>
+            <Title level={3}>🚀 Phase 1 Migration</Title>
+            <Text>Test the multi-province functionality and data structure alignment.</Text>
           </Card>
         </Col>
 
         {/* Environment Status Card */}
         <Col span={24}>
-          <Card title="🔗 Database Connection Status">
+          <Card title={<span><DatabaseOutlined /> Database Connection Status</span>}>
             {dbInfo && (
               <div>
                 <p><strong>Project ID:</strong> {dbInfo.projectId}</p>
@@ -244,14 +238,15 @@ const TestMultiProvince = () => {
 
         {/* Production Readiness Check Card */}
         <Col span={24}>
-          <Card title="🎯 Production Readiness Check">
+          <Card title={<span><CheckCircleOutlined /> Production Readiness Check</span>}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <h5>Production Readiness Check</h5>
+              <Title level={5}>Production Readiness Check</Title>
               {getReadinessBadge()}
             </div>
             
             <Button 
               type="default" 
+              icon={<CheckCircleOutlined />}
               onClick={handleRunReadinessCheck}
               style={{ marginBottom: '16px' }}
             >
@@ -260,7 +255,7 @@ const TestMultiProvince = () => {
             
             {readinessCheck && (
               <div>
-                <h6>Checklist Status:</h6>
+                <Title level={6}>Checklist Status:</Title>
                 <ul>
                   <li>Environment Config: {readinessCheck.checks.environmentConfig ? '✅' : '❌'}</li>
                   <li>Migration Data: {readinessCheck.checks.migrationData ? '✅' : '❌'}</li>
@@ -288,12 +283,13 @@ const TestMultiProvince = () => {
 
         {/* Migration Execution Card */}
         <Col span={24}>
-          <Card title="🚀 Phase 1 Migration Execution">
+          <Card title={<span><UploadOutlined /> Phase 1 Migration Execution</span>}>
             <p>Execute migration to add Nakhon Sawan province with 3 branches</p>
             
             <div style={{ marginBottom: '16px' }}>
               <Button 
                 type={dbInfo?.isProduction ? "danger" : "primary"}
+                icon={<UploadOutlined />}
                 onClick={handleMigration}
                 disabled={migrationStatus === 'running'}
                 style={{ marginRight: '8px' }}
@@ -324,12 +320,13 @@ const TestMultiProvince = () => {
 
         {/* Rollback & Verification Card */}
         <Col span={24}>
-          <Card title="🔄 Emergency Rollback & Verification">
+          <Card title={<span><RollbackOutlined /> Emergency Rollback & Verification</span>}>
             <p>Rollback Phase 1 migration or verify current database state</p>
             
             <div style={{ marginBottom: '16px' }}>
               <Button 
                 danger
+                icon={<RollbackOutlined />}
                 onClick={handleRollback}
                 disabled={rollbackStatus === 'running'}
                 style={{ marginRight: 8 }}
@@ -339,6 +336,7 @@ const TestMultiProvince = () => {
               
               <Button 
                 type="default"
+                icon={<ExclamationCircleOutlined />}
                 onClick={handleVerifyState}
                 style={{ marginRight: 8 }}
               >
@@ -395,6 +393,7 @@ const TestMultiProvince = () => {
             </div>
             <Button 
               type="default" 
+              icon={<ReloadOutlined />}
               size="small" 
               onClick={() => setLogs([])}
               style={{ marginTop: '8px' }}
@@ -407,7 +406,10 @@ const TestMultiProvince = () => {
         {/* Data Structure Test */}
         <Col span={24}>
           <Card title="🔍 Data Structure Test" extra={
-            <Button onClick={testDataAlignment}>
+            <Button 
+              icon={<CheckCircleOutlined />}
+              onClick={testDataAlignment}
+            >
               Run Tests (Check Console)
             </Button>
           }>
@@ -455,95 +457,12 @@ const TestMultiProvince = () => {
           </Card>
         </Col>
 
-        {/* Component Testing */}
-        <Col span={24}>
-          <Card title="🎛️ Component Testing">
-            <Row gutter={[16, 16]}>
-              <Col span={24}>
-                <h4>GeographicBranchSelector Component:</h4>
-                <GeographicBranchSelector
-                  onProvinceChange={setSelectedProvince}
-                  onBranchChange={setSelectedBranch}
-                  provinceValue={selectedProvince}
-                  branchValue={selectedBranch}
-                  hasAllProvinces={true}
-                  hasAllBranches={true}
-                />
-              </Col>
-
-              <Col span={12}>
-                <h4>Province Selector:</h4>
-                <ProvinceSelector
-                  value={selectedProvince}
-                  onChange={setSelectedProvince}
-                  hasAll={true}
-                  placeholder="เลือกจังหวัด"
-                />
-              </Col>
-
-              <Col span={12}>
-                <h4>Branch Selector:</h4>
-                <BranchSelector
-                  value={selectedBranch}
-                  onChange={setSelectedBranch}
-                  provinceFilter={selectedProvince}
-                  hasAll={true}
-                  placeholder="เลือกสาขา"
-                />
-              </Col>
-            </Row>
-
-            {selectedProvince && (
-              <Alert
-                type="info"
-                message={`Selected Province: ${selectedProvince}`}
-                description={`Can access: ${checkProvinceAccess(selectedProvince) ? 'Yes' : 'No'}`}
-                style={{ marginTop: 16 }}
-              />
-            )}
-
-            {selectedBranch && (
-              <Alert
-                type="info"
-                message={`Selected Branch: ${selectedBranch}`}
-                description={`Can access: ${checkBranchAccess(selectedBranch) ? 'Yes' : 'No'}`}
-                style={{ marginTop: 16 }}
-              />
-            )}
-          </Card>
-        </Col>
-
-        {/* User Information */}
-        <Col span={24}>
-          <Card title="👤 Current User Information">
-            <Row gutter={16}>
-              <Col span={12}>
-                <h4>Basic Info:</h4>
-                <ul>
-                  <li>Display Name: {user?.displayName || 'N/A'}</li>
-                  <li>Email: {user?.email || 'N/A'}</li>
-                  <li>Access Level: {user?.accessLevel || 'N/A'}</li>
-                </ul>
-              </Col>
-              <Col span={12}>
-                <h4>Geographic Access:</h4>
-                <ul>
-                  <li>Allowed Provinces: {user?.allowedProvinces?.join(', ') || 'All'}</li>
-                  <li>Allowed Branches: {user?.allowedBranches?.join(', ') || 'All'}</li>
-                  <li>Home Province: {user?.homeProvince || 'N/A'}</li>
-                  <li>Home Branch: {user?.homeBranch || 'N/A'}</li>
-                </ul>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
-
         {/* Accessible Data Summary */}
         <Col span={24}>
           <Card title="📊 Accessible Data Summary">
             <Row gutter={16}>
               <Col span={12}>
-                <h4>Accessible Provinces ({Object.keys(accessibleProvinces).length}):</h4>
+                <Title level={4}>Accessible Provinces ({Object.keys(accessibleProvinces).length}):</Title>
                 <ul>
                   {Object.entries(accessibleProvinces).map(([key, province]) => (
                     <li key={key}>
@@ -553,7 +472,7 @@ const TestMultiProvince = () => {
                 </ul>
               </Col>
               <Col span={12}>
-                <h4>Accessible Branches ({Object.keys(accessibleBranches).length}):</h4>
+                <Title level={4}>Accessible Branches ({Object.keys(accessibleBranches).length}):</Title>
                 <ul>
                   {Object.entries(accessibleBranches).slice(0, 10).map(([code, branch]) => (
                     <li key={code}>
@@ -568,11 +487,34 @@ const TestMultiProvince = () => {
             </Row>
           </Card>
         </Col>
+
+        {/* Current User Information */}
+        <Col span={24}>
+          <Card title="👤 Current User Information">
+            <Row gutter={16}>
+              <Col span={12}>
+                <Title level={4}>Basic Info:</Title>
+                <ul>
+                  <li>Display Name: {user?.displayName || 'N/A'}</li>
+                  <li>Email: {user?.email || 'N/A'}</li>
+                  <li>Access Level: {user?.accessLevel || 'N/A'}</li>
+                </ul>
+              </Col>
+              <Col span={12}>
+                <Title level={4}>Geographic Access:</Title>
+                <ul>
+                  <li>Allowed Provinces: {user?.allowedProvinces?.join(', ') || 'All'}</li>
+                  <li>Allowed Branches: {user?.allowedBranches?.join(', ') || 'All'}</li>
+                  <li>Home Province: {user?.homeProvince || 'N/A'}</li>
+                  <li>Home Branch: {user?.homeBranch || 'N/A'}</li>
+                </ul>
+              </Col>
+            </Row>
+          </Card>
+        </Col>
       </Row>
-        </TabPane>
-      </Tabs>
     </div>
   );
 };
 
-export default TestMultiProvince; 
+export default MigrationTools; 

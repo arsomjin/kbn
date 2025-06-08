@@ -1097,7 +1097,7 @@ export const NAVIGATION_CONFIG = {
               },
               {
                 key: 'test-multi-province',
-                title: 'Test multi province',
+                title: 'Test access control',
                 to: '/developer/test-multi-province',
                 description: 'ทดสอบระบบหลายจังหวัด',
                 priority: 'high'
@@ -1165,6 +1165,20 @@ export const NAVIGATION_CONFIG = {
                 title: 'Check data',
                 to: '/developer/update-data',
                 description: 'ตรวจสอบและอัพเดทข้อมูล'
+              }
+            ]
+          },
+          {
+            key: 'migration-group',
+            title: 'Migration',
+            type: 'group',
+            items: [
+              {
+                key: 'migration-tools',
+                title: 'Migration Tools',
+                to: '/developer/migration-tools',
+                description: 'เครื่องมือสำหรับการ migrate ข้อมูลหลายจังหวัด',
+                priority: 'high'
               }
             ]
           }
