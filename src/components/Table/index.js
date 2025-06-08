@@ -7,7 +7,6 @@ import { useSelector } from 'react-redux';
 
 import './table.css';
 import { DeleteOutlined, EditOutlined } from '@ant-design/icons';
-import { showLog } from 'functions';
 
 // Example shape for a new row (optional)
 const defaultNewRow = {};

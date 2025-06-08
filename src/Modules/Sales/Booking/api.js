@@ -168,7 +168,7 @@ export const getInitialValues = (book, user) => {
       })
     };
   }
-  const mBranch = book && book.branchCode ? book.branchCode : user.branch || '0450';
+  const mBranch = book && book.branchCode ? book.branchCode : user.homeBranch || (user?.allowedBranches?.[0]) || '0450';
 
   return {
     ...InitValue,

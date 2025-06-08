@@ -11,7 +11,6 @@ import {
   ShoppingCartOutlined,
   TeamOutlined,
   DollarOutlined,
-  CalendarOutlined,
   CheckCircleOutlined,
   TrophyOutlined,
   StarOutlined,

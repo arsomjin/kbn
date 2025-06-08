@@ -1,5 +1,4 @@
 import { Form } from 'antd';
-import { useGeographicData } from 'hooks/useGeographicData';
 import { getRules } from 'api/Table';
 import CommonSelector from 'components/CommonSelector';
 import EmployeeSelector from 'components/EmployeeSelector';

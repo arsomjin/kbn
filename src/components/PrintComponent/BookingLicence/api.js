@@ -1,7 +1,6 @@
 import React from 'react';
 import numeral from 'numeral';
 import { Numb } from 'functions';
-import { showLog } from 'functions';
 
 export const tableData = [
   {

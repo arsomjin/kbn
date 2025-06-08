@@ -82,7 +82,7 @@ export const getInitialValues = (user, order) => {
       ...order
     };
   }
-  let mBranch = order && order.toDestination ? order.toDestination : user.branch || '0450';
+  let mBranch = order && order.toDestination ? order.toDestination : user.homeBranch || (user?.allowedBranches?.[0]) || '0450';
   return {
     ...InitValue,
     importId: order?.importId,

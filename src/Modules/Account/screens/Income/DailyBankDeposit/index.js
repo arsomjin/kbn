@@ -49,7 +49,7 @@ const DailyBankDeposit = () => {
   const { user } = useSelector(state => state.auth);
   const { users } = useSelector(state => state.data);
   const { firestore, api } = useContext(FirebaseContext);
-  const { hasPermission } = usePermissions();
+  const { hasPermission, getDefaultBranch } = usePermissions();
 
   const [form] = Form.useForm();
 
@@ -57,7 +57,7 @@ const DailyBankDeposit = () => {
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
-  const [branch, setBranch] = useState(user.branch || '0450');
+  const [branch, setBranch] = useState(getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
   const [date, setDate] = useState(undefined);
 
   useEffect(() => {
@@ -86,7 +86,7 @@ const DailyBankDeposit = () => {
         onBack
       });
     }
-    setBranch(pOrder?.branchCode || user.branch || '0450');
+    setBranch(pOrder?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
     setDate(pOrder?.date || undefined);
     setReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -236,7 +236,7 @@ const DailyBankDeposit = () => {
             setProps({ ...initProps, order: { depositId } });
             form.setFieldsValue({
               ...getInitItem({ depositId }),
-              branchCode: user.branch || '0450'
+              branchCode: getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
             });
           }
         },
@@ -278,7 +278,7 @@ const DailyBankDeposit = () => {
           form={form}
           initialValues={{
             ...getInitItem(mProps.order),
-            branchCode: mProps.order?.branchCode || user.branch || '0450'
+            branchCode: mProps.order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
           }}
           layout="vertical"
           size="small"

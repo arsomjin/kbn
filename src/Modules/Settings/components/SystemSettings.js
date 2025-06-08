@@ -5,7 +5,6 @@ import { Switch, Typography, Divider, Space, InputNumber, Alert, notification } 
 import { useSelector, useDispatch } from 'react-redux';
 import { setNetworkStatusConfig } from 'redux/actions/global';
 import MainContainer from './MainContainer';
-import { showSuccess } from 'functions';
 
 const { Title, Text, Paragraph } = Typography;
 

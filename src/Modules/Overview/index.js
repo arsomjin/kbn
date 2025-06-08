@@ -4,7 +4,6 @@ import { showAlert, showWarn } from 'functions';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from 'redux/actions/auth';
-import Dashboard from './components/Dashboard';
 import LandingPage from './components/LandingPage';
 import { checkDoc } from 'firebase/api';
 import { FirebaseContext } from '../../firebase';

@@ -4,7 +4,6 @@ import {
   setUserPermissions,
   setGeographicAccess,
   updateUserRole,
-  setAccessLevel,
   setRbacLoading,
   setRbacError
 } from "redux/actions/rbac";

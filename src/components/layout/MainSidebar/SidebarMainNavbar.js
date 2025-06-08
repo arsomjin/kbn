@@ -1,6 +1,6 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Typography, Space, Button } from 'antd';
+import { Typography, Button } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleSidebar } from 'redux/actions/unPersisted';

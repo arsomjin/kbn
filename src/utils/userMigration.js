@@ -74,13 +74,13 @@ export const createGeographicAccess = (user, branches = {}, role) => {
       allowedProvinces: ['นครราชสีมา', 'นครสวรรค์'],
       allowedBranches: Object.keys(branches),
       homeProvince: null,
-      homeBranch: user.branch || '0450'
+      homeBranch: user.homeBranch || user.branch || '0450'
     };
   }
   
   // Province manager gets province-level access
   if (role === 'PROVINCE_MANAGER') {
-    const userBranch = user.branch || '0450';
+    const userBranch = user.homeBranch || user.branch || '0450';
     const branch = branches[userBranch];
     const provinceId = branch?.provinceId || 'นครราชสีมา';
     
@@ -99,7 +99,7 @@ export const createGeographicAccess = (user, branches = {}, role) => {
   }
   
   // Default to branch-level access
-  const userBranch = user.branch || '0450';
+  const userBranch = user.homeBranch || user.branch || '0450';
   const branch = branches[userBranch];
   const provinceId = branch?.provinceId || 'นครราชสีมา';
   
@@ -147,7 +147,7 @@ export const validateMigratedRBAC = (rbacData) => {
 export const createFallbackRBAC = (user, branches = {}) => {
   if (!user) return null;
   
-  const userBranch = user.branch || '0450';
+  const userBranch = user.homeBranch || user.branch || '0450';
   const branch = branches[userBranch];
   const provinceId = branch?.provinceId || 'นครราชสีมา';
   

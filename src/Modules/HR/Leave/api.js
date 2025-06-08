@@ -26,7 +26,7 @@ export const InitValue = {
 };
 
 export const getInitialValues = user => {
-  let mBranch = user.branch || '0450';
+  let mBranch = user.homeBranch || (user?.allowedBranches?.[0]) || '0450';
   return {
     ...InitValue,
     branchCode: mBranch

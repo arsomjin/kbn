@@ -4,7 +4,6 @@ import { Form } from 'antd';
 import DocSelector from 'components/DocSelector';
 import { getSearchData } from 'firebase/api';
 import { SearchOutlined } from '@ant-design/icons';
-import { showLog } from 'functions';
 
 export const searchKeys = {
   saleNo: null,

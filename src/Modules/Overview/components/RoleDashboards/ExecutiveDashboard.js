@@ -16,8 +16,7 @@ import {
   ThunderboltOutlined,
   BankOutlined,
   LineChartOutlined,
-  PercentageOutlined,
-  SafetyOutlined
+  PercentageOutlined
 } from '@ant-design/icons';
 
 const { TabPane } = Tabs;

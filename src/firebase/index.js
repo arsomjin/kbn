@@ -555,7 +555,7 @@ const FirebaseProvider = ({ children }) => {
           ...user.auth,
           ...user,
           group: user.group || 'group011',
-          branch: user.branch || '0450',
+          branch: user.homeBranch || (user?.allowedBranches?.[0]) || '0450',
           description: user.description || ''
         };
         delete mUser.auth;

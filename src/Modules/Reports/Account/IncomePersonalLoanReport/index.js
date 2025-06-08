@@ -4,7 +4,7 @@ import { Form } from 'antd';
 import { Container } from 'shards-react';
 import { useSelector } from 'react-redux';
 import moment from 'moment';
-import { columns, eColumns, formatIncomeSummary, mSnap } from './helper';
+import { columns, eColumns } from './helper';
 import EditableRowTable from 'components/EditableRowTable';
 import { showLog, showWarn, Numb } from 'functions';
 import BranchDateHeader from 'components/branch-date-header';
@@ -16,8 +16,7 @@ import { Check } from '@material-ui/icons';
 import { TableSummary } from 'components/Table/helper';
 import { isMobile } from 'react-device-detect';
 import ExcelExport from 'Modules/Utils/Excels/ExcelExport';
-import { dateToThai, distinctArr } from 'functions';
-import { getCollection } from 'firebase/api';
+import { dateToThai } from 'functions';
 import { getSearchData } from 'firebase/api';
 import { IncomeDailyCategories } from 'data/Constant';
 

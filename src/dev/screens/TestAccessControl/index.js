@@ -583,8 +583,8 @@ const TestAccessControl = () => {
                     <GeographicBranchSelector
                       onProvinceChange={setSelectedProvince}
                       onBranchChange={setSelectedBranch}
-                      provinceValue={selectedProvince}
-                      branchValue={selectedBranch}
+                      province={selectedProvince}
+                      value={selectedBranch}
                       hasAllProvinces={true}
                       hasAllBranches={true}
                     />

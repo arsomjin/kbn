@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Card, Row, Col, Button, Space, Tag, Alert, Divider, Typography, Badge, Descriptions } from 'antd';
+import { Card, Row, Col, Button, Space, Tag, Alert, Typography, Badge, Descriptions } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { 
   UserOutlined, 
@@ -21,8 +21,8 @@ import PermissionGate, { usePermissionGate } from './PermissionGate';
 import ProvinceSelector, { useProvinceSelector } from './ProvinceSelector';
 import GeographicBranchSelector, { useGeographicBranchSelector } from './GeographicBranchSelector';
 import { usePermissions } from '../hooks/usePermissions';
-import { fetchProvinces, setCurrentProvince } from '../redux/actions/provinces';
-import { setUserPermissions, setUserRole, setGeographicAccess, checkPermission } from '../redux/actions/rbac';
+import { fetchProvinces } from '../redux/actions/provinces';
+import { setUserPermissions, setUserRole, setGeographicAccess } from '../redux/actions/rbac';
 import { USER_UPDATE } from '../redux/actions/auth';
 import { ROLE_PERMISSIONS } from '../data/permissions';
 

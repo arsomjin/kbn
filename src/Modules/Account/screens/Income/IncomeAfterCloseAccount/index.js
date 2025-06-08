@@ -30,6 +30,7 @@ import EditableCellTable from 'components/EditableCellTable';
 import { TableSummary } from 'api/Table';
 import HiddenItem from 'components/HiddenItem';
 import { errorHandler } from 'functions';
+import { usePermissions } from 'hooks/usePermissions';
 
 const initProps = {
   order: {},
@@ -49,6 +50,7 @@ export default () => {
   const { user } = useSelector(state => state.auth);
   const { users } = useSelector(state => state.data);
   const { firestore, api } = useContext(FirebaseContext);
+  const { getDefaultBranch } = usePermissions();
 
   const [form] = Form.useForm();
 
@@ -56,7 +58,7 @@ export default () => {
   const [ready, setReady] = useState(false);
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
-  const [branch, setBranch] = useState(user.branch || '0450');
+  const [branch, setBranch] = useState(getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
   const [date, setDate] = useState(undefined);
 
   useEffect(() => {
@@ -88,7 +90,7 @@ export default () => {
         columns
       });
     }
-    setBranch(pOrder?.branchCode || user.branch || '0450');
+    setBranch(pOrder?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
     setDate(pOrder?.date || undefined);
     setReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -236,7 +238,7 @@ export default () => {
             setProps({ ...initProps, order: { incomeId } });
             form.setFieldsValue({
               ...getInitItem({ incomeId }),
-              branchCode: user.branch || '0450'
+              branchCode: getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
             });
           }
         },
@@ -274,7 +276,7 @@ export default () => {
         form={form}
         initialValues={{
           ...getInitItem(mProps.order),
-          branchCode: mProps.order?.branchCode || user.branch || '0450'
+          branchCode: getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
         }}
         layout="vertical"
         size="small"

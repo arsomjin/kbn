@@ -70,7 +70,7 @@ export const getDateFromMonth = mnt =>
 export const getInitialValues = user => ({
   month: moment().format('YYYY-MM'),
   date: getDateFromMonth(moment().format('YYYY-MM')),
-  branchCode: user.branch || '0450',
+      branchCode: user.homeBranch || (user?.allowedBranches?.[0]) || '0450',
   productType: null,
   productCode: null,
   productName: null,

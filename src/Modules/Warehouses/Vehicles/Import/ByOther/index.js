@@ -87,7 +87,7 @@ export default () => {
         // columns,
       });
     }
-    setBranch(pOrder?.toDestination || user.branch || '0450');
+    setBranch(pOrder?.toDestination || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
     setDate(pOrder?.importDate || moment().format('YYYY-MM-DD'));
     setReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -11,7 +11,6 @@ import { IncomeDailyCategories } from 'data/Constant';
 import { isMobile } from 'react-device-detect';
 import { SearchOutlined } from '@ant-design/icons';
 import SelfBankSelector from 'components/SelfBankSelector';
-import { showLog } from 'functions';
 const { Option } = Select;
 
 export const columns = [

@@ -13,6 +13,7 @@ import BranchSelector from 'components/BranchSelector';
 import { useSelector } from 'react-redux';
 import { useMergeState } from 'api/CustomHooks';
 import { getBranchName } from 'Modules/Utils';
+import { usePermissions } from 'hooks/usePermissions';
 
 export default () => {
   const { user } = useSelector(state => state.auth);
@@ -22,8 +23,9 @@ export default () => {
   const [loading, setLoading] = useState(false);
   const [headers, setHeaders] = useMergeState({
     month: moment().format('YYYY-MM'),
-    branchCode: user.branch || '0450'
+    branchCode: getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
   });
+  const { getDefaultBranch } = usePermissions();
 
   const _onValuesChange = val => {
     //  showLog({ val });
@@ -54,7 +56,7 @@ export default () => {
         form={form}
         initialValues={{
           month: moment().format('YYYY-MM'),
-          branchCode: user.branch || '0450'
+          branchCode: getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
         }}
         // layout="vertical"
         size="small"
@@ -84,7 +86,7 @@ export default () => {
                   </Col>
                   <Col md="3">
                     <Form.Item name="branchCode" label="สาขา">
-                      <BranchSelector className="text-primary" hasAll onlyUserBranch={user.branch} />
+                      <BranchSelector className="text-primary" hasAll onlyUserBranch={getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'} />
                     </Form.Item>
                   </Col>
                 </Row>

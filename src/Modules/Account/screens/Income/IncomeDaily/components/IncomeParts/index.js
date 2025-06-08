@@ -36,10 +36,13 @@ import { partialText } from 'utils';
 import { Numb } from 'functions';
 import { showMessageBar } from 'functions';
 import { checkPayments } from 'Modules/Utils';
+import { validatePayments } from 'Modules/Utils';
+import { usePermissions } from 'hooks/usePermissions';
 
 export default ({ order, onConfirm, onBack, isEdit, readOnly, reset }) => {
   const { user } = useSelector(state => state.auth);
   const { users } = useSelector(state => state.data);
+  const { getDefaultBranch } = usePermissions();
   const [form] = Form.useForm();
   const history = useHistory();
   const [docType, setDocType] = useState(order?.incomeType || 'partSKC');
@@ -67,12 +70,12 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, reset }) => {
     if (
       !deepEqual(curValues, {
         ...getInitialValues(order),
-        branchCode: order?.branchCode || user.branch || '0450'
+        branchCode: order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
       })
     ) {
       form.setFieldsValue({
         ...getInitialValues(order),
-        branchCode: order?.branchCode || user.branch || '0450'
+        branchCode: order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -174,29 +177,8 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, reset }) => {
       load(false);
 
       // Check payments.
-      if (mValues?.payments && mValues.payments.length > 0) {
-        let paymentChecked = checkPayments(mValues.payments, true);
-        const { hasNoSelfBank, hasNoAmount, hasNoPerson, hasNoPaymentMethod } = paymentChecked;
-        if (hasNoSelfBank) {
-          showMessageBar('ไม่มีข้อมูลธนาคาร ในการชำระเงินประเภท-เงินโอน', 'ไม่มีข้อมูลธนาคาร', 'warning');
-          return;
-        }
-        if (hasNoPerson) {
-          showMessageBar(
-            'ไม่มีข้อมูลชื่อผู้โอน/ผู้ฝากเงิน ในการชำระเงินประเภท-เงินโอน',
-            'ไม่มีข้อมูลชื่อผู้โอน/ผู้ฝากเงิน',
-            'warning'
-          );
-          return;
-        }
-        if (hasNoPaymentMethod) {
-          showMessageBar('ไม่มีข้อมูลวิธีโอนเงิน ในการชำระเงินประเภท-เงินโอน', 'ไม่มีข้อมูลวิธีโอนเงิน', 'warning');
-          return;
-        }
-        if (hasNoAmount) {
-          showMessageBar('ไม่มีข้อมูลจำนวนเงิน ในการชำระเงิน', 'ไม่มีข้อมูลจำนวนเงิน', 'warning');
-          return;
-        }
+      if (!validatePayments(mValues.payments, showMessageBar)) {
+        return;
       }
 
       // showLog('clean values', mValues);
@@ -226,7 +208,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, reset }) => {
         onValuesChange={_onValuesChange}
         initialValues={{
           ...getInitialValues(nProps.order),
-          branchCode: nProps.order?.branchCode || user.branch || '0450'
+          branchCode: nProps.order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
         }}
         size="small"
         layout="vertical"

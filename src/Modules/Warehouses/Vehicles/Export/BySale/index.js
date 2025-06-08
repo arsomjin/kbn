@@ -27,6 +27,7 @@ import { removeAllNonAlphaNumericCharacters } from 'utils/RegEx';
 import { createKeywords } from 'utils';
 import { uniq } from 'lodash';
 import { Numb } from 'functions';
+import { usePermissions } from 'hooks/usePermissions';
 
 const initProps = {
   order: {},
@@ -45,7 +46,7 @@ export default () => {
   const params = location.state?.params;
 
   const { user } = useSelector(state => state.auth);
-  const { getDefaultBranch } = useGeographicData();
+  const { getDefaultBranch } = usePermissions();
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [saleItems, setItems] = useState([]);
@@ -86,7 +87,7 @@ export default () => {
         // columns,
       });
     }
-    setBranch(pOrder?.branchCode || user.branch || '0450');
+    setBranch(pOrder?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
     setDate(pOrder?.date || moment().format('YYYY-MM-DD'));
     setReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps

@@ -1,6 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React from 'react';
-import { Table } from 'antd';
 import moment from 'moment';
 import numeral from 'numeral';
 import PropTypes from 'prop-types';

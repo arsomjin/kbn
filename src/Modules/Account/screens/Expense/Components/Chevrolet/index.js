@@ -78,7 +78,7 @@ export default props => {
       mOrder = { orderId };
     }
 
-    const initBranchCode = mOrder?.branchCode || user.branch || '0450';
+    const initBranchCode = mOrder?.branchCode || user.homeBranch || (user?.allowedBranches?.[0]) || '0450';
     const initDate = mOrder?.date || moment().format('YYYY-MM-DD');
     const mEdit = !!mOrder && !!mOrder.date && !!mOrder.created;
     const mActive = !mOrder?.date ? 0 : StatusMapToStep[mOrder?.status || 'pending'];

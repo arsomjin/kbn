@@ -62,21 +62,21 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expen
     isEdit
   });
 
-  const [branchCode, setBranch] = useState(order?.branchCode || user.branch || '0450');
+  const [branchCode, setBranch] = useState(order?.branchCode || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
 
   const _resetInitState = initValue => {
     let curValues = form.getFieldsValue();
     if (
-      !deepEqual(curValues, {
-        ...getInitValues(order),
-        branchCode: order?.branchCode || user.branch || '0450',
+              !deepEqual(curValues, {
+          ...getInitValues(order),
+          branchCode: order?.branchCode || user.homeBranch || (user?.allowedBranches?.[0]) || '0450',
         ...initValue
       })
     ) {
       // Reset form.
-      form.setFieldsValue({
-        ...getInitValues(order),
-        branchCode: order?.branchCode || user.branch || '0450',
+              form.setFieldsValue({
+          ...getInitValues(order),
+          branchCode: order?.branchCode || user.homeBranch || (user?.allowedBranches?.[0]) || '0450',
         ...initValue
       });
       form2.setFieldsValue(getInitItem());
@@ -97,9 +97,9 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expen
       isEdit
     });
     if (isEdit) {
-      form.setFieldsValue({
-        ...getInitValues(order),
-        branchCode: order?.branchCode || user.branch || '0450'
+              form.setFieldsValue({
+          ...getInitValues(order),
+          branchCode: order?.branchCode || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
       });
       const { branchCode, date, expenseId } = order;
       updateData({ branchCode, date, expenseId });
@@ -361,9 +361,9 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expen
       <Form
         form={form}
         onValuesChange={_onValuesChange}
-        initialValues={{
-          ...getInitValues(nProps.order),
-          branchCode: nProps.order?.branchCode || user.branch || '0450'
+                  initialValues={{
+            ...getInitValues(nProps.order),
+            branchCode: nProps.order?.branchCode || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
         }}
         size="small"
         layout="vertical"

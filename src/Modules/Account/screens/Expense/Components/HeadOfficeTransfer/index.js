@@ -42,11 +42,13 @@ import { FirebaseContext } from '../../../../../../firebase';
 import { checkExistingExpense } from '../../api';
 import { distinctArr } from 'functions';
 import { showAlert } from 'functions';
+import { usePermissions } from 'hooks/usePermissions';
 
 export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expenseNames, setUnsaved }) => {
   const { firestore } = useContext(FirebaseContext);
   const { user } = useSelector(state => state.auth);
   const { users, branches, dealers, banks } = useSelector(state => state.data);
+  const { getDefaultBranch } = usePermissions();
 
   const [form] = Form.useForm();
   const [form2] = Form.useForm();
@@ -72,21 +74,21 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expen
     visible: false,
     expense: {}
   });
-  const [branchCode, setBranch] = useState(order?.branchCode || user.branch || '0450');
+  const [branchCode, setBranch] = useState(order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
 
   const _resetInitState = initValue => {
     let curValues = form.getFieldsValue();
     if (
       !deepEqual(curValues, {
         ...getInitValues(order),
-        branchCode: order?.branchCode || user.branch || '0450',
+        branchCode: order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450',
         ...initValue
       })
     ) {
       // Reset form.
       form.setFieldsValue({
         ...getInitValues(order),
-        branchCode: order?.branchCode || user.branch || '0450',
+        branchCode: order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450',
         ...initValue
       });
       form2.setFieldsValue(getInitItem());
@@ -109,7 +111,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expen
     if (isEdit) {
       form.setFieldsValue({
         ...getInitValues(order),
-        branchCode: order?.branchCode || user.branch || '0450'
+        branchCode: order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
       });
       const { branchCode, date, expenseId } = order;
       updateData({ branchCode, date, expenseId });
@@ -406,7 +408,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expen
         onValuesChange={_onValuesChange}
         initialValues={{
           ...getInitValues(nProps.order),
-          branchCode: nProps.order?.branchCode || user.branch || '0450'
+          branchCode: nProps.order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
         }}
         size="small"
         layout="vertical"

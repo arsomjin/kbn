@@ -8,8 +8,7 @@ import React from 'react';
 import { Steps, Card, Typography, Tag } from 'antd';
 import { 
   CheckOutlined, 
-  LoadingOutlined, 
-  ClockCircleOutlined,
+  LoadingOutlined,
   ExclamationCircleOutlined 
 } from '@ant-design/icons';
 import PropTypes from 'prop-types';

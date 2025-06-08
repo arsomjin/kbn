@@ -1,5 +1,4 @@
 import { Form } from 'antd';
-import { useGeographicData } from 'hooks/useGeographicData';
 import { ReportSteps } from 'data/Constant';
 import dayjs from 'dayjs';
 import React, { useCallback, useEffect, useState } from 'react';

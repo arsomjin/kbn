@@ -27,6 +27,7 @@ import { StatusMapToStep } from 'data/Constant';
 import { getDoc } from '../../../../../firebase/api';
 import { checkDuplicateInventoryItem } from 'utils';
 import { Numb } from 'functions';
+import { usePermissions } from 'hooks/usePermissions';
 
 const initProps = {
   order: {},
@@ -45,7 +46,7 @@ export default () => {
   const params = location.state?.params;
 
   const { user } = useSelector(state => state.auth);
-  const { getDefaultBranch } = useGeographicData();
+  const { getDefaultBranch } = usePermissions();
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -87,7 +88,7 @@ export default () => {
         // columns,
       });
     }
-    setBranch(pOrder?.origin || user.branch || '0450');
+    setBranch(pOrder?.origin || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
     setDate(pOrder?.importDate || moment().format('YYYY-MM-DD'));
     setReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps

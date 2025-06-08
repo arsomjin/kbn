@@ -3,7 +3,7 @@
  * Full access to all provinces, branches, and system metrics
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Select, Statistic, Alert, Table, Progress, Tag, Row, Col, Card, Badge } from 'antd';
 import { 
   GlobalOutlined, 

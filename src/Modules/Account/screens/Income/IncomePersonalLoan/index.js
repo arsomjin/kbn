@@ -3,7 +3,6 @@ import { Container, Row, Col } from 'shards-react';
 import { Form } from 'antd';
 import { showLog, showWarn } from 'functions';
 import { columns, renderHeader } from './helper';
-import EditableCellTable from 'components/EditableCellTable';
 import { getSearchData } from 'firebase/api';
 import { Stepper } from 'elements';
 import { CommonSteps } from 'data/Constant';
@@ -15,6 +14,7 @@ import dayjs from 'dayjs';
 import { cleanValuesBeforeSave } from 'functions';
 import Payments from 'components/Payments';
 import MTable from 'components/Table';
+import { usePermissions } from 'hooks/usePermissions';
 
 export default () => {
   const { user } = useSelector(state => state.auth);
@@ -26,11 +26,13 @@ export default () => {
   const [form] = Form.useForm();
   const activeStep = 0;
 
+  const { getDefaultBranch } = usePermissions();
+
   const initSearchValue = {
     incomeSubCategory: 'vehicles',
     startDate: dayjs().format('YYYY-MM-DD'),
     endDate: dayjs().format('YYYY-MM-DD'),
-    branchCode: user.branch || '0450'
+    branchCode: getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
   };
 
   const searchValuesRef = useRef(initSearchValue);

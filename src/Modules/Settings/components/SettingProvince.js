@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { ListGroup, ListGroupItem, Row, Col, Form, FormInput, FormSelect, Button, FormTextarea, FormCheckbox } from 'shards-react';
+import { ListGroup, ListGroupItem, Row, Col, Form, FormInput, FormSelect, Button, FormTextarea } from 'shards-react';
 import { Formik } from 'formik';
 import { showWarn } from 'functions';
 import { FirebaseContext } from '../../../firebase';

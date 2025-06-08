@@ -24,7 +24,7 @@ import { cleanNumberFields } from 'functions';
 import { NotificationIcon } from 'elements';
 import { getEditArr } from 'utils';
 import DocViewer from './DocViewer';
-import { checkPayments } from 'Modules/Utils';
+import { validatePayments } from 'Modules/Utils';
 
 const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) => {
   // showLog({ order, onConfirm, onBack, isEdit, readOnly, reset });
@@ -352,29 +352,8 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) =
       load(false);
 
       // Check payments.
-      if (mValues?.payments && mValues.payments.length > 0) {
-        let paymentChecked = checkPayments(mValues.payments, true);
-        const { hasNoSelfBank, hasNoAmount, hasNoPerson, hasNoPaymentMethod } = paymentChecked;
-        if (hasNoSelfBank) {
-          showMessageBar('ไม่มีข้อมูลธนาคาร ในการชำระเงินประเภท-เงินโอน', 'ไม่มีข้อมูลธนาคาร', 'warning');
-          return;
-        }
-        if (hasNoPerson) {
-          showMessageBar(
-            'ไม่มีชื่อผู้โอน/ผู้ฝากเงิน ในการชำระเงินประเภท-เงินโอน',
-            'ไม่มีชื่อผู้โอน/ผู้ฝากเงิน',
-            'warning'
-          );
-          return;
-        }
-        if (hasNoPaymentMethod) {
-          showMessageBar('ไม่มีข้อมูลวิธีโอนเงิน ในการชำระเงินประเภท-เงินโอน', 'ไม่มีข้อมูลวิธีโอนเงิน', 'warning');
-          return;
-        }
-        if (hasNoAmount) {
-          showMessageBar('ไม่มีข้อมูลจำนวนเงิน ในการชำระเงิน', 'ไม่มีข้อมูลจำนวนเงิน', 'warning');
-          return;
-        }
+      if (!validatePayments(mValues.payments, showMessageBar)) {
+        return;
       }
 
       showConfirm(

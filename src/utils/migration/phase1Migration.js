@@ -1,7 +1,6 @@
 import { 
   createProvince, 
-  getProvinceByKey, 
-  updateProvince
+  getProvinceByKey
 } from 'firebase/api';
 import { setItem } from 'firebase/api';
 

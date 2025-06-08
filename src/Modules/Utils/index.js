@@ -1205,3 +1205,36 @@ export const checkPayments = (pItems, skip) => {
   hasNoPaymentMethod = arrNoPaymentMethod.length > 0;
   return { hasNoSelfBank, hasNoAmount, hasNoPerson, hasNoPaymentMethod };
 };
+
+// Shared payment validation for all income categories
+export function validatePayments(payments, showMessageBar) {
+  if (!payments || payments.length === 0) {
+    showMessageBar('กรุณาเพิ่มข้อมูลการชำระเงิน', 'ไม่มีข้อมูลการชำระเงิน', 'warning');
+    return false;
+  }
+  const { checkPayments } = require('Modules/Utils');
+  let paymentChecked = checkPayments(payments);
+  const { hasNoSelfBank, hasNoAmount, hasNoPerson, hasNoPaymentMethod } = paymentChecked;
+  if (hasNoSelfBank) {
+    showMessageBar('ไม่มีข้อมูลธนาคาร ในการชำระเงินประเภท-เงินโอน', 'ไม่มีข้อมูลธนาคาร', 'warning');
+    return false;
+  }
+  if (hasNoPerson) {
+    showMessageBar(
+      'ไม่มีข้อมูลชื่อผู้โอน/ผู้ฝากเงิน ในการชำระเงินประเภท-เงินโอน',
+      'ไม่มีข้อมูลชื่อผู้โอน/ผู้ฝากเงิน',
+      'warning'
+    );
+    return false;
+  }
+  if (hasNoPaymentMethod) {
+    showMessageBar('ไม่มีข้อมูลวิธีโอนเงิน ในการชำระเงินประเภท-เงินโอน', 'ไม่มีข้อมูลวิธีโอนเงิน', 'warning');
+    return false;
+  }
+  if (hasNoAmount) {
+    showMessageBar('ไม่มีข้อมูลจำนวนเงิน ในการชำระเงิน', 'ไม่มีข้อมูลจำนวนเงิน', 'warning');
+    return false;
+  }
+  return true;
+}
+

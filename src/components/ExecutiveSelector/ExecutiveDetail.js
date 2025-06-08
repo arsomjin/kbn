@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { Modal, Form, Select } from 'antd';
 import { Input } from 'elements';
-import { showLog, showConfirm } from 'functions';
+import { showConfirm } from 'functions';
 import BranchSelector from 'components/BranchSelector';
 import GroupSelector from 'components/GroupSelector';
 import { getRules } from 'api/Table';

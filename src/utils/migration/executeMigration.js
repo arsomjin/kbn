@@ -3,7 +3,7 @@
  * Execute this to run Phase 1 migration
  */
 
-import { migrateToPhase1, validatePhase1 } from './phase1Migration';
+import { migrateToPhase1 } from './phase1Migration';
 import { getDatabaseInfo, validateProductionSwitch, getMigrationSafetyConfig } from '../environmentConfig';
 
 // Migration data for Phase 1

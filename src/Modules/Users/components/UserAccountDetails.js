@@ -146,7 +146,7 @@ const UserAccountDetails = ({ title, app, api, onCancel, selectedUser }) => {
                   email: selectedUser.email || '',
                   phoneNumber: selectedUser.phoneNumber || '',
                   group: selectedUser.group || 'group011',
-                  branch: selectedUser.branch || '0450',
+                  branch: selectedUser.homeBranch || (selectedUser?.allowedBranches?.[0]) || '0450',
                   description: selectedUser.description || '',
                   department: selectedUser.department || '',
                   status: selectedUser.status || 'ปกติ'

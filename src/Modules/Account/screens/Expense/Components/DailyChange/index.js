@@ -36,11 +36,13 @@ import { columns, getInitItem, getInitValues, handleUpdate, initItemValues, rend
 import ChangeDepositModal from './components/ChangeDepositModal';
 import { showConfirm } from 'functions';
 import { showLog } from 'functions';
+import { usePermissions } from 'hooks/usePermissions';
 
 const ExpenseForm = ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, setUnsaved }) => {
   const { user } = useSelector(state => state.auth);
   const { users, branches } = useSelector(state => state.data);
   const history = useHistory();
+  const { getDefaultBranch } = usePermissions();
 
   // Always granted in this example (could be replaced by your own logic)
   const grant = true;
@@ -55,7 +57,7 @@ const ExpenseForm = ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, 
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useMergeState({ visible: false, data: [] });
   const [prev, setPrev] = useMergeState({ changeDeposit: [] });
-  const [branchCode, setBranchCode] = useState(order?.branchCode || user.branch || '0450');
+  const [branchCode, setBranchCode] = useState(order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
 
   // Track header date (required to enable lower form)
   const [headerDate, setHeaderDate] = useState(headerForm.getFieldValue('date') || null);
@@ -344,7 +346,7 @@ const ExpenseForm = ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, 
         onValuesChange={onHeaderValuesChange}
         initialValues={{
           ...getInitValues(order),
-          branchCode: order?.branchCode || user.branch || '0450'
+          branchCode: order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
         }}
         size="small"
         layout="vertical"

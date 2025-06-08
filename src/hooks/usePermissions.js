@@ -18,12 +18,7 @@ import {
   getAccessibleFlows
 } from '../utils/rbac';
 import {
-  getCurrentUserRBAC,
-  hasPermission as hasPermissionSelector,
-  getAccessibleProvinces as getAccessibleProvincesSelector,
-  getAccessibleBranches as getAccessibleBranchesSelector,
-  canAccessProvince,
-  canAccessBranch
+  getCurrentUserRBAC
 } from '../redux/reducers/rbac';
 import { setUserPermissions, setUserRole, setGeographicAccess } from '../redux/actions/rbac';
 import { 
@@ -33,7 +28,6 @@ import {
   createFallbackRBAC,
   logMigration 
 } from '../utils/userMigration';
-import { parsePermission } from '../data/permissions';
 
 /**
  * Custom hook for accessing user permissions and geographic restrictions

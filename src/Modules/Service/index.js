@@ -53,6 +53,7 @@ import { waitFor } from 'functions';
 import { partialText } from 'utils';
 import { Numb } from 'functions';
 import { checkPayments } from 'Modules/Utils';
+import { usePermissions } from 'hooks/usePermissions';
 
 const initProps = {
   order: {},
@@ -83,6 +84,8 @@ export default () => {
     customer: {}
   });
   const [ready, setReady] = useState(false);
+
+  const { getDefaultBranch } = usePermissions();
 
   useEffect(() => {
     const { onBack } = params || {};
@@ -439,7 +442,7 @@ export default () => {
           onValuesChange={_onValuesChange}
           initialValues={{
             ...getInitialValues(nProps.order),
-            branchCode: nProps.order?.branchCode || user.branch || '0450'
+            branchCode: nProps.order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
           }}
           size="small"
           layout="vertical"

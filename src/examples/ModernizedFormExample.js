@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Card, Row, Col, Typography, Space, Alert, Divider } from 'antd';
 import AntdFormWrapper from 'components/enhanced/AntdFormWrapper';
-import AntdSelect from 'components/enhanced/AntdSelect';
 import { usePermissions } from 'hooks/usePermissions';
 
 const { Title, Text } = Typography;

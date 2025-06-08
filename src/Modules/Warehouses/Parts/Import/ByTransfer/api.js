@@ -1,5 +1,4 @@
 import { Form } from 'antd';
-import { useGeographicData } from 'hooks/useGeographicData';
 import { getRules } from 'api/Table';
 import ArrayInput from 'components/ArrayInput';
 import DocSelector from 'components/DocSelector';

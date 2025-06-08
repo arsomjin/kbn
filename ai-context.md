@@ -20,7 +20,7 @@ KBN is an enterprise-level business management platform built with React, JavaSc
 
 # AI Context: KBN Multi-Province RBAC System - Integration Phase
 
-**Project**: KBN (Kubota Benja-pol) - Multi-Province RBAC Integration & Library Modernization
+**Project**: KBN - Multi-Province RBAC Integration & Library Modernization
 
 **Current Status**: 🎯 **RBAC COMPLETE** → **INTEGRATION PHASE**
 

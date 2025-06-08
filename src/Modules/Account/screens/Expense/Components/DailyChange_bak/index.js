@@ -58,7 +58,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, setUn
   const [loading, setLoading] = useState(false);
   const [show, setShow] = useMergeState({ visible: false, data: [] });
   const [prev, setPrev] = useMergeState({ changeDeposit: [] });
-  const [cBranch, setCBranch] = useState(order?.branchCode || user.branch || '0450');
+  const [cBranch, setCBranch] = useState(order?.branchCode || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
 
   const _resetInitState = initValue => {
     let curValues = form.getFieldsValue();
@@ -305,7 +305,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, setUn
         onValuesChange={_onValuesChange}
         initialValues={{
           ...getInitValues(nProps.order),
-          branchCode: nProps.order?.branchCode || user.branch || '0450'
+          branchCode: nProps.order?.branchCode || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
         }}
         size="small"
         layout="vertical"

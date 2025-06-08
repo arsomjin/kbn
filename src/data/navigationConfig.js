@@ -1,4 +1,3 @@
-import { DEPARTMENTS, DOCUMENT_FLOWS } from './permissions';
 
 // Enhanced Navigation configuration with RBAC integration
 export const NAVIGATION_CONFIG = {

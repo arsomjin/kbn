@@ -40,6 +40,7 @@ import ExpenseExecutive from './components';
 import { checkExistingExpense } from '../../api';
 import { distinctArr } from 'functions';
 import { showAlert } from 'functions';
+import { usePermissions } from 'hooks/usePermissions';
 
 export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expenseNames, setUnsaved }) => {
   const grant = true;
@@ -66,21 +67,23 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expen
     isEdit
   });
 
-  const [branchCode, setBranch] = useState(order?.branchCode || user.branch || '0450');
+  const { getDefaultBranch } = usePermissions();
+
+  const [branchCode, setBranch] = useState(order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450');
 
   const _resetInitState = initValue => {
     let curValues = form.getFieldsValue();
     if (
       !deepEqual(curValues, {
         ...getInitValues(order),
-        branchCode: order?.branchCode || user.branch || '0450',
+        branchCode: order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450',
         ...initValue
       })
     ) {
       // Reset form.
       form.setFieldsValue({
         ...getInitValues(order),
-        branchCode: order?.branchCode || user.branch || '0450',
+        branchCode: order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450',
         ...initValue
       });
       form2.setFieldsValue(getInitItem());
@@ -103,7 +106,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expen
     if (isEdit) {
       form.setFieldsValue({
         ...getInitValues(order),
-        branchCode: order?.branchCode || user.branch || '0450'
+        branchCode: order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
       });
       const { branchCode, date, expenseId } = order;
       updateData({ branchCode, date, expenseId });
@@ -369,7 +372,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, expen
         onValuesChange={_onValuesChange}
         initialValues={{
           ...getInitValues(nProps.order),
-          branchCode: nProps.order?.branchCode || user.branch || '0450'
+          branchCode: nProps.order?.branchCode || getDefaultBranch() || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
         }}
         size="small"
         layout="vertical"

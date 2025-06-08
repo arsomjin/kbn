@@ -5,7 +5,6 @@ import DocSelector from 'components/DocSelector';
 import EditableCellTable from 'components/EditableCellTable';
 import EmployeeSelector from 'components/EmployeeSelector';
 import { DatePicker, Input, InputGroup } from 'elements';
-import { checkCollection } from 'firebase/api';
 import { checkDoc } from 'firebase/api';
 import { getItemId } from 'Modules/Account/api';
 import moment from 'moment';
@@ -79,7 +78,7 @@ export const getInitialValues = (user, order) => {
       ...order
     };
   }
-  let mBranch = order && order.branchCode ? order.branchCode : user.branch || '0450';
+  let mBranch = order && order.branchCode ? order.branchCode : user.homeBranch || (user?.allowedBranches?.[0]) || '0450';
   return {
     ...InitValue,
     transferId: order?.transferId,

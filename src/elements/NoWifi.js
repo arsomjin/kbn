@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch } from 'react-redux';
 import { Card, CardBody, Button } from 'shards-react';
-import { Skeleton, Typography, Progress, Tag, Space, notification } from 'antd';
+import { Typography, Progress, Tag, Space, notification } from 'antd';
 import { AnimateKeyframes } from 'react-simple-animate';
 import { isMobile } from 'react-device-detect';
 import { goOnline, goOffline } from 'redux/actions/unPersisted';

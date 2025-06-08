@@ -207,7 +207,7 @@ export const getInitialValues = (sale, user) => {
       })
     };
   }
-  const mBranch = sale && sale.branchCode ? sale.branchCode : user.branch || '0450';
+  const mBranch = sale && sale.branchCode ? sale.branchCode : user.homeBranch || (user?.allowedBranches?.[0]) || '0450';
   return {
     ...InitValue,
     saleId: sale?.saleId,

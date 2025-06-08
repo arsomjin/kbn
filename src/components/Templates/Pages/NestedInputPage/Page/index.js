@@ -45,7 +45,7 @@ export default ({ order, onConfirm, onBack, isEdit, readOnly, reset }) => {
         onValuesChange={_onValuesChange}
         initialValues={{
           ...getInitValues(nProps.order),
-          branchCode: nProps.order?.branchCode || user.branch || '0450'
+          branchCode: nProps.order?.branchCode || user.homeBranch || (user?.allowedBranches?.[0]) || '0450'
         }}
         size="small"
         layout="vertical"
