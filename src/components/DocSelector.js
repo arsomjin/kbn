@@ -29,6 +29,8 @@ export default forwardRef(
       showAddNew,
       startSearchAt,
       isUsed,
+      geographic = null, // ← Enhanced: Accept geographic context from LayoutWithRBAC
+      respectRBAC = true, // ← Enhanced: Enable/disable RBAC filtering
       ...props
     },
     ref
@@ -133,21 +135,51 @@ export default forwardRef(
 
     const fetchSearchList = async search => {
       try {
+        // Enhanced: Add geographic filters automatically
+        let enhancedWheres = wheres || [];
+        
+        if (respectRBAC && geographic?.getQueryFilters) {
+          const geoFilters = geographic.getQueryFilters();
+          
+          // Auto-inject provinceId if available
+          if (geoFilters.provinceId) {
+            enhancedWheres = [...enhancedWheres, ['provinceId', '==', geoFilters.provinceId]];
+          }
+          
+          // Auto-inject branchCode if available  
+          if (geoFilters.branchCode) {
+            enhancedWheres = [...enhancedWheres, ['branchCode', '==', geoFilters.branchCode]];
+          }
+        }
+
         const fProps = {
           searchText: search,
           searchCollection: collection,
           orderBy,
-          wheres,
+          wheres: enhancedWheres, // ← Enhanced: Include geographic filters
           firestore,
           labels,
           startSearchAt,
           isUsed
         };
+        
         let option = hasKeywords
           ? await createOptionsFromFirestoreKeywords(fProps)
           : await createOptionsFromFirestore(fProps);
 
-          console.log('fetchSearchList', { fProps, option });
+        console.log('fetchSearchList with geographic filtering', { 
+          fProps, 
+          geoFilters: geographic?.getQueryFilters?.(),
+          option 
+        });
+        
+        // Enhanced: Apply additional filtering if needed
+        if (respectRBAC && geographic?.filterFetchedData) {
+          option = geographic.filterFetchedData(option, (item) => ({
+            provinceId: item.provinceId,
+            branchCode: item.branchCode
+          }));
+        }
           
         if (!!showAddNew) {
           option = [

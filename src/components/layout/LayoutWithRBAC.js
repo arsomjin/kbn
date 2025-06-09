@@ -4,7 +4,7 @@
  * for Account module pages with document workflow support
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Row, Col, Card, Alert, Skeleton, Typography } from 'antd';
 import { PermissionGate, GeographicBranchSelector } from 'components';
 import { AuditHistory, AuditTrailSection, useAuditTrail as useBaseAuditTrail } from 'components/AuditTrail';
@@ -36,6 +36,9 @@ const LayoutWithRBAC = ({
   currentStep = 0,
   onStepClick = null,
   showStepper = false,
+  // Data operation configuration
+  autoInjectProvinceId = true,
+  dataCollection = null, // e.g., 'incomes', 'expenses', 'sales'
   ...props
 }) => {
   const { branches } = useSelector(state => state.data);
@@ -57,28 +60,111 @@ const LayoutWithRBAC = ({
 
   // Initialize branch selection
   useEffect(() => {
+    console.log('🔍 LayoutWithRBAC mount - checking branch initialization:', {
+      selectedBranch,
+      hasGetDefaultBranch: !!getDefaultBranch,
+      requireBranchSelection,
+      hasOnBranchChange: !!onBranchChange,
+      accessibleBranchesCount: accessibleBranches.length,
+      accessibleBranches: accessibleBranches.map(b => ({ branchCode: b.branchCode, branchName: b.branchName }))
+    });
+    
     if (!selectedBranch) {
       const defaultBranch = getDefaultBranch();
+      console.log('🏗️ Setting default branch:', defaultBranch);
+      console.log('📋 Available accessibleBranches:', accessibleBranches);
+      
       if (defaultBranch) {
         setSelectedBranch(defaultBranch);
+        console.log('🏗️ Setting default branch:', defaultBranch);
+      } else if (accessibleBranches.length > 0) {
+        // Fallback: Use first accessible branch if getDefaultBranch returns null
+        const fallbackBranch = accessibleBranches[0].branchCode || accessibleBranches[0].key;
+        console.log('🚨 getDefaultBranch returned null, using fallback:', fallbackBranch);
+        setSelectedBranch(fallbackBranch);
       }
     }
-  }, [selectedBranch, getDefaultBranch]);
+  }, [selectedBranch, getDefaultBranch, accessibleBranches]);
 
-  // Notify parent component of branch changes
-  useEffect(() => {
-    if (onBranchChange && selectedBranch) {
-      const branchData = branches[selectedBranch];
-      const currentProvince = getCurrentProvince();
-      onBranchChange({
+  // Enhanced geographic context with data operation helpers
+  const enhancedGeographic = useCallback(() => {
+    const branchData = branches[selectedBranch];
+    const currentProvince = getCurrentProvince();
+    
+    return {
+      // Basic geographic info
+      branchCode: selectedBranch,
+      branchName: branchData?.branchName,
+      provinceId: branchData?.provinceId,
+      recordedProvince: currentProvince,
+      recordedBranch: selectedBranch,
+      
+      // Enhanced data for submissions
+      getSubmissionData: () => ({
         branchCode: selectedBranch,
-        branchName: branchData?.branchName,
         provinceId: branchData?.provinceId,
         recordedProvince: currentProvince,
-        recordedBranch: selectedBranch
+        recordedBranch: selectedBranch,
+        recordedAt: Date.now()
+      }),
+      
+      // Query filters for fetching data
+      getQueryFilters: () => ({
+        branchCode: selectedBranch,
+        provinceId: branchData?.provinceId,
+        ...(autoInjectProvinceId && { provinceId: branchData?.provinceId })
+      }),
+      
+      // Enhanced data operations
+      enhanceDataForSubmission: (data) => ({
+        ...data,
+        ...(autoInjectProvinceId && {
+          branchCode: selectedBranch,
+          provinceId: branchData?.provinceId,
+          recordedProvince: currentProvince,
+          recordedBranch: selectedBranch,
+          recordedAt: data.recordedAt || Date.now()
+        })
+      }),
+      
+      // Filter fetched data by geographic access
+      filterFetchedData: (dataArray, getLocationFn) => {
+        if (!Array.isArray(dataArray)) return dataArray;
+        
+        return dataArray.filter(item => {
+          const location = getLocationFn ? getLocationFn(item) : {
+            provinceId: item.provinceId,
+            branchCode: item.branchCode
+          };
+          
+          // Check if user can access this data based on their geographic permissions
+          return checkBranchAccess(location.branchCode || selectedBranch);
+        });
+      }
+    };
+  }, [selectedBranch, branches, getCurrentProvince, autoInjectProvinceId, checkBranchAccess]);
+
+  // Notify parent component of branch changes (consolidated)
+  useEffect(() => {
+    console.log('🔍 Geographic context effect trigger:', {
+      hasOnBranchChange: !!onBranchChange,
+      selectedBranch,
+      hasEnhancedGeographic: !!enhancedGeographic,
+      requireBranchSelection
+    });
+    
+    if (onBranchChange && selectedBranch) {
+      const geoContext = enhancedGeographic();
+      console.log('🏗️ LayoutWithRBAC sending geographic context:', {
+        branchCode: geoContext.branchCode,
+        provinceId: geoContext.provinceId,
+        requireBranchSelection,
+        hasQueryFilters: !!geoContext.getQueryFilters,
+        hasEnhancement: !!geoContext.enhanceDataForSubmission
       });
+      onBranchChange(geoContext);
     }
-  }, [selectedBranch, onBranchChange, branches, getCurrentProvince]);
+  }, [selectedBranch, onBranchChange, enhancedGeographic, requireBranchSelection]);
 
   // Check if user can access the current data
   const canAccessCurrentData = selectedBranch ? checkBranchAccess(selectedBranch) : true;
@@ -188,13 +274,7 @@ const LayoutWithRBAC = ({
           React.cloneElement(children, {
             selectedBranch,
             canEditData: hasPermission(editPermission) && canAccessCurrentData,
-            geographic: {
-              branchCode: selectedBranch,
-              branchName: branches[selectedBranch]?.branchName,
-              provinceId: branches[selectedBranch]?.provinceId,
-              recordedProvince: getCurrentProvince(),
-              recordedBranch: selectedBranch
-            },
+            geographic: enhancedGeographic(),
             // Pass audit trail functionality to children
             auditTrail: showAuditTrail ? auditTrailHook : null,
             // Pass stepper information
@@ -294,7 +374,10 @@ LayoutWithRBAC.propTypes = {
   steps: PropTypes.array,
   currentStep: PropTypes.number,
   onStepClick: PropTypes.func,
-  showStepper: PropTypes.bool
+  showStepper: PropTypes.bool,
+  // Data operation configuration
+  autoInjectProvinceId: PropTypes.bool,
+  dataCollection: PropTypes.string
 };
 
 export default LayoutWithRBAC; 

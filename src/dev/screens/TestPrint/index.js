@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useReactToPrint } from 'react-to-print';
 import { ComponentToPrint } from './ComponentToPrint';
 
-export default ({}) => {
+const TestPrint = () => {
   const componentRef = React.useRef(null);
 
   const onBeforeGetContentResolve = React.useRef(null);
@@ -64,3 +64,5 @@ export default ({}) => {
     </div>
   );
 };
+
+export default TestPrint;

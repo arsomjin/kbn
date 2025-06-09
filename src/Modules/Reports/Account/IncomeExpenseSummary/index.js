@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useGeographicData } from 'hooks/useGeographicData';
 import { useSelector } from 'react-redux';
 import { useLocation } from 'react-router';
 import moment from 'moment';
@@ -27,7 +26,6 @@ const IncomeExpenseReport = () => {
   const params = location.state?.params;
 
   const { user } = useSelector(state => state.auth);
-  const { getDefaultBranch } = useGeographicData();
   // Note: "users" is imported from redux but not used in this file.
   const activeStep = 0;
 
@@ -35,6 +33,7 @@ const IncomeExpenseReport = () => {
   const [cState, setCState] = useMergeState({
     changeDeposit: 0,
     bankTransfer: [],
+    personalLoan: [],
     afterDailyClosed: [],
     afterAccountClosed: [],
     duringDayMoney: [],
@@ -46,7 +45,7 @@ const IncomeExpenseReport = () => {
 
   // Initialize search values (using params if available, otherwise fallback)
   const searchValues = useRef({
-    branchCode: params?.branchCode || user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
+    branchCode: params?.branchCode || user?.branch || '0450',
     date: params?.date ? moment(params.date, 'YYYY-MM-DD') : moment(),
     excludeParts: 1
   });
@@ -79,6 +78,7 @@ const IncomeExpenseReport = () => {
         expenses,
         dailyChangeDeposit,
         bankTransfer,
+        personalLoan,
         duringDayMoney,
         afterDailyClosed,
         afterAccountClosed,
@@ -92,6 +92,7 @@ const IncomeExpenseReport = () => {
       setCState({
         changeDeposit: dailyChangeDeposit,
         bankTransfer,
+        personalLoan,
         duringDayMoney,
         afterDailyClosed,
         afterAccountClosed,
@@ -109,7 +110,7 @@ const IncomeExpenseReport = () => {
   // On mount (or when params/user change), update search values and fetch data
   useEffect(() => {
     const initialValues = {
-      branchCode: params?.branchCode || user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
+      branchCode: params?.branchCode || user?.branch || '0450',
       date: params?.date ? moment(params.date, 'YYYY-MM-DD') : moment()
     };
     handleSearchChange(initialValues);
@@ -127,7 +128,7 @@ const IncomeExpenseReport = () => {
       <Form
         form={form}
         initialValues={{
-          branchCode: params?.branchCode || user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
+          branchCode: params?.branchCode || user?.branch || '0450',
           date: params?.date ? moment(params.date, 'YYYY-MM-DD') : moment(),
           excludeParts: 1,
           incomeItems: [],
@@ -168,6 +169,7 @@ const IncomeExpenseReport = () => {
                     updating={updating}
                     bankTransfer={cState.bankTransfer}
                     bankDeposit={cState.bankDeposit}
+                    personalLoan={cState.personalLoan}
                     executiveCashDeposit={cState.executiveCashDeposit}
                     duringDayMoney={cState.duringDayMoney}
                     changeDeposit={cState.changeDeposit}

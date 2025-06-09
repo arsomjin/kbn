@@ -75,12 +75,12 @@
     "yup": "^0.29.3"
   },
   "scripts": {
-    "start": "BROWSER='Firefox Developer Edition' export SET NODE_OPTIONS=--openssl-legacy-provider && react-scripts start",
+    "start": "BROWSER='Firefox Developer Edition' export SET NODE_OPTIONS=--openssl-legacy-provider && export PORT=3030 && react-scripts start",
     "_comment1": "BROWSER='Firefox Developer Edition' export PORT=3010 && react-scripts start",
     "build": "GENERATE_SOURCEMAP=false react-scripts --openssl-legacy-provider build",
     "_comment2": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
-    "test:dev": "env-cmd -f .env.test cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts start",
+    "test:dev": "env-cmd -f .env.test cross-env NODE_OPTIONS=--openssl-legacy-provider PORT=3030 react-scripts start",
     "eject": "react-scripts eject",
     "postinstall": "patch-package",
     "lint:fix": "eslint src --ext .js,.jsx --fix"

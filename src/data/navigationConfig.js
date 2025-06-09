@@ -1178,6 +1178,13 @@ export const NAVIGATION_CONFIG = {
                 to: '/developer/migration-tools',
                 description: 'เครื่องมือสำหรับการ migrate ข้อมูลหลายจังหวัด',
                 priority: 'high'
+              },
+              {
+                key: 'phase3-migration',
+                title: 'Phase 3 Migration',
+                to: '/developer/phase3-migration',
+                description: 'การ migrate ข้อมูล Phase 3',
+                priority: 'high'
               }
             ]
           }

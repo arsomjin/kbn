@@ -1,0 +1,426 @@
+[
+  {
+    "path": "changeLogs",
+    "import": "all",
+    "orderBy": "time"
+  },
+  {
+    "path": "data/account/expenseAccountNames",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/account/expenseCategories",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/account/expenseCategory",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/account/expenseName",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/account/expenseNames",
+    "import": "all",
+    "orderBy": "expenseCategoryId"
+  },
+  {
+    "path": "data/account/expenseSubCategory",
+    "import": "all",
+    "orderBy": "importTime"
+  },
+  {
+    "path": "data/company/bankNames",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/company/banks",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/company/banks_new",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/company/branches",
+    "import": "all",
+    "orderBy": "branchCode"
+  },
+  {
+    "path": "data/company/departments",
+    "import": "all",
+    "orderBy": "departmentId"
+  },
+  {
+    "path": "data/company/employees",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/company/executives",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/company/locations",
+    "import": "all",
+    "orderBy": "locationId"
+  },
+  {
+    "path": "data/company/permissionCategories",
+    "import": "all",
+    "orderBy": "permissionCategoryId"
+  },
+  {
+    "path": "data/company/permissions",
+    "import": "all",
+    "orderBy": "permissionId"
+  },
+  {
+    "path": "data/company/userGroups",
+    "import": "all",
+    "orderBy": "_key"
+  },
+  {
+    "path": "data/company/warehouses",
+    "import": "all",
+    "orderBy": "warehouseId"
+  },
+  {
+    "path": "data/products/partList",
+    "import": "all",
+    "orderBy": "pCode"
+  },
+  {
+    "path": "data/products/vehicleList",
+    "import": "all",
+    "orderBy": "importTime"
+  },
+  {
+    "path": "data/sales/customers",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/sales/dataSources",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/sales/dealers",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/sales/giveaways",
+    "import": "all",
+    "orderBy": "doc.id"
+  },
+  {
+    "path": "data/sales/plants",
+    "import": "all",
+    "orderBy": "plantId"
+  },
+  {
+    "path": "data/sales/referrers",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "data/services/serviceList",
+    "import": "all",
+    "orderBy": "created"
+  },
+  {
+    "path": "messageTokens",
+    "import": "all",
+    "orderBy": "doc.id"
+  },
+  {
+    "path": "messages",
+    "import": "all",
+    "orderBy": "time"
+  },
+  {
+    "path": "reports/sales/assessment",
+    "import": "latest100",
+    "orderBy": "bookId"
+  },
+  {
+    "path": "reports/sales/customerSources",
+    "import": "latest100",
+    "orderBy": "date"
+  },
+  {
+    "path": "reports/sales/mktChannels",
+    "import": "latest100",
+    "orderBy": "date"
+  },
+  {
+    "path": "reports/sales/parts",
+    "import": "latest100",
+    "orderBy": "saleDate"
+  },
+  {
+    "path": "reports/sales/vehicles",
+    "import": "latest100",
+    "orderBy": "created"
+  },
+  {
+    "path": "reports/services/all",
+    "import": "latest100",
+    "orderBy": "docDate"
+  },
+  {
+    "path": "sections/account/bankDeposit",
+    "import": "latest100",
+    "orderBy": "created"
+  },
+  {
+    "path": "sections/account/executiveCashDeposit",
+    "import": "latest100",
+    "orderBy": "created"
+  },
+  {
+    "path": "sections/account/expenseItems",
+    "import": "latest100",
+    "orderBy": "created"
+  },
+  {
+    "path": "sections/account/expenseTransfer",
+    "import": "latest100",
+    "orderBy": "created"
+  },
+  {
+    "path": "sections/account/expenses",
+    "import": "latest100",
+    "orderBy": "date"
+  },
+  {
+    "path": "sections/account/incomeItems",
+    "import": "latest100",
+    "orderBy": "doc.id"
+  },
+  {
+    "path": "sections/account/incomes",
+    "import": "latest100",
+    "orderBy": "created"
+  },
+  {
+    "path": "sections/credits/credits",
+    "import": "latest100",
+    "orderBy": "created"
+  },
+  {
+    "path": "sections/hr/importFingerPrint",
+    "import": "latest100",
+    "orderBy": "importTime"
+  },
+  {
+    "path": "sections/hr/importFingerPrintBatch",
+    "import": "latest100",
+    "orderBy": "importTime"
+  },
+  {
+    "path": "sections/hr/leave",
+    "import": "latest100",
+    "orderBy": "created"
+  },
+  {
+    "path": "sections/imports/fingerPrint",
+    "import": "latest100",
+    "orderBy": "time"
+  },
+  {
+    "path": "sections/imports/parts",
+    "import": "latest100",
+    "orderBy": "time"
+  },
+  {
+    "path": "sections/imports/sellParts",
+    "import": "latest100",
+    "orderBy": "time"
+  },
+  {
+    "path": "sections/imports/services",
+    "import": "latest100",
+    "orderBy": "time"
+  },
+  {
+    "path": "sections/imports/vehicleList",
+    "import": "latest100",
+    "orderBy": "time"
+  },
+  {
+    "path": "sections/imports/vehicles",
+    "import": "latest100",
+    "orderBy": "time"
+  },
+  {
+    "path": "sections/sales/bookItems",
+    "import": "latest100",
+    "orderBy": "bookItemId"
+  },
+  {
+    "path": "sections/sales/bookings",
+    "import": "latest100",
+    "orderBy": "created"
+  },
+  {
+    "path": "sections/sales/partGroups",
+    "import": "latest100",
+    "orderBy": "importTime"
+  },
+  {
+    "path": "sections/sales/partItems",
+    "import": "latest100",
+    "orderBy": "saleDate"
+  },
+  {
+    "path": "sections/sales/parts",
+    "import": "latest100",
+    "orderBy": "saleDate"
+  },
+  {
+    "path": "sections/sales/saleItems",
+    "import": "latest100",
+    "orderBy": "saleDate"
+  },
+  {
+    "path": "sections/sales/salePartItems",
+    "import": "latest100",
+    "orderBy": "saleDate"
+  },
+  {
+    "path": "sections/sales/vehicles",
+    "import": "latest100",
+    "orderBy": "date"
+  },
+  {
+    "path": "sections/services/gasCost",
+    "import": "latest100",
+    "orderBy": "date"
+  },
+  {
+    "path": "sections/services/importServiceItems",
+    "import": "latest100",
+    "orderBy": "importTime"
+  },
+  {
+    "path": "sections/services/importServices",
+    "import": "latest100",
+    "orderBy": "docDate"
+  },
+  {
+    "path": "sections/services/serviceClose",
+    "import": "latest100",
+    "orderBy": "approvedDate"
+  },
+  {
+    "path": "sections/services/serviceCloseItems",
+    "import": "latest100",
+    "orderBy": "serviceItemId"
+  },
+  {
+    "path": "sections/services/serviceItems",
+    "import": "latest100",
+    "orderBy": "serviceItemId"
+  },
+  {
+    "path": "sections/services/serviceOrders",
+    "import": "latest100",
+    "orderBy": "date"
+  },
+  {
+    "path": "sections/stocks/importLog",
+    "import": "latest100",
+    "orderBy": "ts"
+  },
+  {
+    "path": "sections/stocks/importPartItems",
+    "import": "latest100",
+    "orderBy": "docDate"
+  },
+  {
+    "path": "sections/stocks/importParts",
+    "import": "latest100",
+    "orderBy": "docDate"
+  },
+  {
+    "path": "sections/stocks/importVehicleItems",
+    "import": "latest100",
+    "orderBy": "docDate"
+  },
+  {
+    "path": "sections/stocks/importVehicles",
+    "import": "latest100",
+    "orderBy": "docDate"
+  },
+  {
+    "path": "sections/stocks/importVehicles_new",
+    "import": "latest100"
+  },
+  {
+    "path": "sections/stocks/otherVehicleIn",
+    "import": "latest100",
+    "orderBy": "importDate"
+  },
+  {
+    "path": "sections/stocks/otherVehicleOut",
+    "import": "latest100",
+    "orderBy": "deliveredDate"
+  },
+  {
+    "path": "sections/stocks/peripherals",
+    "import": "latest100",
+    "orderBy": "docNo"
+  },
+  {
+    "path": "sections/stocks/purchasePlan",
+    "import": "latest100",
+    "orderBy": "date"
+  },
+  {
+    "path": "sections/stocks/saleOut",
+    "import": "latest100",
+    "orderBy": "date"
+  },
+  {
+    "path": "sections/stocks/saleOutItems",
+    "import": "latest100",
+    "orderBy": "date"
+  },
+  {
+    "path": "sections/stocks/transfer",
+    "import": "latest100",
+    "orderBy": "deliveredDate"
+  },
+  {
+    "path": "sections/stocks/transferIn",
+    "import": "latest100",
+    "orderBy": "date"
+  },
+  {
+    "path": "sections/stocks/transferItems",
+    "import": "latest100",
+    "orderBy": "exportDate"
+  },
+  {
+    "path": "sections/stocks/transferOut",
+    "import": "latest100",
+    "orderBy": "date"
+  },
+  {
+    "path": "sections/stocks/vehicles",
+    "import": "latest100",
+    "orderBy": "docNo"
+  }
+]

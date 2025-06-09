@@ -26,7 +26,7 @@ import { getEditArr } from 'utils';
 import DocViewer from './DocViewer';
 import { validatePayments } from 'Modules/Utils';
 
-const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) => {
+const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geographic = null }) => {
   // showLog({ order, onConfirm, onBack, isEdit, readOnly, reset });
   const { user } = useSelector(state => state.auth);
   const { users } = useSelector(state => state.data);
@@ -356,6 +356,8 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) =
         return;
       }
 
+      showLog('[IncomeVehicles] values', values);
+
       showConfirm(
         () => onConfirm(values, resetToInitial),
         `บันทึกข้อมูลรับเงินประจำวัน ${
@@ -408,7 +410,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) =
           return (
             <>
               {!['licensePlateFee', 'installment', 'kbnLeasing', 'other'].includes(docType) && !nProps.readOnly && (
-                <RenderSearch type={values.incomeType} />
+                <RenderSearch type={values.incomeType} geographic={geographic} />
               )}
               <Row form>
                 <Col md="4" className="d-flex flex-column">

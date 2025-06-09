@@ -139,7 +139,7 @@ export const getBookingData = sValues =>
     }
   });
 
-export const RenderSearch = ({ type }) => {
+export const RenderSearch = ({ type, geographic = null }) => {
   // showLog({ type });
   return (
     <div className="border bg-light px-3 pt-3 mb-3">
@@ -163,6 +163,8 @@ export const RenderSearch = ({ type }) => {
                 size="small"
                 hasKeywords
                 className="text-muted"
+                geographic={geographic}
+                respectRBAC={true}
               />
             </Form.Item>
           </Col>
@@ -185,6 +187,8 @@ export const RenderSearch = ({ type }) => {
               size="small"
               hasKeywords
               className="text-muted"
+              geographic={geographic}
+              respectRBAC={true}
             />
           </Form.Item>
         </Col>

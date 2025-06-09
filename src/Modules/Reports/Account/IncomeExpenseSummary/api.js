@@ -143,7 +143,7 @@ export const expandedRowRender = (record, users, employees) => {
  * Processes bank transfer payments from an array of payment items.
  */
 export const getBankTransferItem = arr => {
-  // Filter for the “old” type of payment (no payments array)
+  // Filter for the "old" type of payment (no payments array)
   const oldPayments = arr.filter(
     l =>
       !l.deleted &&
@@ -155,7 +155,7 @@ export const getBankTransferItem = arr => {
         (l.paymentType3 === 'transfer' && l.bankAcc3))
   );
 
-  // Filter for the “new” type (with a payments array)
+  // Filter for the "new" type (with a payments array)
   const newPayments = arr.filter(l => l.payments && !l.deleted);
 
   const result1 = [];
@@ -242,6 +242,102 @@ export const getBankTransferItem = arr => {
   return [...result1, ...result2];
 };
 
+/**
+ * Processes personal loan payments from an array of payment items.
+ */
+export const getPersonalLoanItem = arr => {
+  // Filter for the "old" type of payment (no payments array)
+  const oldPayments = arr.filter(
+    l =>
+      !l.deleted &&
+      !l.payments &&
+      l.total > 0 &&
+      ((l.paymentType === 'pLoan' && l.payAmount) ||
+        (l.paymentType1 === 'pLoan' && l.payAmount1) ||
+        (l.paymentType2 === 'pLoan' && l.payAmount2) ||
+        (l.paymentType3 === 'pLoan' && l.payAmount3))
+  );
+
+  // Filter for the "new" type (with a payments array)
+  const newPayments = arr.filter(l => l.payments && !l.deleted);
+
+  const result1 = [];
+  oldPayments.forEach(it => {
+    const personalLoanArr = [];
+    const {
+      paymentType,
+      payAmount,
+      paymentType1,
+      payAmount1,
+      paymentType2,
+      payAmount2,
+      paymentType3,
+      payAmount3
+    } = it;
+
+    if (paymentType === 'pLoan' && payAmount) {
+      personalLoanArr.push({
+        key: personalLoanArr.length,
+        id: personalLoanArr.length,
+        paymentType,
+        amount: payAmount,
+        borrower: it.borrower || `${it.prefix || ''}${it.firstName || ''} ${it.lastName || ''}`.trim(),
+        incomeId: it.incomeId,
+        deleted: it.deleted ?? false
+      });
+    }
+    if (paymentType1 === 'pLoan' && payAmount1) {
+      personalLoanArr.push({
+        key: personalLoanArr.length,
+        id: personalLoanArr.length,
+        paymentType: paymentType1,
+        amount: payAmount1,
+        borrower: it.borrower1 || `${it.prefix || ''}${it.firstName || ''} ${it.lastName || ''}`.trim(),
+        incomeId: it.incomeId,
+        deleted: it.deleted ?? false
+      });
+    }
+    if (paymentType2 === 'pLoan' && payAmount2) {
+      personalLoanArr.push({
+        key: personalLoanArr.length,
+        id: personalLoanArr.length,
+        paymentType: paymentType2,
+        amount: payAmount2,
+        borrower: it.borrower2 || `${it.prefix || ''}${it.firstName || ''} ${it.lastName || ''}`.trim(),
+        incomeId: it.incomeId,
+        deleted: it.deleted ?? false
+      });
+    }
+    if (paymentType3 === 'pLoan' && payAmount3) {
+      personalLoanArr.push({
+        key: personalLoanArr.length,
+        id: personalLoanArr.length,
+        paymentType: paymentType3,
+        amount: payAmount3,
+        borrower: it.borrower3 || `${it.prefix || ''}${it.firstName || ''} ${it.lastName || ''}`.trim(),
+        incomeId: it.incomeId,
+        deleted: it.deleted ?? false
+      });
+    }
+    result1.push(...personalLoanArr);
+  });
+
+  const result2 = [];
+  newPayments.forEach(it => {
+    const loans = it.payments
+      .filter(l => l.paymentType === 'pLoan')
+      .map(lItem => ({
+        ...lItem,
+        borrower: lItem.borrower || `${it.prefix || ''}${it.firstName || ''} ${it.lastName || ''}`.trim(),
+        incomeId: it.incomeId,
+        deleted: it.deleted ?? false
+      }));
+    result2.push(...loans);
+  });
+
+  return [...result1, ...result2];
+};
+
 /* --------------------------------------------------------------------------
    API Functions
 -------------------------------------------------------------------------- */
@@ -274,6 +370,7 @@ export const getIncome = async (branch, date, excludeParts) => {
     let partChangeDeposit = 0;
     let bankDeposit = [];
     let executiveCashDeposit = [];
+    let personalLoan = [];
 
     let queries = [['date', '==', mDate]];
     let queries2 = [['incomeDate', '==', mDate]];
@@ -442,7 +539,7 @@ export const getIncome = async (branch, date, excludeParts) => {
           deleted: dv.deleted || false
         });
       }
-      // Record “during day” transfers if applicable
+      // Record "during day" transfers if applicable
       if (dv.amtDuringDay && !dv.deleted) {
         duringDayMoney.push({
           item: `หัก ส่งเงิน การเงินในระหว่างวัน ${dv.incomeNo || ''}`.trim(),
@@ -603,6 +700,17 @@ export const getIncome = async (branch, date, excludeParts) => {
     const otherBankTransfer = getBankTransferItem(dailyOthers);
     bankTransfer = bankTransfer.concat(otherBankTransfer);
 
+    // Process personal loan payments from different sources
+    const vehiclePersonalLoan = getPersonalLoanItem(dailyVehicles);
+    const servicePersonalLoan = getPersonalLoanItem(dailyServices);
+    personalLoan = personalLoan.concat(vehiclePersonalLoan, servicePersonalLoan);
+    if (excludeParts === 1) {
+      const partPersonalLoan = getPersonalLoanItem(dailyParts);
+      personalLoan = personalLoan.concat(partPersonalLoan);
+    }
+    const otherPersonalLoan = getPersonalLoanItem(dailyOthers);
+    personalLoan = personalLoan.concat(otherPersonalLoan);
+
     // Deduplicate "during day" money items
     duringDayMoney = distinctArr(duringDayMoney, ['item'], ['value', 'qty']).map(it => ({
       item: `${it.item} ${it.qty ? `${it.qty} รายการ` : ''}`,
@@ -613,6 +721,7 @@ export const getIncome = async (branch, date, excludeParts) => {
       dailyChangeDeposit,
       partChangeDeposit,
       bankTransfer,
+      personalLoan,
       incomes,
       expenses,
       afterDailyClosed,
@@ -651,6 +760,7 @@ export const getIncome_Parts = async (branch, date) => {
     let partChangeDeposit = 0;
     let bankDeposit = [];
     let executiveCashDeposit = [];
+    let personalLoan = [];
 
     let queries = [['date', '==', mDate]];
     let queries2 = [['incomeDate', '==', mDate]];
@@ -793,6 +903,10 @@ export const getIncome_Parts = async (branch, date) => {
     const partBankTransfer = getBankTransferItem(dailyParts);
     bankTransfer = bankTransfer.concat(partBankTransfer);
 
+    // Process personal loan payments from parts
+    const partPersonalLoan = getPersonalLoanItem(dailyParts);
+    personalLoan = personalLoan.concat(partPersonalLoan);
+
     duringDayMoney = distinctArr(duringDayMoney, ['item'], ['value', 'qty']).map(it => ({
       item: `${it.item} ${it.qty ? `${it.qty} รายการ` : ''}`,
       value: it.value
@@ -802,6 +916,7 @@ export const getIncome_Parts = async (branch, date) => {
       dailyChangeDeposit,
       partChangeDeposit,
       bankTransfer,
+      personalLoan,
       incomes,
       expenses,
       afterDailyClosed,

@@ -137,7 +137,13 @@ const IncomeDaily = () => {
       mValues.incomeCategory = 'daily';
       mValues.incomeSubCategory = category;
       
-      Object.assign(mValues, geographic);
+      // Use enhanced geographic context for automatic provinceId injection
+      if (geographic && geographic.enhanceDataForSubmission) {
+        mValues = geographic.enhanceDataForSubmission(mValues);
+      } else {
+        // Fallback to manual assignment if wrapper enhancement not available
+        Object.assign(mValues, geographic);
+      }
       
       if (!mValues.customerId && !['partSKC', 'partKBN', 'partChange'].includes(mValues.incomeType)) {
         const customerId = await updateNewOrderCustomer({
@@ -249,8 +255,33 @@ const IncomeDaily = () => {
   };
 
   const handleGeographicChange = useCallback((geoContext) => {
+    console.log('🌍 Geographic context received in IncomeDaily:', geoContext);
     setGeographic(geoContext);
   }, []);
+
+  // Debug the initial setup
+  useEffect(() => {
+    console.log('🔍 IncomeDaily mount - checking setup:', {
+      hasHandleGeographicChange: !!handleGeographicChange,
+      ready,
+      category
+    });
+  }, []);
+
+  // Initialize geographic context even without branch selection requirement
+  useEffect(() => {
+    console.log('🚀 Current geographic state in IncomeDaily:', geographic);
+    if (geographic && Object.keys(geographic).length > 0) {
+      console.log('✅ Geographic context available:', {
+        branchCode: geographic.branchCode,
+        provinceId: geographic.provinceId,
+        hasQueryFilters: !!geographic.getQueryFilters,
+        hasEnhancement: !!geographic.enhanceDataForSubmission
+      });
+    } else {
+      console.log('⚠️ Geographic context not yet available');
+    }
+  }, [geographic]);
 
   let currentView = (
     <IncomeVehicles
@@ -260,6 +291,7 @@ const IncomeDaily = () => {
       onBack={mProps.onBack}
       isEdit={mProps.isEdit}
       reset={() => setProps(initProps)}
+      geographic={geographic}
     />
   );
 
@@ -273,6 +305,7 @@ const IncomeDaily = () => {
           onBack={mProps.onBack}
           isEdit={mProps.isEdit}
           reset={() => setProps(initProps)}
+          geographic={geographic}
         />
       );
       break;
@@ -286,6 +319,7 @@ const IncomeDaily = () => {
           isEdit={mProps.isEdit}
           firestore={firestore}
           reset={() => setProps(initProps)}
+          geographic={geographic}
         />
       );
       break;
@@ -298,6 +332,7 @@ const IncomeDaily = () => {
           readOnly={mProps.readOnly}
           isEdit={mProps.isEdit}
           reset={() => setProps(initProps)}
+          geographic={geographic}
         />
       );
       break;
@@ -309,6 +344,7 @@ const IncomeDaily = () => {
           order={mProps.order}
           readOnly={mProps.readOnly}
           isEdit={mProps.isEdit}
+          geographic={geographic}
         />
       );
       break;
@@ -323,6 +359,7 @@ const IncomeDaily = () => {
           onBack={mProps.onBack}
           isEdit={mProps.isEdit}
           reset={() => setProps(initProps)}
+          geographic={geographic}
         />
       );
       break;
@@ -356,12 +393,14 @@ const IncomeDaily = () => {
       showStepper={true}
       steps={INCOME_DAILY_STEPS}
       currentStep={mProps.activeStep}
+      autoInjectProvinceId={true}
     >
       <IncomeDailyContent 
         category={category}
         _changeCategory={_changeCategory}
         currentView={currentView}
         mProps={mProps}
+        geographic={geographic}
       />
     </LayoutWithRBAC>
   );

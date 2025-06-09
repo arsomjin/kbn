@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Alert, Spin } from 'antd';
+import { Alert, Spin, Button } from 'antd';
 import { usePermissions } from 'hooks/usePermissions';
 import HierarchicalDashboardSwitcher from 'components/HierarchicalDashboardSwitcher';
 import {
@@ -24,16 +24,39 @@ const EnhancedRoleBasedDashboard = () => {
     hasBranchAccessOnly
   } = usePermissions();
 
+  // Debug logging
+  console.log('🎯 EnhancedRoleBasedDashboard render:', {
+    userRole,
+    isSuperAdmin,
+    isExecutive,
+    hasProvinceAccess,
+    hasBranchAccessOnly
+  });
+
   const [currentViewingRole, setCurrentViewingRole] = useState(null);
   const [viewingContext, setViewingContext] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingTimeout, setLoadingTimeout] = useState(false);
 
   // Initialize viewing role to user's actual role
   useEffect(() => {
     if (userRole && !currentViewingRole) {
+      console.log('✅ Setting currentViewingRole to:', userRole);
       setCurrentViewingRole(userRole);
     }
   }, [userRole, currentViewingRole]);
+
+  // Timeout mechanism for loading
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!userRole) {
+        setLoadingTimeout(true);
+        console.warn('⚠️ Loading timeout reached, userRole still null');
+      }
+    }, 10000); // 10 seconds timeout
+
+    return () => clearTimeout(timeout);
+  }, [userRole]);
 
   // Handle dashboard switching
   const handleDashboardSwitch = async (switchData) => {
@@ -109,11 +132,46 @@ const EnhancedRoleBasedDashboard = () => {
     return isSuperAdmin || isExecutive || hasProvinceAccess || hasBranchAccessOnly;
   };
 
+  // Force fallback role creation if timeout
+  const handleForceLoadDashboard = () => {
+    console.log('🔧 Forcing dashboard load with fallback role');
+    setCurrentViewingRole('STAFF');
+    setLoadingTimeout(false);
+  };
+
   if (!userRole) {
+    if (loadingTimeout) {
+      return (
+        <div style={{ textAlign: 'center', padding: '50px' }}>
+          <Alert
+            message="การโหลดใช้เวลานานเกินไป"
+            description="ระบบไม่สามารถระบุบทบาทผู้ใช้ได้ กรุณาลองรีเฟรชหน้าหรือติดต่อผู้ดูแลระบบ"
+            type="warning"
+            showIcon
+            style={{ marginBottom: '16px' }}
+          />
+          <Button type="primary" onClick={handleForceLoadDashboard}>
+            เข้าสู่ระบบในฐานะเจ้าหน้าที่
+          </Button>
+          <br />
+          <Button 
+            type="default" 
+            onClick={() => window.location.reload()} 
+            style={{ marginTop: '8px' }}
+          >
+            รีเฟรชหน้า
+          </Button>
+        </div>
+      );
+    }
+
     return (
       <div style={{ textAlign: 'center', padding: '50px' }}>
         <Spin size="large" />
         <p style={{ marginTop: '16px' }}>กำลังโหลดข้อมูลบทบาทผู้ใช้...</p>
+        <p style={{ fontSize: '12px', color: '#666', marginTop: '8px' }}>
+          หากการโหลดใช้เวลานาน กรุณารอสักครู่...
+        </p>
       </div>
     );
   }

@@ -53,32 +53,55 @@ export const usePermissions = () => {
   // Only run when user or branches change, NOT when currentUserRBAC changes
   // to prevent conflicts with manual role switching
   useEffect(() => {
-    if (user && userId && needsMigration(user, currentUserRBAC)) {
-      const migratedRBAC = migrateUserToRBAC(user, branches);
-      
-      if (validateMigratedRBAC(migratedRBAC)) {
-        // Only migrate if there's no existing RBAC role (to avoid overriding demo roles)
-        if (!currentUserRBAC?.role) {
-          // Dispatch the migrated RBAC to Redux
-          dispatch(setUserPermissions(userId, migratedRBAC.permissions, migratedRBAC.geographic));
-          dispatch(setUserRole(userId, migratedRBAC.role));
-          dispatch(setGeographicAccess(userId, migratedRBAC.geographic));
-          
-          logMigration(user, migratedRBAC);
+    if (user && userId) {
+      console.log('🔍 Checking user migration:', {
+        userId,
+        needsMigration: needsMigration(user, currentUserRBAC),
+        currentUserRBAC,
+        userRole: currentUserRBAC?.role
+      });
+
+      if (needsMigration(user, currentUserRBAC)) {
+        console.log('🔄 Starting user migration for:', userId);
+        const migratedRBAC = migrateUserToRBAC(user, branches);
+        
+        if (validateMigratedRBAC(migratedRBAC)) {
+          // Only migrate if there's no existing RBAC role (to avoid overriding demo roles)
+          if (!currentUserRBAC?.role) {
+            console.log('✅ Applying migrated RBAC:', migratedRBAC);
+            // Dispatch the migrated RBAC to Redux
+            dispatch(setUserPermissions(userId, migratedRBAC.permissions, migratedRBAC.geographic));
+            dispatch(setUserRole(userId, migratedRBAC.role));
+            dispatch(setGeographicAccess(userId, migratedRBAC.geographic));
+            
+            logMigration(user, migratedRBAC);
+          }
+        } else {
+          console.warn('⚠️ Migration validation failed, creating fallback RBAC');
+          // Create fallback RBAC if migration fails
+          const fallbackRBAC = createFallbackRBAC(user, branches);
+          if (fallbackRBAC && !currentUserRBAC?.role) {
+            console.log('🔧 Applying fallback RBAC:', fallbackRBAC);
+            dispatch(setUserPermissions(userId, fallbackRBAC.permissions, fallbackRBAC.geographic));
+            dispatch(setUserRole(userId, fallbackRBAC.role));
+            dispatch(setGeographicAccess(userId, fallbackRBAC.geographic));
+            
+            console.warn('Migration failed, using fallback RBAC for user:', userId);
+          }
         }
-      } else {
-        // Create fallback RBAC if migration fails
+      } else if (!currentUserRBAC?.role && user) {
+        // If no migration is needed but also no role exists, create basic fallback
+        console.log('🔧 No migration needed but no role exists, creating basic fallback');
         const fallbackRBAC = createFallbackRBAC(user, branches);
-        if (fallbackRBAC && !currentUserRBAC?.role) {
+        if (fallbackRBAC) {
+          console.log('🔧 Applying basic fallback RBAC:', fallbackRBAC);
           dispatch(setUserPermissions(userId, fallbackRBAC.permissions, fallbackRBAC.geographic));
           dispatch(setUserRole(userId, fallbackRBAC.role));
           dispatch(setGeographicAccess(userId, fallbackRBAC.geographic));
-          
-          console.warn('Migration failed, using fallback RBAC for user:', userId);
         }
       }
     }
-  }, [user, userId, branches, dispatch]); // Removed currentUserRBAC from deps to prevent infinite loop
+  }, [user, userId, branches, dispatch, currentUserRBAC?.role]); // Removed currentUserRBAC from deps to prevent infinite loop
 
   // Memoized user permissions and geographic data
   const userPermissions = useMemo(() => {

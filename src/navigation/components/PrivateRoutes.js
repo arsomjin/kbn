@@ -1,4 +1,5 @@
 import React, { useContext, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import firebase from 'firebase/app';
 import 'firebase/messaging';
 import { Redirect, Route, useHistory } from 'react-router-dom';
@@ -9,7 +10,7 @@ import {
   useSelfListener,
   useSelfUpdate
 } from 'api/CustomHooks';
-import { ExecMenu, DevMenu } from 'data/Constant';
+// Old navigation menus removed - using new navigationConfig.js
 import Load from 'elements/Load';
 import { getAllPaths } from 'navigation/api';
 import routes from 'navigation/routes';
@@ -45,7 +46,7 @@ export const PrivateRoutes = props => {
   const { expenseCategories, users } = useSelector(state => state.data);
   const { navItems } = useSelector(state => state.unPersisted);
 
-  const all_menu_items = [...navItems, ...DevMenu, ...ExecMenu];
+  const all_menu_items = [...navItems]; // Using new navigationConfig.js system
 
   // Initialize all data synchronization hooks
   useDataSynchronization();
@@ -132,4 +133,10 @@ export const PrivateRoutes = props => {
       ))}
     </div>
   );
+};
+
+PrivateRoutes.propTypes = {
+  location: PropTypes.shape({
+    pathname: PropTypes.string
+  })
 };

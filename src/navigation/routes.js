@@ -96,6 +96,7 @@ import TestPrint from 'dev/screens/TestPrint';
 import TestAccessControl from 'dev/screens/TestAccessControl';
 import MigrationTools from 'dev/screens/MigrationTools';
 import AuditTrailDemo from 'components/AuditTrail/AuditTrailDemo';
+import Phase3MigrationDashboard from 'dev/screens/Phase3MigrationDashboard';
 
 import IncomeParts from 'Modules/Reports/Parts/Income';
 import SaleAssessmentReport from 'Modules/Reports/Sales/Assessment';
@@ -154,13 +155,23 @@ import DailyBankDeposit from 'Modules/Account/screens/Income/DailyBankDeposit';
 import DailyExecutiveCashDeposit from 'Modules/Account/screens/Income/DailyExecutiveCashDeposit';
 import IncomePersonalLoan from 'Modules/Account/screens/Income/IncomePersonalLoan';
 import IncomePersonalLoanReport from 'Modules/Reports/Account/IncomePersonalLoanReport';
+import PropTypes from 'prop-types';
 
 const BlankIconSidebarLayout = ({ children }) => (
   <IconSidebar noNavbar noFooter>
     {children}
   </IconSidebar>
 );
+
+BlankIconSidebarLayout.propTypes = {
+  children: PropTypes.node.isRequired
+};
+
 const FullLayout = ({ children }) => <DefaultLayout noFooter>{children}</DefaultLayout>;
+
+FullLayout.propTypes = {
+  children: PropTypes.node.isRequired
+};
 
 export default [
   {
@@ -1024,5 +1035,10 @@ export default [
     path: '/developer/audit-trail-demo',
     layout: DefaultLayout,
     component: AuditTrailDemo
+  },
+  {
+    path: '/developer/phase3-migration',
+    layout: DefaultLayout,
+    component: Phase3MigrationDashboard
   }
 ];

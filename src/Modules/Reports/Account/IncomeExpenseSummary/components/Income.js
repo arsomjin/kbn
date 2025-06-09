@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { useHistory } from 'react-router';
 import { useSelector } from 'react-redux';
 import { Row, Col } from 'shards-react';
@@ -62,6 +63,25 @@ const getBankDepositArr = (arr, banks) => {
   return bankDepositArr;
 };
 
+/**
+ * Processes personal loan items into an array for summary.
+ * @param {Array} arr - Array of personal loan items.
+ */
+const getPersonalLoanArr = (arr) => {
+  let plArr = (arr || []).filter(l => !l.deleted).map(pl => ({ amount: pl.amount, borrower: pl.borrower || pl.item }));
+  plArr = distinctArr(plArr, ['borrower'], ['amount']);
+  let personalLoanArr = plArr.map(it => ({
+    item: `สินเชื่อส่วนบุคคล ${it.borrower || ''}`,
+    value: it.amount,
+    qty: 1
+  }));
+  personalLoanArr = distinctArr(personalLoanArr, ['item'], ['value', 'qty']).map(l => ({
+    item: `${l.item} ${l.qty > 1 ? `(${l.qty} รายการ)` : ''}`,
+    value: l.value
+  }));
+  return personalLoanArr;
+};
+
 /* --------------------------------------------------------------------------
    Component: IncomeExpenseSummary
 -------------------------------------------------------------------------- */
@@ -73,6 +93,7 @@ const IncomeExpenseSummary = ({
   expenses,
   bankTransfer,
   bankDeposit,
+  personalLoan,
   executiveCashDeposit,
   duringDayMoney,
   afterDailyClosed,
@@ -98,6 +119,7 @@ const IncomeExpenseSummary = ({
   useEffect(() => {
     const bankTransferArr = getBankTransferArr(bankTransfer, banks);
     const bankDepositArr = getBankDepositArr(bankDeposit, banks);
+    const personalLoanArr = getPersonalLoanArr(personalLoan);
 
     const afterDailyClosedArr = (afterDailyClosed || [])
       .filter(l => !l.deleted)
@@ -136,6 +158,7 @@ const IncomeExpenseSummary = ({
       afterDailyClosedArr.reduce((sum, elem) => sum + Numb(elem.value), 0) -
       bankTransferArr.reduce((sum, elem) => sum + Numb(elem.value), 0) -
       bankDepositArr.reduce((sum, elem) => sum + Numb(elem.value), 0) -
+      personalLoanArr.reduce((sum, elem) => sum + Numb(elem.value), 0) -
       duringDayMoney.reduce((sum, elem) => sum + Numb(elem.value), 0);
 
     // const dailyRemainingCash =
@@ -183,6 +206,7 @@ const IncomeExpenseSummary = ({
       },
       ...bankTransferArr,
       ...bankDepositArr,
+      ...personalLoanArr,
       ...duringDayMoney,
       ...afterDailyClosedArr,
       ...(dailyExecutiveDepositCash > 0
@@ -203,7 +227,7 @@ const IncomeExpenseSummary = ({
     ];
 
     setCState({ incomeData, sumData });
-  }, [afterAccountClosed, afterDailyClosed, bankDeposit, bankTransfer, banks, data, duringDayMoney, expenseData]);
+  }, [afterAccountClosed, afterDailyClosed, bankDeposit, bankTransfer, banks, data, duringDayMoney, expenseData, personalLoan]);
 
   // Update local table data when props change
   useEffect(() => {
@@ -313,6 +337,8 @@ const IncomeExpenseSummary = ({
     }
   };
 
+  showLog('[IncomeExpenseSummary] data', data);
+  showLog('[IncomeExpenseSummary] cState', cState);
   return (
     <div>
       <EditableCellTable
@@ -343,6 +369,21 @@ const IncomeExpenseSummary = ({
       )}
     </div>
   );
+};
+
+IncomeExpenseSummary.propTypes = {
+  changeDeposit: PropTypes.any,
+  items: PropTypes.array,
+  updating: PropTypes.bool,
+  expenses: PropTypes.array,
+  bankTransfer: PropTypes.array,
+  bankDeposit: PropTypes.array,
+  personalLoan: PropTypes.array,
+  executiveCashDeposit: PropTypes.array,
+  duringDayMoney: PropTypes.array,
+  afterDailyClosed: PropTypes.array,
+  afterAccountClosed: PropTypes.array,
+  searchValues: PropTypes.any
 };
 
 export default IncomeExpenseSummary;
