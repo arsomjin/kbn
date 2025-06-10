@@ -14,7 +14,7 @@
 ```bash
 # Verify you're in the right project
 firebase projects:list
-firebase use kubota-benjapol
+firebase use kubota-benjapol  # Use production Firebase project (KBN)
 
 # Check current functions
 firebase functions:list

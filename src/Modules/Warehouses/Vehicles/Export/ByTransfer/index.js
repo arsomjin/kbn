@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Collapse, Form, Skeleton } from 'antd';
 import { Container } from 'shards-react';
-import { useHistory } from 'react-router';
+// import { useHistory } from 'react-router'; // Unused
 import { PlusOutlined } from '@ant-design/icons';
 import BranchDateHeader from 'components/branch-date-header';
 import { useSelector } from 'react-redux';
@@ -43,7 +43,7 @@ const initProps = {
 
 export default () => {
   const { api, firestore } = useContext(FirebaseContext);
-  const history = useHistory();
+  // const history = useHistory(); // Unused but kept for future use
   let location = useLocation();
   const params = location.state?.params;
 
@@ -292,7 +292,8 @@ export default () => {
   };
 
   const _onItemEdit = record => {
-    return showLog({ edit_record: record });
+    // For debugging: show log and update record
+    showLog({ edit_record: record });
     onUpdate(record);
   };
 

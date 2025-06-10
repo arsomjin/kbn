@@ -11,6 +11,10 @@ export const useNavigationGenerator = () => {
   const { hasPermission } = usePermissions();
   const { user } = useSelector(state => state.auth);
 
+  // Extract complex expressions from dependencies
+  const isDev = user?.isDev;
+  const userGroup = user?.group;
+
   /**
    * Recursively filters navigation items based on user permissions
    * @param {Array} items - Array of navigation items
@@ -43,10 +47,11 @@ export const useNavigationGenerator = () => {
    */
   const filteredNavigation = useMemo(() => {
     const result = [];
+    const isDev = user?.isDev;
     
     Object.entries(NAVIGATION_CONFIG).forEach(([key, section]) => {
       // Special handling for developer-only sections
-      if (section.isDeveloperOnly && !user?.isDev) {
+      if (section.isDeveloperOnly && !isDev) {
         return;
       }
 
@@ -69,7 +74,7 @@ export const useNavigationGenerator = () => {
     });
 
     return result;
-  }, [hasPermission, filterItems, user?.isDev, user?.group]);
+  }, [hasPermission, filterItems, isDev]);
 
   /**
    * Get high priority navigation items

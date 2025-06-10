@@ -53,11 +53,8 @@ const RBACDataTable = (props) => {
   } = props;
   const { 
     filterDataByUserAccess, 
-    hasPermission, 
     hasGeographicAccess,
-    isSuperAdmin,
-    accessibleProvinces,
-    accessibleBranches 
+    isSuperAdmin
   } = usePermissions();
 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);

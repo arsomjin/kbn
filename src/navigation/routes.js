@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { lazy } from 'react';
 import { Redirect } from 'react-router-dom';
 
 // Layout Types
@@ -94,9 +94,11 @@ import Chevrolet from 'Modules/Account/screens/Expense/Components/Chevrolet';
 import ExpenseTransferCycle from 'Modules/Account/screens/ExpenseTransferCycle';
 import TestPrint from 'dev/screens/TestPrint';
 import TestAccessControl from 'dev/screens/TestAccessControl';
+import TestAuthentication from 'dev/screens/TestAuthentication';
 import MigrationTools from 'dev/screens/MigrationTools';
 import AuditTrailDemo from 'components/AuditTrail/AuditTrailDemo';
 import Phase3MigrationDashboard from 'dev/screens/Phase3MigrationDashboard';
+import NatureThemeDemo from 'views/NatureThemeDemo';
 
 import IncomeParts from 'Modules/Reports/Parts/Income';
 import SaleAssessmentReport from 'Modules/Reports/Sales/Assessment';
@@ -1022,9 +1024,14 @@ export default [
     component: TestPrint
   },
   {
-    path: '/developer/test-multi-province',
+    path: '/developer/test-access-control',
     layout: DefaultLayout,
     component: TestAccessControl
+  },
+  {
+    path: '/dev/test-authentication',
+    layout: DefaultLayout,
+    component: TestAuthentication
   },
   {
     path: '/developer/migration-tools',
@@ -1040,5 +1047,27 @@ export default [
     path: '/developer/phase3-migration',
     layout: DefaultLayout,
     component: Phase3MigrationDashboard
-  }
+  },
+  // Admin Management Routes
+  {
+    path: '/admin/user-approval',
+    layout: DefaultLayout,
+    component: React.lazy(() => import('Modules/Admin/UserApproval'))
+  },
+  {
+    path: '/admin/user-management',
+    layout: DefaultLayout, 
+    component: React.lazy(() => import('Modules/Admin/UserManagement'))
+  },
+  {
+    path: '/admin/permission-management',
+    layout: DefaultLayout,
+    component: React.lazy(() => import('Modules/Admin/PermissionManagement'))
+  },
+  {
+    path: '/developer/nature-theme-demo',
+    layout: DefaultLayout,
+    component: NatureThemeDemo
+  },
+
 ];

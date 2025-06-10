@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { addErrorLogs } from 'firebase/api';
 import { Container } from 'shards-react';
 import { Button } from 'elements';
@@ -32,8 +33,22 @@ class ErrorBoundary extends React.Component {
             <div className="error__content">
               {/* <h2>500</h2> */}
               <h3>Something went wrong!</h3>
-              {this.state.error && <p className="p-3">{this.state.error}</p>}
-              {this.state.errorInfo && <p className="p-3">{this.state.errorInfo}</p>}
+              {this.state.error && (
+                <div className="p-3">
+                  <h4>Error:</h4>
+                  <p style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px', fontFamily: 'monospace' }}>
+                    {this.state.error.toString()}
+                  </p>
+                </div>
+              )}
+              {this.state.errorInfo && this.state.errorInfo.componentStack && (
+                <div className="p-3">
+                  <h4>Component Stack:</h4>
+                  <p style={{ backgroundColor: '#f5f5f5', padding: '10px', borderRadius: '4px', fontFamily: 'monospace' }}>
+                    {this.state.errorInfo.componentStack}
+                  </p>
+                </div>
+              )}
               <Button
                 type="primary"
                 shape="round"
@@ -52,5 +67,9 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
+
+ErrorBoundary.propTypes = {
+  children: PropTypes.node.isRequired
+};
 
 export default ErrorBoundary;

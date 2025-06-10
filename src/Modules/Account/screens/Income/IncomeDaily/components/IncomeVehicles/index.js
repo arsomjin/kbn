@@ -57,8 +57,6 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, onBack, readOnly]);
 
-  const searchValuesRef = useRef(searchKeys);
-
   const sKeys = Object.keys(searchKeys).map(k => k);
 
   const grant = true;
@@ -290,15 +288,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
           lastName,
           phoneNumber,
           receiverEmployee,
-          deleted,
-          paymentType,
-          bankAcc,
-          paymentType1,
-          bankAcc1,
-          paymentType2,
-          bankAcc2,
-          paymentType3,
-          bankAcc3
+          deleted
           // payments,
         } = saleDoc.doc;
         if (!((saleDoc.type === 'sale' && saleId) || (saleDoc.type === 'booking' && bookId))) {

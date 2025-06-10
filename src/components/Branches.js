@@ -2,6 +2,7 @@
 import React from 'react';
 import { FormSelect } from 'shards-react';
 import { useSelector } from 'react-redux';
+import { getBranchName } from '../utils/mappings';
 
 export default props => {
   const { branches } = useSelector(state => state.data);
@@ -11,7 +12,7 @@ export default props => {
       <FormSelect {...props}>
         {Object.keys(branches).map(key => (
           <option key={key} value={key}>
-            {branches[key].branchName}
+            {getBranchName(key) || branches[key].branchName}
           </option>
         ))}
       </FormSelect>

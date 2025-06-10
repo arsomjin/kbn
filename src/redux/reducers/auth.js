@@ -25,7 +25,9 @@ const initialState = {
   logoutError: null,
   resetPasswordError: null,
   isAuthenticated: false,
-  user: {}
+  user: {},
+  registrationPending: false,
+  registrationData: null
 };
 
 const resetState = initialState;
@@ -133,6 +135,21 @@ export default function reducer(state = initialState, action) {
       return {
         ...state,
         user: action.user
+      };
+    case 'REGISTRATION_PENDING':
+      return {
+        ...state,
+        isLoggingIn: false,
+        isAuthenticated: false,
+        signUpError: null,
+        registrationPending: true,
+        registrationData: action.userData
+      };
+    case 'CLEAR_REGISTRATION_PENDING':
+      return {
+        ...state,
+        registrationPending: false,
+        registrationData: null
       };
     default:
       return state;

@@ -6,8 +6,9 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Row, Col, Card, Alert, Skeleton, Typography } from 'antd';
-import { PermissionGate, GeographicBranchSelector } from 'components';
-import { AuditHistory, AuditTrailSection, useAuditTrail as useBaseAuditTrail } from 'components/AuditTrail';
+import PermissionGate from '../PermissionGate';
+import GeographicBranchSelector from '../GeographicBranchSelector';
+import { AuditHistory, AuditTrailSection, useAuditTrail as useBaseAuditTrail } from '../AuditTrail';
 import AuditTrailStepper from '../AuditTrailStepper';
 import { usePermissions } from 'hooks/usePermissions';
 import { useGeographicData } from 'hooks/useGeographicData';
@@ -164,7 +165,7 @@ const LayoutWithRBAC = ({
       });
       onBranchChange(geoContext);
     }
-  }, [selectedBranch, onBranchChange, enhancedGeographic, requireBranchSelection]);
+  }, [selectedBranch, enhancedGeographic, onBranchChange, requireBranchSelection]);
 
   // Check if user can access the current data
   const canAccessCurrentData = selectedBranch ? checkBranchAccess(selectedBranch) : true;
@@ -315,7 +316,7 @@ const LayoutWithRBAC = ({
         )}
 
         {/* Audit History Display */}
-        {showAuditTrail && (documentId || process.env.NODE_ENV === 'development') && (
+        {showAuditTrail && documentId && (
           <Row style={{ marginTop: '24px', marginBottom: '16px' }}>
             <Col span={24}>
               <Card title="ประวัติการดำเนินการ">

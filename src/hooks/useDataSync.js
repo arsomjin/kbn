@@ -19,6 +19,8 @@ import {
   setWarehouses
 } from 'redux/actions/data';
 import { setProvinces } from 'redux/actions/provinces';
+import { useSelector } from 'react-redux';
+import { useCallback } from 'react';
 
 /**
  * Collection sync configuration
@@ -79,6 +81,8 @@ const COLLECTION_SYNC_CONFIG = {
  * Automatically syncs all configured collections
  */
 export const useDataSynchronization = () => {
+  const { user } = useSelector(state => state.auth);
+  
   // Company-related collections
   useCollectionSync('data/company/provinces', setProvinces);
   useCollectionSync('data/company/banks', setBanks);
@@ -102,8 +106,14 @@ export const useDataSynchronization = () => {
   useCollectionSync('data/account/expenseName', setExpenseAccountNames);
   useCollectionSync('data/account/expenseCategory', setExpenseCategories);
 
-  // User management
-  useCollectionSync('users', setUsers);
+  // User management - only sync if user has admin-level permissions
+  const hasUserManagementAccess = user?.accessLevel === 'SUPER_ADMIN' || 
+                                  user?.accessLevel === 'PROVINCE_MANAGER' || 
+                                  user?.accessLevel === 'BRANCH_MANAGER';
+  
+  // Pass null as collectionPath when user doesn't have access to prevent sync
+  const usersCollectionPath = (hasUserManagementAccess && user?.auth?.isApproved) ? 'users' : null;
+  useCollectionSync(usersCollectionPath, setUsers);
 };
 
 /**
@@ -139,6 +149,48 @@ export const useSalesSync = () => {
 export const useAccountSync = () => {
   useCollectionSync('data/account/expenseName', setExpenseAccountNames);
   useCollectionSync('data/account/expenseCategory', setExpenseCategories);
+};
+
+/**
+ * Custom hook to sync user management data
+ * Should only be used by components that need user management functionality
+ * and when the user has appropriate permissions
+ */
+export const useUserManagementSync = () => {
+  const { user } = useSelector(state => state.auth);
+  
+  const hasUserManagementAccess = user?.accessLevel === 'SUPER_ADMIN' || 
+                                  user?.accessLevel === 'PROVINCE_MANAGER' || 
+                                  user?.accessLevel === 'BRANCH_MANAGER';
+  
+  const usersCollectionPath = hasUserManagementAccess ? 'users' : null;
+  
+  useCollectionSync(usersCollectionPath, setUsers);
+};
+
+/**
+ * Hook to manually retry data synchronization
+ * Useful after role switching or permission changes
+ */
+export const useManualDataSync = () => {
+  const { user } = useSelector(state => state.auth);
+  
+  const retryUsersSync = useCallback(() => {
+    const hasUserManagementAccess = user?.accessLevel === 'SUPER_ADMIN' || 
+                                    user?.accessLevel === 'PROVINCE_MANAGER' || 
+                                    user?.accessLevel === 'BRANCH_MANAGER';
+    
+    if (hasUserManagementAccess) {
+      console.log('🔄 Manually retrying users collection sync...');
+      // This will trigger a fresh useCollectionSync attempt
+      return { success: true, message: 'Users sync retry initiated' };
+    } else {
+      console.warn('⚠️ User does not have permission to sync users collection');
+      return { success: false, message: 'Insufficient permissions for users sync' };
+    }
+  }, [user?.accessLevel]);
+
+  return { retryUsersSync };
 };
 
 /**

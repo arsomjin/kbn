@@ -5,7 +5,7 @@ import { formatNumber, parser } from 'functions';
 
 import './index.css';
 
-export default forwardRef((props, ref) => {
+const InputElement = forwardRef((props, ref) => {
   const {
     lastField,
     preventAutoSubmit,
@@ -151,3 +151,7 @@ export default forwardRef((props, ref) => {
     />
   );
 });
+
+InputElement.displayName = 'InputElement';
+
+export default InputElement;

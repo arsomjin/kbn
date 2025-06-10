@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 import React, { useState, useEffect } from 'react';
 import { Table, Popconfirm, Button } from 'antd';
 import EditableRow from './EditableRow';
@@ -40,7 +41,6 @@ const ReusableEditableTable = ({
 
   // On mount or whenever dataSource changes, initialize local state
   useEffect(() => {
-    console.log({ dataSource });
     const initData = dataSource.map((item, idx) => ({
       ...item,
       key: item.key || idx.toString()

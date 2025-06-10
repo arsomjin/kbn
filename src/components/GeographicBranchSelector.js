@@ -62,15 +62,8 @@ const GeographicBranchSelector = ({
 
   // RBAC permissions
   const {
-    userBranches,
     accessibleBranches,
-    accessibleProvinces,
-    isSuperAdmin,
-    canUserAccessBranch,
-    canUserAccessProvince,
-    hasProvinceAccess,
-    hasBranchAccessOnly,
-    getDefaultBranch
+    isSuperAdmin
   } = usePermissions();
 
   // Filter branches based on RBAC and province

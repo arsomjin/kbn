@@ -1,0 +1,173 @@
+// KBN Nature-Inspired Theme
+// Earthy tones with modern UI/UX design
+
+// ======================
+// NATURE COLOR PALETTE
+// ======================
+
+// Primary Colors - Forest Greens
+$nature-primary: #2d5016 !default;         // Forest Green
+$nature-primary-light: #3d6b1c !default;   // Pine Green  
+$nature-primary-lighter: #4a7c1f !default; // Sage Green
+
+// Secondary Colors - Fresh Greens
+$nature-secondary: #52c41a !default;       // Mint Green
+$nature-secondary-light: #73d13d !default; // Leaf Green
+$nature-secondary-lighter: #95de64 !default; // Spring Green
+
+// Earthy Browns
+$nature-earth: #8b4513 !default;           // Dark Earth
+$nature-earth-light: #a0522d !default;     // Wood Brown
+$nature-earth-lighter: #cd853f !default;   // Clay Brown
+
+// Natural Grays
+$nature-gray: #6b7280 !default;            // Stone Gray
+$nature-gray-light: #9ca3af !default;      // Pebble Gray
+$nature-gray-lighter: #d1d5db !default;    // Cloud Gray
+
+// Accent Colors
+$nature-accent-orange: #f59e0b !default;   // Sunset Orange
+$nature-accent-blue: #3b82f6 !default;     // Sky Blue  
+$nature-accent-red: #ef4444 !default;      // Berry Red
+
+// Success/Warning/Error States
+$nature-success: #16a34a !default;         // Natural Success Green
+$nature-warning: #f59e0b !default;         // Autumn Warning
+$nature-error: #dc2626 !default;           // Natural Error Red
+$nature-info: #0ea5e9 !default;            // Stream Blue
+
+// ======================
+// BACKGROUND COLORS
+// ======================
+
+$nature-bg-primary: #fefefe !default;      // Pure White
+$nature-bg-secondary: #f8fafc !default;    // Misty White
+$nature-bg-tertiary: #f1f5f9 !default;     // Cloud White
+
+// Card backgrounds
+$nature-card-bg: rgba(255, 255, 255, 0.95) !default;
+$nature-card-hover-bg: rgba(248, 250, 252, 0.98) !default;
+
+// ======================
+// TEXT COLORS
+// ======================
+
+$nature-text-primary: #1f2937 !default;    // Dark Forest Text
+$nature-text-secondary: #4b5563 !default;  // Medium Gray Text
+$nature-text-tertiary: #6b7280 !default;   // Light Gray Text
+$nature-text-disabled: #9ca3af !default;   // Disabled Text
+
+// ======================
+// TYPOGRAPHY SCALE
+// ======================
+
+$nature-font-family: 'Inter', 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif !default;
+$nature-font-family-mono: 'JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', monospace !default;
+
+// Font weights
+$nature-font-light: 300 !default;
+$nature-font-normal: 400 !default;
+$nature-font-medium: 500 !default;
+$nature-font-semibold: 600 !default;
+$nature-font-bold: 700 !default;
+
+// Font sizes
+$nature-text-xs: 0.75rem !default;         // 12px
+$nature-text-sm: 0.875rem !default;        // 14px  
+$nature-text-base: 1rem !default;          // 16px
+$nature-text-lg: 1.125rem !default;        // 18px
+$nature-text-xl: 1.25rem !default;         // 20px
+$nature-text-2xl: 1.5rem !default;         // 24px
+$nature-text-3xl: 1.875rem !default;       // 30px
+
+// ======================
+// SPACING SCALE
+// ======================
+
+$nature-space-1: 0.25rem !default;         // 4px
+$nature-space-2: 0.5rem !default;          // 8px
+$nature-space-3: 0.75rem !default;         // 12px
+$nature-space-4: 1rem !default;            // 16px
+$nature-space-5: 1.25rem !default;         // 20px
+$nature-space-6: 1.5rem !default;          // 24px
+$nature-space-8: 2rem !default;            // 32px
+$nature-space-10: 2.5rem !default;         // 40px
+$nature-space-12: 3rem !default;           // 48px
+
+// ======================
+// BORDER RADIUS
+// ======================
+
+$nature-radius-sm: 0.375rem !default;      // 6px
+$nature-radius-base: 0.5rem !default;      // 8px
+$nature-radius-md: 0.75rem !default;       // 12px
+$nature-radius-lg: 1rem !default;          // 16px
+$nature-radius-xl: 1.5rem !default;        // 24px
+
+// ======================
+// SHADOWS
+// ======================
+
+$nature-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !default;
+$nature-shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !default;
+$nature-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !default;
+$nature-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !default;
+$nature-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !default;
+
+// Colored shadows for depth
+$nature-shadow-green: 0 4px 14px 0 rgba(45, 80, 22, 0.15) !default;
+$nature-shadow-brown: 0 4px 14px 0 rgba(139, 69, 19, 0.15) !default;
+
+// ======================
+// TRANSITIONS
+// ======================
+
+$nature-transition-fast: 150ms ease-in-out !default;
+$nature-transition-base: 250ms ease-in-out !default;
+$nature-transition-slow: 350ms ease-in-out !default;
+
+// ======================
+// COMPONENT OVERRIDES
+// ======================
+
+// Button styles
+$nature-btn-primary-bg: $nature-primary !default;
+$nature-btn-primary-hover-bg: $nature-primary-light !default;
+$nature-btn-secondary-bg: $nature-secondary !default;
+
+// Input styles  
+$nature-input-border: $nature-gray-lighter !default;
+$nature-input-border-focus: $nature-primary !default;
+$nature-input-bg: $nature-bg-primary !default;
+
+// Card styles
+$nature-card-border: rgba(45, 80, 22, 0.1) !default;
+$nature-card-shadow: $nature-shadow-base !default;
+
+// Table styles
+$nature-table-header-bg: linear-gradient(135deg, #{$nature-primary} 0%, #{$nature-primary-light} 100%) !default;
+$nature-table-header-color: white !default;
+$nature-table-border: $nature-gray-lighter !default;
+
+// ======================
+// RESPONSIVE BREAKPOINTS
+// ======================
+
+$nature-screen-sm: 576px !default;
+$nature-screen-md: 768px !default;
+$nature-screen-lg: 992px !default;
+$nature-screen-xl: 1200px !default;
+$nature-screen-xxl: 1400px !default;
+
+// ======================
+// UTILITY CLASSES
+// ======================
+
+// Background gradients
+$nature-gradient-primary: linear-gradient(135deg, #{$nature-primary} 0%, #{$nature-primary-light} 100%) !default;
+$nature-gradient-secondary: linear-gradient(135deg, #{$nature-secondary} 0%, #{$nature-secondary-light} 100%) !default;
+$nature-gradient-earth: linear-gradient(135deg, #{$nature-earth} 0%, #{$nature-earth-light} 100%) !default;
+
+// Nature-inspired patterns
+$nature-pattern-organic: radial-gradient(circle at 25% 25%, rgba(45, 80, 22, 0.1) 0%, transparent 50%), 
+                        radial-gradient(circle at 75% 75%, rgba(82, 196, 26, 0.1) 0%, transparent 50%) !default; 

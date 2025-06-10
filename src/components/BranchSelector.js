@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { usePermissions } from 'hooks/usePermissions';
 import { sortArr } from 'functions';
 import PropTypes from 'prop-types';
+import { getBranchName } from '../utils/mappings';
 
 // Helper function to get province code from provinceId
 const getProvinceCodeFromId = (provinceId) => {
@@ -185,7 +186,7 @@ const BranchSelector = forwardRef(({
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 'bold' }}>
-                        {branch.branchName || branch.branchCode}
+                        {getBranchName(branch.branchCode) || branch.branchName || branch.branchCode}
                       </div>
                       {showProvinceInfo && (
                         <div style={{ fontSize: '11px', color: '#666' }}>
@@ -217,7 +218,7 @@ const BranchSelector = forwardRef(({
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 'bold' }}>
-                      {branch.branchName || branch.branchCode}
+                      {getBranchName(branch.branchCode) || branch.branchName || branch.branchCode}
                     </div>
                     {showProvinceInfo && (
                       <div style={{ fontSize: '11px', color: '#666' }}>

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import firebase from 'firebase/app';
 import 'firebase/messaging';
@@ -18,7 +18,7 @@ import { FirebaseContext } from '../../firebase';
 import { logoutUser } from 'redux/actions/auth';
 import { vapidKey } from 'firebase/firebaseConfig';
 import { useNotificationListener } from 'api/NotificationsUnified';
-import useDataSynchronization from 'hooks/useDataSync';
+import { useDataSynchronization } from 'hooks/useDataSync';
 
 export const NotFoundRedirect = () => <Redirect to="/not-found" />;
 
@@ -43,7 +43,7 @@ export const PrivateRoutes = props => {
   const history = useHistory();
 
   const { isVerifying, isLoggingOut, user } = useSelector(state => state.auth);
-  const { expenseCategories, users } = useSelector(state => state.data);
+  const { users } = useSelector(state => state.data);
   const { navItems } = useSelector(state => state.unPersisted);
 
   const all_menu_items = [...navItems]; // Using new navigationConfig.js system
@@ -61,9 +61,19 @@ export const PrivateRoutes = props => {
     updateStateRef.get().then(doc => {
       if (users[user.uid]?.status === 'ลาออก') {
         if (doc.exists) {
-          updateStateRef.update({ state: 'offline', last_offline: Date.now() }).then(() => dispatch(logoutUser()));
+          updateStateRef.update({ state: 'offline', last_offline: Date.now() }).then(() => {
+            dispatch(logoutUser());
+            // Force navigation to login route
+            setTimeout(() => {
+              window.location.href = '/login';
+            }, 100);
+          });
         } else {
           dispatch(logoutUser());
+          // Force navigation to login route
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 100);
         }
       } else if (doc.exists) {
         updateStateRef.update({
@@ -90,21 +100,33 @@ export const PrivateRoutes = props => {
     }
     async function registerPush() {
       try {
-        // Register the service worker.
-        await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-        // Wait until the service worker is active.
-        const registration = await navigator.serviceWorker.ready;
-        // Initialize messaging.
-        const messaging = firebase.messaging();
+        // Only register FCM in production or if explicitly enabled
+        if (process.env.NODE_ENV !== 'development' || process.env.REACT_APP_ENABLE_FCM === 'true') {
+          // Check if service worker and messaging are supported
+          if (!('serviceWorker' in navigator) || !firebase.messaging.isSupported()) {
+            console.log('🔔 FCM not supported in this browser/environment');
+            return;
+          }
 
-        // Retrieve the FCM token using the active service worker registration.
-        const token = await messaging.getToken({
-          vapidKey,
-          serviceWorkerRegistration: registration
-        });
-        console.log('FCM Token:', token);
+          // Register the service worker.
+          await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+          // Wait until the service worker is active.
+          const registration = await navigator.serviceWorker.ready;
+          // Initialize messaging.
+          const messaging = firebase.messaging();
+
+          // Retrieve the FCM token using the active service worker registration.
+          const token = await messaging.getToken({
+            vapidKey,
+            serviceWorkerRegistration: registration
+          });
+          console.log('🔔 FCM Token:', token);
+        } else {
+          console.log('🔔 FCM disabled in development mode');
+        }
       } catch (error) {
-        console.error('Failed to subscribe to push', error);
+        console.warn('🔔 FCM registration failed (non-critical):', error.message);
+        // Don't throw error - FCM is not critical for app functionality
       }
     }
 
@@ -125,7 +147,13 @@ export const PrivateRoutes = props => {
               <div />
             ) : (
               <route.layout {...props2}>
-                {isLoggingOut ? <Load loading /> : <route.component {...props2} />}
+                {isLoggingOut ? (
+                  <Load loading />
+                ) : (
+                  <Suspense fallback={<Load loading />}>
+                    <route.component {...props2} />
+                  </Suspense>
+                )}
               </route.layout>
             )
           }

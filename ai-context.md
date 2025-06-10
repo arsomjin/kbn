@@ -5,6 +5,7 @@ You are a skilled RBAC, permission project implementation.
 You are a professional React developer.
 You are a skilled professional UI/UX designer.
 You are a skilled Firebase developer.
+You are an expert in data analytics and utilization.
 
 ## KBN Project Overview
 
@@ -69,6 +70,7 @@ Replace outdated libraries with Ant Design equivalents:
 // REMOVE (Outdated Libraries)
 shards-react        → antd
 material-ui         → antd
+react-awesome-reveal
 react-table         → antd Table
 react-select        → antd Select
 formik              → antd Form
@@ -79,6 +81,16 @@ react-chartjs-2     → antd Charts / @ant-design/charts
 moment              → dayjs ✅ COMPLETE
 moment-timezone     → dayjs ✅ COMPLETE
 ```
+
+### **Design**
+
+- Nature-inspired app design
+- Earthy tones
+- Modern UI/UX
+- Professional and sleek
+- Flat design style
+- User-friendly
+- Responsive to all devices: using useResponsive hook
 
 ## Technical Implementation (Completed)
 

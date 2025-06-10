@@ -1,4 +1,3 @@
-
 // Enhanced Navigation configuration with RBAC integration
 export const NAVIGATION_CONFIG = {
   dashboard: {
@@ -887,6 +886,35 @@ export const NAVIGATION_CONFIG = {
   },
 
   admin: {
+    title: 'จัดการระบบ',
+    icon: 'setting',
+    permission: 'admin.view',
+    items: [
+      {
+        key: 'user-approval',
+        title: 'อนุมัติผู้ใช้งาน',
+        to: '/admin/user-approval',
+        permission: 'admin.approve',
+        description: 'อนุมัติและปฏิเสธผู้ใช้งานใหม่'
+      },
+      {
+        key: 'user-management',
+        title: 'จัดการผู้ใช้งาน',
+        to: '/admin/user-management',
+        permission: 'users.manage',
+        description: 'จัดการข้อมูลและสถานะผู้ใช้'
+      },
+      {
+        key: 'permission-management',
+        title: 'จัดการสิทธิ์',
+        to: '/admin/permission-management',
+        permission: 'admin.edit',
+        description: 'กำหนดสิทธิ์การใช้งานระบบ'
+      }
+    ]
+  },
+
+  settings: {
     title: 'ตั้งค่าระบบ',
     icon: 'setting',
     permission: 'admin.view',
@@ -1076,118 +1104,125 @@ export const NAVIGATION_CONFIG = {
     icon: 'code',
     permission: null, // Special handling - only for isDev users
     isDeveloperOnly: true, // Special flag for developer menu
+    items: [
+      {
+        key: 'test-group',
+        title: 'Test',
+        type: 'group',
         items: [
           {
-            key: 'test-group',
+            key: 'test-import',
+            title: 'Import',
+            to: '/developer/test-import',
+            description: 'ทดสอบการนำเข้าข้อมูล'
+          },
+          {
+            key: 'test-general',
             title: 'Test',
-            type: 'group',
-            items: [
-              {
-                key: 'test-import',
-                title: 'Import',
-                to: '/developer/test-import',
-                description: 'ทดสอบการนำเข้าข้อมูล'
-              },
-              {
-                key: 'test-general',
-                title: 'Test',
-                to: '/developer/test-general',
-                description: 'ทดสอบทั่วไป'
-              },
-              {
-                key: 'test-multi-province',
-                title: 'Test access control',
-                to: '/developer/test-multi-province',
-                description: 'ทดสอบระบบหลายจังหวัด',
-                priority: 'high'
-              },
-              {
-                key: 'audit-trail-demo',
-                title: 'Audit Trail & Stepper Demo',
-                to: '/developer/audit-trail-demo',
-                description: 'ทดสอบระบบ Audit Trail และ ResponsiveStepper พร้อม RBAC',
-                priority: 'high'
-              }
-            ]
+            to: '/developer/test-general',
+            description: 'ทดสอบทั่วไป'
           },
           {
-            key: 'template-group',
-            title: 'Template',
-            type: 'group',
-            items: [
-              {
-                key: 'template-page',
-                title: 'Page',
-                to: '/developer/template-page',
-                description: 'เทมเพลตหน้าเว็บ'
-              },
-              {
-                key: 'template-page2',
-                title: 'Page with search header',
-                to: '/developer/template-page2',
-                description: 'เทมเพลตหน้าเว็บพร้อมค้นหา'
-              },
-              {
-                key: 'template-pdf',
-                title: 'PDF Viewer',
-                to: '/developer/template-pdf-viewer',
-                description: 'เทมเพลตแสดง PDF'
-              },
-              {
-                key: 'template-format',
-                title: 'FormatContent',
-                to: '/developer/format-content',
-                description: 'เทมเพลตจัดรูปแบบเนื้อหา'
-              }
-            ]
+            key: 'test-access-control',
+            title: 'Test access control',
+            to: '/developer/test-access-control',
+            description: 'ทดสอบระบบหลายจังหวัด',
+            priority: 'high'
           },
           {
-            key: 'print-group',
-            title: 'Test Print',
-            type: 'group',
-            items: [
-              {
-                key: 'test-print',
-                title: 'Test Print',
-                to: '/developer/test-print',
-                description: 'ทดสอบการพิมพ์'
-              }
-            ]
+            key: 'audit-trail-demo',
+            title: 'Audit Trail & Stepper Demo',
+            to: '/developer/audit-trail-demo',
+            description: 'ทดสอบระบบ Audit Trail และ ResponsiveStepper พร้อม RBAC',
+            priority: 'high'
           },
           {
-            key: 'check-group',
-            title: 'Check',
-            type: 'group',
-            items: [
-              {
-                key: 'check-data',
-                title: 'Check data',
-                to: '/developer/update-data',
-                description: 'ตรวจสอบและอัพเดทข้อมูล'
-              }
-            ]
-          },
-          {
-            key: 'migration-group',
-            title: 'Migration',
-            type: 'group',
-            items: [
-              {
-                key: 'migration-tools',
-                title: 'Migration Tools',
-                to: '/developer/migration-tools',
-                description: 'เครื่องมือสำหรับการ migrate ข้อมูลหลายจังหวัด',
-                priority: 'high'
-              },
-              {
-                key: 'phase3-migration',
-                title: 'Phase 3 Migration',
-                to: '/developer/phase3-migration',
-                description: 'การ migrate ข้อมูล Phase 3',
-                priority: 'high'
-              }
-            ]
+            key: 'test-authentication',
+            title: 'Test Authentication & isDev',
+            to: '/dev/test-authentication',
+            description: 'ทดสอบระบบ Authentication และ isDev flag + Role Switcher',
+            priority: 'critical'
           }
+        ]
+      },
+      {
+        key: 'template-group',
+        title: 'Template',
+        type: 'group',
+        items: [
+          {
+            key: 'template-page',
+            title: 'Page',
+            to: '/developer/template-page',
+            description: 'เทมเพลตหน้าเว็บ'
+          },
+          {
+            key: 'template-page2',
+            title: 'Page with search header',
+            to: '/developer/template-page2',
+            description: 'เทมเพลตหน้าเว็บพร้อมค้นหา'
+          },
+          {
+            key: 'template-pdf',
+            title: 'PDF Viewer',
+            to: '/developer/template-pdf-viewer',
+            description: 'เทมเพลตแสดง PDF'
+          },
+          {
+            key: 'template-format',
+            title: 'FormatContent',
+            to: '/developer/format-content',
+            description: 'เทมเพลตจัดรูปแบบเนื้อหา'
+          }
+        ]
+      },
+      {
+        key: 'print-group',
+        title: 'Test Print',
+        type: 'group',
+        items: [
+          {
+            key: 'test-print',
+            title: 'Test Print',
+            to: '/developer/test-print',
+            description: 'ทดสอบการพิมพ์'
+          }
+        ]
+      },
+      {
+        key: 'check-group',
+        title: 'Check',
+        type: 'group',
+        items: [
+          {
+            key: 'check-data',
+            title: 'Check data',
+            to: '/developer/update-data',
+            description: 'ตรวจสอบและอัพเดทข้อมูล'
+          }
+        ]
+      },
+      {
+        key: 'migration-group',
+        title: 'Migration',
+        type: 'group',
+        items: [
+          {
+            key: 'migration-tools',
+            title: 'Migration Tools',
+            to: '/developer/migration-tools',
+            description: 'เครื่องมือสำหรับการ migrate ข้อมูลหลายจังหวัด',
+            priority: 'high'
+          },
+          {
+            key: 'phase3-migration',
+            title: 'Phase 3 Migration',
+            to: '/developer/phase3-migration',
+            description: 'การ migrate ข้อมูล Phase 3',
+            priority: 'high'
+          }
+        ]
+      }
     ]
   }
 

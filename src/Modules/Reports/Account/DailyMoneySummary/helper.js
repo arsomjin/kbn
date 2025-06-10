@@ -245,6 +245,7 @@ export const formatIncomeSummary = async ({ branchCode, date }) => {
           dailyChangeDeposit,
           partChangeDeposit,
           bankTransfer,
+          personalLoan,
           duringDayMoney,
           duringDayArr,
           afterDailyClosed,
@@ -266,6 +267,11 @@ export const formatIncomeSummary = async ({ branchCode, date }) => {
 
         // Calculate total bank transfer amount
         const transfer_hq = bankTransfer
+          .filter(item => !item.deleted)
+          .reduce((sum, item) => sum + Numb(item?.amount || 0), 0);
+
+        // Calculate total personal loan amount
+        const personal_loan_total = (personalLoan || [])
           .filter(item => !item.deleted)
           .reduce((sum, item) => sum + Numb(item?.amount || 0), 0);
 
@@ -304,8 +310,8 @@ export const formatIncomeSummary = async ({ branchCode, date }) => {
         const cash_hq = Numb(dailyNetIncome) - transfer_hq - send_money_chompoo - executive_cash_deposit;
 
         const duringDay_total = duringDayMoney.reduce((sum, item) => sum + Numb(item.value), 0);
-        // Calculate net total after adjustments
-        const netTotal = Numb(dailyNetIncome) - after_daily_closed - transfer_hq - bank_deposit - duringDay_total;
+        // Calculate net total after adjustments (including personal loan deduction)
+        const netTotal = Numb(dailyNetIncome) - after_daily_closed - transfer_hq - bank_deposit - personal_loan_total - duringDay_total;
 
         // Currently, BAAC transfer is set to 0
         let transfer_baac = 0;

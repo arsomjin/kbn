@@ -82,7 +82,8 @@ export default forwardRef(
         let newValue = controlledValue;
         if (['multiple', 'tags'].includes(mode)) {
           if (!controlledValue || (Array.isArray(controlledValue) && controlledValue.length === 0)) {
-            return showLog('No search text');
+            showLog('No search text');
+            return;
           } else if (Array.isArray(controlledValue) && controlledValue.includes('addNew')) {
             return;
           }

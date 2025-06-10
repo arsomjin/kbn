@@ -55,7 +55,7 @@ const SidebarMainNavbar = props => {
             marginRight: '12px'
           }}
           src={require('../../../images/logo192.png')}
-          alt="Kubota Benjapol"
+                        alt="KBN"
         />
         
         {!props.hideLogoText && (

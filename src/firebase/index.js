@@ -2,6 +2,7 @@
 // contains the Firebase context and provider
 
 import React, { createContext, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import firebaseConfig from './firebaseConfig';
 import app from 'firebase/app';
 import 'firebase/auth';
@@ -785,6 +786,10 @@ const FirebaseProvider = ({ children }) => {
   // }
 
   return <FirebaseContext.Provider value={firebase}>{children}</FirebaseContext.Provider>;
+};
+
+FirebaseProvider.propTypes = {
+  children: PropTypes.node.isRequired
 };
 
 export default FirebaseProvider;

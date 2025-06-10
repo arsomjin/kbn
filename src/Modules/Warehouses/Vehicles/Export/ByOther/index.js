@@ -292,7 +292,8 @@ export default () => {
   };
 
   const _onItemEdit = record => {
-    return showLog({ edit_record: record });
+    // For debugging: show log and update record
+    showLog({ edit_record: record });
     onUpdate(record);
   };
 

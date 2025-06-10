@@ -1,0 +1,500 @@
+/* 
+ * KBN Nature-Inspired Component Styles
+ * Modern flat design with earthy tones and user-friendly elements
+ */
+
+/* ======================
+   CSS CUSTOM PROPERTIES (CSS Variables)
+   ====================== */
+:root {
+  /* Nature Color Palette */
+  --nature-primary: #2d5016;
+  --nature-primary-light: #3d6b1c;
+  --nature-primary-lighter: #4a7c1f;
+  
+  --nature-secondary: #52c41a;
+  --nature-secondary-light: #73d13d;
+  --nature-secondary-lighter: #95de64;
+  
+  --nature-earth: #8b4513;
+  --nature-earth-light: #a0522d;
+  --nature-earth-lighter: #cd853f;
+  
+  --nature-gray: #6b7280;
+  --nature-gray-light: #9ca3af;
+  --nature-gray-lighter: #d1d5db;
+  
+  /* State Colors */
+  --nature-success: #16a34a;
+  --nature-warning: #f59e0b;
+  --nature-error: #dc2626;
+  --nature-info: #0ea5e9;
+  
+  /* Background Colors */
+  --nature-bg-primary: #fefefe;
+  --nature-bg-secondary: #f8fafc;
+  --nature-bg-tertiary: #f1f5f9;
+  
+  /* Text Colors */
+  --nature-text-primary: #1f2937;
+  --nature-text-secondary: #4b5563;
+  --nature-text-tertiary: #6b7280;
+  --nature-text-disabled: #9ca3af;
+  
+  /* Design System */
+  --nature-radius: 8px;
+  --nature-radius-lg: 12px;
+  --nature-radius-sm: 6px;
+  --nature-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --nature-shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --nature-transition: 0.25s ease-in-out;
+}
+
+/* Dark mode CSS variables */
+[data-theme="dark"] {
+  --nature-bg-primary: #1f2937;
+  --nature-bg-secondary: #374151;
+  --nature-bg-tertiary: #4b5563;
+  --nature-text-primary: #f9fafb;
+  --nature-text-secondary: #d1d5db;
+  --nature-text-tertiary: #9ca3af;
+}
+
+/* ======================
+   GLOBAL OVERRIDES
+   ====================== */
+
+/* Body and root styling */
+body {
+  background-color: var(--nature-bg-secondary) !important;
+  font-family: 'Inter', 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  line-height: 1.5;
+  color: var(--nature-text-primary);
+  transition: background-color var(--nature-transition);
+}
+
+/* ======================
+   NATURE UTILITY CLASSES
+   ====================== */
+
+/* Background utilities */
+.nature-bg-primary { background-color: var(--nature-bg-primary) !important; }
+.nature-bg-secondary { background-color: var(--nature-bg-secondary) !important; }
+.nature-bg-tertiary { background-color: var(--nature-bg-tertiary) !important; }
+
+/* Text color utilities */
+.nature-text-primary { color: var(--nature-text-primary) !important; }
+.nature-text-secondary { color: var(--nature-text-secondary) !important; }
+.nature-text-tertiary { color: var(--nature-text-tertiary) !important; }
+
+/* Color utilities */
+.nature-primary { color: var(--nature-primary) !important; }
+.nature-secondary { color: var(--nature-secondary) !important; }
+.nature-success { color: var(--nature-success) !important; }
+.nature-warning { color: var(--nature-warning) !important; }
+.nature-error { color: var(--nature-error) !important; }
+
+/* Background color utilities */
+.nature-bg-primary-color { background-color: var(--nature-primary) !important; }
+.nature-bg-secondary-color { background-color: var(--nature-secondary) !important; }
+.nature-bg-success { background-color: var(--nature-success) !important; }
+.nature-bg-warning { background-color: var(--nature-warning) !important; }
+.nature-bg-error { background-color: var(--nature-error) !important; }
+
+/* Gradient utilities */
+.nature-gradient-primary {
+  background: linear-gradient(135deg, var(--nature-primary) 0%, var(--nature-primary-light) 100%) !important;
+  color: white !important;
+}
+
+.nature-gradient-secondary {
+  background: linear-gradient(135deg, var(--nature-secondary) 0%, var(--nature-secondary-light) 100%) !important;
+  color: white !important;
+}
+
+.nature-gradient-earth {
+  background: linear-gradient(135deg, var(--nature-earth) 0%, var(--nature-earth-light) 100%) !important;
+  color: white !important;
+}
+
+/* Shadow utilities */
+.nature-shadow { box-shadow: var(--nature-shadow) !important; }
+.nature-shadow-lg { box-shadow: var(--nature-shadow-lg) !important; }
+.nature-shadow-none { box-shadow: none !important; }
+
+/* ======================
+   ENHANCED CARD STYLES
+   ====================== */
+
+.nature-card {
+  background: var(--nature-bg-primary);
+  border: 1px solid rgba(45, 80, 22, 0.1);
+  border-radius: var(--nature-radius-lg);
+  box-shadow: var(--nature-shadow);
+  transition: all var(--nature-transition);
+  overflow: hidden;
+}
+
+.nature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--nature-shadow-lg);
+  border-color: rgba(45, 80, 22, 0.2);
+}
+
+.nature-card-header {
+  background: var(--nature-bg-secondary);
+  border-bottom: 1px solid rgba(45, 80, 22, 0.1);
+  padding: 16px 20px;
+  font-weight: 600;
+  color: var(--nature-text-primary);
+}
+
+.nature-card-body {
+  padding: 20px;
+}
+
+/* ======================
+   ENHANCED BUTTON STYLES
+   ====================== */
+
+.nature-btn {
+  border-radius: var(--nature-radius);
+  font-weight: 500;
+  transition: all var(--nature-transition);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.nature-btn-primary {
+  background: var(--nature-primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(45, 80, 22, 0.2);
+}
+
+.nature-btn-primary:hover {
+  background: var(--nature-primary-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(45, 80, 22, 0.3);
+}
+
+.nature-btn-secondary {
+  background: var(--nature-secondary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(82, 196, 26, 0.2);
+}
+
+.nature-btn-secondary:hover {
+  background: var(--nature-secondary-light);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(82, 196, 26, 0.3);
+}
+
+.nature-btn-outline {
+  background: transparent;
+  border: 2px solid var(--nature-primary);
+  color: var(--nature-primary);
+}
+
+.nature-btn-outline:hover {
+  background: var(--nature-primary);
+  color: white;
+  transform: translateY(-1px);
+}
+
+/* Button sizes */
+.nature-btn-sm { padding: 6px 12px; font-size: 12px; }
+.nature-btn-md { padding: 8px 16px; font-size: 14px; }
+.nature-btn-lg { padding: 12px 24px; font-size: 16px; }
+
+/* ======================
+   ENHANCED FORM STYLES
+   ====================== */
+
+.nature-form-item {
+  margin-bottom: 16px;
+}
+
+.nature-form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: var(--nature-text-secondary);
+  font-size: 14px;
+}
+
+.nature-form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--nature-gray-lighter);
+  border-radius: var(--nature-radius);
+  background: var(--nature-bg-primary);
+  color: var(--nature-text-primary);
+  font-size: 14px;
+  transition: all var(--nature-transition);
+}
+
+.nature-form-input:focus {
+  outline: none;
+  border-color: var(--nature-primary);
+  box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.1);
+}
+
+.nature-form-input:hover {
+  border-color: var(--nature-primary-light);
+}
+
+/* ======================
+   ENHANCED TABLE STYLES
+   ====================== */
+
+.nature-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-radius: var(--nature-radius);
+  overflow: hidden;
+  box-shadow: var(--nature-shadow);
+  background: var(--nature-bg-primary);
+}
+
+.nature-table thead {
+  background: linear-gradient(135deg, var(--nature-primary) 0%, var(--nature-primary-light) 100%);
+  color: white;
+}
+
+.nature-table th,
+.nature-table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--nature-gray-lighter);
+}
+
+.nature-table th {
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nature-table tbody tr {
+  transition: all var(--nature-transition);
+}
+
+.nature-table tbody tr:hover {
+  background-color: rgba(45, 80, 22, 0.04);
+  transform: translateX(2px);
+}
+
+.nature-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ======================
+   ENHANCED NAVIGATION STYLES
+   ====================== */
+
+.nature-nav {
+  background: var(--nature-bg-primary);
+  border-bottom: 1px solid rgba(45, 80, 22, 0.1);
+  box-shadow: var(--nature-shadow);
+}
+
+.nature-nav-item {
+  padding: 12px 16px;
+  color: var(--nature-text-secondary);
+  text-decoration: none;
+  transition: all var(--nature-transition);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: var(--nature-radius-sm);
+  margin: 4px;
+}
+
+.nature-nav-item:hover {
+  background-color: rgba(45, 80, 22, 0.06);
+  color: var(--nature-primary);
+  transform: translateX(4px);
+}
+
+.nature-nav-item.active {
+  background-color: rgba(45, 80, 22, 0.1);
+  color: var(--nature-primary);
+  font-weight: 600;
+}
+
+/* ======================
+   ENHANCED NOTIFICATION STYLES
+   ====================== */
+
+.nature-notification {
+  border-radius: var(--nature-radius-lg);
+  border: none;
+  box-shadow: var(--nature-shadow-lg);
+  padding: 16px;
+  background: var(--nature-bg-primary);
+}
+
+.nature-notification-success {
+  border-left: 4px solid var(--nature-success);
+}
+
+.nature-notification-warning {
+  border-left: 4px solid var(--nature-warning);
+}
+
+.nature-notification-error {
+  border-left: 4px solid var(--nature-error);
+}
+
+.nature-notification-info {
+  border-left: 4px solid var(--nature-info);
+}
+
+/* ======================
+   RESPONSIVE DESIGN
+   ====================== */
+
+/* Mobile First Approach */
+@media (max-width: 576px) {
+  .nature-card {
+    border-radius: var(--nature-radius);
+    margin: 8px;
+  }
+  
+  .nature-card-body {
+    padding: 16px;
+  }
+  
+  .nature-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .nature-table {
+    font-size: 12px;
+  }
+  
+  .nature-table th,
+  .nature-table td {
+    padding: 8px 12px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 577px) and (max-width: 768px) {
+  .nature-card {
+    margin: 12px;
+  }
+  
+  .nature-table {
+    font-size: 13px;
+  }
+}
+
+/* Desktop */
+@media (min-width: 769px) {
+  .nature-card:hover {
+    transform: translateY(-4px);
+  }
+  
+  .nature-btn:hover {
+    transform: translateY(-2px);
+  }
+}
+
+/* ======================
+   ACCESSIBILITY ENHANCEMENTS
+   ====================== */
+
+/* Focus indicators */
+.nature-btn:focus,
+.nature-form-input:focus,
+.nature-nav-item:focus {
+  outline: 2px solid var(--nature-primary);
+  outline-offset: 2px;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .nature-card {
+    border: 2px solid var(--nature-primary);
+  }
+  
+  .nature-btn {
+    border: 2px solid currentColor;
+  }
+  
+  .nature-form-input {
+    border: 2px solid var(--nature-text-primary);
+  }
+}
+
+/* ======================
+   ANIMATION UTILITIES
+   ====================== */
+
+@keyframes nature-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nature-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.nature-fade-in {
+  animation: nature-fade-in 0.5s ease-out;
+}
+
+.nature-slide-in {
+  animation: nature-slide-in 0.3s ease-out;
+}
+
+/* ======================
+   PRINT STYLES
+   ====================== */
+
+@media print {
+  .nature-card {
+    box-shadow: none;
+    border: 1px solid #000;
+  }
+  
+  .nature-btn {
+    border: 1px solid #000;
+  }
+  
+  .nature-gradient-primary,
+  .nature-gradient-secondary,
+  .nature-gradient-earth {
+    background: #fff !important;
+    color: #000 !important;
+  }
+} 

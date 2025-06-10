@@ -3,6 +3,9 @@
 
 const safeEnv = (typeof process !== 'undefined' && process.env) || {};
 
+const isDev = process.env.NODE_ENV === 'development';
+const isProd = process.env.NODE_ENV === 'production';
+
 export const ENVIRONMENTS = {
   TEST: 'test',
   PRODUCTION: 'production',
@@ -30,7 +33,6 @@ export const getDatabaseInfo = () => {
     environment: env,
     projectId,
     isProduction: env === ENVIRONMENTS.PRODUCTION,
-    isTest: env === ENVIRONMENTS.TEST,
     isDevelopment: env === ENVIRONMENTS.DEVELOPMENT
   };
 };
@@ -60,13 +62,17 @@ export const validateProductionSwitch = () => {
 
 // Migration safety checks
 export const getMigrationSafetyConfig = () => {
-  const { isProduction, isTest } = getDatabaseInfo();
+  const { isProduction } = getDatabaseInfo();
   
   return {
     requiresConfirmation: isProduction,
-    allowsTestData: !isProduction,
     maxBatchSize: isProduction ? 10 : 100, // Slower batches in production
     enableDebugLogging: !isProduction,
     requiresBackup: isProduction
   };
+};
+
+export {
+  isDev,
+  isProd
 }; 

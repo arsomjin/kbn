@@ -8,7 +8,7 @@ export class PrintFooter extends React.PureComponent {
       <div className="mt-5 justify-content-end">
         {children}
         <Divider orientation="right" className="text-muted">
-          {`Copyright © ${new Date().getFullYear()} Kubota Benjapol Nakhon Ratchasima`}
+          {`Copyright © ${new Date().getFullYear()} KBN`}
         </Divider>
       </div>
     );

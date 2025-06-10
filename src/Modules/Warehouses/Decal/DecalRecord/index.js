@@ -44,7 +44,7 @@ const initProps = {
 
 export default () => {
   const { api, firestore } = useContext(FirebaseContext);
-  const history = useHistory();
+  // const history = useHistory(); // Unused but kept for future use
   let location = useLocation();
   const params = location.state?.params;
 

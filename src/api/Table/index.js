@@ -573,7 +573,6 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
   };
 
   const isBoolean = ['isDecal', 'isTakeOut', 'WR', 'FOC'].includes(dataIndex);
-  const isSale = ['/sale-machines', '/sale-booking'].includes(path || '');
   const isWarehouse = ['/warehouse/export-by-transfer'].includes(path || '');
 
   let inputNode = <Input {...mProps} size={size || 'small'} />;

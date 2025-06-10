@@ -345,7 +345,7 @@ const StockImport = () => {
     //           marginBottom: '30px',
     //         }}
     //         src={require('images/logo192.png')}
-    //         alt="Kubota Benjapol"
+    //         alt="KBN"
     //       />
     //       <h2>KBN</h2>
     //       <h3>บริษัท คูโบต้าเบญจพล นครราชสีมา จำกัด</h3>

@@ -55,24 +55,53 @@ export const getProvincesFailure = (error) => ({
   payload: error
 });
 
+// Default provinces as fallback
+const DEFAULT_PROVINCES = {
+  'nakhon-ratchasima': {
+    key: 'nakhon-ratchasima',
+    name: 'นครราชสีมา',
+    code: 'NMA',
+    region: 'northeast',
+    status: 'active',
+    _key: 'nakhon-ratchasima'
+  },
+  'nakhon-sawan': {
+    key: 'nakhon-sawan', 
+    name: 'นครสวรรค์',
+    code: 'NSN',
+    region: 'central',
+    status: 'active',
+    _key: 'nakhon-sawan'
+  }
+};
+
 // Async Action Creators (Thunks)
 export const fetchProvinces = () => {
   return async (dispatch, getState) => {
     try {
       dispatch(setProvinceLoading(true));
       
-      // Get Firebase API from context - will be injected by Firebase context
-      const { api } = getState().firebase || {};
+      // Import the direct Firebase API function
+      const { getProvinces } = await import('../../firebase/api');
       
-      if (api && api.getProvinces) {
-        const provinces = await api.getProvinces();
-        dispatch(getProvincesSuccess(provinces));
-        dispatch(setProvinces(provinces));
+      if (getProvinces) {
+        const provinces = await getProvinces();
+        
+        // If no provinces found in Firebase, use default provinces
+        const provincesToUse = Object.keys(provinces).length > 0 ? provinces : DEFAULT_PROVINCES;
+        
+        dispatch(getProvincesSuccess(provincesToUse));
+        dispatch(setProvinces(provincesToUse));
       } else {
-        console.warn('Firebase API not available for provinces');
+        console.warn('Firebase API getProvinces function not available, using default provinces');
+        dispatch(getProvincesSuccess(DEFAULT_PROVINCES));
+        dispatch(setProvinces(DEFAULT_PROVINCES));
       }
     } catch (error) {
-      console.error('Error fetching provinces:', error);
+      console.error('Error fetching provinces:', error, 'Using default provinces');
+      // Fallback to default provinces on error
+      dispatch(getProvincesSuccess(DEFAULT_PROVINCES));
+      dispatch(setProvinces(DEFAULT_PROVINCES));
       dispatch(getProvincesFailure(error.message));
     } finally {
       dispatch(setProvinceLoading(false));

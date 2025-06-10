@@ -5,6 +5,20 @@
 
 // Department Access Permissions
 export const DEPARTMENTS = {
+  accounting: { name: 'บัญชีและการเงิน', key: 'accounting' },
+  sales: { name: 'ขายและลูกค้า', key: 'sales' },
+  service: { name: 'บริการและซ่อมบำรุง', key: 'service' },
+  inventory: { name: 'คลังสินค้าและอะไหล่', key: 'inventory' },
+  hr: { name: 'ทรัพยากรบุคคล', key: 'hr' },
+  management: { name: 'ผู้บริหาร', key: 'management' },
+  admin: { name: 'ระบบและผู้ดูแล', key: 'admin' },
+  users: { name: 'จัดการผู้ใช้งาน', key: 'users' },
+  reports: { name: 'รายงานทั้งหมด', key: 'reports' },
+  notifications: { name: 'การแจ้งเตือนและเผยแพร่', key: 'notifications' }
+};
+
+// Legacy department constants for backward compatibility
+export const LEGACY_DEPARTMENTS = {
   ACCOUNTING: 'accounting',
   SALES: 'sales', 
   SERVICE: 'service',
@@ -125,79 +139,88 @@ export const ROLE_PERMISSIONS = {
   
   PROVINCE_MANAGER: [
     // Full access to all departments except admin approve
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.REVIEW),
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.APPROVE),
+    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.REVIEW),
+    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.APPROVE),
     
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.REVIEW),
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.APPROVE),
+    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.REVIEW),
+    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.APPROVE),
     
-    combinePermission(DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.REVIEW),
-    combinePermission(DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.APPROVE),
+    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.REVIEW),
+    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.APPROVE),
     
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.REVIEW),
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.APPROVE),
+    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.REVIEW),
+    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.APPROVE),
     
-    combinePermission(DEPARTMENTS.HR, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.HR, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.HR, DOCUMENT_FLOWS.REVIEW),
+    combinePermission(LEGACY_DEPARTMENTS.HR, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.HR, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.HR, DOCUMENT_FLOWS.REVIEW),
     
-    combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.EDIT),
     
-    combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.VIEW),
+    
+    // User management permissions for province managers
+    'users.view',
+    'users.manage',
+    'users.approve',
     
     // Notification permissions for province managers
-    combinePermission(DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.EDIT)
+    combinePermission(LEGACY_DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.EDIT)
   ],
   
   BRANCH_MANAGER: [
     // Accounting access
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.REVIEW),
+    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.REVIEW),
     
     // Sales access
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.REVIEW),
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.APPROVE),
+    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.REVIEW),
+    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.APPROVE),
     
     // Service access
-    combinePermission(DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.REVIEW),
+    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.REVIEW),
     
     // Inventory access
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.EDIT),
     
     // Reports access
-    combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW),
+    
+    // User management permissions for branch managers
+    'users.view',
+    'users.manage',
     
     // Notification permissions for branch managers  
-    combinePermission(DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.VIEW)
+    combinePermission(LEGACY_DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.VIEW)
   ],
   
   ACCOUNTING_STAFF: [
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW)
+    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW)
   ],
   
   SALES_STAFF: [
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW)
+    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.EDIT),
+    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
+    combinePermission(LEGACY_DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW)
   ],
   
   SERVICE_STAFF: [

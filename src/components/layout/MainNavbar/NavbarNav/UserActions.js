@@ -17,10 +17,27 @@ const UserActions = () => {
     let updateStateRef = app.firestore().collection('status').doc(user.uid);
     updateStateRef.get().then(doc => {
       if (doc.exists) {
-        updateStateRef.update({ state: 'offline', last_offline: Date.now() }).then(() => dispatch(logoutUser()));
+        updateStateRef.update({ state: 'offline', last_offline: Date.now() }).then(() => {
+          dispatch(logoutUser());
+          // Force navigation to login route
+          setTimeout(() => {
+            window.location.href = '/login';
+          }, 100);
+        });
       } else {
         dispatch(logoutUser());
+        // Force navigation to login route
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 100);
       }
+    }).catch(error => {
+      console.warn('Error updating status during logout:', error);
+      // Still logout even if status update fails
+      dispatch(logoutUser());
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 100);
     });
   };
 

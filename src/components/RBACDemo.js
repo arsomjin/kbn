@@ -103,9 +103,9 @@ const RBACDemo = () => {
 
   const demoBranches = [
     { code: '0450', name: 'สาขานครราชสีมา', province: 'นครราชสีมา' },
-    { code: 'NSN001', name: 'สาขานครสวรรค์ 1', province: 'นครสวรรค์' },
-    { code: 'NSN002', name: 'สาขานครสวรรค์ 2', province: 'นครสวรรค์' },
-    { code: 'NSN003', name: 'สาขานครสวรรค์ 3', province: 'นครสวรรค์' }
+    { code: 'NSN001', name: 'สาขานครสวรรค์', province: 'นครสวรรค์' },
+    { code: 'NSN002', name: 'สาขาตาคลี', province: 'นครสวรรค์' },
+    { code: 'NSN003', name: 'สาขาหนองบัว', province: 'นครสวรรค์' }
   ];
 
   // Load provinces on mount
@@ -152,21 +152,21 @@ const RBACDemo = () => {
           },
           'NSN001': {
             branchCode: 'NSN001',
-            branchName: 'สาขานครสวรรค์ 1',
+            branchName: 'สาขานครสวรรค์',
             provinceId: 'nakhon-sawan',
             province: 'นครสวรรค์',
             isActive: true
           },
           'NSN002': {
             branchCode: 'NSN002',
-            branchName: 'สาขานครสวรรค์ 2',
+            branchName: 'สาขาตาคลี',
             provinceId: 'nakhon-sawan',
             province: 'นครสวรรค์',
             isActive: true
           },
           'NSN003': {
             branchCode: 'NSN003',
-            branchName: 'สาขานครสวรรค์ 3',
+            branchName: 'สาขาหนองบัว',
             provinceId: 'nakhon-sawan',
             province: 'นครสวรรค์',
             isActive: true

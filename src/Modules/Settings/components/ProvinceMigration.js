@@ -45,7 +45,7 @@ const NAKHON_SAWAN_BRANCHES = [
   },
   {
     branchCode: 'NSN002',
-    branchName: 'สาขานครสวรรค์ 2',
+    branchName: 'สาขาตาคลี',
     provinceCode: 'นครสวรรค์',
     region: 'กลาง',
     locationId: null,
@@ -57,7 +57,7 @@ const NAKHON_SAWAN_BRANCHES = [
   },
   {
     branchCode: 'NSN003',
-    branchName: 'สาขานครสวรรค์ 3',
+    branchName: 'สาขาหนองบัว',
     provinceCode: 'นครสวรรค์',
     region: 'กลาง',
     locationId: null,

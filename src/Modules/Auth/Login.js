@@ -47,7 +47,7 @@ const Login = ({ styles, handleConfirm, change }) => {
               marginBottom: '20px'
             }}
             src={require('../../images/logo192.png')}
-            alt="Kubota Benjapol"
+                            alt="KBN"
           />
         </Row>
         <Typography component="h1" variant="h5" style={{ color: '#fff', textAlign: 'center' }}>

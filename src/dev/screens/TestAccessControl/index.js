@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Row, Col, Card, Button, Alert, Tabs, Select, Space, Tag, Descriptions, Switch, Typography } from 'antd';
+import { Row, Col, Card, Button, Alert, Tabs, Select, Space, Tag, Descriptions, Switch, Typography, message } from 'antd';
 import { 
   UserOutlined, 
   GlobalOutlined, 
@@ -16,6 +16,7 @@ import  GeographicBranchSelector  from 'components/GeographicBranchSelector';
 import ProvinceSelector from 'components/ProvinceSelector';
 import BranchSelector from 'components/BranchSelector';
 import { RBACDemo } from 'components';
+import { FirebaseContext } from '../../../firebase';
 
 import { setUserPermissions, setUserRole, setGeographicAccess } from 'redux/actions/rbac';
 import { USER_UPDATE } from 'redux/actions/auth';
@@ -30,6 +31,7 @@ const TestAccessControl = () => {
   const { user } = useSelector(state => state.auth);
   const { provinces } = useSelector(state => state.provinces);
   const { branches } = useSelector(state => state.data);
+  const { app } = useContext(FirebaseContext);
   
   const [selectedProvince, setSelectedProvince] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState(null);
@@ -144,7 +146,7 @@ const TestAccessControl = () => {
   }, [quickTestRole, quickTestProvince, quickTestBranch, quickTestDepartment, autoApplyChanges]);
 
   // Apply quick test configuration
-  const applyQuickTestConfiguration = () => {
+  const applyQuickTestConfiguration = async () => {
     if (!user?.uid) return;
 
     const roleConfig = getRoleConfiguration(quickTestRole, quickTestProvince, quickTestBranch, quickTestDepartment);
@@ -153,24 +155,20 @@ const TestAccessControl = () => {
       // Extract permissions and geographic data from config
       const { permissions, ...geographic } = roleConfig;
       
-      // Update user object
-      const updatedUser = {
-        ...user,
-        isExecutive: quickTestRole === 'EXECUTIVE',
-        accessLevel: quickTestRole,
-        homeProvince: geographic.homeProvince,
-        homeBranch: geographic.homeBranch,
-        allowedProvinces: geographic.allowedProvinces,
-        allowedBranches: geographic.allowedBranches
-      };
+      // Update Firestore with new role and context
+      await app.firestore().collection('users').doc(user.uid).update({
+        'auth.accessLevel': quickTestRole,
+        'auth.allowedProvinces': geographic.allowedProvinces,
+        'auth.allowedBranches': geographic.allowedBranches, 
+        'auth.homeProvince': geographic.homeProvince,
+        'auth.homeBranch': geographic.homeBranch,
+        'auth.lastQuickTest': Date.now()
+      });
+
+      // Let the real-time listeners (useSelfListener) handle Redux updates automatically
+      // No need to manually dispatch to Redux since useSelfListener will detect the Firestore changes
       
-      // Dispatch updates
-      dispatch({ type: USER_UPDATE, user: updatedUser });
-      dispatch(setUserPermissions(user.uid, permissions, geographic));
-      dispatch(setUserRole(user.uid, quickTestRole));
-      dispatch(setGeographicAccess(user.uid, geographic));
-      
-      console.log(`✅ Applied test configuration: ${quickTestRole} at ${quickTestProvince}/${quickTestBranch} (${quickTestDepartment})`);
+      message.success(`✅ Quick test: switched to ${quickTestRole} role`);
     }
   };
 

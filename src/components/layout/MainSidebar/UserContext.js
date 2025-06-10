@@ -7,38 +7,71 @@ const { Text } = Typography;
 
 const UserContext = () => {
   const { user } = useSelector(state => state.auth);
-  const { provinces, branches } = useSelector(state => state.data);
+  const { branches } = useSelector(state => state.data);
+  const { provinces } = useSelector(state => state.provinces);
 
   // For BRANCH_MANAGER, show their specific branch and province
   // For PROVINCE_MANAGER, show their province(s)
   // For SUPER_ADMIN, show "ทั้งหมด"
   const getProvinceDisplay = () => {
+    // Safety check for missing provinces data
+    if (!provinces || typeof provinces !== 'object') {
+      console.warn('UserContext: provinces data not loaded yet');
+      return 'กำลังโหลด...';
+    }
+
     if (user?.accessLevel === 'SUPER_ADMIN') {
       return 'ทั้งหมด';
     }
     
     if (user?.accessLevel === 'PROVINCE_MANAGER') {
       if (user?.allowedProvinces && user.allowedProvinces.length === 1) {
-        return provinces[user.allowedProvinces[0]]?.provinceName || 'ไม่ระบุ';
+        const provinceData = provinces[user.allowedProvinces[0]];
+        return provinceData?.provinceName || provinceData?.name || 'ไม่ระบุ';
       } else if (user?.allowedProvinces && user.allowedProvinces.length > 1) {
         return `${user.allowedProvinces.length} จังหวัด`;
+      }
+      // Fallback for PROVINCE_MANAGER without allowedProvinces - use first available province
+      const availableProvinces = Object.keys(provinces);
+      if (availableProvinces.length > 0) {
+        const provinceData = provinces[availableProvinces[0]];
+        return provinceData?.provinceName || provinceData?.name || 'นครราชสีมา';
       }
     }
     
     if (user?.accessLevel === 'BRANCH_MANAGER') {
-      if (user?.allowedBranches && user.allowedBranches.length > 0) {
+      if (user?.allowedBranches && user.allowedBranches.length > 0 && branches) {
         const firstBranch = branches[user.allowedBranches[0]];
         if (firstBranch) {
-          return provinces[firstBranch.provinceId]?.provinceName || 'ไม่ระบุ';
+          const provinceData = provinces[firstBranch.provinceId];
+          return provinceData?.provinceName || provinceData?.name || 'ไม่ระบุ';
         }
       }
     }
     
     // Fallback to home province
-    return user?.homeProvince && provinces[user.homeProvince]?.provinceName || 'ไม่ระบุ';
+    if (user?.homeProvince && provinces[user.homeProvince]) {
+      const provinceData = provinces[user.homeProvince];
+      return provinceData?.provinceName || provinceData?.name || 'ไม่ระบุ';
+    }
+    
+    // Ultimate fallback - use the first available province or default
+    const availableProvinces = Object.keys(provinces);
+    if (availableProvinces.length > 0) {
+      const provinceData = provinces[availableProvinces[0]];
+      return provinceData?.provinceName || provinceData?.name || 'นครราชสีมา';
+    }
+    
+    return 'นครราชสีมา'; // Default to main province
   };
 
   const getBranchDisplay = () => {
+    // Safety check for missing branches data
+    if (!branches || typeof branches !== 'object') {
+      console.warn('UserContext: branches data not loaded yet');
+      return 'กำลังโหลด...';
+    }
+
     if (user?.accessLevel === 'SUPER_ADMIN') {
       return 'ทั้งหมด';
     }

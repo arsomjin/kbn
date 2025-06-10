@@ -13,7 +13,7 @@ import { useMergeState } from 'api/CustomHooks';
 import { arrayForEach } from 'functions';
 import RegistrationHeader from 'Modules/Registration/components/registration-header';
 
-export default () => {
+const NewMachines = () => {
   const { api, firestore } = useContext(FirebaseContext);
   const { user } = useSelector(state => state.auth);
   const [form] = Form.useForm();
@@ -99,23 +99,6 @@ export default () => {
     }
   };
 
-  const onDelete = async key => {
-    try {
-      load(true);
-      let nData = [...data];
-      let index = nData.findIndex(item => item.key === key);
-      //  showLog('deleted', nData[index]);
-      let nValues = { ...nData[index], deleted: true };
-      delete nValues.id;
-      const newValues = checkEditRecord(nValues, data, user);
-      await api.updateItem(newValues, 'sections/services/gasCost', nData[index]._key);
-      load(false);
-    } catch (e) {
-      showWarn(e);
-      load(false);
-    }
-  };
-
   return (
     <Container fluid className="main-content-container p-3">
       <Form form={form} initialValues={searchValues} layout="vertical" size="small" onValuesChange={_onValuesChange}>
@@ -139,7 +122,6 @@ export default () => {
         dataSource={data}
         columns={columns}
         onUpdate={onUpdate}
-        // onDelete={onDelete}
         loading={loading}
         summary={pageData => (
           <TableSummary pageData={pageData} dataLength={columns.length} startAt={6} sumKeys={['qty', 'total']} />
@@ -148,3 +130,5 @@ export default () => {
     </Container>
   );
 };
+
+export default NewMachines;

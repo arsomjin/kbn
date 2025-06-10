@@ -1,175 +1,108 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { forgetPassword, loginUser, signUpUser } from '../../redux/actions/auth';
+import { forgetPassword, loginUser, signUpUserWithRBAC } from '../../redux/actions/auth';
 
-import Blur from 'react-blur';
-import Background from '../../images/office2.jpg';
-import Login from './Login';
-import SignUp from './SignUp';
+import NatureLogin from './NatureLogin';
+import EnhancedSignUp from './EnhancedSignUp';
+import ApprovalStatus from './ApprovalStatus';
 import Load from 'elements/Load';
 import ForgetPassword from './ForgetPassword';
-import { capitalizeFirstLetter } from 'functions';
-import { Container } from '@material-ui/core';
-import { w } from 'api';
+import welcomeImage from '../../images/office2.jpg';
 
-const styles = {
-  global: {
-    body: {
-      backgroundColor: '#fff'
-    }
-  },
-  paper: {
-    marginTop: 100,
-    display: 'flex',
-    padding: 20,
-    flexDirection: 'column',
-    alignItems: 'center'
-  },
-  avatar: {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    backgroundColor: '#f50057'
-  },
-  form: {
-    marginTop: 1
-  },
-  errorText: {
-    color: '#f50057',
-    marginBottom: 5,
-    textAlign: 'center'
-  }
-};
-
-const Auth = ({ classes }) => {
-  const { isAuthenticated, isLoggingIn } = useSelector(state => state.auth);
-  const { device } = useSelector(state => state.global);
-
+const Auth = () => {
   const [currentView, setCurrentView] = useState('Login');
-  const [ready, setReady] = useState(false);
-
+  const [pendingUserData, setPendingUserData] = useState(null);
+  const [isMounted, setIsMounted] = useState(true);
+  
+  const { isLoggingIn } = useSelector(state => state.auth);
   const dispatch = useDispatch();
-
+  
+  // Track component mount status
   useEffect(() => {
-    const img = new Image();
-    img.src = Background; // by setting an src, you trigger browser download
-
-    img.onload = () => {
-      // when it finishes loading, update the component state
-      setReady(true);
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
     };
   }, []);
 
   const handleLogin = values => {
-    const { email, password } = values;
-    dispatch(loginUser(email, password));
+    const { email, password, rememberMe } = values;
+    dispatch(loginUser(email, password, rememberMe));
   };
 
-  const handleSignUp = values => {
-    const { firstName, lastName, email, password } = values;
-    dispatch(signUpUser(capitalizeFirstLetter(firstName), capitalizeFirstLetter(lastName), email, password));
+  const handleSignUp = async (values) => {
+    try {
+      const result = await dispatch(signUpUserWithRBAC(values));
+      
+      // For pending users, EnhancedSignUp will handle page reload
+      // No need to change view here since page will reload
+      
+      // Return the result so EnhancedSignUp can handle it
+      return result;
+    } catch (error) {
+      console.error('Signup error in Auth component:', error);
+      throw error; // Re-throw so EnhancedSignUp can handle the error
+    }
   };
 
   const handleForgetPassword = values => {
-    //  showLog('forget', values);
     dispatch(forgetPassword(values.email));
   };
 
-  const change = scene => setCurrentView(scene);
-
-  let currentScene = isLoggingIn ? (
-    <Load loading />
-  ) : (
-    <Login styles={styles} handleConfirm={handleLogin} change={change} />
-  );
-
-  switch (currentView) {
-    case 'Login':
-      currentScene = <Login styles={styles} handleConfirm={handleLogin} change={change} />;
-      break;
-    case 'SignUp':
-      currentScene = <SignUp styles={styles} handleConfirm={handleSignUp} change={change} />;
-      break;
-    case 'ForgetPassword':
-      currentScene = <ForgetPassword styles={styles} handleConfirm={handleForgetPassword} change={change} />;
-      break;
-
-    default:
-      break;
-  }
-
-  const AuthContainer = ({ children }) => {
-    const isMobilePortrait = device.isMobile && device.orientation === 'portrait';
-    const isMobileLandscape = device.isMobile && device.orientation === 'landscape';
-    return (
-      <Container
-        component="main"
-        maxWidth="xs"
-        style={{
-          backgroundColor: 'rgba(55,55,55,0.7)',
-          paddingBottom: '20px',
-          paddingTop: '20px',
-          borderRadius: '10px',
-          // marginTop: '100px',
-          minWidth: 320,
-          ...(isMobilePortrait && { width: w(90) }),
-          ...(isMobileLandscape && { width: w(80) })
-        }}
-      >
-        {children}
-      </Container>
-    );
+  const changeView = scene => {
+    setCurrentView(scene);
+    if (scene === 'Login') {
+      setPendingUserData(null); // Clear pending data when going back to login
+    }
   };
 
-  return !ready ? (
-    <Load loading />
-  ) : (
-    <div
-      style={{
-        // background: `url(${Background})`,
-        backgroundPosition: 'center',
-        backgroundSize: 'cover',
-        backgroundRepeat: 'no-repeat',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'grey'
-        // zIndex: 9999,
-      }}
-    >
-      <Blur
-        img={Background}
-        blurRadius={2}
-        style={{
-          backgroundPosition: 'center',
-          backgroundSize: 'cover',
-          backgroundRepeat: 'no-repeat',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: -10
-        }}
-        enableStyles
-      />
-      {isLoggingIn ? (
-        <Load loading />
-      ) : (
-        <div
-          style={{
-            position: 'absolute',
-            left: '50%',
-            top: '50%',
-            transform: 'translate(-50%, -50%)'
-          }}
-        >
-          <AuthContainer>{currentScene}</AuthContainer>
+  // Simplified - no need for complex event listening since we use page reload
+  useEffect(() => {
+    // Any cleanup or initialization can go here if needed
+  }, [isMounted]);
+
+  // Determine current scene based on view and loading state
+  const getCurrentScene = () => {
+    if (isLoggingIn) {
+      return <Load loading />;
+    }
+
+    switch (currentView) {
+      case 'Login':
+        return <NatureLogin handleConfirm={handleLogin} change={changeView} />;
+      case 'SignUp':
+        return <EnhancedSignUp handleConfirm={handleSignUp} change={changeView} />;
+      case 'ForgetPassword':
+        return <ForgetPassword handleConfirm={handleForgetPassword} change={changeView} />;
+      case 'ApprovalStatus':
+        return <ApprovalStatus userData={pendingUserData} onBackToLogin={() => changeView('Login')} />;
+      default:
+        return <NatureLogin handleConfirm={handleLogin} change={changeView} />;
+    }
+  };
+
+  return (
+    <div className="nature-login-page">
+      {/* Nature-inspired gradient background with glassmorphism */}
+      <div className="nature-login-background" style={{
+          backgroundImage: `url(${welcomeImage})`,
+          opacity: 0.35
+        }}/>
+        {/* Glassmorphism overlay */}
+        <div className="nature-glassmorphism-overlay" ></div>
+        
+        {/* Main content container */}
+        <div className="nature-login-container">
+          <div className="nature-auth-card">
+            {getCurrentScene()}
+          </div>
         </div>
-      )}
     </div>
   );
+};
+
+Auth.propTypes = {
+  // No props needed
 };
 
 export default Auth;

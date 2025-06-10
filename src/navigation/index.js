@@ -5,9 +5,18 @@ import { getCurrentDevice } from 'functions';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateDevice } from 'redux/actions/global';
 
+// Essential styles imports
 import 'bootstrap/dist/css/bootstrap.min.css';
-import 'assets/main.scss';
-import 'antd/dist/antd.css';
+import 'shards-ui/dist/css/shards.min.css';
+
+// Nature theme styles
+import 'styles/nature-theme.scss';
+import 'styles/nature-components.css';
+import 'styles/nature-antd-overrides.css';
+import 'styles/nature-login.css';
+import 'styles/nature-enhancement.css';
+
+// Additional styles
 import 'styles/print.css';
 import 'styles/network-status.css';
 
@@ -21,7 +30,7 @@ import Load from 'elements/Load';
 export const NotFoundRedirect = () => <Redirect to="/not-found" />;
 
 const Navigation = () => {
-  const { isAuthenticated, isLoggingOut } = useSelector(state => state.auth);
+  const { isAuthenticated, isLoggingOut, user } = useSelector(state => state.auth);
   const dispatch = useDispatch();
 
   const _getDevice = useCallback(() => {
@@ -51,6 +60,8 @@ const Navigation = () => {
             <AuthRoutes />
           ) : isLoggingOut ? ( // Avoid Firebase PERMISSION_DENIED ISSUE.
             <Load loading />
+          ) : user?.isPendingApproval ? ( // Show approval status for pending users
+            <AuthRoutes showApprovalStatus={true} user={user} />
           ) : (
             <PrivateRoutes />
           )}

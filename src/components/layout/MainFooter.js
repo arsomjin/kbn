@@ -44,7 +44,7 @@ MainFooter.propTypes = {
 
 MainFooter.defaultProps = {
   contained: false,
-  copyright: 'Copyright © 2020 Kubota Benjapol Nakhon Ratchasima',
+      copyright: 'Copyright © 2020 KBN',
   menuItems: [
     {
       title: 'Home',

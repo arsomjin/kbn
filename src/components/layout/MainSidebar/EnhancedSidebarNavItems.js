@@ -45,8 +45,8 @@ const ICON_MAP = {
 };
 
 const EnhancedSidebarNavItems = () => {
-  const { navigation, highPriorityItems, dailyItems, navigationStats } = useNavigationGenerator();
-  const { openKeys, selectedKeys } = useSelector(state => state.unPersisted);
+  const { navigation, highPriorityItems, navigationStats } = useNavigationGenerator();
+  const { openKeys } = useSelector(state => state.unPersisted);
   const { user } = useSelector(state => state.auth);
   const history = useHistory();
   const location = useLocation();
@@ -57,7 +57,10 @@ const EnhancedSidebarNavItems = () => {
 
   // Auto-expand developer menu for developer users (only on initial load)
   useEffect(() => {
-    if (user?.isDev && navigation.length > 0 && openKeys.length === 0) {
+    // Extract isDev to avoid complex dependency array warning
+    const isUserDev = user?.isDev;
+    
+    if (isUserDev && navigation.length > 0 && openKeys.length === 0) {
       const developerSection = navigation.find(section => section.key === 'developer');
       if (developerSection) {
         // Expand both the main developer section and its primary sub-section
@@ -74,7 +77,24 @@ const EnhancedSidebarNavItems = () => {
         dispatch(setOpenKeys(keysToOpen));
       }
     }
-  }, [user?.isDev, navigation, dispatch]); // Removed openKeys from dependencies
+  }, [user?.isDev, navigation, dispatch, openKeys.length]);
+
+  // Listen for forced user data refresh events
+  useEffect(() => {
+    const handleUserDataRefresh = (event) => {
+      console.log('🔄 Navigation received user data refresh event');
+      // Force re-render by updating a dummy state or triggering navigation regeneration
+      window.location.hash = '#refreshed'; // Trigger a subtle change
+      setTimeout(() => {
+        window.location.hash = ''; // Clear the hash
+      }, 100);
+    };
+
+    window.addEventListener('userDataRefreshed', handleUserDataRefresh);
+    return () => {
+      window.removeEventListener('userDataRefreshed', handleUserDataRefresh);
+    };
+  }, []);
 
   /*
    * Production Mode Behavior:

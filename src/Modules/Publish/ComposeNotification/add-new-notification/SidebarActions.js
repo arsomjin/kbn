@@ -30,7 +30,7 @@ const SidebarActions = ({ title, onPublish, values }) => (
           </Select>
         </Form.Item>
         <Form.Item label="ลิงค์" name="link" className={ItemClass}>
-          <Input className="text-succcess" placeholder="https://kubota-benjapol.web.app/overview" />
+          <Input className="text-succcess" placeholder="https://kbn.web.app/overview" />
         </Form.Item>
         <ListGroupItem className="d-flex px-3">
           {/* <Button outline theme="accent" size="sm">

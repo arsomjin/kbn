@@ -1,0 +1,741 @@
+/*
+ * ========================================
+ * NATURE-INSPIRED GLASSMORPHISM LOGIN
+ * Modern, Professional, User-Friendly Design
+ * ========================================
+ */
+
+/* ======================
+   PAGE STRUCTURE
+   ====================== */
+
+.nature-login-page {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ======================
+   NATURE BACKGROUND
+   ====================== */
+
+.nature-login-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, 
+    #1a4e2c 0%,     /* Deep Forest Green */
+    #2d5016 15%,    /* Pine Green */
+    #3d6b1c 35%,    /* Forest Green */
+    #4a7c1f 55%,    /* Sage Green */
+    #52c41a 75%,    /* Fresh Green */
+    #73d13d 100%    /* Leaf Green */
+  );
+  
+  /* Animated background particles */
+  background-image: 
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(139, 69, 19, 0.1) 0%, transparent 50%);
+  
+  animation: backgroundShift 20s ease-in-out infinite;
+}
+
+@keyframes backgroundShift {
+  0%, 100% { 
+    background-position: 0% 0%, 100% 100%, 50% 50%; 
+  }
+  50% { 
+    background-position: 100% 100%, 0% 0%, 25% 75%; 
+  }
+}
+
+/* ======================
+   GLASSMORPHISM OVERLAY
+   ====================== */
+
+.nature-glassmorphism-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  backdrop-filter: blur(3px);
+  background: rgba(255, 255, 255, 0.05);
+  z-index: 1;
+}
+
+/* ======================
+   CONTAINER & POSITIONING
+   ====================== */
+
+.nature-login-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  padding: 20px;
+  width: 100%;
+  max-width: 600px; /* Increased max-width for signup form */
+  height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Hide scrollbar but keep functionality */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.nature-login-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+/* ======================
+   GLASSMORPHISM AUTH CARD
+   ====================== */
+
+.nature-auth-card {
+  /* Glassmorphism Effect */
+  background: rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  
+  /* Modern Border & Shadow */
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 24px !important;
+  /* box-shadow: 
+    0 25px 45px rgba(26, 78, 44, 0.2),
+    0 15px 35px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important; */
+  
+  /* Sizing & Spacing */
+  padding: 48px 40px !important;
+  min-width: 380px !important;
+  max-width: 520px !important; /* Optimized for forms */
+  width: calc(100% - 40px) !important;
+  min-height: auto !important;
+  max-height: 85vh !important;
+  overflow-y: auto !important;
+  
+  /* Hide scrollbar for auth card */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  
+  /* Animation */
+  animation: cardAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  transform: translateY(30px);
+  /* opacity: 0; */
+}
+
+@keyframes cardAppear {
+  0% {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.nature-auth-card::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
+}
+
+.nature-auth-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 35px 60px rgba(26, 78, 44, 0.4),
+    0 20px 45px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ======================
+   LOGO & BRANDING
+   ====================== */
+
+.nature-login-logo {
+  border-radius: 50% !important;
+  box-shadow: 
+    0 12px 30px rgba(26, 78, 44, 0.2),
+    0 6px 15px rgba(0, 0, 0, 0.1) !important;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%) !important;
+  padding: 8px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  border: 2px solid rgba(255, 255, 255, 0.6) !important;
+}
+
+.nature-login-logo:hover {
+  transform: scale(1.08) !important;
+  box-shadow: 
+    0 16px 40px rgba(26, 78, 44, 0.3),
+    0 8px 20px rgba(0, 0, 0, 0.2) !important;
+}
+
+.nature-login-title {
+  background: linear-gradient(135deg, #1a4e2c 0%, #2d5016 50%, #3d6b1c 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+  
+  font-weight: 800 !important;
+  font-size: 32px !important;
+  text-align: center !important;
+  margin-bottom: 12px !important;
+  
+  position: relative;
+  letter-spacing: -0.5px;
+}
+
+.nature-login-title::after {
+  content: '';
+  position: absolute;
+  bottom: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #2d5016 0%, #52c41a 100%);
+  border-radius: 2px;
+  box-shadow: 0 2px 8px rgba(45, 80, 22, 0.3);
+}
+
+/* ======================
+   FORM ELEMENTS
+   ====================== */
+
+.nature-login-form .ant-form-item {
+  /* margin-bottom: 20px !important; */
+}
+
+.nature-login-form .ant-form-item:last-child {
+  /* margin-bottom: 0 !important; */
+}
+
+.nature-login-form .ant-form-item-label > label {
+  /* color: #1f2937 !important;
+  font-weight: 700 !important;
+  font-size: 15px !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8); */
+}
+
+/* Input Fields with Glassmorphism */
+.nature-login-form .ant-input-affix-wrapper {
+  height: 52px !important;
+  border-radius: 8px !important;
+  /* border: 2px solid rgba(255, 255, 255, 0.4) !important; */
+  
+  /* Glassmorphism Input */
+  background: rgba(255, 255, 255, 0.3) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  
+  font-size: 16px !important;
+  padding: 2px 14px 2px 14px !important; 
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  
+  /* box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    inset 0 1px 2px rgba(255, 255, 255, 0.9) !important; */
+}
+
+.ant-input {
+  background: rgba(255, 255, 255, 0.0) !important;
+  /* padding: 0px 16px !important;  */
+}
+
+.ant-input:hover {
+  background: rgba(255, 255, 255, 0.0) !important;
+}
+
+.nature-login-form .ant-input-affix-wrapper-focused {
+  border: 2px solid rgba(82, 196, 26, 0.7)  !important; /* or your green */
+  box-shadow: none !important;
+}
+.nature-login-form .ant-input:focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.ant-input-affix-wrapper {
+  background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.ant-input-affix-wrapper:hover {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border-color: rgba(82, 196, 26, 0.7) !important;
+}
+
+.nature-login-form {
+  /* background: rgba(255, 255, 255, 0.75) !important; */
+  /* box-shadow: 
+    0 6px 16px rgba(26, 78, 44, 0.15),
+    inset 0 1px 2px rgba(255, 255, 255, 0.95) !important; */
+}
+
+.nature-login-form .ant-input-prefix {
+  color: #4b5563 !important;
+  margin-right: 14px !important;
+  font-size: 18px !important;
+}
+
+/* ======================
+   GLASSMORPHISM BUTTON
+   ====================== */
+
+.nature-login-button {
+  height: 56px !important;
+  border-radius: 16px !important;
+  border: none !important;
+  font-weight: 700 !important;
+  font-size: 16px !important;
+  letter-spacing: 0.5px !important;
+  
+  /* Glassmorphism Button */
+  background: linear-gradient(135deg, 
+    rgba(45, 80, 22, 0.9) 0%, 
+    rgba(61, 107, 28, 0.9) 50%, 
+    rgba(74, 124, 31, 0.9) 100%) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  
+  box-shadow: 
+    0 12px 30px rgba(45, 80, 22, 0.3),
+    0 6px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
+  
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.nature-login-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    transparent 100%);
+  transition: left 0.6s ease;
+}
+
+.nature-login-button:hover {
+  transform: translateY(-2px) !important;
+  background: linear-gradient(135deg, 
+    rgba(45, 80, 22, 1) 0%, 
+    rgba(61, 107, 28, 1) 50%, 
+    rgba(74, 124, 31, 1) 100%) !important;
+  box-shadow: 
+    0 16px 40px rgba(45, 80, 22, 0.4),
+    0 8px 20px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+.nature-login-button:hover::before {
+  left: 100%;
+}
+
+.nature-login-button:active {
+  transform: translateY(0) !important;
+  box-shadow: 
+    0 8px 20px rgba(45, 80, 22, 0.3),
+    0 4px 10px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ======================
+   CHECKBOX & LINKS
+   ====================== */
+
+.nature-login-form .ant-checkbox-wrapper {
+  color: #374151 !important;
+  font-weight: 600 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.nature-login-form .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: #2d5016 !important;
+  border-color: #2d5016 !important;
+}
+
+.nature-login-form .ant-checkbox:hover .ant-checkbox-inner {
+  border-color: #4a7c1f !important;
+}
+
+.nature-login-link {
+  color: #2d5016 !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  position: relative;
+  transition: all 0.3s ease !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+.nature-login-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #2d5016 0%, #52c41a 100%);
+  transition: width 0.3s ease;
+}
+
+.nature-login-link:hover {
+  color: #1a4e2c !important;
+  transform: translateY(-1px);
+}
+
+.nature-login-link:hover::after {
+  width: 100%;
+}
+
+/* ======================
+   ERROR & SUCCESS ALERTS
+   ====================== */
+
+.nature-login-error {
+  border-radius: 12px !important;
+  background: rgba(255, 245, 245, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+.nature-login-success {
+  border-radius: 12px !important;
+  background: rgba(240, 253, 244, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(34, 197, 94, 0.3) !important;
+}
+
+/* ======================
+   FOOTER
+   ====================== */
+
+.nature-login-footer {
+  text-align: center;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.nature-login-footer p {
+  color: #6b7280 !important;
+  font-size: 13px !important;
+  margin: 0 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8);
+}
+
+/* ======================
+   ENHANCED USER TYPE SELECTOR
+   ====================== */
+
+.nature-user-type-selector .nature-user-type-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.nature-user-type-selector .nature-user-type-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(255, 255, 255, 0.2) 50%, 
+    transparent 100%);
+  transition: left 0.6s ease;
+}
+
+.nature-user-type-selector .nature-user-type-card:hover::before {
+  left: 100%;
+}
+
+.nature-user-type-selector .nature-user-type-card:hover {
+  transform: translateY(-2px) scale(1.02);
+  border-color: #52c41a !important;
+  background: linear-gradient(135deg, rgba(82, 196, 26, 0.15) 0%, rgba(45, 80, 22, 0.15) 100%) !important;
+  box-shadow: 0 12px 35px rgba(82, 196, 26, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+
+.nature-user-type-selector .nature-user-type-card:active {
+  transform: translateY(0) scale(1);
+  transition: transform 0.1s ease;
+}
+
+.nature-user-type-selector .nature-user-type-card.selected {
+  animation: selectedPulse 2s ease-in-out infinite;
+}
+
+@keyframes selectedPulse {
+  0%, 100% { 
+    box-shadow: 0 8px 25px rgba(82, 196, 26, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  }
+  50% { 
+    box-shadow: 0 12px 35px rgba(82, 196, 26, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  }
+}
+
+/* Mobile responsive for user type selector */
+@media (max-width: 768px) {
+  .nature-user-type-selector .ant-row {
+    flex-direction: column !important;
+  }
+  
+  .nature-user-type-selector .ant-col {
+    width: 100% !important;
+    margin-bottom: 12px !important;
+  }
+  
+  .nature-user-type-selector .nature-user-type-card {
+    margin-bottom: 0 !important;
+  }
+}
+
+/* ======================
+   RESPONSIVE DESIGN
+   ====================== */
+
+@media (max-width: 768px) {
+  .nature-login-container {
+    /* Keep fixed positioning and scrollable behavior like desktop */
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    height: 90vh !important;
+    overflow-y: auto !important;
+    padding: 16px !important;
+    max-width: 500px !important;
+  }
+  
+  .nature-auth-card {
+    /* Keep scrollable behavior like desktop */
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    min-width: 300px !important;
+    max-width: 420px !important;
+    padding: 32px 24px !important;
+    margin: 0 !important;
+    width: calc(100% - 32px) !important;
+  }
+  
+  .nature-login-title {
+    font-size: 28px !important;
+  }
+  
+  .nature-login-form .ant-input,
+  .nature-login-form .ant-input-affix-wrapper {
+    height: 48px !important;
+    font-size: 16px !important;
+  }
+  
+  .nature-login-button {
+    height: 52px !important;
+    font-size: 15px !important;
+  }
+  
+  .nature-login-form .ant-form-item {
+    margin-bottom: 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .nature-login-container {
+    /* Keep fixed positioning and scrollable behavior like desktop */
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    height: 90vh !important;
+    overflow-y: auto !important;
+    padding: 12px !important;
+    max-width: 95vw !important;
+  }
+  
+  .nature-auth-card {
+    /* Keep scrollable behavior like desktop */
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    min-width: 280px !important;
+    max-width: calc(100vw - 24px) !important;
+    padding: 24px 20px !important;
+    width: calc(100% - 24px) !important;
+  }
+  
+  .nature-login-title {
+    font-size: 24px !important;
+  }
+  
+  .nature-login-form .ant-input,
+  .nature-login-form .ant-input-affix-wrapper {
+    /* height: 44px !important; */
+    font-size: 16px !important;
+    /* padding: 12px 16px !important; */
+  }
+  
+  .nature-login-form .ant-form-item {
+    margin-bottom: 16px !important;
+  }
+}
+
+/* ======================
+   ACCESSIBILITY
+   ====================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .nature-auth-card,
+  .nature-login-button,
+  .nature-login-link,
+  .nature-login-background {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .nature-auth-card {
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 2px solid #2d5016 !important;
+  }
+  
+  .nature-login-form .ant-input,
+  .nature-login-form .ant-input-affix-wrapper {
+    background: #ffffff !important;
+    border: 2px solid #2d5016 !important;
+  }
+  
+  .nature-login-button {
+    background: #2d5016 !important;
+  }
+}
+
+/* ======================
+   SIGNUP FORM SPECIFIC STYLES
+   ====================== */
+
+.nature-login-form .ant-row {
+  margin-left: -8px !important;
+  margin-right: -8px !important;
+}
+
+.nature-login-form .ant-col {
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+}
+
+.nature-login-form .ant-select {
+  width: 100% !important;
+}
+
+.nature-login-form .ant-select .ant-select-selector {
+  border-radius: 12px !important;
+  padding: 8px 16px !important;
+  min-height: 48px !important;
+  border: 2px solid rgba(255, 255, 255, 0.35) !important;
+  background: rgba(255, 255, 255, 0.35) !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-size: 16px !important;
+  color: #374151 !important;
+}
+
+.nature-login-form .ant-select-focused .ant-select-selector,
+.nature-login-form .ant-select .ant-select-selector:hover {
+  border-color: #2d5016 !important;
+  box-shadow: 0 0 0 3px rgba(45, 80, 22, 0.15) !important;
+}
+
+.nature-login-form .ant-select .ant-select-selection-placeholder {
+  color: #9ca3af !important;
+  font-size: 16px !important;
+}
+
+.nature-login-form .ant-select-arrow {
+  color: #6b7280 !important;
+}
+
+/* Enhanced mobile responsiveness for signup */
+@media (max-width: 768px) {
+  .nature-login-container {
+    /* Keep consistent with main mobile styles - fixed and scrollable */
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    height: 90vh !important;
+    overflow-y: auto !important;
+  }
+  
+  .nature-auth-card {
+    /* Keep scrollable behavior consistent */
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+  }
+  
+  .nature-login-form .ant-row {
+    flex-direction: column !important;
+  }
+  
+  .nature-login-form .ant-col {
+    width: 100% !important;
+    max-width: 100% !important;
+    flex: none !important;
+    margin-bottom: 0 !important;
+  }
+  
+  .nature-login-form .ant-form-item {
+    margin-bottom: 20px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .nature-login-container {
+    /* Keep consistent with main mobile styles - fixed and scrollable */
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    height: 90vh !important;
+    overflow-y: auto !important;
+    padding: 12px !important;
+    max-width: 95vw !important;
+  }
+  
+  .nature-auth-card {
+    /* Keep scrollable behavior consistent */
+    max-height: 85vh !important;
+    overflow-y: auto !important;
+    padding: 24px 20px !important;
+    min-width: 280px !important;
+    max-width: calc(100vw - 24px) !important;
+  }
+  
+  .nature-login-form .ant-select .ant-select-selector,
+  .nature-login-form .ant-input,
+  .nature-login-form .ant-input-affix-wrapper {
+    font-size: 16px !important; /* Prevent zoom on iOS */
+  }
+} 

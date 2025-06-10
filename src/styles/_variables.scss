@@ -1,17 +1,19 @@
-// Shards Dashboards Variables
+// Shards Dashboards Variables - Enhanced with Nature Theme
 
-// New Colors
+// New Colors - Nature-Inspired Palette
 @use "sass:math";
 
-$fiord-blue:   #3D5170 !default;
-$shuttle-gray: #5A6169 !default;
-$reagent-gray: #818EA3 !default;
-$mischka:      #CACEDB !default;
-$athens-gray:  #E9ECEF !default;
+// Nature Primary Colors
+$fiord-blue:   #2d5016 !default;  // Forest Green (was #3D5170)
+$shuttle-gray: #6b7280 !default;  // Stone Gray (was #5A6169)
+$reagent-gray: #9ca3af !default;  // Pebble Gray (was #818EA3)
+$mischka:      #d1d5db !default;  // Cloud Gray (was #CACEDB)
+$athens-gray:  #f1f5f9 !default;  // Cloud White (was #E9ECEF)
 
-$salmon:       #FF4169 !default;
-$royal-blue:   #674EEC !default;
-$java:         #1ADBA2 !default;
+// Nature Accent Colors
+$salmon:       #dc2626 !default;  // Natural Error Red (was #FF4169)
+$royal-blue:   #0ea5e9 !default;  // Stream Blue (was #674EEC)
+$java:         #16a34a !default;  // Natural Success Green (was #1ADBA2)
 
 
 // New color maps
@@ -70,8 +72,8 @@ $side-shadow: 0 0.125rem 9.375rem rgba($shuttle-gray, .1),
               0 0.4375rem 2.1875rem rgba(#A5B6C9, .10);
 
 
-// Body
-$body-background: #F5F6F8 !default;
+// Body - Nature Theme
+$body-background: #f8fafc !default;  // Misty White (was #F5F6F8)
 $body-font-size: 15px !default;
 
 

@@ -66,7 +66,13 @@ export const useCollectionSync = (collectionPath, setReduxAction) => {
           dispatch(setReduxAction({ [snap.id]: docData }, false));
         }
       } catch (error) {
-        showWarn('Initial fetch error', error);
+        showLog(`[useCollectionSync] [${collectionPath}] fetch error`, error);
+        showWarn(`Initial fetch error for collection: ${collectionPath}`, error);
+        
+        // Log additional context for debugging
+        if (error.code === 'permission-denied') {
+          console.warn(`🔒 Permission denied for collection: ${collectionPath}. User may need admin-level access.`);
+        }
       }
     };
 
@@ -405,8 +411,15 @@ export const useSelfListener = () => {
         if (change.type === 'modified') {
           var msg = 'User ' + change.doc.id + ' is modified.';
           let changeUser = change.doc.data();
-          let mUser = { ...changeUser.auth, ...changeUser };
-          delete mUser.auth;
+                  let mUser = { ...changeUser.auth, ...changeUser };
+        delete mUser.auth;
+        
+        // Ensure isDev is preserved from root level or auth
+        if (changeUser.isDev !== undefined) {
+          mUser.isDev = changeUser.isDev;
+        } else if (changeUser.auth?.isDev !== undefined) {
+          mUser.isDev = changeUser.auth.isDev;
+        }
           if (!!mUser.group && !!userGroups && userGroups[mUser.group]) {
             let mPermissions = {};
             let mPermCats = {};
@@ -434,19 +447,35 @@ export const useSelfListener = () => {
         }
       });
     };
-    const query = firestore.collection('users').where('auth.uid', '==', user.uid);
-    let unsubscribe = query.onSnapshot(handleUpdates, error =>
-      setData({
-        error,
-        loading: false,
-        data: {}
-      })
+    // Listen to the specific user document directly instead of using a query
+    const userDocRef = firestore.collection('users').doc(user.uid);
+    let unsubscribe = userDocRef.onSnapshot(
+      (doc) => {
+        if (doc.exists) {
+          // Simulate the change structure for backward compatibility
+          const fakeSnap = {
+            docChanges: () => [{
+              type: 'modified',
+              doc: doc
+            }]
+          };
+          handleUpdates(fakeSnap);
+        }
+      },
+      error => {
+        console.warn('🔥 useSelfListener error (non-critical):', error.message);
+        // For permission errors, just set loading to false but don't break the app
+        setData({
+          error: error.code === 'permission-denied' ? null : error,
+          loading: false,
+          data: {}
+        });
+      }
     );
     return () => {
       unsubscribe && unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user.uid, firestore]); // Add proper dependencies
 
   return data;
 };
@@ -485,11 +514,12 @@ export const useStatusListener = () => {
 
     const query = firestore.collection('status').doc(user.uid);
     let unsubscribe = query.onSnapshot(handleUpdates, error => {
+      console.warn('🔥 useStatusListener error (non-critical):', error.message);
       if (error?.message && error.message.indexOf('offline') > -1) {
         dispatch(goOffline());
       }
       setData({
-        error,
+        error: error.code === 'permission-denied' ? null : error,
         loading: false,
         isOnline: false
       });
@@ -523,6 +553,13 @@ export const useSelfUpdate = () => {
         let cUser = JSON.parse(JSON.stringify(doc.data()));
         let mUser = { ...cUser.auth, ...cUser, ...user };
         delete mUser.auth;
+        
+        // Ensure isDev is preserved from root level or auth
+        if (cUser.isDev !== undefined) {
+          mUser.isDev = cUser.isDev;
+        } else if (cUser.auth?.isDev !== undefined) {
+          mUser.isDev = cUser.auth.isDev;
+        }
         if (!!userGroups && !!mUser.group && userGroups[mUser.group]) {
           let mPermissions = {};
           let mPermCats = {};

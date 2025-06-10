@@ -1,0 +1,439 @@
+/* 
+ * Nature Theme Ant Design Overrides
+ * For older versions of Ant Design (4.x) without theme ConfigProvider
+ */
+
+/* ======================
+   ANT DESIGN COMPONENT OVERRIDES
+   ====================== */
+
+/* Primary Color Overrides */
+.ant-btn-primary {
+  background-color: var(--nature-primary) !important;
+  border-color: var(--nature-primary) !important;
+  color: white !important;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: var(--nature-primary-light) !important;
+  border-color: var(--nature-primary-light) !important;
+  color: white !important;
+}
+
+.ant-btn-primary:active {
+  background-color: var(--nature-primary) !important;
+  border-color: var(--nature-primary) !important;
+}
+
+/* Input Components */
+.ant-input:focus,
+.ant-input-focused {
+  border-color: var(--nature-primary) !important;
+  box-shadow: 0 0 0 2px rgba(45, 80, 22, 0.2) !important;
+}
+
+.ant-input:hover {
+  border-color: var(--nature-primary-light) !important;
+}
+
+.ant-select:not(.ant-select-disabled):hover .ant-select-selector {
+  border-color: var(--nature-primary-light) !important;
+}
+
+.ant-select-focused:not(.ant-select-disabled).ant-select:not(.ant-select-customize-input) .ant-select-selector {
+  border-color: var(--nature-primary) !important;
+  box-shadow: 0 0 0 2px rgba(45, 80, 22, 0.2) !important;
+}
+
+.ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
+  background-color: rgba(45, 80, 22, 0.1) !important;
+  color: var(--nature-primary) !important;
+}
+
+.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
+  background-color: rgba(45, 80, 22, 0.06) !important;
+}
+
+/* Date Picker */
+.ant-picker:hover,
+.ant-picker-focused {
+  border-color: var(--nature-primary) !important;
+}
+
+.ant-picker-focused {
+  box-shadow: 0 0 0 2px rgba(45, 80, 22, 0.2) !important;
+}
+
+.ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner {
+  background: var(--nature-primary) !important;
+}
+
+.ant-picker-cell:hover:not(.ant-picker-cell-in-view) .ant-picker-cell-inner,
+.ant-picker-cell:hover:not(.ant-picker-cell-selected):not(.ant-picker-cell-range-start):not(.ant-picker-cell-range-end):not(.ant-picker-cell-range-hover-start):not(.ant-picker-cell-range-hover-end) .ant-picker-cell-inner {
+  background: rgba(45, 80, 22, 0.1) !important;
+}
+
+/* Form */
+.ant-form-item-label > label {
+  color: var(--nature-text-secondary) !important;
+}
+
+/* Cards */
+.ant-card {
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06) !important;
+}
+
+.ant-card-head {
+  background: var(--nature-bg-secondary) !important;
+  border-bottom: 1px solid rgba(45, 80, 22, 0.1) !important;
+}
+
+/* Table */
+.ant-table-thead > tr > th {
+  background: var(--nature-primary) !important;
+  color: white !important;
+  border-bottom: 1px solid var(--nature-primary-light) !important;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background: rgba(45, 80, 22, 0.04) !important;
+}
+
+.ant-table {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+
+/* Progress */
+.ant-progress-bg {
+  background-color: var(--nature-primary) !important;
+}
+
+.ant-progress-success-bg {
+  background-color: var(--nature-success) !important;
+}
+
+/* Notifications */
+.ant-notification {
+  border-radius: 12px !important;
+}
+
+.ant-notification-notice-success .ant-notification-notice-icon {
+  color: var(--nature-success) !important;
+}
+
+.ant-notification-notice-info .ant-notification-notice-icon {
+  color: var(--nature-info) !important;
+}
+
+.ant-notification-notice-warning .ant-notification-notice-icon {
+  color: var(--nature-warning) !important;
+}
+
+.ant-notification-notice-error .ant-notification-notice-icon {
+  color: var(--nature-error) !important;
+}
+
+/* Alert */
+.ant-alert-success {
+  background-color: rgba(22, 163, 74, 0.1) !important;
+  border: 1px solid rgba(22, 163, 74, 0.2) !important;
+}
+
+.ant-alert-info {
+  background-color: rgba(14, 165, 233, 0.1) !important;
+  border: 1px solid rgba(14, 165, 233, 0.2) !important;
+}
+
+.ant-alert-warning {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+  border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+.ant-alert-error {
+  background-color: rgba(220, 38, 38, 0.1) !important;
+  border: 1px solid rgba(220, 38, 38, 0.2) !important;
+}
+
+/* Tags */
+.ant-tag {
+  border-radius: 6px !important;
+}
+
+/* Badge */
+.ant-badge-status-success {
+  background-color: var(--nature-success) !important;
+}
+
+.ant-badge-status-processing {
+  background-color: var(--nature-info) !important;
+}
+
+.ant-badge-status-error {
+  background-color: var(--nature-error) !important;
+}
+
+.ant-badge-status-warning {
+  background-color: var(--nature-warning) !important;
+}
+
+/* Switch */
+.ant-switch-checked {
+  background-color: var(--nature-primary) !important;
+}
+
+/* Menu */
+.ant-menu-item-selected {
+  background-color: rgba(45, 80, 22, 0.1) !important;
+  color: var(--nature-primary) !important;
+}
+
+.ant-menu-item:hover,
+.ant-menu-item-active,
+.ant-menu-submenu-title:hover {
+  color: var(--nature-primary) !important;
+}
+
+.ant-menu-item:hover {
+  background-color: rgba(45, 80, 22, 0.06) !important;
+}
+
+/* Pagination */
+.ant-pagination-item-active {
+  background-color: var(--nature-primary) !important;
+  border-color: var(--nature-primary) !important;
+}
+
+.ant-pagination-item-active a {
+  color: white !important;
+}
+
+.ant-pagination-item:hover {
+  border-color: var(--nature-primary) !important;
+}
+
+.ant-pagination-item:hover a {
+  color: var(--nature-primary) !important;
+}
+
+/* Steps */
+.ant-steps-item-finish .ant-steps-item-icon {
+  background-color: var(--nature-primary) !important;
+  border-color: var(--nature-primary) !important;
+}
+
+.ant-steps-item-process .ant-steps-item-icon {
+  background-color: var(--nature-primary) !important;
+  border-color: var(--nature-primary) !important;
+}
+
+/* Tabs */
+.ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: var(--nature-primary) !important;
+}
+
+.ant-tabs-tab:hover .ant-tabs-tab-btn {
+  color: var(--nature-primary-light) !important;
+}
+
+.ant-tabs-ink-bar {
+  background-color: var(--nature-primary) !important;
+}
+
+/* Checkbox & Radio */
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: var(--nature-primary) !important;
+  border-color: var(--nature-primary) !important;
+}
+
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  background: var(--nature-primary) !important;
+  border-color: var(--nature-primary) !important;
+  color: white !important;
+}
+
+.ant-radio-checked .ant-radio-inner {
+  border-color: var(--nature-primary) !important;
+}
+
+.ant-radio-inner::after {
+  background-color: var(--nature-primary) !important;
+}
+
+/* Layout */
+.ant-layout-sider {
+  background: var(--nature-bg-primary) !important;
+}
+
+.ant-layout-header {
+  background: var(--nature-bg-primary) !important;
+}
+
+.ant-layout-content {
+  background: var(--nature-bg-secondary) !important;
+}
+
+/* ======================
+   RESPONSIVE OVERRIDES
+   ====================== */
+
+@media (max-width: 768px) {
+  .ant-card {
+    margin: 8px !important;
+  }
+  
+  .ant-table {
+    font-size: 12px !important;
+  }
+  
+  .ant-btn {
+    padding: 4px 8px !important;
+    font-size: 12px !important;
+  }
+}
+
+/* ======================
+   DARK THEME OVERRIDES
+   ====================== */
+
+[data-theme="dark"] .ant-card {
+  background: var(--nature-bg-secondary) !important;
+  border-color: rgba(45, 80, 22, 0.2) !important;
+}
+
+[data-theme="dark"] .ant-input {
+  background: var(--nature-bg-tertiary) !important;
+  border-color: var(--nature-gray) !important;
+  color: var(--nature-text-primary) !important;
+}
+
+[data-theme="dark"] .ant-select-selector {
+  background: var(--nature-bg-tertiary) !important;
+  border-color: var(--nature-gray) !important;
+  color: var(--nature-text-primary) !important;
+}
+
+[data-theme="dark"] .ant-table {
+  background: var(--nature-bg-secondary) !important;
+}
+
+[data-theme="dark"] .ant-table-tbody > tr > td {
+  background: var(--nature-bg-secondary) !important;
+  border-color: var(--nature-gray) !important;
+  color: var(--nature-text-primary) !important;
+}
+
+[data-theme="dark"] .ant-table-tbody > tr:hover > td {
+  background: var(--nature-bg-tertiary) !important;
+}
+
+/* ======================
+   ANIMATION ENHANCEMENTS
+   ====================== */
+
+.ant-btn {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.ant-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.ant-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.ant-table-tbody > tr {
+  transition: all 0.25s ease !important;
+}
+
+.ant-btn:hover {
+  transform: translateY(-1px) !important;
+}
+
+/* ======================
+   NATURE THEME WRAPPER
+   ====================== */
+
+.nature-theme-wrapper {
+  min-height: 100vh;
+  background: var(--nature-bg-secondary);
+  color: var(--nature-text-primary);
+}
+
+/* ======================
+   MOBILE KEYBOARD OPTIMIZATION
+   ====================== */
+
+/* Disable virtual keyboard on mobile for non-searchable selectors */
+@media (pointer: coarse) {
+  /* Target Ant Design Select internal input that doesn't have search enabled */
+  .ant-select:not(.ant-select-show-search) .ant-select-selection-search-input {
+    /* Disable virtual keyboard popup */
+    inputmode: none !important;
+    /* Make it readonly to prevent keyboard */
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    /* Disable text cursor */
+    caret-color: transparent !important;
+    /* Remove focus outline since it's not interactive */
+    outline: none !important;
+    /* Prevent zoom on iOS */
+    font-size: 16px !important;
+  }
+
+  /* Target DatePicker that should not show keyboard */
+  .ant-picker:not(.ant-picker-show-time):not([data-picker-type="time"]) input {
+    inputmode: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    caret-color: transparent !important;
+    /* Prevent zoom on iOS */
+    font-size: 16px !important;
+  }
+
+  /* Target Cascader without search */
+  .ant-cascader:not(.ant-cascader-show-search) input {
+    inputmode: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    caret-color: transparent !important;
+    /* Prevent zoom on iOS */
+    font-size: 16px !important;
+  }
+
+  /* Target TreeSelect without search */
+  .ant-tree-select:not(.ant-tree-select-show-search) .ant-select-selection-search-input {
+    inputmode: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    caret-color: transparent !important;
+    /* Prevent zoom on iOS */
+    font-size: 16px !important;
+  }
+
+  /* Additional fix for readonly inputs */
+  .ant-select:not(.ant-select-show-search) .ant-select-selection-search-input[readonly] {
+    pointer-events: none !important;
+  }
+
+  /* Prevent accidental text selection on mobile for dropdown triggers */
+  .ant-select:not(.ant-select-show-search) .ant-select-selector {
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+    user-select: none !important;
+    -webkit-touch-callout: none !important;
+  }
+} 
