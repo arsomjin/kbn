@@ -97,7 +97,11 @@ const UserContext = () => {
 
   // Determine access level display
   const getAccessLevelInfo = () => {
+    console.log('🔄 UserContext: user?.accessLevel', user?.accessLevel);
     switch (user?.accessLevel) {
+      case 'EXECUTIVE':
+      case 'Executive':
+        return { label: 'ผู้บริหาร', color: 'gold' };      
       case 'SUPER_ADMIN':
         return { label: 'ผู้ดูแลสูงสุด', color: 'red' };
       case 'PROVINCE_MANAGER':

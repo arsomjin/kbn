@@ -12,6 +12,7 @@ import {
 } from '@ant-design/icons';
 import { usePermissions } from 'hooks/usePermissions';
 import { useGeographicData } from 'hooks/useGeographicData';
+import { useNavigationGenerator } from 'hooks/useNavigationGenerator';
 import  GeographicBranchSelector  from 'components/GeographicBranchSelector';
 import ProvinceSelector from 'components/ProvinceSelector';
 import BranchSelector from 'components/BranchSelector';
@@ -49,7 +50,8 @@ const TestAccessControl = () => {
     userAccessLevel,
     userProvinces,
     userBranches,
-    hasPermission
+    hasPermission,
+    userRole
   } = usePermissions();
   
   const { 
@@ -59,6 +61,8 @@ const TestAccessControl = () => {
     checkProvinceAccess,
     checkBranchAccess
   } = useGeographicData();
+
+  const { navigation = [] } = useNavigationGenerator();
 
   // Test configurations for different user types
   const testConfigurations = {
@@ -138,22 +142,120 @@ const TestAccessControl = () => {
     }
   ];
 
+  // Add granular role tests to the existing test scenarios
+  const granularRoleTests = [
+    {
+      title: 'Cross-Department Staff Roles',
+      roles: [
+        {
+          name: 'ACCOUNTING_STAFF_SALES_VIEWER',
+          description: 'พนักงานบัญชีที่ดูข้อมูลการขายได้',
+          expectedPermissions: ['accounting.view', 'accounting.edit', 'sales.view', 'reports.view'],
+          expectedAccess: ['บัญชีและการเงิน', 'งานขาย', 'รายงาน'],
+          businessCase: 'พนักงานบัญชีต้องดูข้อมูลการขายเพื่อตรวจสอบรายได้'
+        },
+        {
+          name: 'SALES_STAFF_INVENTORY_VIEWER',
+          description: 'พนักงานขายที่ดูข้อมูลคลังสินค้าได้',
+          expectedPermissions: ['sales.view', 'sales.edit', 'inventory.view', 'reports.view'],
+          expectedAccess: ['งานขาย', 'คลังสินค้า', 'รายงาน'],
+          businessCase: 'พนักงานขายต้องดูสต็อกสินค้าเพื่อแนะนำลูกค้า'
+        },
+        {
+          name: 'SERVICE_STAFF_PARTS_MANAGER',
+          description: 'ช่างบริการที่จัดการอะไหล่ได้',
+          expectedPermissions: ['service.view', 'service.edit', 'inventory.view', 'inventory.edit', 'reports.view'],
+          expectedAccess: ['งานบริการ', 'คลังสินค้า', 'รายงาน'],
+          businessCase: 'ช่างต้องเบิกและจัดการอะไหล่สำหรับงานซ่อม'
+        }
+      ]
+    },
+    {
+      title: 'Management Hierarchy',
+      roles: [
+        {
+          name: 'PROVINCE_MANAGER',
+          description: 'ผู้จัดการจังหวัด',
+          expectedPermissions: ['accounting.approve', 'sales.approve', 'service.approve', 'inventory.approve', 'users.manage', 'admin.view'],
+          expectedAccess: ['บัญชีและการเงิน', 'งานขาย', 'งานบริการ', 'คลังสินค้า', 'รายงาน', 'จัดการระบบ'],
+          businessCase: 'ผู้จัดการจังหวัดต้องควบคุมงานทุกแผนกในจังหวัด'
+        },
+        {
+          name: 'BRANCH_MANAGER',
+          description: 'ผู้จัดการสาขา',
+          expectedPermissions: ['accounting.approve', 'sales.approve', 'service.approve', 'inventory.approve', 'users.edit'],
+          expectedAccess: ['บัญชีและการเงิน', 'งานขาย', 'งานบริการ', 'คลังสินค้า', 'รายงาน'],
+          businessCase: 'ผู้จัดการสาขาต้องควบคุมงานทุกแผนกในสาขา'
+        }
+      ]
+    },
+    {
+      title: 'Specialist Roles',
+      roles: [
+        {
+          name: 'FINANCE_ANALYST',
+          description: 'นักวิเคราะห์การเงิน',
+          expectedPermissions: ['accounting.approve', 'credit.approve', 'reports.edit'],
+          expectedAccess: ['บัญชีและการเงิน', 'สินเชื่อ', 'รายงาน'],
+          businessCase: 'นักวิเคราะห์ต้องอนุมัติและวิเคราะห์ข้อมูลทางการเงิน'
+        },
+        {
+          name: 'OPERATIONS_COORDINATOR',
+          description: 'ผู้ประสานงานปฏิบัติการ',
+          expectedPermissions: ['inventory.approve', 'service.edit', 'sales.view'],
+          expectedAccess: ['คลังสินค้า', 'งานบริการ', 'งานขาย', 'รายงาน'],
+          businessCase: 'ผู้ประสานงานต้องควบคุมการไหลของสินค้าและงานบริการ'
+        }
+      ]
+    }
+  ];
+
   // Auto-apply changes when controls change
   useEffect(() => {
     if (autoApplyChanges && user?.uid) {
+      console.log('🔄 Auto-applying role change:', {
+        role: quickTestRole,
+        province: quickTestProvince, 
+        branch: quickTestBranch,
+        department: quickTestDepartment
+      });
       applyQuickTestConfiguration();
     }
   }, [quickTestRole, quickTestProvince, quickTestBranch, quickTestDepartment, autoApplyChanges]);
 
+  // Force refresh navigation
+  const forceRefreshNavigation = () => {
+    console.log('🔄 Force refreshing navigation...');
+    // Trigger a window event that navigation components can listen to
+    window.dispatchEvent(new CustomEvent('forceNavigationRefresh', {
+      detail: { 
+        userRole: quickTestRole,
+        timestamp: Date.now()
+      }
+    }));
+    message.info('Navigation refresh triggered!');
+  };
+
   // Apply quick test configuration
   const applyQuickTestConfiguration = async () => {
     if (!user?.uid) return;
+
+    console.log('📝 Applying role configuration:', {
+      role: quickTestRole,
+      user: user?.email,
+      uid: user?.uid
+    });
 
     const roleConfig = getRoleConfiguration(quickTestRole, quickTestProvince, quickTestBranch, quickTestDepartment);
     
     if (roleConfig) {
       // Extract permissions and geographic data from config
       const { permissions, ...geographic } = roleConfig;
+      
+      console.log('💾 Updating Firestore with:', {
+        accessLevel: quickTestRole,
+        ...geographic
+      });
       
       // Update Firestore with new role and context
       await app.firestore().collection('users').doc(user.uid).update({
@@ -165,8 +267,15 @@ const TestAccessControl = () => {
         'auth.lastQuickTest': Date.now()
       });
 
+      console.log('✅ Firestore update completed');
+      
       // Let the real-time listeners (useSelfListener) handle Redux updates automatically
       // No need to manually dispatch to Redux since useSelfListener will detect the Firestore changes
+      
+      // Force a navigation refresh after a short delay
+      setTimeout(() => {
+        forceRefreshNavigation();
+      }, 1000);
       
       message.success(`✅ Quick test: switched to ${quickTestRole} role`);
     }
@@ -274,7 +383,14 @@ const TestAccessControl = () => {
     console.log('🔄 Reset to default test configuration');
   };
 
-
+  // Switch to a specific role for testing granular roles
+  const switchToRole = (roleName) => {
+    setQuickTestRole(roleName);
+    if (autoApplyChanges) {
+      applyQuickTestConfiguration();
+    }
+    message.info(`สลับไปใช้บทบาท: ${roleName}`);
+  };
 
   return (
     <div style={{ padding: '24px' }}>
@@ -338,6 +454,16 @@ const TestAccessControl = () => {
                         block
                       >
                         Reset
+                      </Button>
+                      <Button 
+                        type="dashed"
+                        icon={<ReloadOutlined />}
+                        onClick={forceRefreshNavigation}
+                        size="small"
+                        block
+                        style={{ marginTop: '4px' }}
+                      >
+                        Force Refresh Menu
                       </Button>
                     </Space>
                   </Col>
@@ -687,6 +813,97 @@ const TestAccessControl = () => {
             </Col>
           </Row>
         </TabPane>
+
+        {/* Add this section to the render method, before the existing permission tests */}
+        <Card title="🚀 Granular Role Testing" style={{ marginBottom: 24 }}>
+          <Text type="secondary" style={{ marginBottom: 16, display: 'block' }}>
+            ทดสอบระบบบทบาทแบบละเอียด (Granular Roles) ที่รองรับงานข้ามแผนกและลำดับชั้นการจัดการใหม่
+          </Text>
+          
+          {granularRoleTests.map((category, categoryIndex) => (
+            <Card 
+              key={categoryIndex}
+              type="inner" 
+              title={category.title} 
+              style={{ marginBottom: 16 }}
+              size="small"
+            >
+              {category.roles.map((roleTest, roleIndex) => (
+                <Card 
+                  key={roleIndex}
+                  size="small" 
+                  style={{ marginBottom: 12 }}
+                  title={
+                    <Space>
+                      <Tag color="blue">{roleTest.name}</Tag>
+                      <Text strong>{roleTest.description}</Text>
+                    </Space>
+                  }
+                >
+                  <Row gutter={[16, 16]}>
+                    <Col span={24}>
+                      <Text type="secondary" style={{ fontStyle: 'italic' }}>
+                        📋 กรณีใช้งาน: {roleTest.businessCase}
+                      </Text>
+                    </Col>
+                    
+                    <Col span={8}>
+                      <Text strong>สิทธิ์ที่คาดหวัง:</Text>
+                      <div style={{ marginTop: 4 }}>
+                        {roleTest.expectedPermissions.map(permission => (
+                          <Tag 
+                            key={permission}
+                            color={hasPermission(permission) ? 'green' : 'red'}
+                            style={{ marginBottom: 4 }}
+                          >
+                            {permission} {hasPermission(permission) ? '✓' : '✗'}
+                          </Tag>
+                        ))}
+                      </div>
+                    </Col>
+                    
+                    <Col span={8}>
+                      <Text strong>เมนูที่เข้าถึงได้:</Text>
+                      <div style={{ marginTop: 4 }}>
+                                                 {roleTest.expectedAccess.map(menuItem => {
+                           const hasAccess = navigation && navigation.length > 0 ? navigation.some(section => 
+                             section.title === menuItem || 
+                             (section.items && section.items.some(item => item.title === menuItem))
+                           ) : false;
+                           return (
+                             <Tag 
+                               key={menuItem}
+                               color={hasAccess ? 'green' : 'red'}
+                               style={{ marginBottom: 4 }}
+                             >
+                               {menuItem} {hasAccess ? '✓' : '✗'}
+                             </Tag>
+                           );
+                         })}
+                      </div>
+                    </Col>
+                    
+                    <Col span={8}>
+                      <Space direction="vertical" size="small">
+                        <Button 
+                          size="small" 
+                          type="primary"
+                          onClick={() => switchToRole(roleTest.name)}
+                          disabled={userRole === roleTest.name}
+                        >
+                          {userRole === roleTest.name ? 'กำลังใช้บทบาทนี้' : 'สลับบทบาท'}
+                        </Button>
+                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                          คลิกเพื่อทดสอบบทบาทนี้
+                        </Text>
+                      </Space>
+                    </Col>
+                  </Row>
+                </Card>
+              ))}
+            </Card>
+          ))}
+        </Card>
       </Tabs>
     </div>
   );

@@ -4,24 +4,30 @@ import { usePermissions } from './usePermissions';
 import { NAVIGATION_CONFIG } from 'data/navigationConfig';
 
 /**
- * Hook to generate navigation menu based on user's RBAC permissions
- * @returns {Object} Object containing filtered navigation and helper functions
+ * SIMPLIFIED Hook to generate navigation menu based on user's RBAC permissions
+ * Focused on reactivity and simplicity
  */
 export const useNavigationGenerator = () => {
   const { hasPermission } = usePermissions();
   const { user } = useSelector(state => state.auth);
 
-  // Extract complex expressions from dependencies
-  const isDev = user?.isDev;
-  const userGroup = user?.group;
+  // SIMPLIFIED: Extract user role directly for better reactivity
+  const userRole = useMemo(() => {
+    return user?.auth?.accessLevel || user?.accessLevel || 'STAFF';
+  }, [user]);
+
+  // SIMPLIFIED: Check if user is developer
+  const isDev = useMemo(() => {
+    return user?.isDev || false;
+  }, [user]);
 
   /**
-   * Recursively filters navigation items based on user permissions
-   * @param {Array} items - Array of navigation items
-   * @returns {Array} Filtered navigation items
+   * SIMPLIFIED: Filter navigation items based on permissions
    */
   const filterItems = useMemo(() => {
     return (items) => {
+      if (!items || !Array.isArray(items)) return [];
+      
       return items.filter(item => {
         // Check if user has permission for this item
         if (item.permission && !hasPermission(item.permission)) {
@@ -43,11 +49,10 @@ export const useNavigationGenerator = () => {
   }, [hasPermission]);
 
   /**
-   * Generate filtered navigation based on user permissions
+   * SIMPLIFIED: Generate filtered navigation based on user permissions
    */
-  const filteredNavigation = useMemo(() => {
+  const navigation = useMemo(() => {
     const result = [];
-    const isDev = user?.isDev;
     
     Object.entries(NAVIGATION_CONFIG).forEach(([key, section]) => {
       // Special handling for developer-only sections
@@ -63,7 +68,7 @@ export const useNavigationGenerator = () => {
       // Filter section items
       const filteredItems = filterItems(section.items || []);
       
-      // Include section if it has visible items OR if it's a direct navigation item (has 'to' property)
+      // Include section if it has visible items OR if it's a direct navigation item
       if (filteredItems.length > 0 || section.to) {
         result.push({
           ...section,
@@ -77,80 +82,19 @@ export const useNavigationGenerator = () => {
   }, [hasPermission, filterItems, isDev]);
 
   /**
-   * Get high priority navigation items
-   */
-  const highPriorityItems = useMemo(() => {
-    const items = [];
-    
-    filteredNavigation.forEach(section => {
-      if (section.items) {
-        section.items.forEach(item => {
-          if (item.priority === 'high') {
-            items.push({ ...item, sectionTitle: section.title });
-          }
-          if (item.items) {
-            item.items.forEach(subItem => {
-              if (subItem.priority === 'high') {
-                items.push({ 
-                  ...subItem, 
-                  sectionTitle: section.title,
-                  parentTitle: item.title 
-                });
-              }
-            });
-          }
-        });
-      }
-    });
-    
-    return items;
-  }, [filteredNavigation]);
-
-  /**
-   * Get daily frequency items (commonly used)
-   */
-  const dailyItems = useMemo(() => {
-    const items = [];
-    
-    filteredNavigation.forEach(section => {
-      if (section.items) {
-        section.items.forEach(item => {
-          if (item.frequency === 'daily') {
-            items.push({ ...item, sectionTitle: section.title });
-          }
-          if (item.items) {
-            item.items.forEach(subItem => {
-              if (subItem.frequency === 'daily') {
-                items.push({ 
-                  ...subItem, 
-                  sectionTitle: section.title,
-                  parentTitle: item.title 
-                });
-              }
-            });
-          }
-        });
-      }
-    });
-    
-    return items;
-  }, [filteredNavigation]);
-
-  /**
-   * Get navigation statistics
+   * SIMPLIFIED: Get navigation statistics
    */
   const navigationStats = useMemo(() => {
     let totalSections = 0;
     let totalItems = 0;
-    let totalSubItems = 0;
     
-    filteredNavigation.forEach(section => {
+    navigation.forEach(section => {
       totalSections++;
       if (section.items) {
         section.items.forEach(item => {
           totalItems++;
           if (item.items) {
-            totalSubItems += item.items.length;
+            totalItems += item.items.length;
           }
         });
       }
@@ -159,18 +103,16 @@ export const useNavigationGenerator = () => {
     return {
       totalSections,
       totalItems,
-      totalSubItems,
-      totalMenuItems: totalItems + totalSubItems
+      userRole,
+      isDev
     };
-  }, [filteredNavigation]);
+  }, [navigation, userRole, isDev]);
 
   /**
    * Find navigation item by path
-   * @param {string} path - The route path to find
-   * @returns {Object|null} Navigation item info or null if not found
    */
   const findItemByPath = (path) => {
-    for (const section of filteredNavigation) {
+    for (const section of navigation) {
       if (section.items) {
         for (const item of section.items) {
           if (item.to === path) {
@@ -198,34 +140,18 @@ export const useNavigationGenerator = () => {
     return null;
   };
 
-  /**
-   * Check if user has access to specific path
-   * @param {string} path - The route path to check
-   * @returns {boolean} True if user has access
-   */
-  const hasAccessToPath = (path) => {
-    const item = findItemByPath(path);
-    return !!item;
-  };
-
-  /**
-   * Get navigation breadcrumb for current path
-   * @param {string} currentPath - Current route path
-   * @returns {Array} Breadcrumb array
-   */
-  const getBreadcrumb = (currentPath) => {
-    const item = findItemByPath(currentPath);
-    return item ? item.breadcrumb : [];
-  };
-
   return {
-    navigation: filteredNavigation,
-    highPriorityItems,
-    dailyItems,
+    navigation,
     navigationStats,
     findItemByPath,
-    hasAccessToPath,
-    getBreadcrumb
+    userRole,
+    isDev,
+    // Legacy compatibility
+    filteredNavigation: navigation,
+    highPriorityItems: [],
+    dailyItems: [],
+    hasAccessToPath: (path) => !!findItemByPath(path),
+    getBreadcrumb: (currentPath) => findItemByPath(currentPath)?.breadcrumb || []
   };
 };
 

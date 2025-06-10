@@ -174,15 +174,14 @@ export const createFallbackRBAC = (user, branches = {}) => {
  * @param {Object} rbacData - Migrated RBAC data
  */
 export const logMigration = (user, rbacData) => {
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔄 User RBAC Migration:', {
-      userId: user?.uid,
-      originalPermissions: user?.permissions,
-      isDev: user?.isDev,
-      newRole: rbacData?.role,
-      newPermissions: rbacData?.permissions,
-      geographic: rbacData?.geographic,
-      migratedAt: new Date(rbacData?.migratedAt || Date.now()).toISOString()
-    });
-  }
+  // Always log in development/debugging scenarios
+  console.log('🔄 User RBAC Migration:', {
+    userId: user?.uid,
+    originalPermissions: user?.permissions,
+    isDev: user?.isDev,
+    newRole: rbacData?.role,
+    newPermissions: rbacData?.permissions,
+    geographic: rbacData?.geographic,
+    migratedAt: new Date(rbacData?.migratedAt || Date.now()).toISOString()
+  });
 }; 

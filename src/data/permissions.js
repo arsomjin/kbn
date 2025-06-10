@@ -278,6 +278,35 @@ export const determineRoleFromPermissions = (permissions, user) => {
     return 'SUPER_ADMIN';
   }
   
+  // Handle legacy access levels
+  if (user?.auth?.accessLevel) {
+    const accessLevel = user.auth.accessLevel;
+    switch (accessLevel) {
+      case 'SUPER_ADMIN':
+        return 'SUPER_ADMIN';
+      case 'EXECUTIVE':
+        return 'EXECUTIVE';
+      case 'PROVINCE_MANAGER':
+        return 'PROVINCE_MANAGER';
+      case 'BRANCH_MANAGER':
+        return 'BRANCH_MANAGER';
+      case 'ACCOUNTING_STAFF':
+        return 'ACCOUNTING_STAFF';
+      case 'SALES_STAFF':
+        return 'SALES_STAFF';
+      case 'SERVICE_STAFF':
+        return 'SERVICE_STAFF';
+      case 'INVENTORY_STAFF':
+        return 'INVENTORY_STAFF';
+      case 'STAFF':
+        // Legacy "STAFF" maps to SALES_STAFF as default
+        return 'SALES_STAFF';
+      default:
+        // Continue with permission-based detection
+        break;
+    }
+  }
+  
   // Check if user has admin permissions
   const hasAdminEdit = permissions.includes(combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.EDIT));
   const hasAdminApprove = permissions.includes(combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.APPROVE));

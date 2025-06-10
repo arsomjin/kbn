@@ -28,6 +28,12 @@ import { useSelector } from 'react-redux';
 import { app } from '../../../firebase';
 import { usePermissions } from 'hooks/usePermissions';
 import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
+import { 
+  getRequestTypeInfo, 
+  getStatusInfo, 
+  getDepartmentInfo, 
+  getLocationInfo 
+} from 'utils/userMappings';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -158,13 +164,8 @@ const UserApproval = () => {
   };
 
   const getRequestTypeTag = (requestType) => {
-    const typeConfig = {
-      new_registration: { color: 'blue', text: 'พนักงานใหม่' },
-      access_request: { color: 'purple', text: 'ขอสิทธิ์เข้าใช้' }
-    };
-    
-    const config = typeConfig[requestType] || typeConfig.new_registration;
-    return <Tag color={config.color}>{config.text}</Tag>;
+    const requestInfo = getRequestTypeInfo(requestType);
+    return <Tag color={requestInfo.color}>{requestInfo.text}</Tag>;
   };
 
   const columns = [
@@ -194,28 +195,39 @@ const UserApproval = () => {
       title: 'แผนก',
       dataIndex: ['userData', 'department'],
       key: 'department',
+      render: (department) => {
+        if (!department) return '-';
+        const deptInfo = getDepartmentInfo(department);
+        return <Tag color={deptInfo.color}>{deptInfo.text}</Tag>;
+      },
     },
     {
       title: 'จังหวัด',
       dataIndex: 'targetProvince',
       key: 'targetProvince',
-      render: (province) => (
-        <Space>
-          <EnvironmentOutlined />
-          <span>{province}</span>
-        </Space>
-      ),
+      render: (province) => {
+        const locationInfo = getLocationInfo(province, '');
+        return (
+          <Space>
+            <EnvironmentOutlined />
+            <span>{locationInfo.provinceName || province}</span>
+          </Space>
+        );
+      },
     },
     {
       title: 'สาขา',
       dataIndex: 'targetBranch',
       key: 'targetBranch',
-      render: (branch) => (
-        <Space>
-          <BankOutlined />
-          <span>{branch}</span>
-        </Space>
-      ),
+      render: (branch) => {
+        const locationInfo = getLocationInfo('', branch);
+        return (
+          <Space>
+            <BankOutlined />
+            <span>{locationInfo.branchName || branch}</span>
+          </Space>
+        );
+      },
     },
     {
       title: 'สถานะ',
@@ -346,16 +358,21 @@ const UserApproval = () => {
               {getRequestTypeTag(selectedRequest.requestType)}
             </Descriptions.Item>
             <Descriptions.Item label="แผนก">
-              {selectedRequest.userData?.department}
+              {selectedRequest.userData?.department ? (
+                (() => {
+                  const deptInfo = getDepartmentInfo(selectedRequest.userData.department);
+                  return <Tag color={deptInfo.color}>{deptInfo.text}</Tag>;
+                })()
+              ) : '-'}
             </Descriptions.Item>
             <Descriptions.Item label="ระดับการเข้าถึง">
               {selectedRequest.userData?.accessLevel}
             </Descriptions.Item>
             <Descriptions.Item label="จังหวัด">
-              {selectedRequest.targetProvince}
+              {getLocationInfo(selectedRequest.targetProvince, '').provinceName || selectedRequest.targetProvince}
             </Descriptions.Item>
             <Descriptions.Item label="สาขา">
-              {selectedRequest.targetBranch}
+              {getLocationInfo('', selectedRequest.targetBranch).branchName || selectedRequest.targetBranch}
             </Descriptions.Item>
             <Descriptions.Item label="สถานะ">
               {getStatusTag(selectedRequest.status)}

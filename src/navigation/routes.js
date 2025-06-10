@@ -95,6 +95,7 @@ import ExpenseTransferCycle from 'Modules/Account/screens/ExpenseTransferCycle';
 import TestPrint from 'dev/screens/TestPrint';
 import TestAccessControl from 'dev/screens/TestAccessControl';
 import TestAuthentication from 'dev/screens/TestAuthentication';
+import TestGranularRoles from 'dev/screens/TestGranularRoles';
 import MigrationTools from 'dev/screens/MigrationTools';
 import AuditTrailDemo from 'components/AuditTrail/AuditTrailDemo';
 import Phase3MigrationDashboard from 'dev/screens/Phase3MigrationDashboard';
@@ -1032,6 +1033,11 @@ export default [
     path: '/dev/test-authentication',
     layout: DefaultLayout,
     component: TestAuthentication
+  },
+  {
+    path: '/dev/test-granular-roles',
+    layout: DefaultLayout,
+    component: TestGranularRoles
   },
   {
     path: '/developer/migration-tools',

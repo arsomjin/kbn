@@ -1142,6 +1142,13 @@ export const NAVIGATION_CONFIG = {
             to: '/dev/test-authentication',
             description: 'ทดสอบระบบ Authentication และ isDev flag + Role Switcher',
             priority: 'critical'
+          },
+          {
+            key: 'test-granular-roles',
+            title: 'Test Granular Roles',
+            to: '/dev/test-granular-roles',
+            description: 'ทดสอบระบบบทบาทแบบละเอียดและการเชื่อมต่อกับ Navigation + RBAC',
+            priority: 'high'
           }
         ]
       },

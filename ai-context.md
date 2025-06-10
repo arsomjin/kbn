@@ -19,6 +19,39 @@ KBN is an enterprise-level business management platform built with React, JavaSc
 - Maintain backward compatibility with existing data ✅
 - Replace outdated libraries with Ant Design equivalents ✅
 
+## 🎯 **CORE DEVELOPMENT PHILOSOPHY**
+
+### **⚡ SIMPLICITY FIRST - NO COMPLEXITY - NO REDUNDANCY**
+
+**CRITICAL PRINCIPLES:**
+
+1. **🚫 ZERO TOLERANCE FOR COMPLEXITY** - Always choose the simplest solution
+2. **🚫 NO REDUNDANT CODE** - Never duplicate logic, functions, or components
+3. **⚡ SIMPLIFICATION OVER FEATURES** - Prefer fewer, simpler functions over many complex ones
+4. **🔍 CHECK EXISTING CODE FIRST** - Always search for existing solutions before creating new ones
+5. **🧹 CLEAN & MINIMAL** - Remove unnecessary abstractions, middleware, and complex patterns
+
+### **🛠️ IMPLEMENTATION GUIDELINES**
+
+#### **Before Writing ANY Code:**
+
+```bash
+# ALWAYS DO THIS FIRST:
+1. grep_search for existing similar functions
+2. Check src/utils/mappings.js for existing mappings
+3. Look for existing components that do similar things
+4. Use the simplest possible approach
+5. Avoid creating new utilities if existing ones work
+```
+
+#### **Simplification Rules:**
+
+- ✅ **ONE FUNCTION, ONE PURPOSE** - No multi-purpose complex functions
+- ✅ **DIRECT IMPORTS** - Avoid deep nested imports and re-exports
+- ✅ **MINIMAL DEPENDENCIES** - Use as few external libraries as possible
+- ✅ **FLAT STRUCTURE** - Avoid deep nesting in components and logic
+- ✅ **EXPLICIT OVER CLEVER** - Write obvious code, not clever code
+
 # AI Context: KBN Multi-Province RBAC System - Integration Phase
 
 **Project**: KBN - Multi-Province RBAC Integration & Library Modernization
@@ -260,6 +293,18 @@ src/dev/screens/TestAccessControl/index.js
 4. **Fix Bugs Only**: Address issues found during integration
 5. **Maintain Data Integrity**: No changes to data structures unless fixing bugs
 
+### **⚠️ CRITICAL: Avoid Redundant Code Creation**
+
+**ALWAYS CHECK FOR EXISTING UTILITIES FIRST** before creating new ones:
+
+- **Search existing files**: Use `grep_search` or `codebase_search` to find similar functionality
+- **Check common utility directories**: `src/utils/`, `src/helpers/`, `src/functions/`
+- **Review existing mapping files**: `src/utils/mappings.js` contains comprehensive mapping data
+- **Examine import patterns**: Look at how other components import utilities
+- **Verify naming conventions**: Follow existing patterns rather than creating new ones
+
+**Example**: Always use existing `src/utils/mappings.js` for province/branch/department mappings instead of creating new mapping utilities.
+
 ### **RBAC Usage**
 
 ```javascript
@@ -290,3 +335,162 @@ const visibleData = filterDataByUserAccess(allData, {
 **Phase 1**: ✅ **COMPLETE** - Multi-Province RBAC Infrastructure
 **Phase 2**: 🚀 **IN PROGRESS** - Integration & Library Modernization
 **Next Steps**: Systematic integration of RBAC with existing components while modernizing UI libraries to Ant Design
+
+# AI Context & Development Guidelines
+
+## Critical Development Reminders
+
+### 🚨 ALWAYS CHECK EXISTING UTILITIES FIRST
+
+Before creating any new utility functions, mappings, or helper files, **ALWAYS** check these locations:
+
+- `src/utils/mappings.js` - Contains comprehensive mapping data for roles, departments, provinces, branches, etc.
+- `src/utils/` - All utility functions
+- `src/components/` - Reusable components
+- `src/hooks/` - Custom hooks
+
+**Why:** I previously created duplicate utility functions without checking existing `mappings.js`, causing redundancy and confusion.
+
+### 🏷️ ALWAYS USE USER-FRIENDLY MAPPINGS
+
+**CRITICAL**: All UI components MUST use user-friendly names from `src/utils/mappings.js`
+
+```javascript
+// ❌ WRONG - Don't show technical codes directly
+<Text>NSN002</Text>
+<Select.Option value="NSN002">NSN002</Select.Option>
+
+// ✅ CORRECT - Use mapping utilities for user-friendly names
+import { getBranchName, getProvinceName, getDepartmentName } from 'utils/mappings';
+
+<Text>{getBranchName('NSN002')}</Text> // "สาขาตาคลี"
+<Select.Option value="NSN002">{getBranchName('NSN002')}</Select.Option>
+
+// ✅ CORRECT - Show both friendly name and code when needed
+<Text>{getBranchName('NSN002')} ({branchCode})</Text> // "สาขาตาคลี (NSN002)"
+```
+
+**Pattern to Follow:**
+
+1. **Primary Display**: Always show user-friendly names first
+2. **Secondary Info**: Show technical codes in parentheses or smaller text
+3. **Consistent Import**: Always import from `utils/mappings.js`
+4. **Error Handling**: Provide fallback for unmapped values
+
+#### **Migration Strategy Implemented**:
+
+- **File**: `src/utils/migrate-users-rbac.js`
+- **Functions**: `migrateAllUsers()`, `checkMigrationStatus()`, `rollbackUserMigration()`
+- **Backward Compatibility**: Maintains existing role structure while adding enhanced capabilities
+
+#### **Architecture Decision**: NO Individual Permissions
+
+**Rationale**: Individual permission overrides lead to:
+
+- Security explosion (∞ combinations)
+- Audit nightmare
+- Permission creep
+- Maintenance hell
+
+**Instead**: Use structured approach:
+
+1. **Enhanced Roles** (implemented) - Granular predefined roles
+2. **Permission Groups** (implemented) - Bundles for complex scenarios
+3. **Temporal Access** (implemented) - Time-bound role elevation
+4. **Audit System** (implemented) - Complete change tracking
+
+### 🔧 Component Prop Standards
+
+#### GeographicBranchSelector
+
+```javascript
+// Required props and expected names
+<GeographicBranchSelector
+  province={provinceValue} // NOT selectedProvince
+  respectRBAC={boolean} // Explicit RBAC control
+  showBranchCode={boolean} // Display preferences
+  disabled={boolean} // State control
+/>
+```
+
+#### ProvinceSelector
+
+```javascript
+<ProvinceSelector
+  respectRBAC={boolean} // Explicit RBAC control
+  fetchOnMount={boolean} // Data loading control
+  includeInactive={boolean} // Filtering control
+/>
+```
+
+### 📋 Form Integration Best Practices
+
+#### ✅ Correct Pattern for Dependent Selectors
+
+```javascript
+<Form.Item name="province">
+  <ProvinceSelector
+    onChange={(value) => form.setFieldsValue({ branch: null })}
+  />
+</Form.Item>
+
+<Form.Item name="branch">
+  <Form.Item noStyle shouldUpdate>
+    {({ getFieldValue }) => (
+      <GeographicBranchSelector
+        province={getFieldValue('province')}
+        disabled={!getFieldValue('province')}
+      />
+    )}
+  </Form.Item>
+</Form.Item>
+```
+
+#### ❌ Avoid Complex Nesting
+
+- Don't nest multiple `Form.Item` with complex `shouldUpdate` logic
+- Don't use `value` and `onChange` props inside Form.Item (use form control)
+- Don't create circular prop dependencies
+
+### 🗂️ File Organization Standards
+
+```
+src/
+├── utils/
+│   ├── mappings.js              # Central mapping data (CHECK FIRST!)
+│   ├── rbac-enhanced.js         # Enhanced RBAC system
+│   ├── migrate-users-rbac.js    # Migration utilities
+│   └── ...
+├── components/
+│   ├── ProvinceSelector.js      # Geographic selectors
+│   ├── GeographicBranchSelector.js
+│   └── ...
+└── Modules/
+    └── Admin/
+        └── UserManagement/
+            └── index.js         # Enhanced with new RBAC
+```
+
+## Component Dependencies & Data Flow
+
+### RBAC Data Flow
+
+```
+User Auth Data → Enhanced Role System → Permission Evaluation → UI Component Filtering
+     ↓                    ↓                       ↓                      ↓
+Firebase User    rbac-enhanced.js    usePermissions()    ProvinceSelector
+                                                         GeographicBranchSelector
+```
+
+### Geographic Filtering Chain
+
+```
+User Selection → Province Filter → Branch Filter → RBAC Validation → Data Access
+      ↓               ↓               ↓              ↓              ↓
+  Form Values    ProvinceSelector  BranchSelector   hasPermission()  API Calls
+```
+
+---
+
+**Last Updated**: December 2024  
+**Context**: UserManagement RBAC Integration & Enhanced Role System Implementation

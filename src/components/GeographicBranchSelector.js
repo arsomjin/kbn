@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 import { Select, Spin } from 'antd';
 import { useSelector } from 'react-redux';
 import { usePermissions } from '../hooks/usePermissions';
+import { getBranchName } from '../utils/mappings';
 
 const { Option } = Select;
 
@@ -244,9 +245,9 @@ const GeographicBranchSelector = ({
   // Format option display
   const formatBranchOption = (branch) => {
     const branchCode = branch.branchCode || branch.key;
-    const branchName = branch.branchName || branch.name || branchCode;
+    const branchName = getBranchName(branchCode) || branch.branchName || branch.name || branchCode;
     
-    if (showBranchCode && branchCode !== branchName) {
+    if (showBranchCode && branchCode !== branchName && !branchName.includes(branchCode)) {
       return `${branchCode} - ${branchName}`;
     }
     return branchName;

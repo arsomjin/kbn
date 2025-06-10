@@ -45,7 +45,7 @@ const ICON_MAP = {
 };
 
 const EnhancedSidebarNavItems = () => {
-  const { navigation, highPriorityItems, navigationStats } = useNavigationGenerator();
+  const { navigation = [], navigationStats, userRole } = useNavigationGenerator();
   const { openKeys } = useSelector(state => state.unPersisted);
   const { user } = useSelector(state => state.auth);
   const history = useHistory();
@@ -79,19 +79,25 @@ const EnhancedSidebarNavItems = () => {
     }
   }, [user?.isDev, navigation, dispatch, openKeys.length]);
 
-  // Listen for forced user data refresh events
+  // Listen for forced navigation refresh events
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
   useEffect(() => {
-    const handleUserDataRefresh = (event) => {
-      console.log('🔄 Navigation received user data refresh event');
-      // Force re-render by updating a dummy state or triggering navigation regeneration
-      window.location.hash = '#refreshed'; // Trigger a subtle change
-      setTimeout(() => {
-        window.location.hash = ''; // Clear the hash
-      }, 100);
+    const handleForceRefresh = (event) => {
+      console.log('🔄 Navigation received force refresh event:', event.detail);
+      setRefreshTrigger(prev => prev + 1); // Force re-render
     };
 
+    const handleUserDataRefresh = (event) => {
+      console.log('🔄 Navigation received user data refresh event');
+      setRefreshTrigger(prev => prev + 1); // Force re-render
+    };
+
+    window.addEventListener('forceNavigationRefresh', handleForceRefresh);
     window.addEventListener('userDataRefreshed', handleUserDataRefresh);
+    
     return () => {
+      window.removeEventListener('forceNavigationRefresh', handleForceRefresh);
       window.removeEventListener('userDataRefreshed', handleUserDataRefresh);
     };
   }, []);
@@ -407,7 +413,7 @@ const EnhancedSidebarNavItems = () => {
           color: '#8c8c8c',
           borderBottom: '1px solid #f0f0f0'
         }}>
-          เมนู: {navigationStats.totalSections} หมวด, {navigationStats.totalMenuItems} รายการ
+          เมนู: {navigationStats.totalSections} หมวด, {navigationStats.totalItems} รายการ | บทบาท: {userRole} | รีเฟรช: {refreshTrigger}
           {searchTerm && ` | กรองแล้ว: ${filteredNavigation.length} หมวด`}
         </div>
       )}
@@ -448,36 +454,7 @@ const EnhancedSidebarNavItems = () => {
         </div>
       )}
 
-      {/* Quick Access Section (if there are high priority items and no search) */}
-      {!searchTerm && highPriorityItems.length > 0 && (
-        <div style={{ 
-          margin: '16px 8px 8px 8px',
-          padding: '8px',
-          background: '#fafafa',
-          borderRadius: '6px',
-          border: '1px solid #f0f0f0'
-        }}>
-          <Text strong style={{ fontSize: '11px', color: '#8c8c8c' }}>
-            งานสำคัญ
-          </Text>
-          <div style={{ marginTop: '4px' }}>
-            {highPriorityItems.slice(0, 3).map(item => (
-              <div 
-                key={item.key}
-                onClick={() => handleClick(item)}
-                style={{ 
-                  fontSize: '10px',
-                  padding: '2px 0',
-                  cursor: 'pointer',
-                  color: '#1890ff'
-                }}
-              >
-                • {item.title}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+
     </div>
   );
 };

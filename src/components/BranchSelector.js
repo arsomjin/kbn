@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { forwardRef, useRef, useImperativeHandle, useEffect, useState, useMemo } from 'react';
+import React, { forwardRef, useRef, useImperativeHandle, useMemo, useCallback } from 'react';
 import { Select } from 'antd';
 import { useSelector } from 'react-redux';
 import { usePermissions } from 'hooks/usePermissions';
@@ -62,19 +62,8 @@ const BranchSelector = forwardRef(({
 }, ref) => {
   const { provinces = {} } = useSelector(state => state.provinces || {});
   const { userBranches } = usePermissions();
-  const [sBranches, setBranches] = useState([]);
   
-  // Add ref to track component mount status
-  const isMountedRef = useRef(true);
-
   const selectRef = useRef();
-
-  // Cleanup function
-  useEffect(() => {
-    return () => {
-      isMountedRef.current = false;
-    };
-  }, []);
 
   useImperativeHandle(
     ref,
@@ -103,9 +92,9 @@ const BranchSelector = forwardRef(({
   );
 
   // Memoize the filtered and grouped branches by province
-  const groupedBranches = useMemo(() => {
+  const processedBranches = useMemo(() => {
     if (!userBranches || Object.keys(userBranches).length === 0) {
-      return { grouped: {}, sortedProvinces: [] };
+      return { grouped: {}, sortedProvinces: [], flattened: [] };
     }
 
     try {
@@ -145,31 +134,64 @@ const BranchSelector = forwardRef(({
       // Sort provinces alphabetically
       const sortedProvinces = Object.keys(grouped).sort((a, b) => a.localeCompare(b, 'th'));
       
-      return { grouped, sortedProvinces };
+      // Flatten grouped branches for easier iteration
+      const flattened = [];
+      sortedProvinces.forEach(provinceId => {
+        flattened.push(...grouped[provinceId]);
+      });
+      
+      return { grouped, sortedProvinces, flattened };
     } catch (error) {
       console.error('Error filtering branches:', error);
-      return { grouped: {}, sortedProvinces: [] };
+      return { grouped: {}, sortedProvinces: [], flattened: [] };
     }
   }, [userBranches, provinceFilter, regionFilter]);
 
-  // Flatten grouped branches for backward compatibility
-  const filteredBranches = useMemo(() => {
-    const { grouped, sortedProvinces } = groupedBranches;
-    const flattened = [];
+  // Memoize option components to prevent recreation
+  const branchOptions = useMemo(() => {
+    const { grouped, sortedProvinces } = processedBranches;
     
-    sortedProvinces.forEach(provinceId => {
-      flattened.push(...grouped[provinceId]);
-    });
-    
-    return flattened;
-  }, [groupedBranches]);
+    if (!sortedProvinces.length) return [];
 
-  // Update local state when filtered branches change, but only if component is still mounted
-  useEffect(() => {
-    if (isMountedRef.current) {
-      setBranches(filteredBranches);
-    }
-  }, [filteredBranches]);
+    return sortedProvinces.map(provinceId => 
+      grouped[provinceId].map(branch => (
+        <Option 
+          key={branch.branchCode} 
+          value={branch.branchCode}
+          disabled={!!onlyUserBranch && onlyUserBranch !== '0450' && onlyUserBranch !== branch.branchCode}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontWeight: 'bold' }}>
+                {getBranchName(branch.branchCode) || branch.branchName || branch.branchCode}
+              </div>
+              {showProvinceInfo && (
+                <div style={{ fontSize: '11px', color: '#666' }}>
+                  {getProvinceCodeFromId(provinceId)}
+                </div>
+              )}
+            </div>
+            <div style={{ fontSize: '11px', color: '#999', marginLeft: '8px' }}>
+              {provinces[provinceId]?.provinceCode || getProvinceCodeFromId(provinceId)}
+            </div>
+          </div>
+        </Option>
+      ))
+    ).flat();
+  }, [processedBranches, onlyUserBranch, showProvinceInfo, provinces]);
+
+  // Memoize the "All" option
+  const allOption = useMemo(() => (
+    <Option key="all" value="all">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <div style={{ fontWeight: 'bold' }}>ทุกสาขา</div>
+        <div style={{ fontSize: '11px', color: '#999' }}>ALL</div>
+      </div>
+    </Option>
+  ), []);
+
+  // Determine which options to show
+  const shouldShowAll = hasAll && (!onlyUserBranch || onlyUserBranch === '0450');
 
   return (
     <Select
@@ -178,61 +200,7 @@ const BranchSelector = forwardRef(({
       dropdownStyle={branchCode ? { minWidth: 200 } : undefined}
       {...props}
     >
-      {hasAll && (!onlyUserBranch || onlyUserBranch === '0450')
-        ? [
-            ...groupedBranches.sortedProvinces.map(provinceId => 
-              groupedBranches.grouped[provinceId].map(branch => (
-                <Option key={branch.branchCode} value={branch.branchCode}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ fontWeight: 'bold' }}>
-                        {getBranchName(branch.branchCode) || branch.branchName || branch.branchCode}
-                      </div>
-                      {showProvinceInfo && (
-                        <div style={{ fontSize: '11px', color: '#666' }}>
-                          {getProvinceCodeFromId(provinceId)}
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ fontSize: '11px', color: '#999', marginLeft: '8px' }}>
-                      {provinces[provinceId]?.provinceCode || getProvinceCodeFromId(provinceId)}
-                    </div>
-                  </div>
-                </Option>
-              ))
-            ).flat(),
-            <Option key="all" value="all">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                <div style={{ fontWeight: 'bold' }}>ทุกสาขา</div>
-                <div style={{ fontSize: '11px', color: '#999' }}>ALL</div>
-              </div>
-            </Option>
-          ]
-        : groupedBranches.sortedProvinces.map(provinceId => 
-            groupedBranches.grouped[provinceId].map(branch => (
-              <Option
-                key={branch.branchCode}
-                value={branch.branchCode}
-                disabled={!!onlyUserBranch && onlyUserBranch !== '0450' && onlyUserBranch !== branch.branchCode}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 'bold' }}>
-                      {getBranchName(branch.branchCode) || branch.branchName || branch.branchCode}
-                    </div>
-                    {showProvinceInfo && (
-                      <div style={{ fontSize: '11px', color: '#666' }}>
-                        {getProvinceCodeFromId(provinceId)}
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#999', marginLeft: '8px' }}>
-                    {provinces[provinceId]?.provinceCode || getProvinceCodeFromId(provinceId)}
-                  </div>
-                </div>
-              </Option>
-            ))
-          ).flat()}
+      {shouldShowAll ? [allOption, ...branchOptions] : branchOptions}
     </Select>
   );
 });
