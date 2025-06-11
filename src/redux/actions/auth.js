@@ -159,7 +159,7 @@ export const signUpUser = (firstName, lastName, email, password) => dispatch => 
     });
 };
 
-// Enhanced signup with RBAC integration
+// Enhanced signup with Clean Slate RBAC integration
 export const signUpUserWithRBAC = (userData) => dispatch => {
   dispatch(requestSignUp());
   
@@ -172,8 +172,6 @@ export const signUpUserWithRBAC = (userData) => dispatch => {
     department,
     branch,
     accessLevel,
-    allowedProvinces,
-    allowedBranches,
     userType,
     requestType,
     employeeId,
@@ -188,52 +186,54 @@ export const signUpUserWithRBAC = (userData) => dispatch => {
     .then(async (userCredential) => {
       const user = userCredential.user;
       
-      // Determine permissions based on access level and department
-      const defaultPermissions = determineDefaultPermissions(accessLevel, department);
+      // Create Clean Slate user structure
+      const { createCleanSlateUser, createApprovalRequest, validateCleanSlateUser } = await import('../../utils/clean-slate-helpers');
       
-      // Create user profile with enhanced RBAC data
-      const userProfile = {
+      const cleanSlateUser = createCleanSlateUser({
         uid: user.uid,
         email: user.email,
-        emailVerified: user.emailVerified,
         firstName,
         lastName,
         displayName: `${firstName} ${lastName}`,
+        department,
+        accessLevel,
+        province,
+        branch,
+        userType
+      });
+      
+      // Validate Clean Slate structure
+      const validation = validateCleanSlateUser(cleanSlateUser);
+      if (!validation.isValid) {
+        throw new Error(`Invalid Clean Slate user structure: ${validation.errors.join(', ')}`);
+      }
+      
+      // Generate permissions using Clean Slate system
+      const { generateUserPermissions } = await import('../../utils/orthogonal-rbac');
+      const rbacData = generateUserPermissions(cleanSlateUser);
+      
+      // Create user profile with Clean Slate structure
+      const userProfile = {
+        ...cleanSlateUser,
+        emailVerified: user.emailVerified,
         created: Date.now(),
         lastLogin: Date.now(),
-        // RBAC Fields
-        accessLevel,
-        department,
-        homeProvince: province,
-        homeBranch: branch,
-        allowedProvinces: allowedProvinces || [province],
-        allowedBranches: allowedBranches || [branch],
-        // User type and registration metadata
+        
+        // Registration metadata
         userType,
         employeeId: employeeId || null,
         registrationSource: registrationSource || 'web',
-        // Status fields
-        isActive: false, // Requires approval
-        isApproved: false,
         requestType: requestType || 'new_employee_registration',
-        approvalStatus: 'pending',
-        approvedBy: null,
-        approvedAt: null,
         needsManagerApproval: needsManagerApproval !== false,
         approvalLevel: approvalLevel || (userType === 'existing' ? 'branch_manager' : 'province_manager'),
-        // Geographic metadata
-        geographic: {
-          homeProvince: province,
-          homeBranch: branch,
-          allowedProvinces: allowedProvinces || [province],
-          allowedBranches: allowedBranches || [branch]
-        },
-        // Registration metadata
+        
+        // Additional metadata
         registrationMetadata: {
           timestamp: Date.now(),
           userAgent: navigator.userAgent,
           platform: 'web',
-          version: '2.0'
+          version: '2.0',
+          rbacVersion: 'clean_slate'
         }
       };
 
@@ -242,24 +242,18 @@ export const signUpUserWithRBAC = (userData) => dispatch => {
         displayName: userProfile.displayName
       });
 
-      // Save to Firestore with enhanced structure
+      // Save to Firestore with Clean Slate structure
       await app.firestore()
         .collection('users')
         .doc(user.uid)
         .set({
-          auth: userProfile,
-          rbac: {
-            accessLevel,
-            permissions: defaultPermissions,
-            geographic: {
-              homeProvince: province,
-              homeBranch: branch,
-              allowedProvinces: allowedProvinces || [province],
-              allowedBranches: allowedBranches || [branch]
-            },
-            lastUpdated: Date.now(),
-            updatedBy: 'system'
-          },
+          // Clean Slate structure - single document format
+          ...userProfile,
+          
+          // RBAC data from Clean Slate system
+          rbacData,
+          
+          // Profile metadata
           profile: {
             firstName,
             lastName,
@@ -270,6 +264,8 @@ export const signUpUserWithRBAC = (userData) => dispatch => {
             created: Date.now(),
             lastProfileUpdate: Date.now()
           },
+          
+          // Status tracking
           status: {
             isActive: false,
             isApproved: false,
@@ -279,41 +275,18 @@ export const signUpUserWithRBAC = (userData) => dispatch => {
           }
         });
 
-      // Create detailed approval request
+      // Create Clean Slate approval request
+      const approvalRequest = createApprovalRequest(cleanSlateUser, {
+        department,
+        userType,
+        employeeId,
+        requestType,
+        approvalLevel: approvalLevel || (userType === 'existing' ? 'branch_manager' : 'province_manager')
+      });
+
       await app.firestore()
         .collection('approvalRequests')
-        .add({
-          userId: user.uid,
-          requestType: requestType || 'new_employee_registration',
-          userData: userProfile,
-          status: 'pending',
-          priority: userType === 'existing' ? 'high' : 'normal',
-          createdAt: Date.now(),
-          targetProvince: province,
-          targetBranch: branch,
-          department,
-          accessLevel,
-          userType,
-          employeeId: employeeId || null,
-          approvalLevel: approvalLevel || (userType === 'existing' ? 'branch_manager' : 'province_manager'),
-          metadata: {
-            registrationSource: registrationSource || 'web',
-            userAgent: navigator.userAgent,
-            timestamp: Date.now()
-          },
-          // Additional context for approvers
-          context: {
-            isExistingEmployee: userType === 'existing',
-            hasEmployeeId: !!employeeId,
-            requestedPermissions: defaultPermissions,
-            geographicScope: {
-              province,
-              branch,
-              allowedProvinces: allowedProvinces || [province],
-              allowedBranches: allowedBranches || [branch]
-            }
-          }
-        });
+        .add(approvalRequest);
 
       // Send notification to appropriate approvers
       await notifyApprovers(userProfile, approvalLevel || (userType === 'existing' ? 'branch_manager' : 'province_manager'));
@@ -331,11 +304,11 @@ export const signUpUserWithRBAC = (userData) => dispatch => {
           .collection('users')
           .doc(user.uid)
           .update({
-            'auth.isActive': true,
-            'auth.isApproved': true,
-            'auth.approvalStatus': 'approved',
-            'auth.approvedBy': 'system-dev',
-            'auth.approvedAt': Date.now(),
+            'isActive': true,
+            'isApproved': true,
+            'approvalStatus': 'approved',
+            'approvedBy': 'system-dev',
+            'approvedAt': Date.now(),
             'status.isActive': true,
             'status.isApproved': true,
             'status.approvalStatus': 'approved',

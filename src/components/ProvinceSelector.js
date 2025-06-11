@@ -60,11 +60,9 @@ const ProvinceSelector = ({
   
   // RBAC permissions
   const {
-    userProvinces,
     accessibleProvinces,
     isSuperAdmin,
-    hasProvinceAccess,
-    getDefaultProvince
+    hasProvinceAccess
   } = usePermissions();
 
   // Fetch provinces on mount

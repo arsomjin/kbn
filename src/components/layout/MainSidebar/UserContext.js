@@ -1,104 +1,144 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { Card, Tag, Typography } from 'antd';
 import { EnvironmentOutlined, HomeOutlined, UserOutlined } from '@ant-design/icons';
+import { usePermissions } from 'hooks/usePermissions';
+import { getProvinceName, getBranchName } from 'utils/mappings';
 
 const { Text } = Typography;
 
 const UserContext = () => {
-  const { user } = useSelector(state => state.auth);
-  const { branches } = useSelector(state => state.data);
-  const { provinces } = useSelector(state => state.provinces);
+  // Use the unified permissions hook for Clean Slate RBAC
+  const {
+    userRBAC,
+    isAdmin,
+    isProvinceLevel,
+    isBranchLevel,
+    isDepartmentLevel,
+    isExecutive,
+    accessibleProvinces,
+    accessibleBranches,
+    homeProvince,
+    homeBranch
+  } = usePermissions();
 
-  // For BRANCH_MANAGER, show their specific branch and province
-  // For PROVINCE_MANAGER, show their province(s)
-  // For SUPER_ADMIN, show "ทั้งหมด"
+  // Get user-friendly province display using Clean Slate RBAC
   const getProvinceDisplay = () => {
-    // Safety check for missing provinces data
-    if (!provinces || typeof provinces !== 'object') {
-      console.warn('UserContext: provinces data not loaded yet');
-      return 'กำลังโหลด...';
-    }
-
-    if (user?.accessLevel === 'SUPER_ADMIN') {
+    if (!userRBAC) return 'กำลังโหลด...';
+    
+    // Admin sees all provinces
+    if (isAdmin) {
       return 'ทั้งหมด';
     }
     
-    if (user?.accessLevel === 'PROVINCE_MANAGER') {
-      if (user?.allowedProvinces && user.allowedProvinces.length === 1) {
-        const provinceData = provinces[user.allowedProvinces[0]];
-        return provinceData?.provinceName || provinceData?.name || 'ไม่ระบุ';
-      } else if (user?.allowedProvinces && user.allowedProvinces.length > 1) {
-        return `${user.allowedProvinces.length} จังหวัด`;
-      }
-      // Fallback for PROVINCE_MANAGER without allowedProvinces - use first available province
-      const availableProvinces = Object.keys(provinces);
-      if (availableProvinces.length > 0) {
-        const provinceData = provinces[availableProvinces[0]];
-        return provinceData?.provinceName || provinceData?.name || 'นครราชสีมา';
+    // Province level - show accessible provinces
+    if (isProvinceLevel) {
+      const provinceCount = accessibleProvinces.length;
+      if (provinceCount === 1) {
+        return getProvinceName(accessibleProvinces[0]?.provinceKey || accessibleProvinces[0]?.key);
+      } else if (provinceCount > 1) {
+        return `${provinceCount} จังหวัด`;
       }
     }
     
-    if (user?.accessLevel === 'BRANCH_MANAGER') {
-      if (user?.allowedBranches && user.allowedBranches.length > 0 && branches) {
-        const firstBranch = branches[user.allowedBranches[0]];
-        if (firstBranch) {
-          const provinceData = provinces[firstBranch.provinceId];
-          return provinceData?.provinceName || provinceData?.name || 'ไม่ระบุ';
-        }
-      }
+    // Branch level - show province of home branch
+    if (isBranchLevel && homeBranch) {
+      return getProvinceName(homeBranch.provinceKey || homeBranch.provinceId);
     }
     
     // Fallback to home province
-    if (user?.homeProvince && provinces[user.homeProvince]) {
-      const provinceData = provinces[user.homeProvince];
-      return provinceData?.provinceName || provinceData?.name || 'ไม่ระบุ';
+    if (homeProvince) {
+      return getProvinceName(homeProvince.provinceKey || homeProvince.key);
     }
     
-    // Ultimate fallback - use the first available province or default
-    const availableProvinces = Object.keys(provinces);
-    if (availableProvinces.length > 0) {
-      const provinceData = provinces[availableProvinces[0]];
-      return provinceData?.provinceName || provinceData?.name || 'นครราชสีมา';
-    }
-    
-    return 'นครราชสีมา'; // Default to main province
+    // Final fallback
+    return accessibleProvinces.length > 0 
+      ? getProvinceName(accessibleProvinces[0]?.provinceKey || accessibleProvinces[0]?.key)
+      : 'นครราชสีมา';
   };
 
+  // Get user-friendly branch display using Clean Slate RBAC
   const getBranchDisplay = () => {
-    // Safety check for missing branches data
-    if (!branches || typeof branches !== 'object') {
-      console.warn('UserContext: branches data not loaded yet');
-      return 'กำลังโหลด...';
-    }
-
-    if (user?.accessLevel === 'SUPER_ADMIN') {
+    if (!userRBAC) return 'กำลังโหลด...';
+    
+    // Admin sees all branches
+    if (isAdmin) {
       return 'ทั้งหมด';
     }
     
-    if (user?.accessLevel === 'PROVINCE_MANAGER') {
+    // Province level sees all branches in province
+    if (isProvinceLevel) {
       return 'ทั้งหมดในจังหวัด';
     }
     
-    if (user?.accessLevel === 'BRANCH_MANAGER') {
-      if (user?.allowedBranches && user.allowedBranches.length === 1) {
-        return branches[user.allowedBranches[0]]?.branchName || 'ไม่ระบุ';
-      } else if (user?.allowedBranches && user.allowedBranches.length > 1) {
-        return `${user.allowedBranches.length} สาขา`;
+    // Branch level - show accessible branches
+    if (isBranchLevel) {
+      const branchCount = accessibleBranches.length;
+      if (branchCount === 1) {
+        return getBranchName(accessibleBranches[0]?.branchCode || accessibleBranches[0]?.code);
+      } else if (branchCount > 1) {
+        return `${branchCount} สาขา`;
       }
     }
     
     // Fallback to home branch
-    return user?.homeBranch && branches[user.homeBranch]?.branchName || 'ไม่ระบุ';
+    if (homeBranch) {
+      return getBranchName(homeBranch.branchCode || homeBranch.code);
+    }
+    
+    return 'ไม่ระบุ';
   };
 
-  const provinceName = getProvinceDisplay();
-  const branchName = getBranchDisplay();
-
-  // Determine access level display
+  // Map Clean Slate authority levels to display info
   const getAccessLevelInfo = () => {
-    console.log('🔄 UserContext: user?.accessLevel', user?.accessLevel);
-    switch (user?.accessLevel) {
+    if (!userRBAC) return { label: 'ผู้ใช้งาน', color: 'default' };
+    
+    // Handle Clean Slate authority levels first
+    const departments = userRBAC.departments || [];
+    
+    // Special cases
+    if (userRBAC.isDev) {
+      return { label: 'นักพัฒนา', color: 'purple' };
+    }
+    
+    if (isExecutive) {
+      return { label: 'ผู้บริหาร', color: 'gold' };
+    }
+    
+    // Authority-based mapping
+    if (isAdmin) {
+      return { label: 'ผู้ดูแลระบบ', color: 'red' };
+    }
+    
+    if (isProvinceLevel) {
+      return { label: 'ผู้จัดการจังหวัด', color: 'purple' };
+    }
+    
+    if (isBranchLevel) {
+      return { label: 'ผู้จัดการสาขา', color: 'blue' };
+    }
+    
+    // Department-based staff roles
+    if (isDepartmentLevel && departments.length > 0) {
+      const primaryDept = departments[0];
+      switch (primaryDept.toLowerCase()) {
+        case 'accounting':
+          return { label: 'เจ้าหน้าที่บัญชี', color: 'green' };
+        case 'sales':
+          return { label: 'เจ้าหน้าที่ขาย', color: 'orange' };
+        case 'service':
+          return { label: 'เจ้าหน้าที่บริการ', color: 'cyan' };
+        case 'inventory':
+          return { label: 'เจ้าหน้าที่คลัง', color: 'geekblue' };
+        case 'hr':
+          return { label: 'เจ้าหน้าที่ HR', color: 'magenta' };
+        default:
+          return { label: 'พนักงาน', color: 'default' };
+      }
+    }
+    
+    // Legacy fallback for backward compatibility
+    const legacyRole = userRBAC.legacyRole || userRBAC.accessLevel;
+    switch (legacyRole) {
       case 'EXECUTIVE':
       case 'Executive':
         return { label: 'ผู้บริหาร', color: 'gold' };      
@@ -121,7 +161,14 @@ const UserContext = () => {
     }
   };
 
+  const provinceName = getProvinceDisplay();
+  const branchName = getBranchDisplay();
   const accessLevelInfo = getAccessLevelInfo();
+  
+  // Get user name from Clean Slate or legacy format
+  const userName = userRBAC?.uid 
+    ? (userRBAC.name || userRBAC.displayName || 'ผู้ใช้งาน')
+    : 'ผู้ใช้งาน';
 
   // Simplified version for production
   const isProduction = process.env.NODE_ENV === 'production';
@@ -142,7 +189,7 @@ const UserContext = () => {
           <div style={{ marginBottom: '4px' }}>
             <UserOutlined className="mr-1" />
             <Text strong style={{ color: 'white', fontSize: '11px' }}>
-              {user?.name || user?.displayName || 'ผู้ใช้งาน'}
+              {userName}
             </Text>
           </div>
           <div style={{ fontSize: '10px', opacity: 0.8 }}>
@@ -153,7 +200,7 @@ const UserContext = () => {
     );
   }
 
-  // Full development version
+  // Full development version with Clean Slate RBAC info
   return (
     <Card 
       size="small" 
@@ -170,8 +217,13 @@ const UserContext = () => {
         <div className="mb-2" style={{ borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: '8px' }}>
           <UserOutlined className="mr-1" />
           <Text strong style={{ color: 'white', fontSize: '12px' }}>
-            {user?.name || user?.displayName || 'ผู้ใช้งาน'}
+            {userName}
           </Text>
+          {userRBAC?.isDev && (
+            <Tag size="small" color="volcano" style={{ marginLeft: '4px', fontSize: '9px' }}>
+              DEV
+            </Tag>
+          )}
         </div>
 
         {/* Geographic Context */}
@@ -190,6 +242,13 @@ const UserContext = () => {
             {branchName}
           </Text>
         </div>
+
+        {/* Clean Slate RBAC Info (Development Only) */}
+        {userRBAC && (
+          <div className="mb-2" style={{ fontSize: '10px', opacity: 0.7 }}>
+            Authority: {userRBAC.authority} | Depts: {userRBAC.departments?.join(', ') || 'None'}
+          </div>
+        )}
 
         {/* Access Level */}
         <div style={{ textAlign: 'center' }}>

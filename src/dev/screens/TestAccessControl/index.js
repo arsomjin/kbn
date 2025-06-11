@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext, useMemo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Row, Col, Card, Button, Alert, Tabs, Select, Space, Tag, Descriptions, Switch, Typography, message } from 'antd';
+import { Row, Col, Card, Button, Alert, Tabs, Select, Space, Tag, Descriptions, Switch, Typography, message, Tooltip, Progress } from 'antd';
 import { 
   UserOutlined, 
   GlobalOutlined, 
@@ -8,7 +8,9 @@ import {
   TeamOutlined,
   SettingOutlined,
   ThunderboltOutlined,
-  ReloadOutlined
+  ReloadOutlined,
+  WarningOutlined,
+  ArrowRightOutlined
 } from '@ant-design/icons';
 import { usePermissions } from 'hooks/usePermissions';
 import { useGeographicData } from 'hooks/useGeographicData';
@@ -26,6 +28,66 @@ import { ROLE_PERMISSIONS } from 'data/permissions';
 const { TabPane } = Tabs;
 const { Option } = Select;
 const { Text } = Typography;
+
+// ⚠️ DEPRECATION NOTICE COMPONENT
+const DeprecationNotice = () => (
+  <Alert
+    message="⚠️ LEGACY TEST PAGE - DEPRECATED"
+    description={
+      <div>
+        <p><strong>This test page uses the old RBAC system and is deprecated.</strong></p>
+        <p>Please use the new <strong>Clean Slate RBAC Demo pages</strong> instead:</p>
+        <Space direction="vertical" size="small" style={{ marginTop: '8px' }}>
+          <div>
+            <ArrowRightOutlined style={{ color: '#1890ff' }} /> 
+            <a href="/dev/clean-slate-rbac-demo" style={{ marginLeft: '8px' }}>
+              <strong>Clean Slate RBAC Demo</strong> - 4×3×6 Matrix System
+            </a>
+          </div>
+          <div>
+            <ArrowRightOutlined style={{ color: '#1890ff' }} /> 
+            <a href="/dev/clean-slate-layout-demo" style={{ marginLeft: '8px' }}>
+              <strong>Layout Demo</strong> - Enhanced ProvinceId Injection
+            </a>
+          </div>
+          <div>
+            <ArrowRightOutlined style={{ color: '#1890ff' }} /> 
+            <a href="/dev/clean-slate-permissions-demo" style={{ marginLeft: '8px' }}>
+              <strong>Permissions Demo</strong> - department.action System
+            </a>
+          </div>
+        </Space>
+        <div style={{ marginTop: '12px', padding: '8px', backgroundColor: '#f6f8fa', borderRadius: '4px' }}>
+          <Text strong style={{ color: '#d46b08' }}>Migration Benefits:</Text>
+          <br />
+          <Text type="secondary">• 67% code reduction (1,424→474 lines)</Text>
+          <br />
+          <Text type="secondary">• 50+ complex roles → 4×3×6 orthogonal matrix</Text>
+          <br />
+          <Text type="secondary">• Zero complexity tolerance - no nested permissions</Text>
+        </div>
+      </div>
+    }
+    type="warning"
+    showIcon
+    icon={<WarningOutlined />}
+    style={{ marginBottom: '24px' }}
+    action={
+      <Space direction="vertical">
+        <Button type="primary" href="/dev/clean-slate-rbac-demo">
+          Go to Clean Slate Demo
+        </Button>
+        <Progress 
+          type="circle" 
+          percent={100} 
+          width={60} 
+          format={() => 'Clean Slate\nReady'} 
+          strokeColor="#52c41a"
+        />
+      </Space>
+    }
+  />
+);
 
 const TestAccessControl = () => {
   const dispatch = useDispatch();
@@ -394,8 +456,10 @@ const TestAccessControl = () => {
 
   return (
     <div style={{ padding: '24px' }}>
+      <DeprecationNotice />
+      
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-        <h2>🧪 KBN Multi-Province Test Dashboard</h2>
+        <h2>🧪 KBN Multi-Province Test Dashboard (Legacy)</h2>
       </div>
 
       <Tabs defaultActiveKey="quick-test" size="large">

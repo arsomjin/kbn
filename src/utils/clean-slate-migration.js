@@ -4,13 +4,13 @@
  * REMOVES all legacy fields - no backward compatibility
  */
 
-import { 
+const { 
   migrateToOrthogonalSystem,
   createUserAccess,
   AUTHORITY_LEVELS,
   GEOGRAPHIC_SCOPE,
   DEPARTMENTS
-} from './orthogonal-rbac';
+} = require('./orthogonal-rbac.js');
 
 /**
  * Determine authority level from legacy access level
@@ -95,7 +95,7 @@ const determineDepartments = (legacyPermissions = {}, legacyAccessLevel = '') =>
  * @param {Object} legacyUser - Legacy user object
  * @returns {Object} New user object with orthogonal access
  */
-export const convertLegacyUser = (legacyUser) => {
+const convertLegacyUser = (legacyUser) => {
   if (!legacyUser) return null;
   
   const authority = determineAuthority(legacyUser.accessLevel, legacyUser.isDev);
@@ -157,7 +157,7 @@ export const convertLegacyUser = (legacyUser) => {
  * @param {Object} convertedUser - Converted user object
  * @returns {boolean} Is valid
  */
-export const validateConvertedUser = (convertedUser) => {
+const validateConvertedUser = (convertedUser) => {
   if (!convertedUser) return false;
   
   const required = ['uid', 'email', 'access'];
@@ -249,7 +249,7 @@ class MigrationStats {
  * @param {Object} options - Migration options
  * @returns {Object} Migration results
  */
-export const executeCleanSlateMigration = async (
+const executeCleanSlateMigration = async (
   getUsersFunction,
   updateUserFunction,
   options = {}
@@ -360,7 +360,7 @@ export const executeCleanSlateMigration = async (
  * @param {Function} restoreFromBackupFunction - Function to restore users from backup
  * @returns {Object} Rollback results
  */
-export const rollbackMigration = async (restoreFromBackupFunction) => {
+const rollbackMigration = async (restoreFromBackupFunction) => {
   console.log('🔄 Rolling back migration...');
   
   try {
@@ -378,7 +378,7 @@ export const rollbackMigration = async (restoreFromBackupFunction) => {
  * @param {Object} testUser - User to test migration on
  * @returns {Object} Test results
  */
-export const testMigrationOnUser = (testUser) => {
+const testMigrationOnUser = (testUser) => {
   console.log('🧪 Testing migration on user:', testUser.uid);
   
   try {
@@ -417,7 +417,7 @@ export const testMigrationOnUser = (testUser) => {
   }
 };
 
-export default {
+module.exports = {
   convertLegacyUser,
   validateConvertedUser,
   executeCleanSlateMigration,

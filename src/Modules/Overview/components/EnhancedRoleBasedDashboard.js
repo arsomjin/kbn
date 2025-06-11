@@ -5,33 +5,30 @@
 
 import React, { useState, useEffect } from 'react';
 import { Alert, Spin, Button } from 'antd';
-import { usePermissions } from 'hooks/usePermissions';
-import HierarchicalDashboardSwitcher from 'components/HierarchicalDashboardSwitcher';
+
+// Dashboard Components
 import {
   SuperAdminDashboard,
-  ExecutiveDashboard,
   ProvinceManagerDashboard,
   BranchManagerDashboard,
-  StaffDashboard
+  StaffDashboard,
+  ExecutiveDashboard
 } from './RoleDashboards';
+import HierarchicalDashboardSwitcher from 'components/HierarchicalDashboardSwitcher';
+
+// RBAC Hooks
+import { usePermissions } from 'hooks/usePermissions';
 
 const EnhancedRoleBasedDashboard = () => {
-  const { 
-    userRole, 
-    isSuperAdmin, 
-    isExecutive,
-    hasProvinceAccess, 
-    hasBranchAccessOnly
-  } = usePermissions();
-
-  // Debug logging
-  console.log('🎯 EnhancedRoleBasedDashboard render:', {
+  const {
     userRole,
+    hasPermission,
     isSuperAdmin,
     isExecutive,
     hasProvinceAccess,
-    hasBranchAccessOnly
-  });
+    hasBranchAccessOnly,
+    isLoading
+  } = usePermissions();
 
   const [currentViewingRole, setCurrentViewingRole] = useState(null);
   const [viewingContext, setViewingContext] = useState(null);
@@ -87,43 +84,46 @@ const EnhancedRoleBasedDashboard = () => {
     setViewingContext(null);
   };
 
-  // Determine which dashboard component to render
+  // Determine which dashboard component to render using Clean Slate RBAC
   const getDashboardComponent = () => {
     const roleToRender = currentViewingRole || userRole;
 
-    switch (roleToRender) {
-      case 'EXECUTIVE':
-        return <ExecutiveDashboard viewingContext={viewingContext} />;
-      
-      case 'SUPER_ADMIN':
-        return <SuperAdminDashboard viewingContext={viewingContext} />;
-      
-      case 'PROVINCE_MANAGER':
-        return <ProvinceManagerDashboard viewingContext={viewingContext} />;
-      
-      case 'BRANCH_MANAGER':
-        return <BranchManagerDashboard viewingContext={viewingContext} />;
-      
-      case 'STAFF':
-      case 'ACCOUNTING_STAFF':
-      case 'SALES_STAFF':
-      case 'SERVICE_STAFF':
-      case 'INVENTORY_STAFF':
-        return <StaffDashboard viewingContext={viewingContext} />;
-      
-      default:
-        // Fallback based on permissions
-        if (isExecutive) {
-          return <ExecutiveDashboard viewingContext={viewingContext} />;
-        } else if (isSuperAdmin) {
-          return <SuperAdminDashboard viewingContext={viewingContext} />;
-        } else if (hasProvinceAccess) {
-          return <ProvinceManagerDashboard viewingContext={viewingContext} />;
-        } else if (hasBranchAccessOnly) {
-          return <BranchManagerDashboard viewingContext={viewingContext} />;
-        } else {
-          return <StaffDashboard viewingContext={viewingContext} />;
-        }
+    // Clean Slate RBAC approach - use authority levels instead of specific roles
+    
+    // Admin level (replaces SUPER_ADMIN, EXECUTIVE)
+    if (roleToRender === 'ADMIN' || roleToRender === 'SUPER_ADMIN' || isExecutive) {
+      return isExecutive 
+        ? <ExecutiveDashboard viewingContext={viewingContext} />
+        : <SuperAdminDashboard viewingContext={viewingContext} />;
+    }
+
+    // Manager level (replaces PROVINCE_MANAGER, BRANCH_MANAGER)
+    if (roleToRender === 'MANAGER' || roleToRender === 'PROVINCE_MANAGER') {
+      return <ProvinceManagerDashboard viewingContext={viewingContext} />;
+    }
+    
+    if (roleToRender === 'BRANCH_MANAGER') {
+      return <BranchManagerDashboard viewingContext={viewingContext} />;
+    }
+
+    // Staff level (replaces specific *_STAFF roles)
+    if (roleToRender === 'STAFF' || 
+        roleToRender === 'LEAD' ||
+        roleToRender?.includes('_STAFF')) {
+      return <StaffDashboard viewingContext={viewingContext} />;
+    }
+
+    // Fallback based on permissions instead of hard-coded roles
+    if (isExecutive) {
+      return <ExecutiveDashboard viewingContext={viewingContext} />;
+    } else if (isSuperAdmin) {
+      return <SuperAdminDashboard viewingContext={viewingContext} />;
+    } else if (hasProvinceAccess) {
+      return <ProvinceManagerDashboard viewingContext={viewingContext} />;
+    } else if (hasBranchAccessOnly) {
+      return <BranchManagerDashboard viewingContext={viewingContext} />;
+    } else {
+      return <StaffDashboard viewingContext={viewingContext} />;
     }
   };
 
@@ -219,18 +219,24 @@ const EnhancedRoleBasedDashboard = () => {
   );
 };
 
-// Helper function to get role display name in Thai
+// Helper function to get role display name in Thai (Clean Slate RBAC)
 const getRoleDisplayName = (role) => {
   const roleNames = {
-    'EXECUTIVE': 'ผู้บริหารระดับสูง',
-    'SUPER_ADMIN': 'ผู้ดูแลระบบ',
-    'PROVINCE_MANAGER': 'ผู้จัดการระดับจังหวัด',
-    'BRANCH_MANAGER': 'ผู้จัดการสาขา',
+    // Clean Slate roles
+    'ADMIN': 'ผู้ดูแลระบบ',
+    'MANAGER': 'ผู้จัดการ',
+    'LEAD': 'หัวหน้าแผนก',
     'STAFF': 'เจ้าหน้าที่',
-    'ACCOUNTING_STAFF': 'เจ้าหน้าที่บัญชี',
-    'SALES_STAFF': 'เจ้าหน้าที่ขาย',
-    'SERVICE_STAFF': 'เจ้าหน้าที่บริการ',
-    'INVENTORY_STAFF': 'เจ้าหน้าที่คลังสินค้า'
+    
+    // Legacy roles (deprecated but supported for transition)
+    'EXECUTIVE': 'ผู้บริหารระดับสูง (เลิกใช้แล้ว)',
+    'SUPER_ADMIN': 'ผู้ดูแลระบบ (เลิกใช้แล้ว)',
+    'PROVINCE_MANAGER': 'ผู้จัดการระดับจังหวัด (เลิกใช้แล้ว)',
+    'BRANCH_MANAGER': 'ผู้จัดการสาขา (เลิกใช้แล้ว)',
+    'ACCOUNTING_STAFF': 'เจ้าหน้าที่บัญชี (เลิกใช้แล้ว)',
+    'SALES_STAFF': 'เจ้าหน้าที่ขาย (เลิกใช้แล้ว)',
+    'SERVICE_STAFF': 'เจ้าหน้าที่บริการ (เลิกใช้แล้ว)',
+    'INVENTORY_STAFF': 'เจ้าหน้าที่คลังสินค้า (เลิกใช้แล้ว)'
   };
   return roleNames[role] || role;
 };

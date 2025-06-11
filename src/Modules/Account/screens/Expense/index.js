@@ -24,7 +24,7 @@ import HeadOfficeTransfer from "./Components/HeadOfficeTransfer";
 import ExecutiveExpenses from "./Components/ExecutiveExpenses";
 import { errorHandler } from "functions";
 import LeavePageBlocker from "components/LeavePageBlocker";
-import { PermissionGate } from "components";
+import PermissionGate from "components/PermissionGate";
 import { usePermissions } from "hooks/usePermissions";
 
 const initProps = {

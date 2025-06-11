@@ -34,6 +34,11 @@ const App = () => {
         console.warn('Could not load debug utilities:', error);
       });
     }
+    
+    // 🚨 URGENT: Load multi-province deployment script
+    import('./urgent-migration-deploy').catch(error => {
+      console.warn('Could not load urgent deployment script:', error);
+    });
   };
 
   return (

@@ -1,10 +1,8 @@
 import { Form, Radio, Select, Skeleton } from 'antd';
-import PageTitle from 'components/common/PageTitle';
 import { CommonSteps } from 'data/Constant';
 import { Stepper, Button } from 'elements';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Container, Row, Col } from 'shards-react';
 import { showWarn } from 'functions';
 import HiddenItem from 'components/HiddenItem';
 import { Input } from 'elements';
@@ -64,7 +62,24 @@ import { uniq } from 'lodash';
 import { _getPaymentFromAdditionalPurchase } from '../Vehicles/api';
 import { checkPayments } from 'Modules/Utils';
 import BookingLicence from 'components/PrintComponent/BookingLicence';
+// RBAC Integration
+import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
+import { Card, Row, Col, Space, Typography } from 'antd';
+import { useResponsive } from 'hooks/useResponsive';
+// Legacy imports for Container and PageTitle
+import { Container } from 'shards-react';
+import PageTitle from 'components/common/PageTitle';
+import PropTypes from 'prop-types';
+
 const { Option } = Select;
+const { Title } = Typography;
+
+const BOOKING_STEPS = [
+  { title: 'บันทึกข้อมูล', description: 'บันทึกรายการจองขายรถ' },
+  { title: 'ตรวจสอบ', description: 'ตรวจสอบความถูกต้องของข้อมูล' },
+  { title: 'อนุมัติ', description: 'อนุมัติรายการจอง' },
+  { title: 'เสร็จสิ้น', description: 'จองขายเสร็จสิ้น' }
+];
 
 const initProps = {
   order: {},
@@ -75,7 +90,30 @@ const initProps = {
   grant: true
 };
 
-const BookingComponent = () => {
+// Content component to properly handle props from LayoutWithRBAC
+const BookingContent = ({ geographic, auditTrail, mProps, ...contentProps }) => {
+  const { isMobile } = useResponsive();
+  
+  return (
+    <div>
+      {/* Main booking form content */}
+      <BookingFormContent 
+        geographic={geographic}
+        auditTrail={auditTrail}
+        mProps={mProps}
+        {...contentProps}
+      />
+    </div>
+  );
+};
+
+BookingContent.propTypes = {
+  geographic: PropTypes.object,
+  auditTrail: PropTypes.object,
+  mProps: PropTypes.object.isRequired
+};
+
+const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
   const history = useHistory();
   let location = useLocation();
   // showLog('location', location.pathname);
@@ -1104,6 +1142,82 @@ const BookingComponent = () => {
         />
       )}
     </Container>
+  );
+  };
+
+BookingFormContent.propTypes = {
+  geographic: PropTypes.object,
+  auditTrail: PropTypes.object
+};
+
+// Main BookingComponent with RBAC integration
+const BookingComponent = () => {
+  const history = useHistory();
+  let location = useLocation();
+  const params = location.state?.params;
+
+  const [mProps, setProps] = useMergeState(initProps);
+  const [ready, setReady] = useState(false);
+
+  const documentId = mProps.order?.bookId;
+
+  useEffect(() => {
+    const { onBack } = params || {};
+    let pOrder = params?.order;
+    let isEdit = !!pOrder && !!pOrder.date && !!pOrder.created && !!pOrder.bookId;
+    const activeStep = !(pOrder && pOrder.date) ? 0 : StatusMapToStep[pOrder.status || 'pending'];
+    const readOnly = onBack?.path ? onBack.path === '/reports/sale-booking' : false;
+
+    if (!isEdit) {
+      let bookId = createNewSaleOrderId('BOOK-VEH');
+      pOrder = { bookId };
+      setProps({ order: pOrder, isEdit, activeStep, readOnly, onBack });
+    } else {
+      setProps({ order: pOrder, isEdit, activeStep, readOnly, onBack });
+    }
+    setReady(true);
+  }, [params, setProps]);
+
+  const handleGeographicChange = useCallback((geoContext) => {
+    console.log('🌍 Geographic context received in Booking:', geoContext);
+  }, []);
+
+  if (!ready) {
+    return (
+      <LayoutWithRBAC
+        title="งานรับจอง"
+        subtitle="รถและอุปกรณ์"
+        permission="sales.view"
+        editPermission="sales.edit"
+        loading={true}
+      >
+        <div />
+      </LayoutWithRBAC>
+    );
+  }
+
+  return (
+    <LayoutWithRBAC
+      title="งานรับจอง"
+      subtitle="รถและอุปกรณ์"
+      permission="sales.view"
+      editPermission="sales.edit"
+      requireBranchSelection={false}
+      onBranchChange={handleGeographicChange}
+      documentId={documentId}
+      documentType="booking"
+      showAuditTrail={true}
+      showStepper={true}
+      steps={BOOKING_STEPS}
+      currentStep={mProps.activeStep}
+      autoInjectProvinceId={true}
+    >
+      <BookingContent 
+        mProps={mProps}
+        setProps={setProps}
+        params={params}
+      />
+    </LayoutWithRBAC>
   );
 };
 

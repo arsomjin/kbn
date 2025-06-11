@@ -1,9 +1,18 @@
 /**
- * RBAC Actions for KBN Multi-Province System
- * Simplified Department + Document Flow Permission System
+ * Clean Slate RBAC Actions
+ * Simplified role-based access control using orthogonal system
  */
 
-import { ROLE_PERMISSIONS } from '../../data/permissions';
+import { 
+  AUTHORITY_LEVELS, 
+  GEOGRAPHIC_SCOPE, 
+  DEPARTMENTS,
+  generateUserPermissions,
+  hasOrthogonalPermission,
+  migrateToOrthogonalSystem,
+  getLegacyRoleName,
+  getUserRoleDescription
+} from '../../utils/orthogonal-rbac';
 
 // Action Types
 export const SET_USER_PERMISSIONS = 'SET_USER_PERMISSIONS';
@@ -16,55 +25,99 @@ export const CLEAR_ACCESS_CACHE = 'CLEAR_ACCESS_CACHE';
 export const SET_RBAC_LOADING = 'SET_RBAC_LOADING';
 export const SET_RBAC_ERROR = 'SET_RBAC_ERROR';
 
-// New Simplified RBAC Role Definitions
+// Clean Slate Access Level Mappings (replaces legacy ACCESS_LEVELS)
 export const ACCESS_LEVELS = {
-  SUPER_ADMIN: {
+  // Admin levels
+  ADMIN: {
     level: 'all',
-    description: 'ผู้ดูแลระบบสูงสุด',
-    permissions: ROLE_PERMISSIONS.SUPER_ADMIN,
-    geographic: { type: 'all' }
+    description: 'ผู้ดูแลระบบ',
+    authority: AUTHORITY_LEVELS.ADMIN,
+    geographic: { scope: GEOGRAPHIC_SCOPE.ALL }
   },
-  EXECUTIVE: {
-    level: 'all',
-    description: 'ผู้บริหารระดับสูง',
-    permissions: ROLE_PERMISSIONS.EXECUTIVE,
-    geographic: { type: 'all' }
-  },
+  
+  // Manager levels  
   PROVINCE_MANAGER: {
     level: 'province',
     description: 'ผู้จัดการจังหวัด',
-    permissions: ROLE_PERMISSIONS.PROVINCE_MANAGER,
-    geographic: { type: 'province', restrictions: 'allowedProvinces' }
+    authority: AUTHORITY_LEVELS.MANAGER,
+    geographic: { scope: GEOGRAPHIC_SCOPE.PROVINCE }
   },
+  
   BRANCH_MANAGER: {
     level: 'branch',
     description: 'ผู้จัดการสาขา',
-    permissions: ROLE_PERMISSIONS.BRANCH_MANAGER,
-    geographic: { type: 'branch', restrictions: 'allowedBranches' }
+    authority: AUTHORITY_LEVELS.MANAGER,
+    geographic: { scope: GEOGRAPHIC_SCOPE.BRANCH }
   },
+  
+  // Lead levels
+  DEPARTMENT_LEAD: {
+    level: 'branch',
+    description: 'หัวหน้าแผนก',
+    authority: AUTHORITY_LEVELS.LEAD,
+    geographic: { scope: GEOGRAPHIC_SCOPE.BRANCH }
+  },
+  
+  // Staff levels
+  STAFF: {
+    level: 'branch',
+    description: 'พนักงาน',
+    authority: AUTHORITY_LEVELS.STAFF,
+    geographic: { scope: GEOGRAPHIC_SCOPE.BRANCH }
+  },
+
+  // Legacy role mappings (deprecated)
+  SUPER_ADMIN: {
+    level: 'all',
+    description: 'ผู้ดูแลระบบสูงสุด (เลิกใช้แล้ว)',
+    authority: AUTHORITY_LEVELS.ADMIN,
+    geographic: { scope: GEOGRAPHIC_SCOPE.ALL },
+    deprecated: true
+  },
+  
+  EXECUTIVE: {
+    level: 'all', 
+    description: 'ผู้บริหารระดับสูง (เลิกใช้แล้ว)',
+    authority: AUTHORITY_LEVELS.ADMIN,
+    geographic: { scope: GEOGRAPHIC_SCOPE.ALL },
+    isExecutive: true,
+    deprecated: true
+  },
+  
   ACCOUNTING_STAFF: {
     level: 'branch',
-    description: 'พนักงานบัญชี',
-    permissions: ROLE_PERMISSIONS.ACCOUNTING_STAFF,
-    geographic: { type: 'branch', restrictions: 'allowedBranches' }
+    description: 'พนักงานบัญชี (เลิกใช้แล้ว)',
+    authority: AUTHORITY_LEVELS.STAFF,
+    geographic: { scope: GEOGRAPHIC_SCOPE.BRANCH },
+    departments: [DEPARTMENTS.ACCOUNTING],
+    deprecated: true
   },
+  
   SALES_STAFF: {
     level: 'branch',
-    description: 'พนักงานขาย',
-    permissions: ROLE_PERMISSIONS.SALES_STAFF,
-    geographic: { type: 'branch', restrictions: 'allowedBranches' }
+    description: 'พนักงานขาย (เลิกใช้แล้ว)',
+    authority: AUTHORITY_LEVELS.STAFF,
+    geographic: { scope: GEOGRAPHIC_SCOPE.BRANCH },
+    departments: [DEPARTMENTS.SALES],
+    deprecated: true
   },
+  
   SERVICE_STAFF: {
     level: 'branch',
-    description: 'พนักงานบริการ',
-    permissions: ROLE_PERMISSIONS.SERVICE_STAFF,
-    geographic: { type: 'branch', restrictions: 'allowedBranches' }
+    description: 'พนักงานบริการ (เลิกใช้แล้ว)',
+    authority: AUTHORITY_LEVELS.STAFF,
+    geographic: { scope: GEOGRAPHIC_SCOPE.BRANCH },
+    departments: [DEPARTMENTS.SERVICE],
+    deprecated: true
   },
+  
   INVENTORY_STAFF: {
     level: 'branch',
-    description: 'พนักงานคลัง',
-    permissions: ROLE_PERMISSIONS.INVENTORY_STAFF,
-    geographic: { type: 'branch', restrictions: 'allowedBranches' }
+    description: 'พนักงานคลัง (เลิกใช้แล้ว)',
+    authority: AUTHORITY_LEVELS.STAFF,
+    geographic: { scope: GEOGRAPHIC_SCOPE.BRANCH },
+    departments: [DEPARTMENTS.INVENTORY],
+    deprecated: true
   }
 };
 
@@ -112,7 +165,7 @@ export const setRbacError = (error) => ({
   payload: error
 });
 
-// Permission Check Action (synchronous)
+// Clean Slate Permission Check Action
 export const checkPermission = (permission, context = {}) => ({
   type: CHECK_PERMISSION,
   payload: { permission, context }
@@ -124,15 +177,18 @@ export const initializeUserRBAC = (userId) => {
     try {
       dispatch(setRbacLoading(true));
       
-      const { api } = getState().firebase || {};
       const { auth } = getState();
       
-      if (api && api.getUserRBACData && auth.user) {
-        const rbacData = await api.getUserRBACData(userId);
+      if (auth.user) {
+        // Use unified Clean Slate migration
+        const { migrateUserToCleanSlate, getUserRBACData } = await import('../../utils/unified-migration');
         
-        if (rbacData) {
+        const cleanSlateUser = migrateUserToCleanSlate(auth.user);
+        const rbacData = getUserRBACData(cleanSlateUser);
+        
+        if (rbacData && cleanSlateUser) {
           dispatch(setUserPermissions(userId, rbacData.permissions, rbacData.geographic));
-          dispatch(setUserRole(userId, rbacData.role));
+          dispatch(setUserRole(userId, getLegacyRoleName(cleanSlateUser)));
         }
       }
     } catch (error) {
@@ -149,15 +205,12 @@ export const updateUserRBAC = (userId, rbacUpdates) => {
     try {
       dispatch(setRbacLoading(true));
       
-      const { api } = getState().firebase || {};
+      // Update local state
+      dispatch(updateUserAccess(userId, rbacUpdates));
       
-      if (api && api.updateUserRBAC) {
-        await api.updateUserRBAC(userId, rbacUpdates);
-        dispatch(updateUserAccess(userId, rbacUpdates));
-        
-        // Clear access cache since permissions changed
-        dispatch(clearAccessCache());
-      }
+      // Clear access cache since permissions changed
+      dispatch(clearAccessCache());
+      
     } catch (error) {
       console.error('Error updating user RBAC:', error);
       dispatch(setRbacError(error.message));
@@ -167,30 +220,32 @@ export const updateUserRBAC = (userId, rbacUpdates) => {
   };
 };
 
-export const assignUserToProvince = (userId, provinceKey, role = 'BRANCH_STAFF') => {
+export const assignUserToProvince = (userId, provinceKey, authority = 'STAFF') => {
   return async (dispatch, getState) => {
     try {
-      const roleConfig = ACCESS_LEVELS[role];
-      if (!roleConfig) {
-        throw new Error(`Invalid role: ${role}`);
+      const accessLevel = ACCESS_LEVELS[authority];
+      if (!accessLevel) {
+        throw new Error(`Invalid authority level: ${authority}`);
       }
 
       const geographic = {
-        accessLevel: roleConfig.level,
-        allowedProvinces: roleConfig.level === 'province' || roleConfig.level === 'all' ? [provinceKey] : [],
-        allowedBranches: [], // Will be set when branches are assigned
+        scope: GEOGRAPHIC_SCOPE.PROVINCE,
+        allowedProvinces: [provinceKey],
+        allowedBranches: [],
         homeProvince: provinceKey,
         homeBranch: null
       };
 
-      dispatch(setUserRole(userId, role, roleConfig));
+      dispatch(setUserRole(userId, authority, accessLevel));
       dispatch(setGeographicAccess(userId, geographic));
       
-      // Save to Firebase
+      // Create Clean Slate user structure
       const rbacUpdates = {
-        role,
-        permissions: roleConfig.permissions,
-        geographic
+        access: {
+          authority: accessLevel.authority,
+          geographic,
+          departments: accessLevel.departments || [DEPARTMENTS.GENERAL]
+        }
       };
       
       dispatch(updateUserRBAC(userId, rbacUpdates));
@@ -201,30 +256,32 @@ export const assignUserToProvince = (userId, provinceKey, role = 'BRANCH_STAFF')
   };
 };
 
-export const assignUserToBranch = (userId, branchCode, provinceKey, role = 'BRANCH_STAFF') => {
+export const assignUserToBranch = (userId, branchCode, provinceKey, authority = 'STAFF', departments = [DEPARTMENTS.GENERAL]) => {
   return async (dispatch, getState) => {
     try {
-      const roleConfig = ACCESS_LEVELS[role];
-      if (!roleConfig) {
-        throw new Error(`Invalid role: ${role}`);
+      const accessLevel = ACCESS_LEVELS[authority];
+      if (!accessLevel) {
+        throw new Error(`Invalid authority level: ${authority}`);
       }
 
       const geographic = {
-        accessLevel: roleConfig.level,
+        scope: GEOGRAPHIC_SCOPE.BRANCH,
         allowedProvinces: [provinceKey],
         allowedBranches: [branchCode],
         homeProvince: provinceKey,
         homeBranch: branchCode
       };
 
-      dispatch(setUserRole(userId, role, roleConfig));
+      dispatch(setUserRole(userId, authority, accessLevel));
       dispatch(setGeographicAccess(userId, geographic));
       
-      // Save to Firebase
+      // Create Clean Slate user structure
       const rbacUpdates = {
-        role,
-        permissions: roleConfig.permissions,
-        geographic
+        access: {
+          authority: accessLevel.authority,
+          geographic,
+          departments: departments
+        }
       };
       
       dispatch(updateUserRBAC(userId, rbacUpdates));
@@ -233,4 +290,80 @@ export const assignUserToBranch = (userId, branchCode, provinceKey, role = 'BRAN
       dispatch(setRbacError(error.message));
     }
   };
-}; 
+};
+
+// Clean Slate RBAC Helpers
+export const createUserAccess = (authority, geographic, departments = [DEPARTMENTS.GENERAL]) => {
+  return {
+    access: {
+      authority,
+      geographic,
+      departments,
+      createdAt: new Date().toISOString(),
+      version: '2.0' // Clean Slate version
+    }
+  };
+};
+
+export const validateUserAccess = (user) => {
+  try {
+    if (!user?.access) return false;
+    
+    const { authority, geographic, departments } = user.access;
+    
+    // Validate authority
+    if (!Object.values(AUTHORITY_LEVELS).includes(authority)) return false;
+    
+    // Validate geographic scope
+    if (!Object.values(GEOGRAPHIC_SCOPE).includes(geographic?.scope)) return false;
+    
+    // Validate departments
+    if (!Array.isArray(departments) || departments.length === 0) return false;
+    
+    return true;
+  } catch (error) {
+    console.error('Error validating user access:', error);
+    return false;
+  }
+};
+
+// Legacy support functions (deprecated)
+export const migrateFromLegacyRole = (legacyRole, geographic = {}) => {
+  console.warn(`migrateFromLegacyRole is deprecated. Legacy role: ${legacyRole}`);
+  
+  // Map legacy roles to Clean Slate structure
+  switch (legacyRole) {
+    case 'SUPER_ADMIN':
+    case 'EXECUTIVE':
+      return createUserAccess(AUTHORITY_LEVELS.ADMIN, { scope: GEOGRAPHIC_SCOPE.ALL });
+    case 'PROVINCE_MANAGER':
+      return createUserAccess(AUTHORITY_LEVELS.MANAGER, { scope: GEOGRAPHIC_SCOPE.PROVINCE, ...geographic });
+    case 'BRANCH_MANAGER':
+      return createUserAccess(AUTHORITY_LEVELS.MANAGER, { scope: GEOGRAPHIC_SCOPE.BRANCH, ...geographic });
+    case 'ACCOUNTING_STAFF':
+      return createUserAccess(AUTHORITY_LEVELS.STAFF, { scope: GEOGRAPHIC_SCOPE.BRANCH, ...geographic }, [DEPARTMENTS.ACCOUNTING]);
+    case 'SALES_STAFF':
+      return createUserAccess(AUTHORITY_LEVELS.STAFF, { scope: GEOGRAPHIC_SCOPE.BRANCH, ...geographic }, [DEPARTMENTS.SALES]);
+    case 'SERVICE_STAFF':
+      return createUserAccess(AUTHORITY_LEVELS.STAFF, { scope: GEOGRAPHIC_SCOPE.BRANCH, ...geographic }, [DEPARTMENTS.SERVICE]);
+    case 'INVENTORY_STAFF':
+      return createUserAccess(AUTHORITY_LEVELS.STAFF, { scope: GEOGRAPHIC_SCOPE.BRANCH, ...geographic }, [DEPARTMENTS.INVENTORY]);
+    default:
+      return createUserAccess(AUTHORITY_LEVELS.STAFF, { scope: GEOGRAPHIC_SCOPE.BRANCH, ...geographic });
+  }
+};
+
+/**
+ * DEPRECATION NOTICE
+ * 
+ * Legacy role patterns are deprecated:
+ * - SUPER_ADMIN → ADMIN with ALL scope
+ * - PROVINCE_MANAGER → MANAGER with PROVINCE scope
+ * - BRANCH_MANAGER → MANAGER with BRANCH scope
+ * - *_STAFF → STAFF with specific departments
+ * 
+ * Use Clean Slate RBAC patterns instead:
+ * - createUserAccess(authority, geographic, departments)
+ * - validateUserAccess(user)
+ * - generateUserPermissions(user)
+ */ 

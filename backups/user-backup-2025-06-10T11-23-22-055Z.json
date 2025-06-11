@@ -1,0 +1,142 @@
+{
+  "timestamp": "2025-06-10T11:23:22.056Z",
+  "version": "1.0.0",
+  "description": "Pre-migration user data backup",
+  "totalUsers": 6,
+  "activeUsers": 6,
+  "users": [
+    {
+      "uid": "user1",
+      "email": "admin@kbn.com",
+      "displayName": "System Administrator",
+      "accessLevel": "SUPER_ADMIN",
+      "allowedProvinces": [
+        "นครราชสีมา",
+        "นครสวรรค์"
+      ],
+      "allowedBranches": [
+        "0450",
+        "NMA002",
+        "NMA003",
+        "NSN001",
+        "NSN002",
+        "NSN003"
+      ],
+      "homeBranch": "0450",
+      "permissions": {
+        "accounting": true,
+        "sales": true,
+        "service": true,
+        "inventory": true,
+        "hr": true,
+        "admin": true
+      },
+      "isActive": true,
+      "isDev": true,
+      "createdAt": "2024-01-01T00:00:00Z"
+    },
+    {
+      "uid": "user2",
+      "email": "province.manager@kbn.com",
+      "displayName": "Province Manager - Nakhon Ratchasima",
+      "accessLevel": "PROVINCE_MANAGER",
+      "allowedProvinces": [
+        "นครราชสีมา"
+      ],
+      "allowedBranches": [
+        "0450",
+        "NMA002",
+        "NMA003"
+      ],
+      "homeBranch": "0450",
+      "permissions": {
+        "accounting": true,
+        "sales": true,
+        "service": true,
+        "inventory": true
+      },
+      "isActive": true,
+      "createdAt": "2024-02-01T00:00:00Z"
+    },
+    {
+      "uid": "user3",
+      "email": "branch.manager@kbn.com",
+      "displayName": "Branch Manager - 0450",
+      "accessLevel": "BRANCH_MANAGER",
+      "allowedProvinces": [
+        "นครราชสีมา"
+      ],
+      "allowedBranches": [
+        "0450"
+      ],
+      "homeBranch": "0450",
+      "permissions": {
+        "accounting": true,
+        "sales": true,
+        "service": true
+      },
+      "isActive": true,
+      "createdAt": "2024-03-01T00:00:00Z"
+    },
+    {
+      "uid": "user4",
+      "email": "accounting.staff@kbn.com",
+      "displayName": "Accounting Staff",
+      "accessLevel": "ACCOUNTING_STAFF",
+      "allowedProvinces": [
+        "นครราชสีมา"
+      ],
+      "allowedBranches": [
+        "0450"
+      ],
+      "homeBranch": "0450",
+      "permissions": {
+        "accounting": true
+      },
+      "isActive": true,
+      "createdAt": "2024-04-01T00:00:00Z"
+    },
+    {
+      "uid": "user5",
+      "email": "sales.staff@kbn.com",
+      "displayName": "Sales Staff",
+      "accessLevel": "SALES_STAFF",
+      "allowedProvinces": [
+        "นครราชสีมา"
+      ],
+      "allowedBranches": [
+        "0450",
+        "NMA002"
+      ],
+      "homeBranch": "NMA002",
+      "permissions": {
+        "sales": true
+      },
+      "isActive": true,
+      "createdAt": "2024-05-01T00:00:00Z"
+    },
+    {
+      "uid": "user6",
+      "email": "service.staff@kbn.com",
+      "displayName": "Service Staff",
+      "accessLevel": "SERVICE_STAFF",
+      "allowedProvinces": [
+        "นครสวรรค์"
+      ],
+      "allowedBranches": [
+        "NSN001"
+      ],
+      "homeBranch": "NSN001",
+      "permissions": {
+        "service": true
+      },
+      "isActive": true,
+      "createdAt": "2024-06-01T00:00:00Z"
+    }
+  ],
+  "metadata": {
+    "backupReason": "Clean slate RBAC migration",
+    "systemVersion": "1.4.3",
+    "migrationVersion": "1.0.0"
+  }
+}

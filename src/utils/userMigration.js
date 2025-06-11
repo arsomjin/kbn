@@ -1,6 +1,7 @@
 /**
  * User Migration Utility for RBAC System
  * Handles automatic migration of legacy permissions to new system
+ * DEPRECATED: Use unified-migration.js instead
  */
 
 import { 
@@ -8,6 +9,8 @@ import {
   determineRoleFromPermissions,
   ROLE_PERMISSIONS 
 } from '../data/permissions';
+
+import { migrateUserToCleanSlate } from './unified-migration';
 
 /**
  * Check if user needs RBAC migration
@@ -33,30 +36,17 @@ export const needsMigration = (user, currentRBAC) => {
 /**
  * Migrate user from legacy permission system to new RBAC
  * @param {Object} user - Legacy user object
- * @param {Object} branches - Branches data for geographic mapping
+ * @param {Object} branches - Branches data for geographic mapping (DEPRECATED)
  * @returns {Object} New RBAC structure
+ * @deprecated Use migrateUserToCleanSlate from unified-migration.js instead
  */
 export const migrateUserToRBAC = (user, branches = {}) => {
+  console.warn('⚠️ DEPRECATED: migrateUserToRBAC() - Use migrateUserToCleanSlate() from unified-migration.js instead');
+  
   if (!user) return null;
   
-  // Migrate permissions
-  const newPermissions = migrateLegacyPermissions(user);
-  
-  // Determine role
-  const role = determineRoleFromPermissions(newPermissions, user);
-  
-  // Create geographic access
-  const geographic = createGeographicAccess(user, branches, role);
-  
-  return {
-    userId: user.uid,
-    permissions: newPermissions,
-    role,
-    geographic,
-    migrated: true,
-    migratedAt: Date.now(),
-    migratedFrom: 'legacy_permissions'
-  };
+  // Use unified Clean Slate migration
+  return migrateUserToCleanSlate(user);
 };
 
 /**

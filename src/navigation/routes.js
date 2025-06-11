@@ -97,9 +97,17 @@ import TestAccessControl from 'dev/screens/TestAccessControl';
 import TestAuthentication from 'dev/screens/TestAuthentication';
 import TestGranularRoles from 'dev/screens/TestGranularRoles';
 import MigrationTools from 'dev/screens/MigrationTools';
+import RBACTester from 'dev/screens/RBACTester';
+import SimpleRBAC from 'dev/simple-rbac';
+import RBACSwitch from 'dev/rbac-switch';
 import AuditTrailDemo from 'components/AuditTrail/AuditTrailDemo';
-import Phase3MigrationDashboard from 'dev/screens/Phase3MigrationDashboard';
+
 import NatureThemeDemo from 'views/NatureThemeDemo';
+// Clean Slate RBAC Demo Pages
+import CleanSlateRBACDemo from 'examples/CleanSlateRBACDemo';
+import CleanSlateLayoutDemo from 'dev/screens/CleanSlateLayoutDemo';
+import CleanSlatePermissionsDemo from 'dev/screens/CleanSlatePermissionsDemo';
+import CleanSlateMigrationDemo from 'dev/screens/CleanSlateMigrationDemo';
 
 import IncomeParts from 'Modules/Reports/Parts/Income';
 import SaleAssessmentReport from 'Modules/Reports/Sales/Assessment';
@@ -995,6 +1003,11 @@ export default [
     // component: () => <ComingSoon info="Test Data Import" />,
   },
   {
+    path: '/developer/rbac-switch',
+    layout: DefaultLayout,
+    component: RBACSwitch
+  },
+  {
     path: '/developer/template-page',
     layout: DefaultLayout,
     component: TestPage
@@ -1045,15 +1058,47 @@ export default [
     component: MigrationTools
   },
   {
+    path: '/dev/rbac-tester',
+    layout: DefaultLayout,
+    component: RBACTester
+  },
+  {
+    path: '/dev/simple-rbac',
+    layout: DefaultLayout,
+    component: SimpleRBAC
+  },
+  {
+    path: '/rbac',
+    layout: DefaultLayout,
+    component: RBACSwitch
+  },
+  // Clean Slate RBAC Demo Routes
+  {
+    path: '/dev/clean-slate-rbac-demo',
+    layout: DefaultLayout,
+    component: CleanSlateRBACDemo
+  },
+  {
+    path: '/dev/clean-slate-layout-demo',
+    layout: DefaultLayout,
+    component: CleanSlateLayoutDemo
+  },
+  {
+    path: '/dev/clean-slate-permissions-demo',
+    layout: DefaultLayout,
+    component: CleanSlatePermissionsDemo
+  },
+  {
+    path: '/dev/clean-slate-migration-demo',
+    layout: DefaultLayout,
+    component: CleanSlateMigrationDemo
+  },
+  {
     path: '/developer/audit-trail-demo',
     layout: DefaultLayout,
     component: AuditTrailDemo
   },
-  {
-    path: '/developer/phase3-migration',
-    layout: DefaultLayout,
-    component: Phase3MigrationDashboard
-  },
+
   // Admin Management Routes
   {
     path: '/admin/user-approval',

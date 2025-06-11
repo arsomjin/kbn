@@ -33,10 +33,32 @@ const ApprovalStatus = ({ userData, user, onBackToLogin }) => {
   // Use user prop if available, otherwise fallback to userData
   const currentUser = user || userData;
   const userType = getUserTypeName(currentUser?.userType || 'new');
-  const department = getDepartmentName(currentUser?.department || 'ไม่ระบุ');
-  const province = getProvinceName(currentUser?.homeProvince || 'ไม่ระบุ');
-  const branch = getBranchName(currentUser?.homeBranch || 'ไม่ระบุ');
-  const approvalLevel = currentUser?.approvalLevel || 'province_manager';
+  
+  // Read from new RBAC structure first, fallback to legacy
+  const department = getDepartmentName(
+    currentUser?.access?.departments?.[0] || 
+    currentUser?.department || 
+    'ไม่ระบุ'
+  );
+  const province = getProvinceName(
+    currentUser?.access?.geographic?.assignedProvinces?.[0] || 
+    currentUser?.access?.geographic?.homeProvince ||
+    currentUser?.homeProvince || 
+    'ไม่ระบุ'
+  );
+  const branch = getBranchName(
+    currentUser?.access?.geographic?.homeBranch ||
+    currentUser?.access?.geographic?.assignedBranches?.[0] ||
+    currentUser?.homeBranch || 
+    'ไม่ระบุ'
+  );
+  
+  // Determine approval level from new RBAC structure
+  const approvalLevel = currentUser?.approvalLevel || 
+    (currentUser?.access?.authority === 'ADMIN' ? 'super_admin' :
+     currentUser?.access?.authority === 'MANAGER' ? 'province_manager' :
+     currentUser?.access?.authority === 'LEAD' ? 'branch_manager' :
+     currentUser?.userType === 'existing' ? 'branch_manager' : 'province_manager');
   const approvalLevelName = getApprovalLevelName(approvalLevel);
 
   const handleLogout = () => {
@@ -111,8 +133,8 @@ const ApprovalStatus = ({ userData, user, onBackToLogin }) => {
   const getContactInfoData = () => {
     return getContactInfo(
       approvalLevel, 
-      currentUser?.homeProvince || 'ไม่ระบุ', 
-      currentUser?.homeBranch || 'ไม่ระบุ'
+      currentUser?.access?.geographic?.homeProvince || currentUser?.homeProvince || 'ไม่ระบุ', 
+      currentUser?.access?.geographic?.homeBranch || currentUser?.homeBranch || 'ไม่ระบุ'
     );
   };
 

@@ -81,26 +81,32 @@ const EnhancedSidebarNavItems = () => {
 
   // Listen for forced navigation refresh events
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const [isMounted, setIsMounted] = useState(true);
   
   useEffect(() => {
     const handleForceRefresh = (event) => {
-      console.log('🔄 Navigation received force refresh event:', event.detail);
-      setRefreshTrigger(prev => prev + 1); // Force re-render
+      if (isMounted) {
+        console.log('🔄 Navigation received force refresh event:', event.detail);
+        setRefreshTrigger(prev => prev + 1); // Force re-render
+      }
     };
 
     const handleUserDataRefresh = (event) => {
-      console.log('🔄 Navigation received user data refresh event');
-      setRefreshTrigger(prev => prev + 1); // Force re-render
+      if (isMounted) {
+        console.log('🔄 Navigation received user data refresh event');
+        setRefreshTrigger(prev => prev + 1); // Force re-render
+      }
     };
 
     window.addEventListener('forceNavigationRefresh', handleForceRefresh);
     window.addEventListener('userDataRefreshed', handleUserDataRefresh);
     
     return () => {
+      setIsMounted(false);
       window.removeEventListener('forceNavigationRefresh', handleForceRefresh);
       window.removeEventListener('userDataRefreshed', handleUserDataRefresh);
     };
-  }, []);
+  }, [isMounted]);
 
   /*
    * Production Mode Behavior:
@@ -406,7 +412,7 @@ const EnhancedSidebarNavItems = () => {
       </div>
 
       {/* Navigation Statistics (Debug - can be removed in production) */}
-      {process.env.NODE_ENV === 'development' && (
+      {typeof process !== 'undefined' && process.env?.NODE_ENV === 'development' && (
         <div style={{ 
           padding: '8px 16px', 
           fontSize: '10px', 

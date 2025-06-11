@@ -1,358 +1,272 @@
 /**
- * Simplified Permission System for KBN Multi-Province System
- * Department Access + Document Flow Permissions
+ * Clean Slate RBAC Permissions System
+ * Uses orthogonal 4×3×6 matrix: Authority × Geographic × Departments
+ * 
+ * This file now imports the Clean Slate system from orthogonal-rbac.js
+ * and provides backward compatibility for legacy code during transition.
  */
 
-// Department Access Permissions
-export const DEPARTMENTS = {
-  accounting: { name: 'บัญชีและการเงิน', key: 'accounting' },
-  sales: { name: 'ขายและลูกค้า', key: 'sales' },
-  service: { name: 'บริการและซ่อมบำรุง', key: 'service' },
-  inventory: { name: 'คลังสินค้าและอะไหล่', key: 'inventory' },
-  hr: { name: 'ทรัพยากรบุคคล', key: 'hr' },
-  management: { name: 'ผู้บริหาร', key: 'management' },
-  admin: { name: 'ระบบและผู้ดูแล', key: 'admin' },
-  users: { name: 'จัดการผู้ใช้งาน', key: 'users' },
-  reports: { name: 'รายงานทั้งหมด', key: 'reports' },
-  notifications: { name: 'การแจ้งเตือนและเผยแพร่', key: 'notifications' }
-};
+import { 
+  AUTHORITY_LEVELS,
+  GEOGRAPHIC_SCOPE,
+  DEPARTMENTS,
+  DOCUMENT_ACTIONS,
+  generateUserPermissions,
+  hasOrthogonalPermission,
+  getLegacyRoleName,
+  migrateToOrthogonalSystem,
+  getUserRoleDescription
+} from '../utils/orthogonal-rbac';
 
-// Legacy department constants for backward compatibility
+// Re-export Clean Slate constants for backward compatibility
+export { AUTHORITY_LEVELS, GEOGRAPHIC_SCOPE, DEPARTMENTS, DOCUMENT_ACTIONS };
+
+// Legacy department constants (deprecated - use DEPARTMENTS from orthogonal-rbac.js)
 export const LEGACY_DEPARTMENTS = {
   ACCOUNTING: 'accounting',
   SALES: 'sales', 
   SERVICE: 'service',
   INVENTORY: 'inventory',
   HR: 'hr',
-  ADMIN: 'admin',
   REPORTS: 'reports',
+  ADMIN: 'admin',
   NOTIFICATIONS: 'notifications'
 };
 
-// Document Flow Permissions
+// Legacy document flows (deprecated - use DOCUMENT_ACTIONS from orthogonal-rbac.js)
 export const DOCUMENT_FLOWS = {
   VIEW: 'view',
-  EDIT: 'edit', 
+  EDIT: 'edit',
   REVIEW: 'review',
-  APPROVE: 'approve'
+  APPROVE: 'approve',
+  MANAGE: 'manage'
 };
 
-// Department Descriptions
-export const DEPARTMENT_DESCRIPTIONS = {
-  [DEPARTMENTS.ACCOUNTING]: 'บัญชีและการเงิน',
-  [DEPARTMENTS.SALES]: 'ขายและลูกค้า',
-  [DEPARTMENTS.SERVICE]: 'บริการและซ่อมบำรุง',
-  [DEPARTMENTS.INVENTORY]: 'คลังสินค้าและอะไหล่',
-  [DEPARTMENTS.HR]: 'ทรัพยากรบุคคล',
-  [DEPARTMENTS.ADMIN]: 'ระบบและผู้ดูแล',
-  [DEPARTMENTS.REPORTS]: 'รายงานทั้งหมด',
-  [DEPARTMENTS.NOTIFICATIONS]: 'การแจ้งเตือนและเผยแพร่'
-};
+/**
+ * Combine department and action into permission string
+ * @param {string} department - Department name
+ * @param {string} action - Action name
+ * @returns {string} Combined permission
+ */
+export const combinePermission = (department, action) => `${department}.${action}`;
 
-// Document Flow Descriptions
-export const FLOW_DESCRIPTIONS = {
-  [DOCUMENT_FLOWS.VIEW]: 'ดูข้อมูล',
-  [DOCUMENT_FLOWS.EDIT]: 'แก้ไขข้อมูล', 
-  [DOCUMENT_FLOWS.REVIEW]: 'ตรวจสอบข้อมูล',
-  [DOCUMENT_FLOWS.APPROVE]: 'อนุมัติข้อมูล'
-};
-
-// Permission combination helper
-export const combinePermission = (department, flow) => `${department}.${flow}`;
-
-// Check if permission has both department and flow
+/**
+ * Parse permission string into components
+ * @param {string} permission - Permission string
+ * @returns {Object} Parsed permission components
+ */
 export const parsePermission = (permission) => {
   if (permission === '*') {
-    return { department: '*', flow: '*', isValid: true, isSuperAdmin: true };
+    return { department: '*', action: '*' };
   }
   
-  const parts = permission.split('.');
-  if (parts.length === 2) {
-    return {
-      department: parts[0],
-      flow: parts[1],
-      isValid: Object.values(DEPARTMENTS).includes(parts[0]) && 
-               Object.values(DOCUMENT_FLOWS).includes(parts[1]),
-      isSuperAdmin: false
-    };
-  }
-  return { department: null, flow: null, isValid: false, isSuperAdmin: false };
+  const [department, action] = permission.split('.');
+  return { department: department || '', action: action || '' };
 };
 
-// Legacy Permission Migration Mapping
-export const LEGACY_TO_NEW_MAPPING = {
-  // Accounting permissions
-  'permission202': [
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.EDIT)
-  ],
-  'permission801': [
-    combinePermission(DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW)
-  ],
-  
-  // Sales permissions
-  'permission802': [
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.SALES, DOCUMENT_FLOWS.EDIT)
-  ],
-  
-  // Service permissions
-  'permission803': [
-    combinePermission(DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.EDIT)
-  ],
-  
-  // Inventory permissions
-  'permission804': [
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.EDIT)
-  ],
-  
-  // HR permissions
-  'permission805': [
-    combinePermission(DEPARTMENTS.HR, DOCUMENT_FLOWS.VIEW)
-  ],
-  'permission806': [
-    combinePermission(DEPARTMENTS.HR, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.HR, DOCUMENT_FLOWS.EDIT)
-  ],
-  
-  // Admin permissions
-  'permission601': [
-    combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.APPROVE)
-  ],
-  'permission613': [
-    combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.VIEW)
-  ],
-  'permission614': [
-    combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.EDIT)
-  ]
+/**
+ * Generate permissions for user using Clean Slate RBAC
+ * @param {Object} user - User object
+ * @returns {Array} Permission array
+ */
+export const getUserPermissions = (user) => {
+  const result = generateUserPermissions(user);
+  return result.permissions || [];
 };
 
-// Predefined Role Permission Sets
+/**
+ * Check if user has specific permission using Clean Slate RBAC
+ * @param {Object} user - User object
+ * @param {string} permission - Permission to check
+ * @param {Object} context - Additional context
+ * @returns {boolean} Has permission
+ */
+export const hasPermission = (user, permission, context = {}) => {
+  return hasOrthogonalPermission(user, permission, context);
+};
+
+/**
+ * Get user role description using Clean Slate RBAC
+ * @param {Object} user - User object
+ * @returns {string} Role description
+ */
+export const getUserRole = (user) => {
+  return getUserRoleDescription(user);
+};
+
+/**
+ * Migrate legacy user to Clean Slate RBAC format
+ * @param {Object} legacyUser - Legacy user object
+ * @returns {Object} Clean Slate user structure
+ */
+export const migrateLegacyUser = (legacyUser) => {
+  return migrateToOrthogonalSystem(legacyUser);
+};
+
+/**
+ * Get legacy role name for backward compatibility
+ * @param {Object} user - User object
+ * @returns {string} Legacy role name
+ */
+export const getLegacyRole = (user) => {
+  return getLegacyRoleName(user);
+};
+
+/**
+ * Legacy role permission sets (DEPRECATED)
+ * These are maintained for backward compatibility only.
+ * New code should use the Clean Slate RBAC system from orthogonal-rbac.js
+ */
 export const ROLE_PERMISSIONS = {
-  SUPER_ADMIN: ['*'], // All permissions
-  EXECUTIVE: ['*'], // Executive role with full permissions (same as super admin)
+  // Admin roles
+  ADMIN: ['*'],
+  SUPER_ADMIN: ['*'], // Deprecated: use ADMIN
+  EXECUTIVE: ['*'],   // Deprecated: use ADMIN with isExecutive flag
   
+  // Manager roles (deprecated - use AUTHORITY_LEVELS.MANAGER)
   PROVINCE_MANAGER: [
-    // Full access to all departments except admin approve
-    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.EDIT),
-    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.REVIEW),
-    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.APPROVE),
-    
-    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.EDIT),
-    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.REVIEW),
-    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.APPROVE),
-    
-    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.EDIT),
-    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.REVIEW),
-    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.APPROVE),
-    
-    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.EDIT),
-    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.REVIEW),
-    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.APPROVE),
-    
-    combinePermission(LEGACY_DEPARTMENTS.HR, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.HR, DOCUMENT_FLOWS.EDIT),
-    combinePermission(LEGACY_DEPARTMENTS.HR, DOCUMENT_FLOWS.REVIEW),
-    
-    combinePermission(LEGACY_DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.EDIT),
-    
-    combinePermission(LEGACY_DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.VIEW),
-    
-    // User management permissions for province managers
-    'users.view',
-    'users.manage',
-    'users.approve',
-    
-    // Notification permissions for province managers
-    combinePermission(LEGACY_DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.EDIT)
+    'accounting.view', 'accounting.edit', 'accounting.review', 'accounting.approve',
+    'sales.view', 'sales.edit', 'sales.review', 'sales.approve',
+    'service.view', 'service.edit', 'service.review', 'service.approve',
+    'inventory.view', 'inventory.edit', 'inventory.review', 'inventory.approve',
+    'hr.view', 'hr.edit', 'hr.review',
+    'reports.view', 'reports.edit',
+    'admin.view',
+    'users.view', 'users.manage', 'users.approve'
   ],
   
   BRANCH_MANAGER: [
-    // Accounting access
-    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.EDIT),
-    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.REVIEW),
-    
-    // Sales access
-    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.EDIT),
-    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.REVIEW),
-    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.APPROVE),
-    
-    // Service access
-    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.EDIT),
-    combinePermission(LEGACY_DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.REVIEW),
-    
-    // Inventory access
-    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.EDIT),
-    
-    // Reports access
-    combinePermission(LEGACY_DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW),
-    
-    // User management permissions for branch managers
-    'users.view',
-    'users.manage',
-    
-    // Notification permissions for branch managers  
-    combinePermission(LEGACY_DEPARTMENTS.NOTIFICATIONS, DOCUMENT_FLOWS.VIEW)
+    'accounting.view', 'accounting.edit', 'accounting.review',
+    'sales.view', 'sales.edit', 'sales.review', 'sales.approve',
+    'service.view', 'service.edit', 'service.review',
+    'inventory.view', 'inventory.edit',
+    'reports.view',
+    'users.view', 'users.manage'
   ],
   
+  // Staff roles (deprecated - use AUTHORITY_LEVELS.STAFF with departments)
   ACCOUNTING_STAFF: [
-    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.ACCOUNTING, DOCUMENT_FLOWS.EDIT),
-    combinePermission(LEGACY_DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW)
+    'accounting.view', 'accounting.edit',
+    'reports.view'
   ],
   
   SALES_STAFF: [
-    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.SALES, DOCUMENT_FLOWS.EDIT),
-    combinePermission(LEGACY_DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
-    combinePermission(LEGACY_DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW)
+    'sales.view', 'sales.edit',
+    'inventory.view',
+    'reports.view'
   ],
   
   SERVICE_STAFF: [
-    combinePermission(DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.SERVICE, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW)
+    'service.view', 'service.edit',
+    'inventory.view', 'inventory.edit',
+    'reports.view'
   ],
   
   INVENTORY_STAFF: [
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.VIEW),
-    combinePermission(DEPARTMENTS.INVENTORY, DOCUMENT_FLOWS.EDIT),
-    combinePermission(DEPARTMENTS.REPORTS, DOCUMENT_FLOWS.VIEW)
+    'inventory.view', 'inventory.edit',
+    'reports.view'
   ]
 };
 
 /**
- * Convert legacy user permissions to new system
- * @param {Object} user - Legacy user object
- * @returns {Array} New permission array
+ * Legacy permission checking (DEPRECATED)
+ * Use hasOrthogonalPermission from orthogonal-rbac.js instead
  */
-export const migrateLegacyPermissions = (user) => {
-  if (user?.isDev) {
-    return ['*']; // Super admin
-  }
-  
-  const newPermissions = new Set();
-  
-  if (user?.permissions) {
-    Object.keys(user.permissions).forEach(legacyPerm => {
-      if (user.permissions[legacyPerm] && LEGACY_TO_NEW_MAPPING[legacyPerm]) {
-        LEGACY_TO_NEW_MAPPING[legacyPerm].forEach(newPerm => {
-          newPermissions.add(newPerm);
-        });
-      }
-    });
-  }
-  
-  return Array.from(newPermissions);
+export const checkLegacyPermission = (userPermissions, requiredPermission) => {
+  if (!userPermissions || !Array.isArray(userPermissions)) return false;
+  if (userPermissions.includes('*')) return true;
+  return userPermissions.includes(requiredPermission);
 };
 
 /**
- * Determine role from permissions
- * @param {Array} permissions - Permission array
- * @param {Object} user - User object for additional context
- * @returns {string} Role key
+ * Determine role from permissions (DEPRECATED)
+ * Use Clean Slate RBAC system instead
  */
 export const determineRoleFromPermissions = (permissions, user) => {
+  // Always use Clean Slate system for new implementations
+  if (user?.access) {
+    return getLegacyRoleName(user);
+  }
+  
+  // Legacy fallback
   if (permissions.includes('*') || user?.isDev) {
-    // Check if user is specifically marked as executive
     if (user?.isExecutive || user?.accessLevel === 'EXECUTIVE') {
       return 'EXECUTIVE';
     }
     return 'SUPER_ADMIN';
   }
   
-  // Handle legacy access levels
-  if (user?.auth?.accessLevel) {
-    const accessLevel = user.auth.accessLevel;
-    switch (accessLevel) {
-      case 'SUPER_ADMIN':
-        return 'SUPER_ADMIN';
-      case 'EXECUTIVE':
-        return 'EXECUTIVE';
-      case 'PROVINCE_MANAGER':
-        return 'PROVINCE_MANAGER';
-      case 'BRANCH_MANAGER':
-        return 'BRANCH_MANAGER';
-      case 'ACCOUNTING_STAFF':
-        return 'ACCOUNTING_STAFF';
-      case 'SALES_STAFF':
-        return 'SALES_STAFF';
-      case 'SERVICE_STAFF':
-        return 'SERVICE_STAFF';
-      case 'INVENTORY_STAFF':
-        return 'INVENTORY_STAFF';
-      case 'STAFF':
-        // Legacy "STAFF" maps to SALES_STAFF as default
-        return 'SALES_STAFF';
-      default:
-        // Continue with permission-based detection
-        break;
-    }
-  }
+  // Legacy staff role detection
+  const hasAccounting = permissions.some(p => p.startsWith('accounting.'));
+  const hasSales = permissions.some(p => p.startsWith('sales.'));
+  const hasService = permissions.some(p => p.startsWith('service.'));
+  const hasInventory = permissions.some(p => p.startsWith('inventory.'));
   
-  // Check if user has admin permissions
-  const hasAdminEdit = permissions.includes(combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.EDIT));
-  const hasAdminApprove = permissions.includes(combinePermission(DEPARTMENTS.ADMIN, DOCUMENT_FLOWS.APPROVE));
+  // Determine primary department
+  if (hasAccounting && !hasSales && !hasService) return 'ACCOUNTING_STAFF';
+  if (hasSales && !hasAccounting && !hasService) return 'SALES_STAFF';
+  if (hasService) return 'SERVICE_STAFF';
+  if (hasInventory && !hasSales && !hasAccounting) return 'INVENTORY_STAFF';
   
-  if (hasAdminEdit || hasAdminApprove) {
-    return 'PROVINCE_MANAGER';
-  }
+  return 'SALES_STAFF'; // Default fallback
+};
+
+/**
+ * Convert legacy user permissions to Clean Slate format (DEPRECATED)
+ * Use migrateToOrthogonalSystem from orthogonal-rbac.js instead
+ */
+export const migrateLegacyPermissions = (user) => {
+  const migrated = migrateToOrthogonalSystem(user);
+  const result = generateUserPermissions(migrated);
+  return result.permissions || [];
+};
+
+// Legacy mapping for transitional support (DEPRECATED)
+export const LEGACY_TO_NEW_MAPPING = {
+  // This is deprecated - Clean Slate RBAC handles migration automatically
+  'accounting.view': ['accounting.view'],
+  'accounting.edit': ['accounting.edit'],
+  'sales.view': ['sales.view'],
+  'sales.edit': ['sales.edit'],
+  'service.view': ['service.view'],
+  'service.edit': ['service.edit'],
+  'inventory.view': ['inventory.view'],
+  'inventory.edit': ['inventory.edit']
+};
+
+/**
+ * DEPRECATION NOTICE
+ * 
+ * The following legacy patterns are deprecated and will be removed:
+ * - SUPER_ADMIN, PROVINCE_MANAGER, BRANCH_MANAGER, *_STAFF roles
+ * - ROLE_PERMISSIONS static definitions
+ * - Legacy permission checking functions
+ * 
+ * Use the Clean Slate RBAC system from orthogonal-rbac.js instead:
+ * - AUTHORITY_LEVELS (ADMIN, MANAGER, LEAD, STAFF)
+ * - GEOGRAPHIC_SCOPE (ALL, PROVINCE, BRANCH)
+ * - DEPARTMENTS (ACCOUNTING, SALES, SERVICE, INVENTORY, HR, GENERAL)
+ * - generateUserPermissions(), hasOrthogonalPermission()
+ */
+
+export default {
+  // Clean Slate exports
+  AUTHORITY_LEVELS,
+  GEOGRAPHIC_SCOPE,
+  DEPARTMENTS,
+  DOCUMENT_ACTIONS,
+  getUserPermissions,
+  hasPermission,
+  getUserRole,
+  migrateLegacyUser,
   
-  // Check for manager-level permissions (multiple departments with review/approve)
-  const hasApprovePermissions = permissions.some(perm => perm.includes('.approve'));
-  const hasReviewPermissions = permissions.some(perm => perm.includes('.review'));
-  const departmentCount = new Set(
-    permissions
-      .filter(perm => perm !== '*')
-      .map(perm => parsePermission(perm).department)
-      .filter(dept => dept && dept !== '*')
-  ).size;
-  
-  if ((hasApprovePermissions || hasReviewPermissions) && departmentCount >= 2) {
-    return 'BRANCH_MANAGER';
-  }
-  
-  // Determine specific staff role based on primary department
-  const departmentCounts = {};
-  permissions.forEach(perm => {
-    const { department } = parsePermission(perm);
-    if (department && department !== '*') {
-      departmentCounts[department] = (departmentCounts[department] || 0) + 1;
-    }
-  });
-  
-  const primaryDepartment = Object.keys(departmentCounts).reduce((a, b) => 
-    departmentCounts[a] > departmentCounts[b] ? a : b, 
-    Object.keys(departmentCounts)[0]
-  );
-  
-  switch (primaryDepartment) {
-    case DEPARTMENTS.ACCOUNTING:
-      return 'ACCOUNTING_STAFF';
-    case DEPARTMENTS.SALES:
-      return 'SALES_STAFF';
-    case DEPARTMENTS.SERVICE:
-      return 'SERVICE_STAFF';
-    case DEPARTMENTS.INVENTORY:
-      return 'INVENTORY_STAFF';
-    default:
-      return 'SALES_STAFF'; // Default fallback
-  }
+  // Legacy exports (deprecated)
+  ROLE_PERMISSIONS,
+  LEGACY_DEPARTMENTS,
+  DOCUMENT_FLOWS,
+  combinePermission,
+  parsePermission,
+  checkLegacyPermission,
+  determineRoleFromPermissions,
+  migrateLegacyPermissions
 }; 

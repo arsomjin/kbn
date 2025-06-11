@@ -71,7 +71,7 @@ export const modulesQuill = {
     ],
     handlers: {
       color: function (value) {
-        if (value == 'custom-color') value = window.prompt('Enter Hex Color Code');
+        if (value === 'custom-color') value = window.prompt('Enter Hex Color Code');
         this.quill.format('color', value);
       }
     }

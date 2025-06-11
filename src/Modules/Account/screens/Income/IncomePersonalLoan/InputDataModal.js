@@ -105,7 +105,7 @@ const InputDataModal = ({ record = {}, visible, onOk, onCancel, title = 'Title',
         });
       }
     },
-    [api, firestore, onOk, record, user.uid]
+[api, firestore, onOk, user.uid]
   );
 
   const onPreConfirm = useCallback(

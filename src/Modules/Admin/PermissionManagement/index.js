@@ -115,12 +115,16 @@ const PermissionManagement = () => {
       const usersData = snapshot.docs.map((doc) => {
         const userData = doc.data();
         const authData = userData.auth || {};
+        const accessData = userData.access || {};
         
         return {
           uid: doc.id,
           ...authData,
           displayName: authData.displayName || `${authData.firstName} ${authData.lastName}`,
-          permissions: authData.permissions || []
+          // Read permissions from new RBAC structure first, fallback to legacy
+          permissions: accessData.permissions || authData.permissions || [],
+          accessLevel: accessData.authority || authData.accessLevel || 'STAFF',
+          department: accessData.departments?.[0] || authData.department || 'general'
         };
       });
 
@@ -136,14 +140,16 @@ const PermissionManagement = () => {
     setActionLoading(true);
     try {
       const { permissions } = values;
+      const timestamp = Date.now();
       
+      // Update new RBAC structure only
       await app.firestore()
         .collection('users')
         .doc(selectedUser.uid)
         .update({
-          'auth.permissions': permissions,
-          'auth.lastPermissionUpdate': Date.now(),
-          'auth.permissionUpdatedBy': currentUser.uid
+          'access.permissions': permissions,
+          'access.lastUpdate': timestamp,
+          'access.updatedBy': currentUser.uid
         });
 
       message.success('อัปเดตสิทธิ์การใช้งานเรียบร้อยแล้ว');

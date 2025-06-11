@@ -1106,49 +1106,60 @@ export const NAVIGATION_CONFIG = {
     isDeveloperOnly: true, // Special flag for developer menu
     items: [
       {
-        key: 'test-group',
-        title: 'Test',
+        key: 'clean-slate-rbac-group',
+        title: 'Clean Slate RBAC',
         type: 'group',
         items: [
           {
-            key: 'test-import',
-            title: 'Import',
-            to: '/developer/test-import',
-            description: 'ทดสอบการนำเข้าข้อมูล'
-          },
-          {
-            key: 'test-general',
-            title: 'Test',
-            to: '/developer/test-general',
-            description: 'ทดสอบทั่วไป'
-          },
-          {
-            key: 'test-access-control',
-            title: 'Test access control',
-            to: '/developer/test-access-control',
-            description: 'ทดสอบระบบหลายจังหวัด',
-            priority: 'high'
-          },
-          {
-            key: 'audit-trail-demo',
-            title: 'Audit Trail & Stepper Demo',
-            to: '/developer/audit-trail-demo',
-            description: 'ทดสอบระบบ Audit Trail และ ResponsiveStepper พร้อม RBAC',
-            priority: 'high'
-          },
-          {
-            key: 'test-authentication',
-            title: 'Test Authentication & isDev',
-            to: '/dev/test-authentication',
-            description: 'ทดสอบระบบ Authentication และ isDev flag + Role Switcher',
+            key: 'clean-slate-rbac-demo',
+            title: 'Clean Slate RBAC Demo',
+            to: '/dev/clean-slate-rbac-demo',
+            description: 'ทดสอบระบบ Clean Slate RBAC ใหม่ - 4×3×6 Matrix',
             priority: 'critical'
           },
           {
-            key: 'test-granular-roles',
-            title: 'Test Granular Roles',
-            to: '/dev/test-granular-roles',
-            description: 'ทดสอบระบบบทบาทแบบละเอียดและการเชื่อมต่อกับ Navigation + RBAC',
+            key: 'clean-slate-layout-demo',
+            title: 'Layout with Enhanced ProvinceId',
+            to: '/dev/clean-slate-layout-demo',
+            description: 'ทดสอบ LayoutWithRBAC และ ProvinceId Injection',
             priority: 'high'
+          },
+          {
+            key: 'clean-slate-permissions-demo',
+            title: 'Permission System Demo',
+            to: '/dev/clean-slate-permissions-demo',
+            description: 'ทดสอบระบบ Permission แบบ department.action',
+            priority: 'high'
+          },
+          {
+            key: 'clean-slate-migration-demo',
+            title: 'Migration Demo',
+            to: '/dev/clean-slate-migration-demo',
+            description: 'ทดสอบการ migrate จาก Legacy เป็น Clean Slate',
+            priority: 'high'
+          }
+        ]
+      },
+      {
+        key: 'legacy-test-group',
+        title: 'Legacy Tests (Deprecated)',
+        type: 'group',
+        items: [
+          {
+            key: 'test-access-control-legacy',
+            title: '⚠️ Legacy Access Control',
+            to: '/developer/test-access-control',
+            description: '[DEPRECATED] ระบบหลายจังหวัดแบบเก่า - ใช้ Clean Slate แทน',
+            priority: 'low',
+            deprecated: true
+          },
+          {
+            key: 'test-granular-roles-legacy',
+            title: '⚠️ Legacy Granular Roles',
+            to: '/dev/test-granular-roles',
+            description: '[DEPRECATED] ระบบบทบาทแบบเก่า - ใช้ Clean Slate แทน',
+            priority: 'low',
+            deprecated: true
           }
         ]
       },

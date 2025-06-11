@@ -7,11 +7,9 @@ import {
   Tag, 
   Modal, 
   Descriptions, 
-  Alert, 
   message,
   Popconfirm,
   Select,
-  Input,
   Row,
   Col,
   Typography
@@ -30,12 +28,11 @@ import { usePermissions } from 'hooks/usePermissions';
 import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
 import { 
   getRequestTypeInfo, 
-  getStatusInfo, 
   getDepartmentInfo, 
   getLocationInfo 
 } from 'utils/userMappings';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 const { Option } = Select;
 
 const UserApproval = () => {
@@ -46,12 +43,11 @@ const UserApproval = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState('pending');
   
-  const { hasPermission } = usePermissions();
-  const { user } = useSelector(state => state.auth);
+const { user } = useSelector(state => state.auth);
 
   useEffect(() => {
     fetchApprovalRequests();
-  }, [filterStatus]);
+  }, [filterStatus]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchApprovalRequests = async () => {
     setLoading(true);

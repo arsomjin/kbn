@@ -1,89 +1,139 @@
 /**
- * PermissionGate Component for KBN Multi-Province System
- * Wrapper component that conditionally renders content based on user permissions and geographic access
+ * Unified PermissionGate Component - SINGLE VERSION
+ * Migrated to use Clean Slate RBAC system with backward compatibility
+ * This replaces both legacy PermissionGate and CleanSlatePermissionGate
  */
 
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Spin, Alert } from 'antd';
+import { LockOutlined } from '@ant-design/icons';
+
+// Use Clean Slate RBAC system as the core
 import { usePermissions } from '../hooks/usePermissions';
 
 /**
- * Permission Gate Component
+ * Unified Permission Gate Component
  * @param {Object} props
- * @param {string} props.permission - Required permission to show content
- * @param {string} props.province - Province context for geographic checking
- * @param {string} props.branch - Branch context for geographic checking
- * @param {React.ReactNode} props.children - Content to show if permission granted
- * @param {React.ReactNode} props.fallback - Content to show if permission denied
- * @param {boolean} props.requireGeographic - Whether to enforce geographic access
- * @param {boolean} props.showLoading - Whether to show loading state while checking
- * @param {string} props.role - Required role (alternative to permission)
+ * @param {string} props.permission - Required permission (department.action format)
  * @param {Array} props.anyOf - Array of permissions (user needs any one)
  * @param {Array} props.allOf - Array of permissions (user needs all)
+ * @param {string} props.authority - Required authority level
+ * @param {string} props.department - Required department access
+ * @param {string} props.role - Legacy role support (mapped to authority)
+ * @param {string} props.province - Province context for permission check
+ * @param {string} props.branch - Branch context for permission check
+ * @param {Object} props.geographic - Geographic context object (Clean Slate format)
+ * @param {React.ReactNode} props.children - Content to show if access granted
+ * @param {React.ReactNode} props.fallback - Content to show if access denied
+ * @param {boolean} props.showFallback - Whether to show fallback or hide completely
+ * @param {boolean} props.showLoading - Show loading state
+ * @param {boolean} props.loading - Show loading state (alias)
+ * @param {boolean} props.requireGeographic - Require geographic context
  * @param {Function} props.customCheck - Custom permission check function
+ * @param {boolean} props.debug - Enable debug logging
  */
 const PermissionGate = ({
   permission,
-  province,
-  branch,
-  children,
-  fallback = null,
-  requireGeographic = true,
-  showLoading = false,
-  role,
   anyOf,
   allOf,
+  authority,
+  department,
+  role, // Legacy prop - mapped to authority
+  province, // Legacy prop - mapped to geographic.provinceId
+  branch, // Legacy prop - mapped to geographic.branchCode
+  geographic = {}, // Clean Slate format
+  children,
+  fallback = null,
+  showFallback = true,
+  showLoading = false,
+  loading = false,
+  requireGeographic = false,
   customCheck,
+  debug = false,
   className,
-  style,
-  debug = false
+  style
 }) => {
   const {
     hasPermission,
-    hasGeographicAccess,
-    hasFullAccess,
-    userRole,
-    isSuperAdmin,
-    isExecutive,
-    canUserAccessProvince,
-    canUserAccessBranch
+    hasAnyPermission,
+    hasAllPermissions,
+    hasAuthorityLevel,
+    worksInDepartment,
+    canAccessProvince,
+    canAccessBranch,
+    isActive,
+    userRBAC
   } = usePermissions();
 
+  // Normalize geographic context (support both legacy and new formats)
+  const normalizedGeographic = {
+    provinceId: geographic.provinceId || province,
+    branchCode: geographic.branchCode || branch,
+    ...geographic
+  };
+
+  // Map legacy role to authority (backward compatibility)
+  const normalizedAuthority = authority || role;
+
   // Debug logging
-  if (debug) {
-    console.log('PermissionGate Debug:', {
+  if (debug && userRBAC) {
+    console.log('🔐 PermissionGate Debug:', {
       permission,
-      province,
-      branch,
-      userRole,
-      isSuperAdmin,
-      requireGeographic
+      anyOf,
+      allOf,
+      authority: normalizedAuthority,
+      department,
+      geographic: normalizedGeographic,
+      userAuthority: userRBAC.authority,
+      userPermissions: userRBAC.permissions,
+      userDepartments: userRBAC.departments
     });
   }
 
-  // Super admin and executive bypass
-  if (isSuperAdmin || isExecutive) {
+  // Loading state
+  if (loading || showLoading) {
+    return (
+      <div className={className} style={style}>
+        <Spin size="small" />
+      </div>
+    );
+  }
+
+  // DEV USERS BYPASS ALL CHECKS
+  if (userRBAC?.isDev) {
+    if (debug) console.log('🔧 DEV USER - Access granted (bypassing all checks)');
     return (
       <div className={className} style={style}>
         {children}
       </div>
     );
+  }
+
+  // Check if user is active
+  if (!isActive) {
+    if (debug) console.log('🚫 User not active');
+    return showFallback ? (fallback || <Alert message="Account not active" type="warning" showIcon />) : null;
   }
 
   // Custom check function
   if (customCheck && typeof customCheck === 'function') {
     const hasAccess = customCheck({
       hasPermission,
-      hasGeographicAccess,
-      userRole,
-      province,
-      branch,
-      canUserAccessProvince,
-      canUserAccessBranch
+      hasAnyPermission,
+      hasAllPermissions,
+      hasAuthorityLevel,
+      worksInDepartment,
+      canAccessProvince,
+      canAccessBranch,
+      userRBAC,
+      geographic: normalizedGeographic
     });
+
+    if (debug) console.log('🔍 Custom check result:', hasAccess);
 
     if (!hasAccess) {
-      return fallback;
+      return showFallback ? (fallback || <Alert message="Access denied" type="error" icon={<LockOutlined />} />) : null;
     }
 
     return (
@@ -93,102 +143,62 @@ const PermissionGate = ({
     );
   }
 
-  // Role-based check
-  if (role) {
-    if (userRole !== role) {
-      return fallback;
+  // Authority level check (including legacy role mapping)
+  if (normalizedAuthority) {
+    if (!hasAuthorityLevel(normalizedAuthority)) {
+      if (debug) console.log(`🚫 Authority check failed: required ${normalizedAuthority}, user has ${userRBAC?.authority}`);
+      return showFallback ? (fallback || <Alert message={`${normalizedAuthority} access required`} type="error" icon={<LockOutlined />} />) : null;
     }
-
-    // Still check geographic access if required
-    if (requireGeographic) {
-      const context = { province, branch };
-      if (!hasGeographicAccess(context)) {
-        return fallback;
-      }
-    }
-
-    return (
-      <div className={className} style={style}>
-        {children}
-      </div>
-    );
   }
 
-  // Multiple permissions check (anyOf)
-  if (anyOf && Array.isArray(anyOf)) {
-    const hasAnyPermission = anyOf.some(perm => {
-      if (requireGeographic) {
-        return hasFullAccess(perm, { province, branch });
-      }
-      return hasPermission(perm);
-    });
-
-    if (!hasAnyPermission) {
-      return fallback;
+  // Department check
+  if (department) {
+    if (!worksInDepartment(department)) {
+      if (debug) console.log(`🚫 Department check failed: required ${department}`);
+      return showFallback ? (fallback || <Alert message={`${department} department access required`} type="error" icon={<LockOutlined />} />) : null;
     }
-
-    return (
-      <div className={className} style={style}>
-        {children}
-      </div>
-    );
   }
 
-  // Multiple permissions check (allOf)
+  // Multiple permissions check (all required)
   if (allOf && Array.isArray(allOf)) {
-    const hasAllPermissions = allOf.every(perm => {
-      if (requireGeographic) {
-        return hasFullAccess(perm, { province, branch });
-      }
-      return hasPermission(perm);
-    });
-
-    if (!hasAllPermissions) {
-      return fallback;
+    if (!hasAllPermissions(allOf, normalizedGeographic)) {
+      if (debug) console.log(`🚫 All permissions check failed:`, allOf);
+      return showFallback ? (fallback || <Alert message="Insufficient permissions" type="error" icon={<LockOutlined />} />) : null;
     }
+  }
 
-    return (
-      <div className={className} style={style}>
-        {children}
-      </div>
-    );
+  // Multiple permissions check (any required)
+  if (anyOf && Array.isArray(anyOf)) {
+    if (!hasAnyPermission(anyOf, normalizedGeographic)) {
+      if (debug) console.log(`🚫 Any permissions check failed:`, anyOf);
+      return showFallback ? (fallback || <Alert message="Access denied" type="error" icon={<LockOutlined />} />) : null;
+    }
   }
 
   // Single permission check
   if (permission) {
-    if (requireGeographic) {
-      const context = { province, branch };
-      if (!hasFullAccess(permission, context)) {
-        return fallback;
-      }
-    } else {
-      if (!hasPermission(permission)) {
-        return fallback;
-      }
+    if (!hasPermission(permission, normalizedGeographic)) {
+      if (debug) console.log(`🚫 Permission check failed: ${permission}`);
+      return showFallback ? (fallback || <Alert message={`${permission} permission required`} type="error" icon={<LockOutlined />} />) : null;
     }
-
-    return (
-      <div className={className} style={style}>
-        {children}
-      </div>
-    );
   }
 
-  // Geographic-only check
-  if (!permission && !role && !anyOf && !allOf && requireGeographic) {
-    const context = { province, branch };
-    if (!hasGeographicAccess(context)) {
-      return fallback;
-    }
-
-    return (
-      <div className={className} style={style}>
-        {children}
-      </div>
+  // Geographic access check
+  if (requireGeographic || normalizedGeographic.provinceId || normalizedGeographic.branchCode) {
+    const hasGeoAccess = (
+      (!normalizedGeographic.provinceId || canAccessProvince(normalizedGeographic.provinceId)) &&
+      (!normalizedGeographic.branchCode || canAccessBranch(normalizedGeographic.branchCode))
     );
+
+    if (!hasGeoAccess) {
+      if (debug) console.log(`🚫 Geographic access check failed:`, normalizedGeographic);
+      return showFallback ? (fallback || <Alert message="Geographic access denied" type="error" icon={<LockOutlined />} />) : null;
+    }
   }
 
-  // No restrictions - show content
+  // All checks passed
+  if (debug) console.log('✅ Access granted');
+  
   return (
     <div className={className} style={style}>
       {children}
@@ -198,23 +208,31 @@ const PermissionGate = ({
 
 PermissionGate.propTypes = {
   permission: PropTypes.string,
-  province: PropTypes.string,
-  branch: PropTypes.string,
-  children: PropTypes.node.isRequired,
-  fallback: PropTypes.node,
-  requireGeographic: PropTypes.bool,
-  showLoading: PropTypes.bool,
-  role: PropTypes.string,
   anyOf: PropTypes.arrayOf(PropTypes.string),
   allOf: PropTypes.arrayOf(PropTypes.string),
+  authority: PropTypes.string,
+  department: PropTypes.string,
+  role: PropTypes.string, // Legacy support
+  province: PropTypes.string, // Legacy support
+  branch: PropTypes.string, // Legacy support
+  geographic: PropTypes.shape({
+    provinceId: PropTypes.string,
+    branchCode: PropTypes.string
+  }),
+  children: PropTypes.node.isRequired,
+  fallback: PropTypes.node,
+  showFallback: PropTypes.bool,
+  showLoading: PropTypes.bool,
+  loading: PropTypes.bool,
+  requireGeographic: PropTypes.bool,
   customCheck: PropTypes.func,
+  debug: PropTypes.bool,
   className: PropTypes.string,
-  style: PropTypes.object,
-  debug: PropTypes.bool
+  style: PropTypes.object
 };
 
 /**
- * Higher-order component version of PermissionGate
+ * Higher-order component version (unified)
  */
 export const withPermission = (permissionConfig) => (WrappedComponent) => {
   const WithPermissionComponent = (props) => (
@@ -229,68 +247,147 @@ export const withPermission = (permissionConfig) => (WrappedComponent) => {
 };
 
 /**
- * Hook version for conditional rendering
+ * Hook version for conditional rendering (unified)
  */
 export const usePermissionGate = (permissionConfig) => {
   const {
     hasPermission,
-    hasGeographicAccess,
-    hasFullAccess,
-    userRole,
-    isSuperAdmin,
-    isExecutive
+    hasAnyPermission,
+    hasAllPermissions,
+    hasAuthorityLevel,
+    worksInDepartment,
+    canAccessProvince,
+    canAccessBranch,
+    isActive,
+    userRBAC
   } = usePermissions();
 
   const {
     permission,
+    anyOf,
+    allOf,
+    authority,
+    department,
+    role,
     province,
     branch,
-    requireGeographic = true,
-    role,
-    anyOf,
-    allOf
+    geographic = {},
+    requireGeographic = false,
+    customCheck
   } = permissionConfig;
 
-  // Super admin and executive bypass
-  if (isSuperAdmin || isExecutive) return true;
+  // Normalize geographic context
+  const normalizedGeographic = {
+    provinceId: geographic.provinceId || province,
+    branchCode: geographic.branchCode || branch,
+    ...geographic
+  };
 
-  // Role-based check
-  if (role && userRole !== role) return false;
+  // Map legacy role to authority
+  const normalizedAuthority = authority || role;
 
-  // Multiple permissions check (anyOf)
-  if (anyOf && Array.isArray(anyOf)) {
-    return anyOf.some(perm => {
-      if (requireGeographic) {
-        return hasFullAccess(perm, { province, branch });
-      }
-      return hasPermission(perm);
+  // Check if user is active
+  if (!isActive) return false;
+
+  // Custom check function
+  if (customCheck && typeof customCheck === 'function') {
+    return customCheck({
+      hasPermission,
+      hasAnyPermission,
+      hasAllPermissions,
+      hasAuthorityLevel,
+      worksInDepartment,
+      canAccessProvince,
+      canAccessBranch,
+      userRBAC,
+      geographic: normalizedGeographic
     });
   }
 
-  // Multiple permissions check (allOf)
-  if (allOf && Array.isArray(allOf)) {
-    return allOf.every(perm => {
-      if (requireGeographic) {
-        return hasFullAccess(perm, { province, branch });
-      }
-      return hasPermission(perm);
-    });
-  }
+  // Authority level check
+  if (normalizedAuthority && !hasAuthorityLevel(normalizedAuthority)) return false;
+
+  // Department check
+  if (department && !worksInDepartment(department)) return false;
+
+  // Multiple permissions check (all required)
+  if (allOf && Array.isArray(allOf) && !hasAllPermissions(allOf, normalizedGeographic)) return false;
+
+  // Multiple permissions check (any required)
+  if (anyOf && Array.isArray(anyOf) && !hasAnyPermission(anyOf, normalizedGeographic)) return false;
 
   // Single permission check
-  if (permission) {
-    if (requireGeographic) {
-      return hasFullAccess(permission, { province, branch });
-    }
-    return hasPermission(permission);
-  }
+  if (permission && !hasPermission(permission, normalizedGeographic)) return false;
 
-  // Geographic-only check
-  if (!permission && !role && !anyOf && !allOf && requireGeographic) {
-    return hasGeographicAccess({ province, branch });
+  // Geographic access check
+  if (requireGeographic || normalizedGeographic.provinceId || normalizedGeographic.branchCode) {
+    const hasGeoAccess = (
+      (!normalizedGeographic.provinceId || canAccessProvince(normalizedGeographic.provinceId)) &&
+      (!normalizedGeographic.branchCode || canAccessBranch(normalizedGeographic.branchCode))
+    );
+    if (!hasGeoAccess) return false;
   }
 
   return true;
+};
+
+/**
+ * Convenience permission components for common use cases (unified)
+ */
+export const AccountingGate = ({ children, action = 'view', ...props }) => (
+  <PermissionGate permission={`accounting.${action}`} {...props}>
+    {children}
+  </PermissionGate>
+);
+
+export const SalesGate = ({ children, action = 'view', ...props }) => (
+  <PermissionGate permission={`sales.${action}`} {...props}>
+    {children}
+  </PermissionGate>
+);
+
+export const ServiceGate = ({ children, action = 'view', ...props }) => (
+  <PermissionGate permission={`service.${action}`} {...props}>
+    {children}
+  </PermissionGate>
+);
+
+export const InventoryGate = ({ children, action = 'view', ...props }) => (
+  <PermissionGate permission={`inventory.${action}`} {...props}>
+    {children}
+  </PermissionGate>
+);
+
+export const AdminGate = ({ children, action = 'view', ...props }) => (
+  <PermissionGate permission={`admin.${action}`} {...props}>
+    {children}
+  </PermissionGate>
+);
+
+// Prop types for convenience components
+AccountingGate.propTypes = {
+  children: PropTypes.node.isRequired,
+  action: PropTypes.string
+};
+
+SalesGate.propTypes = {
+  children: PropTypes.node.isRequired,
+  action: PropTypes.string
+};
+
+ServiceGate.propTypes = {
+  children: PropTypes.node.isRequired,
+  action: PropTypes.string
+};
+
+InventoryGate.propTypes = {
+  children: PropTypes.node.isRequired,
+  action: PropTypes.string
+};
+
+AdminGate.propTypes = {
+  children: PropTypes.node.isRequired,
+  action: PropTypes.string
 };
 
 export default PermissionGate; 

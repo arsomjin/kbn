@@ -55,7 +55,7 @@ const GeographicBranchSelector = ({
   error: externalError = null,
   ...rest
 }) => {
-  const [internalLoading, setInternalLoading] = useState(false);
+  const [internalLoading] = useState(false);
 
   // Redux state
   const { branches } = useSelector((state) => state.data);

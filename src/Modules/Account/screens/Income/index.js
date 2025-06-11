@@ -21,7 +21,7 @@ import { Fade } from 'react-awesome-reveal';
 import { getFilterData } from 'Modules/Account/api';
 import { IncomeDailyCategories } from 'data/Constant';
 import { IncomePartColumns, IncomeOtherColumns } from 'Modules/Account/api';
-import { PermissionGate } from 'components';
+import PermissionGate from "components/PermissionGate";
 import { usePermissions } from 'hooks/usePermissions';
 
 const Income = forwardRef((props, ref) => {

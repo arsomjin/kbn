@@ -1170,8 +1170,7 @@ export const checkPayments = (pItems, skip) => {
   if (skip) {
     return { hasNoSelfBank, hasNoAmount, hasNoPerson, hasNoPaymentMethod };
   }
-  let arrNoAmount = pItems.filter(l => !l.deleted && Numb(l.amount) <= 0);
-  let arrNoPerson = [];
+let arrNoPerson = [];
   let arrNoSelfBank = [];
   let arrNoPaymentMethod = [];
   let arr = pItems.filter(l => !l.deleted && Numb(l.amount) > 0);

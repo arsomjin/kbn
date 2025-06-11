@@ -1,21 +1,16 @@
 /**
- * KBN Orthogonal RBAC System
- * Eliminates redundancy by separating authority, geographic, and department concerns
- * 
- * Instead of 50+ mixed roles, uses 4 orthogonal dimensions:
- * - Authority Level (4 types)
- * - Geographic Scope (3 types) 
- * - Department Access (6 types)
- * - Document Actions (4 types)
+ * 1. ORTHOGONAL RBAC SYSTEM FOR KBN
+ * Clean, systematic approach with 4 dimensions:
+ * Authority × Geographic × Departments × Actions = Complete Permission System
  */
 
 // 1. AUTHORITY LEVELS - What level of power/responsibility
-export const AUTHORITY_LEVELS = {
+const AUTHORITY_LEVELS = {
   ADMIN: {
     name: "ผู้ดูแลระบบ",
     nameTh: "ผู้ดูแลระบบ",
-    nameEn: "System Administrator",
-    actions: ["VIEW", "EDIT", "APPROVE", "MANAGE", "DELETE"],
+    nameEn: "System Administrator", 
+    actions: ["VIEW", "EDIT", "APPROVE", "MANAGE"],
     canManageUsers: true,
     canManageSystem: true,
     canManageSettings: true,
@@ -61,7 +56,7 @@ export const AUTHORITY_LEVELS = {
 };
 
 // 2. GEOGRAPHIC SCOPE - What geographic coverage
-export const GEOGRAPHIC_SCOPE = {
+const GEOGRAPHIC_SCOPE = {
   ALL: {
     name: "ทุกจังหวัด",
     nameTh: "ทุกจังหวัด",
@@ -91,7 +86,7 @@ export const GEOGRAPHIC_SCOPE = {
 };
 
 // 3. DEPARTMENTS - Which business functions
-export const DEPARTMENTS = {
+const DEPARTMENTS = {
   ACCOUNTING: { 
     name: "บัญชีการเงิน", 
     nameTh: "บัญชีการเงิน",
@@ -137,7 +132,7 @@ export const DEPARTMENTS = {
 };
 
 // 4. DOCUMENT ACTIONS - What actions can be performed
-export const DOCUMENT_ACTIONS = {
+const DOCUMENT_ACTIONS = {
   VIEW: { 
     name: "ดูข้อมูล", 
     nameTh: "ดูข้อมูล",
@@ -173,7 +168,7 @@ export const DOCUMENT_ACTIONS = {
  * @param {Object} user - User object with access property
  * @returns {Object} Generated permissions and geographic access
  */
-export const generateUserPermissions = (user) => {
+const generateUserPermissions = (user) => {
   if (!user?.access) {
     return { permissions: [], geographic: null };
   }
@@ -217,59 +212,64 @@ export const generateUserPermissions = (user) => {
     }
     
     if (authorityLevel.level >= 3) {
-      permissions.push("reports.export");
+      permissions.push("reports.approve");
     }
   }
-  
+
   return {
-    permissions: [...new Set(permissions)], // Remove duplicates
+    permissions,
     geographic: {
       scope: geographic,
       level: geoScope.level,
-      provinces: geographic === "ALL" ? null : user.access.assignedProvinces,
-      branches: geographic === "BRANCH" ? user.access.assignedBranches : null
+      access: geoScope.access
+    },
+    authority: {
+      level: authority,
+      actions: authorityLevel.actions,
+      canManageUsers: authorityLevel.canManageUsers,
+      canManageSystem: authorityLevel.canManageSystem
     }
   };
 };
 
 /**
- * Map new orthogonal system to legacy role names for backward compatibility
- * @param {Object} user - User with access property
+ * Get legacy role name from new orthogonal structure (for backward compatibility)
+ * @param {Object} user - User object with new access structure
  * @returns {string} Legacy role name
  */
-export const getLegacyRoleName = (user) => {
+const getLegacyRoleName = (user) => {
   if (!user?.access) return 'STAFF';
   
   const { authority, geographic, departments } = user.access;
   
-  // System admin
-  if (authority === "ADMIN" && geographic === "ALL") {
-    return "SUPER_ADMIN";
+  // Super admin case
+  if (authority === 'ADMIN' && geographic === 'ALL') {
+    return 'SUPER_ADMIN';
   }
   
-  // Executive (Admin with specific departments)
-  if (authority === "ADMIN" && geographic !== "ALL") {
-    return "EXECUTIVE";
+  // Executive case (preserved for special users)
+  if (authority === 'ADMIN' && user.isExecutive) {
+    return 'EXECUTIVE';
   }
   
-  // Province manager  
-  if (authority === "MANAGER" && geographic === "PROVINCE") {
-    return "PROVINCE_MANAGER";
+  // Manager cases
+  if (authority === 'MANAGER') {
+    if (geographic === 'ALL') return 'PROVINCE_MANAGER';
+    if (geographic === 'PROVINCE') return 'PROVINCE_MANAGER';
+    if (geographic === 'BRANCH') return 'BRANCH_MANAGER';
   }
   
-  // Branch manager
-  if (authority === "MANAGER" && geographic === "BRANCH") {
-    return "BRANCH_MANAGER";
-  }
-  
-  // Department staff
-  if (authority === "STAFF" && departments && departments.length === 1) {
-    return `${departments[0]}_STAFF`;
-  }
-  
-  // Department leads
-  if (authority === "LEAD" && departments && departments.length === 1) {
-    return `${departments[0]}_LEAD`;
+  // Department-specific roles
+  if (departments.length === 1) {
+    const dept = departments[0];
+    switch (dept) {
+      case 'ACCOUNTING': return 'ACCOUNTING_STAFF';
+      case 'SALES': return 'SALES_STAFF';
+      case 'SERVICE': return 'SERVICE_STAFF';
+      case 'INVENTORY': return 'INVENTORY_STAFF';
+      case 'HR': return 'HR_STAFF';
+      default: return 'STAFF';
+    }
   }
   
   // Multi-department or complex roles
@@ -283,7 +283,7 @@ export const getLegacyRoleName = (user) => {
  * @param {Object} context - Geographic context (optional)
  * @returns {boolean}
  */
-export const hasOrthogonalPermission = (user, permission, context = {}) => {
+const hasOrthogonalPermission = (user, permission, context = {}) => {
   if (!user?.access) return false;
   
   const userPermissions = generateUserPermissions(user);
@@ -311,7 +311,7 @@ export const hasOrthogonalPermission = (user, permission, context = {}) => {
  * @param {Object} context - Geographic context { province, branch }
  * @returns {boolean}
  */
-export const checkGeographicAccess = (user, context) => {
+const checkGeographicAccess = (user, context) => {
   if (!user?.access) return false;
   
   const { geographic, assignedProvinces, assignedBranches } = user.access;
@@ -353,7 +353,7 @@ export const checkGeographicAccess = (user, context) => {
  * @param {Object} assignments - Geographic assignments
  * @returns {Object} User access object
  */
-export const createUserAccess = (authority, geographic, departments, assignments = {}) => {
+const createUserAccess = (authority, geographic, departments, assignments = {}) => {
   return {
     authority,
     geographic,
@@ -371,7 +371,7 @@ export const createUserAccess = (authority, geographic, departments, assignments
  * @param {Object} legacyUser - Legacy user object
  * @returns {Object} User with new access structure
  */
-export const migrateToOrthogonalSystem = (legacyUser) => {
+const migrateToOrthogonalSystem = (legacyUser) => {
   if (!legacyUser) return null;
   
   // Determine authority level
@@ -446,7 +446,7 @@ const determineDepartmentsFromLegacy = (legacyUser) => {
  * @param {Object} user - User with access property
  * @returns {string} Human-readable role description
  */
-export const getUserRoleDescription = (user) => {
+const getUserRoleDescription = (user) => {
   if (!user?.access) return 'ไม่ระบุตำแหน่ง';
   
   const { authority, geographic, departments } = user.access;
@@ -458,8 +458,226 @@ export const getUserRoleDescription = (user) => {
   return `${authorityName}${geographic !== 'ALL' ? ` (${geoName})` : ''} - ${deptNames}`;
 };
 
-// Export all constants and functions
-export default {
+/**
+ * EXECUTIVE ROLE HELPERS
+ * Create executive access patterns using orthogonal combinations
+ */
+
+/**
+ * Create executive access with business-only permissions
+ * @param {string} scope - 'ALL', 'PROVINCE', 'BRANCH'
+ * @param {Object} assignments - Geographic assignments
+ * @returns {Object} Executive access structure
+ */
+const createExecutiveAccess = (scope = 'ALL', assignments = {}) => {
+  return createUserAccess(
+    'ADMIN',                                    // High authority
+    scope,                                      // Geographic scope
+    ['ACCOUNTING', 'SALES', 'SERVICE', 'INVENTORY'], // All business departments
+    assignments
+  );
+};
+
+/**
+ * Check if user has executive-level access
+ * @param {Object} user - User object
+ * @returns {boolean} Is executive
+ */
+const isExecutiveUser = (user) => {
+  if (!user?.access) return false;
+  
+  const { authority, departments } = user.access;
+  
+  // Executive = ADMIN authority + broad access
+  if (authority !== 'ADMIN') return false;
+  
+  // Must have access to multiple business departments
+  const businessDepts = ['ACCOUNTING', 'SALES', 'SERVICE', 'INVENTORY'];
+  const hasBusinessAccess = businessDepts.filter(dept => 
+    departments.includes(dept)
+  ).length >= 3; // At least 3 business departments
+  
+  return hasBusinessAccess;
+};
+
+/**
+ * Create executive permissions with business focus
+ * @param {Object} user - User with executive access
+ * @returns {Object} Executive permissions structure
+ */
+const generateExecutivePermissions = (user) => {
+  const basePermissions = generateUserPermissions(user);
+  
+  if (!isExecutiveUser(user)) {
+    return basePermissions;
+  }
+  
+  // Add executive-specific permissions
+  const executivePermissions = [...basePermissions.permissions];
+  
+  // Add business analytics and reporting
+  const executivePerms = [
+    'reports.executive',
+    'analytics.view', 
+    'dashboard.executive',
+    'export.all'
+  ];
+  
+  executivePerms.forEach(perm => {
+    if (!executivePermissions.includes(perm)) {
+      executivePermissions.push(perm);
+    }
+  });
+  
+  return {
+    ...basePermissions,
+    permissions: executivePermissions,
+    isExecutive: true
+  };
+};
+
+/**
+ * Executive type definitions and creation helpers
+ */
+const EXECUTIVE_TYPES = {
+  BUSINESS: {
+    name: "ผู้บริหารธุรกิจ",
+    nameEn: "Business Executive",
+    description: "เข้าถึงข้อมูลธุรกิจทั้งหมด ไม่สามารถจัดการระบบ",
+    create: (scope = 'ALL', assignments = {}) => ({
+      ...createExecutiveAccess(scope, assignments),
+      executiveType: 'BUSINESS'
+    })
+  },
+  
+  COMPANY: {
+    name: "ผู้บริหารบริษัท",
+    nameEn: "Company Executive", 
+    description: "เข้าถึงข้อมูลทั้งหมด สามารถอนุมัติธุรกิจ",
+    create: (scope = 'ALL', assignments = {}) => ({
+      ...createExecutiveAccess(scope, assignments),
+      executiveType: 'COMPANY',
+      canApprove: true
+    })
+  },
+  
+  REGIONAL: {
+    name: "ผู้บริหารภูมิภาค",
+    nameEn: "Regional Executive",
+    description: "เข้าถึงข้อมูลในภูมิภาคที่รับผิดชอบ",
+    create: (provinces = [], assignments = {}) => ({
+      ...createUserAccess('MANAGER', 'PROVINCE', 
+        ['ACCOUNTING', 'SALES', 'SERVICE', 'INVENTORY'], 
+        { ...assignments, provinces }
+      ),
+      executiveType: 'REGIONAL'
+    })
+  }
+};
+
+/**
+ * Get accessible provinces for user based on their geographic scope
+ * @param {Object} user - User object with access
+ * @param {Array} allProvinces - All available provinces
+ * @returns {Array} Filtered provinces user can access
+ */
+const getAccessibleProvinces = (user, allProvinces = []) => {
+  if (!user?.access || !allProvinces.length) return [];
+  
+  const { geographic, assignedProvinces } = user.access;
+  
+  // ALL scope - can access all provinces
+  if (geographic === 'ALL') {
+    return allProvinces;
+  }
+  
+  // PROVINCE scope - only assigned provinces
+  if (geographic === 'PROVINCE' && assignedProvinces) {
+    return allProvinces.filter(province => 
+      assignedProvinces.includes(province.key || province.provinceKey)
+    );
+  }
+  
+  // BRANCH scope - provinces that contain user's branches
+  if (geographic === 'BRANCH' && user.access.assignedBranches) {
+    // This would need branch-to-province mapping
+    // For now, return empty array - branch users don't need province access
+    return [];
+  }
+  
+  return [];
+};
+
+/**
+ * Get accessible branches for user based on their geographic scope  
+ * @param {Object} user - User object with access
+ * @param {Array} allBranches - All available branches
+ * @returns {Array} Filtered branches user can access
+ */
+const getAccessibleBranches = (user, allBranches = []) => {
+  if (!user?.access || !allBranches.length) return [];
+  
+  const { geographic, assignedProvinces, assignedBranches } = user.access;
+  
+  // ALL scope - can access all branches
+  if (geographic === 'ALL') {
+    return allBranches;
+  }
+  
+  // PROVINCE scope - branches in assigned provinces
+  if (geographic === 'PROVINCE' && assignedProvinces) {
+    return allBranches.filter(branch => 
+      assignedProvinces.includes(branch.provinceKey || branch.provinceId)
+    );
+  }
+  
+  // BRANCH scope - only assigned branches
+  if (geographic === 'BRANCH' && assignedBranches) {
+    return allBranches.filter(branch => 
+      assignedBranches.includes(branch.branchCode || branch.code)
+    );
+  }
+  
+  return [];
+};
+
+/**
+ * Filter data array based on user's geographic access
+ * @param {Object} user - User object with access
+ * @param {Array} data - Data array to filter
+ * @param {Object} options - Filtering options
+ * @returns {Array} Filtered data
+ */
+const filterDataByUserAccess = (user, data = [], options = {}) => {
+  if (!user?.access || !data.length) return [];
+  
+  const { geographic, assignedProvinces, assignedBranches } = user.access;
+  const { provinceField = 'provinceId', branchField = 'branchCode' } = options;
+  
+  // ALL scope - can access all data
+  if (geographic === 'ALL') {
+    return data;
+  }
+  
+  // PROVINCE scope - filter by assigned provinces
+  if (geographic === 'PROVINCE' && assignedProvinces) {
+    return data.filter(item => 
+      assignedProvinces.includes(item[provinceField])
+    );
+  }
+  
+  // BRANCH scope - filter by assigned branches
+  if (geographic === 'BRANCH' && assignedBranches) {
+    return data.filter(item => 
+      assignedBranches.includes(item[branchField])
+    );
+  }
+  
+  return [];
+};
+
+// ES6 exports for React components
+export {
   AUTHORITY_LEVELS,
   GEOGRAPHIC_SCOPE,
   DEPARTMENTS,
@@ -470,5 +688,16 @@ export default {
   checkGeographicAccess,
   createUserAccess,
   migrateToOrthogonalSystem,
-  getUserRoleDescription
-}; 
+  getUserRoleDescription,
+  // Executive functions
+  createExecutiveAccess,
+  isExecutiveUser,
+  generateExecutivePermissions,
+  EXECUTIVE_TYPES,
+  // Geographic access functions
+  getAccessibleProvinces,
+  getAccessibleBranches,
+  filterDataByUserAccess
+};
+
+ 

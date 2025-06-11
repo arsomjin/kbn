@@ -4,31 +4,38 @@ import { Typography, Button } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleSidebar } from 'redux/actions/unPersisted';
-import { useGeographicData } from '../../../hooks/useGeographicData';
+import { usePermissions } from 'hooks/usePermissions';
+import { getProvinceName } from 'utils/mappings';
 
 const { Title, Text } = Typography;
 
 const SidebarMainNavbar = props => {
   const { menuVisible } = useSelector(state => state.unPersisted);
-  const { provinces } = useSelector(state => state.provinces);
   const dispatch = useDispatch();
   
-  // Get current province from geographic data
-  const { getCurrentProvince } = useGeographicData();
+  // Use unified permissions hook for Clean Slate RBAC
+  const { 
+    homeProvince,
+    accessibleProvinces 
+  } = usePermissions();
   
   const handleToggleSidebar = () => {
     dispatch(toggleSidebar(!menuVisible));
   };
 
-  // Get current province name
+  // Get current province name using Clean Slate RBAC
   const getCurrentProvinceName = () => {
-    const currentProvinceKey = getCurrentProvince();
-    if (!currentProvinceKey || !provinces) {
-      return 'นครราชสีมา'; // Default fallback
+    // Priority: Home province → First accessible province → Default
+    if (homeProvince) {
+      return getProvinceName(homeProvince.provinceKey || homeProvince.key) || 'นครราชสีมา';
     }
     
-    const province = provinces[currentProvinceKey];
-    return province?.provinceName || province?.name || 'นครราชสีมา';
+    if (accessibleProvinces.length > 0) {
+      const firstProvince = accessibleProvinces[0];
+      return getProvinceName(firstProvince.provinceKey || firstProvince.key) || 'นครราชสีมา';
+    }
+    
+    return 'นครราชสีมา'; // Default fallback
   };
 
   return (
@@ -55,7 +62,7 @@ const SidebarMainNavbar = props => {
             marginRight: '12px'
           }}
           src={require('../../../images/logo192.png')}
-                        alt="KBN"
+          alt="KBN"
         />
         
         {!props.hideLogoText && (
@@ -101,8 +108,6 @@ const SidebarMainNavbar = props => {
         }}
         size="small"
       />
-
-
     </div>
   );
 };

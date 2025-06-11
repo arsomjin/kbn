@@ -105,7 +105,7 @@ const MigrationTools = () => {
         addLog('🔴 PRODUCTION ROLLBACK - Extra confirmation required');
       }
       
-      const result = await executePhase1Rollback();
+      await executePhase1Rollback();
       setRollbackStatus('completed');
       addLog('✅ Rollback completed successfully');
       
@@ -209,7 +209,7 @@ const MigrationTools = () => {
       <Row gutter={[16, 16]}>
         <Col span={24}>
           <Card>
-            <Title level={3}>🚀 Phase 1 Migration</Title>
+            <Title level={3}><span role="img" aria-label="rocket">🚀</span> Phase 1 Migration</Title>
             <Text>Test the multi-province functionality and data structure alignment.</Text>
           </Card>
         </Col>
@@ -221,7 +221,7 @@ const MigrationTools = () => {
               <div>
                 <p><strong>Project ID:</strong> {dbInfo.projectId}</p>
                 <p><strong>Environment:</strong> {dbInfo.environment}</p>
-                <p><strong>Is Production:</strong> {dbInfo.isProduction ? '🔴 YES' : '✅ NO'}</p>
+                <p><strong>Is Production:</strong> {dbInfo.isProduction ? <span role="img" aria-label="red circle">🔴</span> : <span role="img" aria-label="check mark">✅</span>} {dbInfo.isProduction ? 'YES' : 'NO'}</p>
                 
                 {dbInfo.isProduction && (
                   <Alert
@@ -331,7 +331,7 @@ const MigrationTools = () => {
                 disabled={rollbackStatus === 'running'}
                 style={{ marginRight: 8 }}
               >
-                {rollbackStatus === 'running' ? 'Rolling back...' : '🔄 Rollback Phase 1'}
+{rollbackStatus === 'running' ? 'Rolling back...' : <><span role="img" aria-label="refresh">🔄</span> Rollback Phase 1</>}
               </Button>
               
               <Button 
@@ -340,7 +340,7 @@ const MigrationTools = () => {
                 onClick={handleVerifyState}
                 style={{ marginRight: 8 }}
               >
-                🔍 Verify Current State
+<span role="img" aria-label="magnifying glass">🔍</span> Verify Current State
               </Button>
               
               {rollbackStatus === 'running' && (

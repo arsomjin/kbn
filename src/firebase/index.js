@@ -103,10 +103,10 @@ const FirebaseProvider = ({ children }) => {
 
   const dispatch = useDispatch();
 
-  useEffect(() => {
+useEffect(() => {
     const isSupported = app.messaging.isSupported();
     dispatch(setIsFCMSupported(isSupported));
-  }, []);
+  }, [dispatch]);
 
   const dispatchNotifications = notifs => dispatch(setNotifications(notifs));
 

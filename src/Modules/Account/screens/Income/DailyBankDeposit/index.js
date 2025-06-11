@@ -29,7 +29,7 @@ import EditableCellTable from 'components/EditableCellTable';
 import { TableSummary } from 'api/Table';
 import HiddenItem from 'components/HiddenItem';
 import { errorHandler } from 'functions';
-import { PermissionGate } from 'components';
+import PermissionGate from "components/PermissionGate";
 import { usePermissions } from 'hooks/usePermissions';
 
 const initProps = {
@@ -49,7 +49,7 @@ const DailyBankDeposit = () => {
   const { user } = useSelector(state => state.auth);
   const { users } = useSelector(state => state.data);
   const { firestore, api } = useContext(FirebaseContext);
-  const { hasPermission, getDefaultBranch } = usePermissions();
+  const { getDefaultBranch } = usePermissions();
 
   const [form] = Form.useForm();
 
@@ -286,10 +286,6 @@ const DailyBankDeposit = () => {
           onValuesChange={_onValuesChange}
         >
         {values => {
-          let editData = [];
-          if (values.editedBy) {
-            editData = getEditArr(values.editedBy, users);
-          }
           return (
             <>
               <HiddenItem name="depositId" />
