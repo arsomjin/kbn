@@ -1,14 +1,14 @@
-import { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import { usePermissions } from '../../hooks/usePermissions';
 import { 
   createAuditTrailEntry, 
   createStatusHistoryEntry, 
   getObjectDifferences,
   sortAuditEntries
 } from './utils';
-import { usePermissions } from '../../hooks/usePermissions';
-import { useGeographicData } from '../../hooks/useGeographicData';
 import './types'; // Import JSDoc types
+import { getProvinceName, getBranchName } from '../../utils/mappings';
 
 /**
  * @typedef {Object} UseAuditTrailProps
@@ -86,25 +86,25 @@ export const useAuditTrail = ({
   const { branches } = useSelector((state) => state.data);
   
   // Custom hooks
-  const { hasPermission } = usePermissions();
-  const { getCurrentProvince, getDefaultBranch, homeBranch, homeProvince } = useGeographicData();
+  const { hasPermission, homeLocation, accessibleProvinces, accessibleBranches } = usePermissions();
 
-  // Create geographic context
+  // Create geographic context using Clean Slate RBAC data
   const getCurrentGeographicContext = useCallback(() => {
-    const currentProvince = getCurrentProvince();
-    const defaultBranch = getDefaultBranch();
-    const branch = branches?.[defaultBranch];
+    const currentProvince = homeLocation?.province || (accessibleProvinces.length === 1 ? accessibleProvinces[0] : null);
+    const currentBranch = homeLocation?.branch || (accessibleBranches.length === 1 ? accessibleBranches[0] : null);
+    const branch = branches?.[currentBranch];
     
     return {
-      branchCode: defaultBranch || homeBranch,
-      provinceId: currentProvince || homeProvince,
-      branchName: branch?.branchName,
-      recordedProvince: currentProvince || homeProvince,
-      recordedBranch: defaultBranch || homeBranch
+      branchCode: currentBranch,
+      provinceId: currentProvince,
+      branchName: branch?.branchName || getBranchName(currentBranch),
+      provinceName: getProvinceName(currentProvince),
+      recordedProvince: currentProvince,
+      recordedBranch: currentBranch
     };
-  }, [getCurrentProvince, getDefaultBranch, homeBranch, homeProvince, branches]);
+  }, [homeLocation, accessibleProvinces, accessibleBranches, branches]);
 
-  // Create user info from current user
+  // Create user info from current user - use Clean Slate RBAC structure with fallbacks
   const getCurrentUserInfo = useCallback(() => {
     if (!user) return { uid: 'system', displayName: 'ระบบ' };
     
@@ -114,14 +114,16 @@ export const useAuditTrail = ({
       fullName: user.fullName,
       name: user.name,
       email: user.email,
-      department: user.department,
-      role: user.role,
-      accessLevel: user.accessLevel,
+      // Use Clean Slate structure first, then legacy fallbacks
+      department: user.access?.departments?.[0] || user.userRBAC?.departments?.[0] || user.department,
+      role: user.access?.authority || user.userRBAC?.authority || user.role,
+      authority: user.access?.authority || user.userRBAC?.authority || user.accessLevel,
       employeeCode: user.employeeCode,
-      branchCode: user.homeBranch,
-      provinceId: user.homeProvince
+      // Geographic data from Clean Slate RBAC
+      branchCode: homeLocation?.branch || user.homeBranch,
+      provinceId: homeLocation?.province || user.homeProvince
     };
-  }, [user]);
+  }, [user, homeLocation]);
 
   /**
    * Add audit entry
@@ -464,6 +466,15 @@ export const useAuditTrail = ({
   useEffect(() => {
     setStatusHistory(prev => sortAuditEntries(prev));
   }, [statusHistory.length]);
+
+  // Cleanup effect to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      // Clear any pending state updates
+      setLoading(false);
+      setError(null);
+    };
+  }, []);
 
   return {
     auditTrail,

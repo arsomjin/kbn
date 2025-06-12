@@ -15,7 +15,7 @@ const SidebarMainNavbar = props => {
   
   // Use unified permissions hook for Clean Slate RBAC
   const { 
-    homeProvince,
+    homeLocation,
     accessibleProvinces 
   } = usePermissions();
   
@@ -26,16 +26,16 @@ const SidebarMainNavbar = props => {
   // Get current province name using Clean Slate RBAC
   const getCurrentProvinceName = () => {
     // Priority: Home province → First accessible province → Default
-    if (homeProvince) {
-      return getProvinceName(homeProvince.provinceKey || homeProvince.key) || 'นครราชสีมา';
+    if (homeLocation?.province) {
+      return getProvinceName(homeLocation.province) || 'นครสวรรค์';
     }
     
     if (accessibleProvinces.length > 0) {
       const firstProvince = accessibleProvinces[0];
-      return getProvinceName(firstProvince.provinceKey || firstProvince.key) || 'นครราชสีมา';
+      return getProvinceName(firstProvince) || 'นครสวรรค์';
     }
     
-    return 'นครราชสีมา'; // Default fallback
+    return 'นครสวรรค์'; // Default fallback - use Nakhon Sawan for new system
   };
 
   return (

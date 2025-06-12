@@ -179,7 +179,7 @@ export default () => {
         onValuesChange={_onValuesChange}
       >
         {values => {
-          showLog({ values });
+          // showLog({ values }); // Disabled to prevent console spam
           return (
             <div className="px-3 pb-2 bg-white border-bottom">
               {/* <HiddenItem name="incomeId" /> */}

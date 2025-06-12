@@ -346,7 +346,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
         return;
       }
 
-      showLog('[IncomeVehicles] values', values);
+      // showLog('[IncomeVehicles] values', values); // Disabled to prevent console spam
 
       showConfirm(
         () => onConfirm(values, resetToInitial),

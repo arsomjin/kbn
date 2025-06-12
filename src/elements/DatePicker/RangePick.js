@@ -1,6 +1,6 @@
 import { DatePicker } from 'antd';
-import { showLog } from 'functions';
-import moment from 'moment';
+// import { showLog } from 'functions'; // Disabled to prevent infinite loops
+import dayjs from 'dayjs';
 import React, { forwardRef, useEffect, useState } from 'react';
 import { isMobile } from 'react-device-detect';
 const { RangePicker } = DatePicker;
@@ -10,7 +10,7 @@ export default forwardRef(({ value, onChange, format, placeholder, picker, mForm
   const [cValue, setCValue] = useState(null);
 
   useEffect(() => {
-    showLog({ YES_ISRANGE: value });
+    // showLog({ YES_ISRANGE: value }); // Disabled to prevent infinite loops
     setCValue(value);
   }, [value]);
 
@@ -48,22 +48,22 @@ export default forwardRef(({ value, onChange, format, placeholder, picker, mForm
       if (!!valueD && !!valueD[0]) {
         return [valueD[0], valueD[1]];
       } else {
-        return [moment(valueC[0], mFormat), moment(valueC[1], mFormat)];
+        return [dayjs(valueC[0], mFormat), dayjs(valueC[1], mFormat)];
       }
     } else {
-      return moment();
+      return null; // Return null instead of current date to prevent infinite loops
     }
   };
 
   return (
     <RangePicker
       ref={ref}
-      value={() => getValue(dates, cValue)}
+      value={getValue(dates, cValue)}
       disabledDate={disabledDateRange}
       onChange={_onChange}
       onCalendarChange={val => setDates(val)}
       onOpenChange={onOpenChange}
-      allowClear={false}
+      allowClear={true}
       picker={picker}
       onFocus={e => isMobile && (e.target.readOnly = true)} // Disable virtual keyboard on mobile devices.
       onBlur={() => console.log('blur has been triggered')}

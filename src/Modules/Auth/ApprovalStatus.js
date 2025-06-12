@@ -34,30 +34,54 @@ const ApprovalStatus = ({ userData, user, onBackToLogin }) => {
   const currentUser = user || userData;
   const userType = getUserTypeName(currentUser?.userType || 'new');
   
-  // Read from new RBAC structure first, fallback to legacy
+  // DEBUG: Add detailed logging to understand RBAC structure
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && currentUser) {
+      console.log('🔍 ApprovalStatus Debug - User Data:', {
+        uid: currentUser.uid,
+        email: currentUser.email,
+        userType: currentUser.userType,
+        access: currentUser.access,
+        userRBAC: currentUser.userRBAC,
+        homeProvince: currentUser.homeProvince,
+        homeBranch: currentUser.homeBranch,
+        approvalLevel: currentUser.approvalLevel,
+        isActive: currentUser.isActive,
+        isPendingApproval: currentUser.isPendingApproval
+      });
+    }
+  }, [currentUser]);
+  
+  // Read from Clean Slate RBAC structure with legacy fallbacks
   const department = getDepartmentName(
     currentUser?.access?.departments?.[0] || 
+    currentUser?.userRBAC?.departments?.[0] ||
     currentUser?.department || 
     'ไม่ระบุ'
   );
   const province = getProvinceName(
-    currentUser?.access?.geographic?.assignedProvinces?.[0] || 
     currentUser?.access?.geographic?.homeProvince ||
+    currentUser?.access?.geographic?.allowedProvinces?.[0] || 
+    currentUser?.userRBAC?.geographic?.homeProvince ||
     currentUser?.homeProvince || 
-    'ไม่ระบุ'
+    'นครสวรรค์'  // Default to Nakhon Sawan for new system
   );
   const branch = getBranchName(
     currentUser?.access?.geographic?.homeBranch ||
-    currentUser?.access?.geographic?.assignedBranches?.[0] ||
+    currentUser?.access?.geographic?.allowedBranches?.[0] ||
+    currentUser?.userRBAC?.geographic?.homeBranch ||
     currentUser?.homeBranch || 
     'ไม่ระบุ'
   );
   
-  // Determine approval level from new RBAC structure
+  // Determine approval level from Clean Slate RBAC structure
   const approvalLevel = currentUser?.approvalLevel || 
     (currentUser?.access?.authority === 'ADMIN' ? 'super_admin' :
      currentUser?.access?.authority === 'MANAGER' ? 'province_manager' :
      currentUser?.access?.authority === 'LEAD' ? 'branch_manager' :
+     currentUser?.userRBAC?.authority === 'ADMIN' ? 'super_admin' :
+     currentUser?.userRBAC?.authority === 'MANAGER' ? 'province_manager' :
+     currentUser?.userRBAC?.authority === 'LEAD' ? 'branch_manager' :
      currentUser?.userType === 'existing' ? 'branch_manager' : 'province_manager');
   const approvalLevelName = getApprovalLevelName(approvalLevel);
 
@@ -133,8 +157,12 @@ const ApprovalStatus = ({ userData, user, onBackToLogin }) => {
   const getContactInfoData = () => {
     return getContactInfo(
       approvalLevel, 
-      currentUser?.access?.geographic?.homeProvince || currentUser?.homeProvince || 'ไม่ระบุ', 
-      currentUser?.access?.geographic?.homeBranch || currentUser?.homeBranch || 'ไม่ระบุ'
+      currentUser?.access?.geographic?.homeProvince || 
+      currentUser?.userRBAC?.geographic?.homeProvince || 
+      currentUser?.homeProvince || 'ไม่ระบุ', 
+      currentUser?.access?.geographic?.homeBranch || 
+      currentUser?.userRBAC?.geographic?.homeBranch || 
+      currentUser?.homeBranch || 'ไม่ระบุ'
     );
   };
 

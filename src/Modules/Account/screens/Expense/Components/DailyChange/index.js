@@ -290,7 +290,7 @@ const ExpenseForm = ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, 
           };
         }
       }
-      showLog('[Expense-DailyChange]: ', {mValues})
+      // showLog('[Expense-DailyChange]: ', {mValues}) // Disabled to prevent console spam
       mValues = cleanValuesBeforeSave(mValues);
       showConfirm(
         () => onConfirm(mValues, resetInitState),
@@ -352,7 +352,7 @@ const ExpenseForm = ({ order, onConfirm, onBack, isEdit, readOnly, expenseType, 
         layout="vertical"
       >
         {values => {
-          showLog({ values });
+          // showLog({ values }); // Disabled to prevent console spam
           const changeDepositTotal = (values.changeDeposit || [])
             .filter(l => !l.deleted)
             .reduce((sum, elem) => sum + Numb(elem.total), 0);

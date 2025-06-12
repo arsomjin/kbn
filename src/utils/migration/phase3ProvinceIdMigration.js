@@ -518,7 +518,6 @@ export const executePhase3Migration = async (onProgress, selectedCollections = n
       .doc('phase3-provinceId')
       .set({
         ...results,
-        version: '3.0.0',
         type: 'provinceId-injection',
         status: results.summary.failedCollections > 0 ? 'completed-with-errors' : 'completed'
       });

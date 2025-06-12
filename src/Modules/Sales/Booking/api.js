@@ -3,8 +3,11 @@ import { StatusMap } from 'data/Constant';
 import { Numb } from 'functions';
 import { parser, showLog } from 'functions';
 import { getItemId } from 'Modules/Account/api';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import numeral from 'numeral';
+
+// Create static current month to prevent infinite re-renders
+const CURRENT_MONTH = dayjs().format('YYYY-MM');
 
 export const getInitialItems = (book, branchCode) => [
   {
@@ -88,7 +91,7 @@ const InitValue = {
   amtMAX: null,
   amtKBN: null,
   promotions: [],
-  proMonth: `${moment().format('YYYY-MM')}`,
+  proMonth: CURRENT_MONTH,
   amtPro: null,
   deductOther: null,
   deductOthers: [],

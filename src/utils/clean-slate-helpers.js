@@ -43,7 +43,7 @@ export const mapLocationToGeographic = (province, branch) => {
   return 'BRANCH';
 };
 
-/**
+/** 
  * Map department string to departments array
  * @param {string} department - Department string
  * @returns {Array} Department array
@@ -101,6 +101,18 @@ export const createCleanSlateUser = (userData) => {
   const geographic = mapLocationToGeographic(province, branch);
   const departments = mapDepartmentToDepartments(department);
 
+  // Create comprehensive access structure with explicit geographic assignments
+  const accessStructure = createUserAccess(
+    authority,
+    geographic,
+    departments,
+    {
+      provinces: province ? [province] : [],
+      branches: branch ? [branch] : [],
+      homeBranch: branch
+    }
+  );
+
   return {
     uid,
     email,
@@ -109,17 +121,9 @@ export const createCleanSlateUser = (userData) => {
     lastName,
     userType: userType || 'employee',
     
-    // Clean Slate orthogonal access structure
-    access: createUserAccess(
-      authority,
-      geographic,
-      departments,
-      {
-        provinces: province ? [province] : [],
-        branches: branch ? [branch] : [],
-        homeBranch: branch
-      }
-    ),
+    // Clean Slate orthogonal access structure (PRIMARY)
+    access: accessStructure,
+    
     
     // Status fields
     isActive: false, // Requires approval
@@ -128,8 +132,7 @@ export const createCleanSlateUser = (userData) => {
     
     // Metadata
     createdAt: new Date().toISOString(),
-    migrationType: 'clean_slate_registration',
-    version: '2.0'
+    migrationType: 'clean_slate_registration'
   };
 };
 
@@ -158,15 +161,13 @@ export const createApprovalRequest = (cleanSlateUser, registrationData) => {
     requestedAccess: {
       authority: access.authority,
       geographic: access.geographic,
-      departments: access.departments,
-      assignedProvinces: access.assignedProvinces,
-      assignedBranches: access.assignedBranches
+      departments: access.departments
     },
     
     // Approval routing
     approvalLevel: userType === 'existing' ? 'branch_manager' : 'province_manager',
-    targetProvince: access.assignedProvinces[0],
-    targetBranch: access.homeBranch,
+    targetProvince: access.geographic.allowedProvinces[0],
+    targetBranch: access.geographic.homeBranch,
     
     // Metadata
     createdAt: new Date().toISOString(),
@@ -196,9 +197,11 @@ export const validateCleanSlateUser = (user) => {
       errors.push(`Invalid authority: ${authority}`);
     }
     
-    // Validate geographic
-    if (!geographic || !GEOGRAPHIC_SCOPE[geographic]) {
-      errors.push(`Invalid geographic scope: ${geographic}`);
+    // Validate geographic (Clean Slate structure has nested geographic object)
+    if (!geographic || typeof geographic !== 'object') {
+      errors.push(`Missing or invalid geographic object: ${geographic}`);
+    } else if (!geographic.scope || !GEOGRAPHIC_SCOPE[geographic.scope]) {
+      errors.push(`Invalid geographic scope: ${geographic.scope}`);
     }
     
     // Validate departments
@@ -211,6 +214,7 @@ export const validateCleanSlateUser = (user) => {
         errors.push(`Invalid departments: ${invalidDepts.join(', ')}`);
       }
     }
+    
   }
   
   return {

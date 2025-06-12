@@ -7,7 +7,7 @@ import PageTitle from './PageTitle';
 import { DatePicker } from 'elements';
 import DurationPicker from 'elements/DurationPicker';
 import { useSelector } from 'react-redux';
-import { useGeographicData } from 'hooks/useGeographicData';
+import { usePermissions } from 'hooks/usePermissions';
 import moment from 'moment';
 import { isMobile } from 'react-device-detect';
 import { Button } from 'elements';
@@ -30,8 +30,17 @@ const PageHeader = ({
   onlyUserBranch
 }) => {
   const { user } = useSelector(state => state.auth);
-  const { getDefaultBranch } = useGeographicData();
+  const { homeLocation, accessibleBranches } = usePermissions();
   const [form] = Form.useForm();
+
+  // Get default branch from RBAC data
+  const getDefaultBranch = () => {
+    return homeLocation?.branch || 
+           (accessibleBranches.length === 1 ? accessibleBranches[0] : null) || 
+           user?.homeBranch || 
+           (user?.allowedBranches?.[0]) || 
+           '0450';
+  };
 
   const _onValuesChange = headerChange => {
     onChange && onChange(headerChange);

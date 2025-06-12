@@ -201,9 +201,9 @@ const PermissionBadge = ({ permission, children }) => {
 const AuthorityIndicator = ({ authority, primaryDepartment }) => {
   const authorityConfig = {
     admin: { color: "red", icon: "👑" },
-    province: { color: "blue", icon: "🏢" },
-    branch: { color: "green", icon: "🏪" },
-    department: { color: "orange", icon: "💼" },
+    manager: { color: "blue", icon: "🏢" },
+    lead: { color: "green", icon: "🏪" },
+    staff: { color: "orange", icon: "💼" },
   };
 
   const departmentConfig = {

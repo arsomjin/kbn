@@ -73,7 +73,7 @@ const HRLeaving = () => {
 
   const handleUpdate = useCallback(async () => {
     try {
-      showLog({ val: searchValues.current });
+      // showLog({ val: searchValues.current }); // Disabled to prevent console spam
       setLoading(true);
       const dateRange = getDates(searchValues.current.date[0], searchValues.current.date[1], 'YYYY-MM-DD');
       let wheres = [];
@@ -141,7 +141,7 @@ const HRLeaving = () => {
         onValuesChange={handleValuesChange}
       >
         {values => {
-          showLog({ values });
+          // showLog({ values }); // Disabled to prevent console spam
           let editData = [];
           if (values.editedBy) {
             editData = getEditArr(values.editedBy, users);

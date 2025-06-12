@@ -66,12 +66,21 @@ export const useCollectionSync = (collectionPath, setReduxAction) => {
           dispatch(setReduxAction({ [snap.id]: docData }, false));
         }
       } catch (error) {
-        showLog(`[useCollectionSync] [${collectionPath}] fetch error`, error);
-        showWarn(`Initial fetch error for collection: ${collectionPath}`, error);
+        console.warn(`[useCollectionSync] [${collectionPath}] fetch error:`, error.message);
+        
+        // Don't show permission denied errors as warnings (they're expected for some collections)
+        if (error.code !== 'permission-denied') {
+          showWarn(`Initial fetch error for collection: ${collectionPath}`, error);
+        }
         
         // Log additional context for debugging
         if (error.code === 'permission-denied') {
-          console.warn(`🔒 Permission denied for collection: ${collectionPath}. User may need admin-level access.`);
+          console.info(`🔒 No initial access to collection ${collectionPath} - this is normal for non-admin users`);
+        }
+        
+        // For permission errors, dispatch empty data instead of failing
+        if (error.code === 'permission-denied') {
+          dispatch(setReduxAction({}, false));
         }
       }
     };
@@ -100,7 +109,19 @@ export const useCollectionSync = (collectionPath, setReduxAction) => {
             dispatch(setReduxAction({ [snapshot.id]: docData }, true));
           }
         },
-        err => showWarn('onSnapshot error', err)
+        err => {
+          console.warn(`[useCollectionSync] onSnapshot error for ${collectionPath}:`, err.message);
+          
+          // Don't show permission denied errors as warnings (they're expected for some collections)
+          if (err.code !== 'permission-denied') {
+            showWarn('onSnapshot error', err);
+          }
+          
+          // For permission errors, don't retry - just log and continue
+          if (err.code === 'permission-denied') {
+            console.info(`🔒 No access to collection ${collectionPath} - this is normal for non-admin users`);
+          }
+        }
       );
     };
 

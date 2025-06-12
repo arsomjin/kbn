@@ -72,6 +72,9 @@ import { createKeywords } from 'utils';
 import { uniq } from 'lodash';
 import { arrayForEach } from 'functions';
 import { checkPayments } from 'Modules/Utils';
+// RBAC Testing: Adding LayoutWithRBAC wrapper for comparison
+import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
+import PropTypes from 'prop-types';
 const { Option } = Select;
 
 const initProps = {
@@ -83,7 +86,8 @@ const initProps = {
   grant: true
 };
 
-export default () => {
+// Content component for sale machines
+const SaleMachinesContent = ({ geographic, auditTrail }) => {
   const { theme } = useSelector(state => state.global);
   const { user } = useSelector(state => state.auth);
   const { users, employees, banks } = useSelector(state => state.data);
@@ -1349,3 +1353,26 @@ export default () => {
     </Container>
   );
 };
+
+// PropTypes for the content component  
+SaleMachinesContent.propTypes = {
+  geographic: PropTypes.object,
+  auditTrail: PropTypes.object
+};
+
+// Main component wrapped with LayoutWithRBAC for testing
+const SaleMachinesComponent = () => {
+  return (
+    <LayoutWithRBAC
+      title="งานขาย"
+      subtitle="รถและอุปกรณ์"
+      permission="sales.view"
+      editPermission="sales.edit"
+      loading={false}
+    >
+      <SaleMachinesContent />
+    </LayoutWithRBAC>
+  );
+};
+
+export default SaleMachinesComponent;

@@ -54,7 +54,7 @@ export const NAVIGATION_CONFIG = {
             title: 'รับเงิน - ธกส.',
             to: '/account/income-baac',
             permission: 'accounting.edit',
-            description: 'บันทึกรับเงินผ่านธนาคารกสิกรไทย'
+            description: 'บันทึกรับเงินผ่าน ธกส.'
           },
           {
             key: 'daily-bank-deposit',
@@ -1025,43 +1025,43 @@ export const NAVIGATION_CONFIG = {
     ]
   },
 
-  manual: {
-    title: 'คู่มือการใช้งาน',
-    icon: 'database',
-    permission: null, // Everyone can access
-    items: [
-      {
-        key: 'manual-account',
-        title: 'บัญชี',
-        to: '/user-manual/account',
-        description: 'คู่มือการใช้งานระบบบัญชี'
-      },
-      {
-        key: 'manual-sale',
-        title: 'งานขาย',
-        to: '/user-manual/sale',
-        description: 'คู่มือการใช้งานระบบขาย'
-      },
-      {
-        key: 'manual-service',
-        title: 'งานบริการ',
-        to: '/user-manual/service',
-        description: 'คู่มือการใช้งานระบบบริการ'
-      },
-      {
-        key: 'manual-warehouse',
-        title: 'คลังสินค้า',
-        to: '/user-manual/warehouse',
-        description: 'คู่มือการใช้งานระบบคลังสินค้า'
-      },
-      {
-        key: 'manual-credit',
-        title: 'สินเชื่อ',
-        to: '/user-manual/credit',
-        description: 'คู่มือการใช้งานระบบสินเชื่อ'
-      }
-    ]
-  },
+  // manual: {
+  //   title: 'คู่มือการใช้งาน',
+  //   icon: 'database',
+  //   permission: null, // Everyone can access
+  //   items: [
+  //     {
+  //       key: 'manual-account',
+  //       title: 'บัญชี',
+  //       to: '/user-manual/account',
+  //       description: 'คู่มือการใช้งานระบบบัญชี'
+  //     },
+  //     {
+  //       key: 'manual-sale',
+  //       title: 'งานขาย',
+  //       to: '/user-manual/sale',
+  //       description: 'คู่มือการใช้งานระบบขาย'
+  //     },
+  //     {
+  //       key: 'manual-service',
+  //       title: 'งานบริการ',
+  //       to: '/user-manual/service',
+  //       description: 'คู่มือการใช้งานระบบบริการ'
+  //     },
+  //     {
+  //       key: 'manual-warehouse',
+  //       title: 'คลังสินค้า',
+  //       to: '/user-manual/warehouse',
+  //       description: 'คู่มือการใช้งานระบบคลังสินค้า'
+  //     },
+  //     {
+  //       key: 'manual-credit',
+  //       title: 'สินเชื่อ',
+  //       to: '/user-manual/credit',
+  //       description: 'คู่มือการใช้งานระบบสินเชื่อ'
+  //     }
+  //   ]
+  // },
 
   executive: {
     title: 'เผยแพร่',
@@ -1137,6 +1137,13 @@ export const NAVIGATION_CONFIG = {
             to: '/dev/clean-slate-migration-demo',
             description: 'ทดสอบการ migrate จาก Legacy เป็น Clean Slate',
             priority: 'high'
+          },
+          {
+            key: 'rbac-integration-tester',
+            title: '🎯 RBAC Integration Tester',
+            to: '/dev/rbac-integration-tester',
+            description: 'ทดสอบการ integrate RBAC กับทุก component ในระบบ',
+            priority: 'critical'
           }
         ]
       },
@@ -1225,6 +1232,16 @@ export const NAVIGATION_CONFIG = {
         title: 'Migration',
         type: 'group',
         items: [
+          {
+            key: 'urgent-rbac-migration',
+            title: '🚨 URGENT RBAC Migration',
+            to: '/developer/migration-tools',
+            description: 'แก้ไขปัญหา Clean Slate RBAC ที่ขาดข้อมูล access structure - กด tab "URGENT RBAC Migration" เมื่อถึงหน้า Migration Tools',
+            priority: 'critical',
+            warning: 'Required for Clean Slate RBAC fixes',
+            badge: 'URGENT',
+            defaultTab: 'urgent-rbac'
+          },
           {
             key: 'migration-tools',
             title: 'Migration Tools',

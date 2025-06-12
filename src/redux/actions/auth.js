@@ -25,25 +25,52 @@ export const VERIFY_SUCCESS = 'VERIFY_SUCCESS';
 
 export const USER_UPDATE = 'USER_UPDATE';
 
-const requestSignUp = () => {
+/**
+ * Helper function to validate Clean Slate user structure
+ * @param {Object} user - User object to validate
+ * @returns {boolean} - True if valid Clean Slate structure
+ */
+const isValidCleanSlateUser = (user) => {
+  return !!(
+    user?.access?.authority && 
+    user?.access?.geographic && 
+    Array.isArray(user?.access?.departments)
+  );
+};
+
+/**
+ * Helper function to handle user status validation
+ * @param {Object} userData - User data from Firestore
+ * @returns {Object} - Status validation result
+ */
+const validateUserStatus = (userData) => {
+  const isApproved = userData.isApproved !== false;
+  const isActive = userData.isActive !== false;
+  const approvalStatus = userData.approvalStatus || 'approved';
+  
   return {
-    type: SIGNUP_REQUEST
+    isApproved,
+    isActive,
+    approvalStatus,
+    isPending: !isApproved || approvalStatus === 'pending',
+    isRejected: !isActive && approvalStatus === 'rejected',
+    isSuspended: !isActive && approvalStatus === 'suspended'
   };
 };
 
+/**
+ * SIGNUP SUCCESS - Clean Slate Only
+ * For Clean Slate users, no Firestore update needed as it's done in signUpUserWithRBAC
+ */
 const receiveSignUp = user => {
-  console.log('user_receive', user);
-  let currentUser = app.auth().currentUser;
-  currentUser
-    .updateProfile({
-      displayName: user.displayName
-    })
-    .then(() => {
-      app.firestore().collection('users').doc(user.uid).set({ auth: user });
-    })
-    .then(() => {
-      updateData('users');
-    });
+  console.log('✅ Clean Slate user signup success:', user.uid);
+  
+  // Validate Clean Slate structure
+  if (!isValidCleanSlateUser(user)) {
+    console.error('🚨 Invalid Clean Slate user structure in signup:', user.uid);
+    throw new Error('Invalid user structure - Clean Slate format required');
+  }
+  
   return {
     type: SIGNUP_SUCCESS,
     user
@@ -57,23 +84,34 @@ const signUpError = error => {
   };
 };
 
-const requestLogin = () => {
-  return {
-    type: LOGIN_REQUEST
-  };
-};
-
-const receiveLogin = user => {
-  const userRef = app.firestore().collection('users').doc(user.uid);
-  userRef.get().then(docSnap => {
-    if (docSnap.exists) {
-      userRef.update({ auth: { ...docSnap.data().auth, ...user } });
-    }
-  });
-  return {
-    type: LOGIN_SUCCESS,
-    user
-  };
+/**
+ * LOGIN SUCCESS - Clean Slate Only
+ * No legacy auth structure updates
+ */
+const receiveLogin = (user, from) => {
+  console.log('[receiveLogin] user:', user);
+  console.log('[receiveLogin] from:', from);
+  
+  // Handle pending approval users (may not have complete Clean Slate structure yet)
+  if (user.isPendingApproval) {
+    console.log('⏳ Pending approval user login:', user.uid);
+    return {
+      type: LOGIN_SUCCESS,
+      user
+    };
+  }
+  
+  // For Clean Slate users, validate structure
+  if (isValidCleanSlateUser(user)) {
+    console.log('✅ Clean Slate user login success:', user.uid);
+    return {
+      type: LOGIN_SUCCESS,
+      user
+    };
+  }
+  
+  console.error('🚨 Invalid user structure in login:', user);
+  throw new Error('Invalid user structure - migration required');
 };
 
 const loginError = error => {
@@ -83,60 +121,28 @@ const loginError = error => {
   };
 };
 
-const requestResetPassword = () => {
-  return {
-    type: RESET_PASSWORD_REQUEST
-  };
-};
+const requestSignUp = () => ({ type: SIGNUP_REQUEST });
+const requestLogin = () => ({ type: LOGIN_REQUEST });
+const requestResetPassword = () => ({ type: RESET_PASSWORD_REQUEST });
+const receiveResetPassword = () => ({ type: RESET_PASSWORD_SUCCESS });
+const resetPasswordError = error => ({ type: RESET_PASSWORD_FAILURE, error });
+const requestLogout = () => ({ type: LOGOUT_REQUEST });
+const receiveLogout = () => ({ type: LOGOUT_SUCCESS });
+const logoutError = error => ({ type: LOGOUT_FAILURE, error });
+const verifyRequest = () => ({ type: VERIFY_REQUEST });
 
-const receiveResetPassword = () => {
-  return {
-    type: RESET_PASSWORD_SUCCESS
-  };
-};
+export const verifySuccess = () => ({ type: VERIFY_SUCCESS });
 
-const resetPasswordError = error => {
-  return {
-    type: RESET_PASSWORD_FAILURE,
-    error
-  };
-};
-
-const requestLogout = () => {
-  return {
-    type: LOGOUT_REQUEST
-  };
-};
-
-const receiveLogout = () => {
-  return {
-    type: LOGOUT_SUCCESS
-  };
-};
-
-const logoutError = error => {
-  return {
-    type: LOGOUT_FAILURE,
-    error
-  };
-};
-
-const verifyRequest = () => {
-  return {
-    type: VERIFY_REQUEST
-  };
-};
-
-export const verifySuccess = () => {
-  return {
-    type: VERIFY_SUCCESS
-  };
-};
-
+/**
+ * LEGACY SIGNUP - Deprecated
+ * This function is kept for backward compatibility but should not be used
+ * Use signUpUserWithRBAC instead
+ */
 export const signUpUser = (firstName, lastName, email, password) => dispatch => {
+  console.warn('⚠️ Legacy signUpUser called - use signUpUserWithRBAC instead');
   dispatch(requestSignUp());
-  app
-    .auth()
+  
+  app.auth()
     .createUserWithEmailAndPassword(email, password)
     .then(user => {
       let mUser = getFirebaseUserFromObject(user);
@@ -147,19 +153,22 @@ export const signUpUser = (firstName, lastName, email, password) => dispatch => 
         displayName: `${firstName} ${lastName}`,
         password,
         created: Date.now(),
-        lastLogin: Date.now()
+        lastLogin: Date.now(),
+        requiresMigration: true // Flag for migration
       };
       dispatch(receiveSignUp(mUser));
     })
     .catch(error => {
-      //Do something with the error if you want!
       console.warn(error);
       const errorInfo = FirebaseErrorHandler.interpret(error);
       dispatch(signUpError(errorInfo.message));
     });
 };
 
-// Enhanced signup with Clean Slate RBAC integration
+/**
+ * ENHANCED SIGNUP WITH CLEAN SLATE RBAC
+ * Creates users with Clean Slate structure only using unified helpers
+ */
 export const signUpUserWithRBAC = (userData) => dispatch => {
   dispatch(requestSignUp());
   
@@ -171,7 +180,6 @@ export const signUpUserWithRBAC = (userData) => dispatch => {
     province,
     department,
     branch,
-    accessLevel,
     userType,
     requestType,
     employeeId,
@@ -180,152 +188,108 @@ export const signUpUserWithRBAC = (userData) => dispatch => {
     approvalLevel
   } = userData;
 
-  return app
-    .auth()
+  return app.auth()
     .createUserWithEmailAndPassword(email, password)
     .then(async (userCredential) => {
       const user = userCredential.user;
       
-      // Create Clean Slate user structure
-      const { createCleanSlateUser, createApprovalRequest, validateCleanSlateUser } = await import('../../utils/clean-slate-helpers');
-      
-      const cleanSlateUser = createCleanSlateUser({
-        uid: user.uid,
-        email: user.email,
-        firstName,
-        lastName,
-        displayName: `${firstName} ${lastName}`,
-        department,
-        accessLevel,
-        province,
-        branch,
-        userType
-      });
-      
-      // Validate Clean Slate structure
-      const validation = validateCleanSlateUser(cleanSlateUser);
-      if (!validation.isValid) {
-        throw new Error(`Invalid Clean Slate user structure: ${validation.errors.join(', ')}`);
-      }
-      
-      // Generate permissions using Clean Slate system
-      const { generateUserPermissions } = await import('../../utils/orthogonal-rbac');
-      const rbacData = generateUserPermissions(cleanSlateUser);
-      
-      // Create user profile with Clean Slate structure
-      const userProfile = {
-        ...cleanSlateUser,
-        emailVerified: user.emailVerified,
-        created: Date.now(),
-        lastLogin: Date.now(),
+      try {
+        // Import Clean Slate helpers
+        const { createCleanSlateUser, createApprovalRequest, validateCleanSlateUser } = 
+          await import('../../utils/clean-slate-helpers');
         
-        // Registration metadata
-        userType,
-        employeeId: employeeId || null,
-        registrationSource: registrationSource || 'web',
-        requestType: requestType || 'new_employee_registration',
-        needsManagerApproval: needsManagerApproval !== false,
-        approvalLevel: approvalLevel || (userType === 'existing' ? 'branch_manager' : 'province_manager'),
+        // Create Clean Slate user structure using unified helper
+        const cleanSlateUser = createCleanSlateUser({
+          uid: user.uid,
+          email: user.email,
+          firstName,
+          lastName,
+          displayName: `${firstName} ${lastName}`,
+          department,
+          accessLevel: 'STAFF', // New users start as STAFF
+          province,
+          branch,
+          userType
+        });
         
-        // Additional metadata
-        registrationMetadata: {
-          timestamp: Date.now(),
-          userAgent: navigator.userAgent,
-          platform: 'web',
-          version: '2.0',
-          rbacVersion: 'clean_slate'
+        // Validate Clean Slate structure
+        const validation = validateCleanSlateUser(cleanSlateUser);
+        if (!validation.isValid) {
+          throw new Error(`Invalid Clean Slate user structure: ${validation.errors.join(', ')}`);
         }
-      };
-
-      // Update Firebase Auth profile
-      await user.updateProfile({
-        displayName: userProfile.displayName
-      });
-
-      // Save to Firestore with Clean Slate structure
-      await app.firestore()
-        .collection('users')
-        .doc(user.uid)
-        .set({
-          // Clean Slate structure - single document format
-          ...userProfile,
-          
-          // RBAC data from Clean Slate system
-          rbacData,
-          
-          // Profile metadata
-          profile: {
-            firstName,
-            lastName,
-            email,
-            department,
-            userType,
-            employeeId: employeeId || null,
-            created: Date.now(),
-            lastProfileUpdate: Date.now()
-          },
-          
-          // Status tracking
-          status: {
-            isActive: false,
-            isApproved: false,
-            approvalStatus: 'pending',
-            registrationComplete: true,
-            lastStatusUpdate: Date.now()
-          }
+        
+        console.log('✅ Clean Slate user structure created and validated:', {
+          uid: cleanSlateUser.uid,
+          authority: cleanSlateUser.access?.authority,
+          geographic: cleanSlateUser.access?.geographic?.scope,
+          departments: cleanSlateUser.access?.departments
         });
 
-      // Create Clean Slate approval request
-      const approvalRequest = createApprovalRequest(cleanSlateUser, {
-        department,
-        userType,
-        employeeId,
-        requestType,
-        approvalLevel: approvalLevel || (userType === 'existing' ? 'branch_manager' : 'province_manager')
-      });
+        // Create final user profile for Firestore (use Clean Slate structure directly)
+        const userProfile = {
+          // Essential user data
+          uid: user.uid,
+          email: user.email,
+          displayName: cleanSlateUser.displayName,
+          firstName: cleanSlateUser.firstName,
+          lastName: cleanSlateUser.lastName,
+          
+          // Clean Slate RBAC structure (from unified helper)
+          access: cleanSlateUser.access,
+          
+          // User metadata
+          userType: cleanSlateUser.userType,
+          employeeId: employeeId || null,
+          
+          // Status tracking
+          isActive: cleanSlateUser.isActive,
+          isApproved: cleanSlateUser.isApproved,
+          approvalStatus: cleanSlateUser.approvalStatus,
+          
+          // System metadata
+          isDev: false,
+          created: Date.now(),
+          updatedAt: Date.now(),
+          createdAt: cleanSlateUser.createdAt,
+          migrationType: cleanSlateUser.migrationType
+        };
 
-      await app.firestore()
-        .collection('approvalRequests')
-        .add(approvalRequest);
+        // Update Firebase Auth profile
+        await user.updateProfile({
+          displayName: userProfile.displayName
+        });
 
-      // Send notification to appropriate approvers
-      await notifyApprovers(userProfile, approvalLevel || (userType === 'existing' ? 'branch_manager' : 'province_manager'));
-
-      // For demo, we'll auto-approve in development for existing users with employee ID
-      if (process.env.NODE_ENV === 'development' && userType === 'existing' && employeeId) {
-        console.log('🔧 Development mode: Auto-approving existing employee with ID');
-        userProfile.isActive = true;
-        userProfile.isApproved = true;
-        userProfile.approvalStatus = 'approved';
-        userProfile.approvedBy = 'system-dev';
-        userProfile.approvedAt = Date.now();
-        
+        // Save to Firestore with unified Clean Slate structure
         await app.firestore()
           .collection('users')
           .doc(user.uid)
-          .update({
-            'isActive': true,
-            'isApproved': true,
-            'approvalStatus': 'approved',
-            'approvedBy': 'system-dev',
-            'approvedAt': Date.now(),
-            'status.isActive': true,
-            'status.isApproved': true,
-            'status.approvalStatus': 'approved',
-            'status.lastStatusUpdate': Date.now()
-          });
-      }
+          .set(userProfile);
 
-      // Handle both approved and pending users properly
-      if (userProfile.isApproved) {
-        console.log('✅ User approved, completing signup:', user.uid);
-        dispatch(receiveSignUp(userProfile));
-        return { type: 'SIGNUP_SUCCESS', user: userProfile };
-      } else {
-        console.log('⏳ User registered but requires approval, keeping signed in for pending status:', user.uid);
-        
-        // Keep user signed in but mark as pending approval
-        // This prevents the race condition and provides better UX
+        // Create approval request using unified helper
+        const approvalRequest = createApprovalRequest(cleanSlateUser, {
+          department,
+          userType,
+          employeeId,
+          requestType,
+          approvalLevel: approvalLevel || (userType === 'existing' ? 'branch_manager' : 'province_manager')
+        });
+
+        await app.firestore()
+          .collection('approvalRequests')
+          .add(approvalRequest);
+
+        console.log('✅ Approval request created:', {
+          userId: approvalRequest.userId,
+          requestType: approvalRequest.requestType,
+          approvalLevel: approvalRequest.approvalLevel,
+          targetProvince: approvalRequest.targetProvince,
+          targetBranch: approvalRequest.targetBranch
+        });
+
+        // Send notification to approvers
+        await notifyApprovers(userProfile, approvalLevel || 'province_manager');
+
+        // Keep user signed in with pending status
         const pendingUser = {
           ...userProfile,
           isPendingApproval: true,
@@ -333,10 +297,10 @@ export const signUpUserWithRBAC = (userData) => dispatch => {
           registrationComplete: true
         };
         
-        // Dispatch login success with pending status so verifyAuth handles it properly
-        dispatch(receiveLogin(pendingUser));
+        console.log('✅ Clean Slate user structure before dispatch:', cleanSlateUser);
+        dispatch(receiveLogin(cleanSlateUser, 'signUpUserWithRBAC'));
         
-        // Dispatch a special registration pending action for UI handling
+        // Dispatch pending registration action
         const pendingAction = {
           type: 'REGISTRATION_PENDING',
           userData: pendingUser
@@ -344,68 +308,37 @@ export const signUpUserWithRBAC = (userData) => dispatch => {
         
         dispatch(pendingAction);
         
-        // Also emit a custom event for the Auth component to catch
+        // Emit custom event for UI handling
         window.dispatchEvent(new CustomEvent('registrationPending', {
           detail: pendingAction
         }));
         
+        console.log('✅ Clean Slate registration completed successfully:', {
+          uid: pendingUser.uid,
+          email: pendingUser.email,
+          isPendingApproval: pendingUser.isPendingApproval
+        });
+        
         return pendingAction;
+        
+      } catch (error) {
+        console.error('❌ Clean Slate signup error:', error);
+        throw error;
       }
     })
     .catch(error => {
-      console.error('Enhanced signup error:', error);
+      console.error('❌ Enhanced signup error:', error);
       const errorInfo = FirebaseErrorHandler.interpret(error);
       dispatch(signUpError(errorInfo.message));
-      throw error; // Re-throw so the calling component can handle it
+      throw error;
     });
 };
 
-// Helper function to determine default permissions based on access level and department
-const determineDefaultPermissions = (accessLevel, department) => {
-  const permissions = {};
-  
-  // Base permissions by department
-  switch (department) {
-    case 'accounting':
-      permissions['accounting.view'] = true;
-      permissions['accounting.edit'] = accessLevel !== 'STAFF';
-      break;
-    case 'sales':
-      permissions['sales.view'] = true;
-      permissions['sales.edit'] = true;
-      break;
-    case 'service':
-      permissions['service.view'] = true;
-      permissions['service.edit'] = true;
-      break;
-    case 'inventory':
-      permissions['inventory.view'] = true;
-      permissions['inventory.edit'] = accessLevel !== 'STAFF';
-      break;
-    case 'management':
-      permissions['*'] = true; // Full access for management
-      break;
-    default:
-      permissions['reports.view'] = true;
-  }
-  
-  // Additional permissions by access level
-  if (accessLevel === 'BRANCH_MANAGER') {
-    permissions['reports.view'] = true;
-    permissions['users.view'] = true;
-  }
-  
-  if (accessLevel === 'PROVINCE_MANAGER') {
-    permissions['*'] = true; // Full access
-  }
-  
-  return permissions;
-};
-
-// Helper function to notify appropriate approvers
+/**
+ * Helper function to notify approvers
+ */
 const notifyApprovers = async (userProfile, approvalLevel) => {
   try {
-    // Create notification for approvers
     const notification = {
       type: 'user_registration_pending',
       title: 'มีการสมัครสมาชิกใหม่รอการอนุมัติ',
@@ -413,9 +346,9 @@ const notifyApprovers = async (userProfile, approvalLevel) => {
       data: {
         userId: userProfile.uid,
         userType: userProfile.userType,
-        department: userProfile.department,
-        province: userProfile.homeProvince,
-        branch: userProfile.homeBranch,
+        department: userProfile.access?.departments?.[0] || 'general',
+        province: userProfile.access?.geographic?.homeProvince || 'unknown',
+        branch: userProfile.access?.geographic?.homeBranch || 'unknown',
         approvalLevel
       },
       targetAudience: approvalLevel === 'branch_manager' ? 'branch_managers' : 'province_managers',
@@ -433,84 +366,14 @@ const notifyApprovers = async (userProfile, approvalLevel) => {
   }
 };
 
-// Helper function to set up real-time approval status listener
-const setupApprovalListener = (userId, dispatch) => {
-  console.log('🔔 Setting up approval status listener for user:', userId);
-  
-  // Clean up any existing listener first
-  if (window.approvalListener && typeof window.approvalListener === 'function') {
-    console.log('🧹 Cleaning up existing approval listener');
-    window.approvalListener();
-    window.approvalListener = null;
-  }
-  
-  const userRef = app.firestore().collection('users').doc(userId);
-  
-  // Set up real-time listener
-  const unsubscribe = userRef.onSnapshot(
-    (doc) => {
-      if (doc.exists) {
-        const userData = doc.data();
-        const authStatus = userData.auth || {};
-        const statusData = userData.status || {};
-        const isApproved = authStatus.isApproved ?? statusData.isApproved ?? false;
-        const isActive = authStatus.isActive ?? statusData.isActive ?? false;
-        const approvalStatus = authStatus.approvalStatus || statusData.approvalStatus || 'pending';
-        
-        console.log('🔄 Approval status update for user:', userId, {
-          isApproved,
-          isActive,
-          approvalStatus
-        });
-        
-        // If user gets approved, reload their full profile and redirect
-        if (isApproved && isActive && approvalStatus === 'approved') {
-          console.log('✅ User approved! Reloading full profile and redirecting...');
-          
-          // Clean up listener
-          unsubscribe();
-          window.approvalListener = null;
-          
-          // Trigger a full auth verification to reload complete user data
-          dispatch(verifyAuth());
-          
-          // Emit approval event for UI components to handle
-          window.dispatchEvent(new CustomEvent('userApproved', {
-            detail: { userId, userData }
-          }));
-        }
-        
-        // If user gets rejected or suspended, sign them out
-        if (!isActive && (approvalStatus === 'rejected' || approvalStatus === 'suspended')) {
-          console.log('❌ User rejected/suspended, signing out...');
-          
-          // Clean up listener
-          unsubscribe();
-          window.approvalListener = null;
-          
-          // Sign out the user
-          app.auth().signOut();
-        }
-      }
-    },
-    (error) => {
-      console.error('Error in approval status listener:', error);
-      // Clean up listener on error to prevent repeated errors
-      if (unsubscribe) {
-        unsubscribe();
-        window.approvalListener = null;
-      }
-    }
-  );
-  
-  // Store unsubscribe function globally so it can be cleaned up on logout
-  window.approvalListener = unsubscribe;
-};
-
+/**
+ * LOGIN USER - Clean Slate Only
+ * Simplified logic with automatic migration for legacy users
+ */
 export const loginUser = (email, password, rememberMe = false) => dispatch => {
   dispatch(requestLogin());
-  app
-    .auth()
+  
+  app.auth()
     .signInWithEmailAndPassword(email, password)
     .then(async (userCredential) => {
       const user = userCredential.user;
@@ -518,7 +381,7 @@ export const loginUser = (email, password, rememberMe = false) => dispatch => {
       mUser = { ...mUser, password, lastLogin: Date.now() };
 
       try {
-        // Load user RBAC data from Firestore
+        // Load user data from Firestore
         const userDoc = await app.firestore()
           .collection('users')
           .doc(user.uid)
@@ -527,192 +390,199 @@ export const loginUser = (email, password, rememberMe = false) => dispatch => {
         if (userDoc.exists) {
           const userData = userDoc.data();
           
-          // Enhanced status checking with better error messages
-          const authStatus = userData.auth || {};
-          const statusData = userData.status || {};
-          const isApproved = authStatus.isApproved ?? statusData.isApproved ?? false;
-          const isActive = authStatus.isActive ?? statusData.isActive ?? false;
-          const approvalStatus = authStatus.approvalStatus || statusData.approvalStatus || 'pending';
+          // Validate user status
+          const statusValidation = validateUserStatus(userData);
           
-          // Check approval status - Don't throw error, instead set pending state
-          if (!isApproved || approvalStatus === 'pending') {
-            const userType = authStatus.userType || 'new';
-            const department = authStatus.department || 'ไม่ระบุ';
-            const branch = authStatus.homeBranch || 'ไม่ระบุ';
-            
-            // Create pending user object instead of throwing error
-            mUser = {
+          // Handle pending approval users
+          if (statusValidation.isPending) {
+            const pendingUserData = {
               ...mUser,
-              ...userData.auth,
-              // Mark as pending approval
+              // Essential identity
+              uid: user.uid,
+              email: userData.email || user.email,
+              firstName: userData.firstName || '',
+              lastName: userData.lastName || '',
+              displayName: userData.displayName || `${userData.firstName || ''} ${userData.lastName || ''}`,
+              
+              // Pending approval metadata
               isPendingApproval: true,
               approvalStatus: 'pending',
               isApproved: false,
               isActive: false,
-              // Include metadata for pending page
-              userType,
-              department,
-              homeProvince: authStatus.homeProvince || 'ไม่ระบุ',
-              homeBranch: branch,
-              approvalLevel: authStatus.approvalLevel || (userType === 'existing' ? 'branch_manager' : 'province_manager'),
-              // Basic identity info
-              firstName: authStatus.firstName,
-              lastName: authStatus.lastName,
-              email: authStatus.email,
-              displayName: authStatus.displayName || `${authStatus.firstName || ''} ${authStatus.lastName || ''}`,
-              uid: user.uid
+              
+              // Clean Slate structure for context (if available)
+              access: userData.access || null,
+              userType: userData.userType || 'new'
             };
             
-            // Don't set up approval listener here - it will be set up in verifyAuth
-            // when the user stays signed in
-            
-            // Dispatch login success with pending status
-            dispatch(receiveLogin(mUser));
-            return; // Exit early for pending users
+            dispatch(receiveLogin(pendingUserData));
+            return;
           }
 
-          if (!isActive || approvalStatus === 'rejected') {
-            const rejectionReason = authStatus.rejectionReason || statusData.rejectionReason || 'ไม่ระบุเหตุผล';
-            throw new Error(
-              `บัญชีของคุณถูกระงับการใช้งาน\n` +
-              `เหตุผล: ${rejectionReason}\n` +
-              `กรุณาติดต่อผู้ดูแลระบบ`
-            );
+          // Handle rejected/suspended users
+          if (statusValidation.isRejected) {
+            const rejectionReason = userData.rejectionReason || 'ไม่ระบุเหตุผล';
+            throw new Error(`บัญชีของคุณถูกปฏิเสธ\nเหตุผล: ${rejectionReason}\nกรุณาติดต่อผู้ดูแลระบบ`);
           }
 
-          if (approvalStatus === 'suspended') {
-            const suspensionReason = authStatus.suspensionReason || statusData.suspensionReason || 'ไม่ระบุเหตุผล';
-            const suspendedUntil = authStatus.suspendedUntil || statusData.suspendedUntil;
+          if (statusValidation.isSuspended) {
+            const suspensionReason = userData.suspensionReason || 'ไม่ระบุเหตุผล';
             let suspensionMessage = `บัญชีของคุณถูกระงับชั่วคราว\nเหตุผล: ${suspensionReason}`;
             
-            if (suspendedUntil) {
-              const suspensionDate = new Date(suspendedUntil).toLocaleDateString('th-TH');
+            if (userData.suspendedUntil) {
+              const suspensionDate = new Date(userData.suspendedUntil).toLocaleDateString('th-TH');
               suspensionMessage += `\nระงับจนถึง: ${suspensionDate}`;
             }
             
             throw new Error(suspensionMessage);
           }
 
-          // Enhanced RBAC data merging with legacy support
-          const rbacData = userData.rbac || {};
-          const legacyAccessLevel = rbacData.accessLevel || authStatus.accessLevel || 'STAFF';
-          const legacyHomeProvince = rbacData.geographic?.homeProvince || authStatus.homeProvince || 'นครราชสีมา';
-          const legacyHomeBranch = rbacData.geographic?.homeBranch || authStatus.homeBranch || '0450';
-          
-          mUser = {
-            ...mUser,
-            ...userData.auth,
-            // RBAC fields with legacy fallbacks
-            accessLevel: legacyAccessLevel,
-            permissions: userData.rbac?.permissions || {},
-            allowedProvinces: userData.rbac?.geographic?.allowedProvinces || userData.auth?.allowedProvinces || [legacyHomeProvince],
-            allowedBranches: userData.rbac?.geographic?.allowedBranches || userData.auth?.allowedBranches || [legacyHomeBranch],
-            homeProvince: legacyHomeProvince,
-            homeBranch: legacyHomeBranch,
-            department: userData.auth?.department || 'general',
-            // Profile fields
-            firstName: userData.auth?.firstName || userData.profile?.firstName,
-            lastName: userData.auth?.lastName || userData.profile?.lastName,
-            displayName: userData.auth?.displayName || `${userData.profile?.firstName || 'User'} ${userData.profile?.lastName || ''}`,
-            // Developer flag - check both root level and auth nested object
-            isDev: userData.isDev || userData.auth?.isDev || false,
-            // Status with legacy defaults
-            isApproved: userData.auth?.isApproved !== false, // Default to true for legacy users
-            isActive: userData.auth?.isActive !== false, // Default to true for legacy users
-            approvalStatus: userData.auth?.approvalStatus || 'approved'
-          };
+          // Check if user has Clean Slate structure
+          if (!isValidCleanSlateUser(userData)) {
+            console.log('🔄 Migrating legacy user to Clean Slate:', user.uid);
+            
+            // Auto-migrate to Clean Slate
+            const { migrateToOrthogonalSystem } = await import('../../utils/orthogonal-rbac');
+            const cleanSlateUser = migrateToOrthogonalSystem(userData);
+            
+            if (!cleanSlateUser?.access) {
+              throw new Error('Auto-migration to Clean Slate failed');
+            }
 
-          // Auto-migrate legacy users to have proper RBAC structure
-          if (!userData.rbac || !userData.rbac.accessLevel) {
-            console.log('🔄 Auto-migrating legacy user to RBAC structure:', user.uid);
+            // Update user in database with Clean Slate structure ONLY
+            const updatedUserData = {
+              uid: user.uid,
+              email: userData.email || user.email,
+              displayName: userData.displayName || user.displayName,
+              firstName: userData.firstName || '',
+              lastName: userData.lastName || '',
+              access: cleanSlateUser.access,
+              isActive: userData.isActive !== false,
+              isApproved: userData.isApproved !== false,
+              approvalStatus: userData.approvalStatus || 'approved',
+              isDev: userData.isDev || false,
+              created: userData.created || Date.now(),
+              updatedAt: Date.now(),
+              migratedAt: Date.now(),
+            };
+
             await app.firestore()
               .collection('users')
               .doc(user.uid)
-              .update({
-                'rbac.accessLevel': legacyAccessLevel,
-                'rbac.permissions': {},
-                'rbac.geographic.homeProvince': legacyHomeProvince,
-                'rbac.geographic.homeBranch': legacyHomeBranch,
-                'rbac.geographic.allowedProvinces': [legacyHomeProvince],
-                'rbac.geographic.allowedBranches': [legacyHomeBranch],
-                'auth.isApproved': true,
-                'auth.isActive': true,
-                'auth.approvalStatus': 'approved',
-                'auth.department': userData.auth?.department || 'general'
-              });
+              .set(updatedUserData, { merge: false });
+            
+            userData = updatedUserData;
+            console.log('✅ User migrated to Clean Slate successfully');
           }
+          
+          // Create final user object with Clean Slate structure
+          mUser = {
+            ...mUser,
+            // Essential user data
+            uid: user.uid,
+            email: userData.email || user.email,
+            firstName: userData.firstName || '',
+            lastName: userData.lastName || '',
+            displayName: userData.displayName || user.displayName,
+            
+            // Clean Slate RBAC structure ONLY
+            access: userData.access,
+            
+            // Status
+            isActive: userData.isActive !== false,
+            isApproved: userData.isApproved !== false,
+            approvalStatus: userData.approvalStatus || 'approved',
+            isDev: userData.isDev || false,
+            
+
+          };
+
+          console.log('✅ Clean Slate user login successful:', {
+            uid: mUser.uid,
+            authority: mUser.access?.authority,
+            geographic: mUser.access?.geographic?.scope
+          });
 
           // Update last login time
           await app.firestore()
             .collection('users')
             .doc(user.uid)
             .update({
-              'auth.lastLogin': Date.now(),
-              'auth.lastLoginIP': window.location.hostname // Simple IP tracking
+              lastLogin: Date.now(),
+              updatedAt: Date.now()
             });
         }
       } catch (firestoreError) {
-        console.warn('Error loading user RBAC data:', firestoreError);
-        // If it's an approval/activation error, throw it
-        if (firestoreError.message.includes('อนุมัติ') || firestoreError.message.includes('ระงับ')) {
+        console.error('Error loading user data:', firestoreError);
+        // If it's a user status error, throw it
+        if (firestoreError.message.includes('บัญชี') || firestoreError.message.includes('ระงับ')) {
           throw firestoreError;
         }
         // Otherwise, continue with basic auth
       }
 
-      // Load provinces data for geographic context
-      try {
-        console.log('🌏 Loading provinces data for geographic context...');
-        const provinces = await getProvinces();
-        if (provinces && Object.keys(provinces).length > 0) {
-          dispatch(setProvinces(provinces));
-          console.log('✅ Provinces loaded successfully:', Object.keys(provinces).length, 'provinces');
-        } else {
-          // Fallback to default provinces for development/legacy support
-          console.log('🔄 No provinces found, using default fallback data');
-          const defaultProvinces = {
-            'นครราชสีมา': {
-              id: 'นครราชสีมา',
-              provinceName: 'นครราชสีมา',
-              provinceNameEn: 'Nakhon Ratchasima',
-              isActive: true,
-              isDefault: true
-            },
-            'นครสวรรค์': {
-              id: 'นครสวรรค์',
-              provinceName: 'นครสวรรค์',
-              provinceNameEn: 'Nakhon Sawan',
-              isActive: true,
-              isDefault: false
-            }
-          };
-          dispatch(setProvinces(defaultProvinces));
-        }
-      } catch (provincesError) {
-        console.warn('Error loading provinces data:', provincesError);
-        // Set minimal default provinces as fallback
-        const defaultProvinces = {
-          'นครราชสีมา': {
-            id: 'นครราชสีมา',
-            provinceName: 'นครราชสีมา',
-            provinceNameEn: 'Nakhon Ratchasima',
-            isActive: true,
-            isDefault: true
-          }
-        };
-        dispatch(setProvinces(defaultProvinces));
-        console.log('🔄 Set minimal default provinces due to loading error');
-      }
+      // Load provinces data
+      await loadProvincesData(dispatch);
 
-      dispatch(receiveLogin(mUser));
+      dispatch(receiveLogin(mUser, 'loginUser'));
     })
     .catch(error => {
-      console.warn('Login error:', error);
+      console.error('Login error:', error);
       const errorInfo = FirebaseErrorHandler.interpret(error);
       dispatch(loginError(errorInfo.message));
     });
 };
 
+/**
+ * Helper function to load provinces data
+ */
+const loadProvincesData = async (dispatch) => {
+  try {
+    console.log('🌏 Loading provinces data...');
+    const provinces = await getProvinces();
+    
+    if (provinces && Object.keys(provinces).length > 0) {
+      dispatch(setProvinces(provinces));
+      console.log('✅ Provinces loaded:', Object.keys(provinces).length, 'provinces');
+    } else {
+      // Default provinces for development
+      const defaultProvinces = {
+        'นครราชสีมา': {
+          id: 'นครราชสีมา',
+          provinceName: 'นครราชสีมา',
+          provinceNameEn: 'Nakhon Ratchasima',
+          isActive: true,
+          isDefault: true
+        },
+        'นครสวรรค์': {
+          id: 'นครสวรรค์',
+          provinceName: 'นครสวรรค์',
+          provinceNameEn: 'Nakhon Sawan',
+          isActive: true,
+          isDefault: false
+        }
+      };
+      dispatch(setProvinces(defaultProvinces));
+    }
+  } catch (error) {
+    console.warn('Error loading provinces:', error);
+    // Set minimal default as fallback
+    const minimalProvinces = {
+      'นครราชสีมา': {
+        id: 'นครราชสีมา',
+        provinceName: 'นครราชสีมา',
+        provinceNameEn: 'Nakhon Ratchasima',
+        isActive: true,
+        isDefault: true
+      }
+    };
+    dispatch(setProvinces(minimalProvinces));
+  }
+};
+
+/**
+ * LOGOUT USER
+ */
 export const logoutUser = () => dispatch => {
   // Clean up approval listener if exists
   if (window.approvalListener) {
@@ -722,44 +592,47 @@ export const logoutUser = () => dispatch => {
   }
 
   dispatch(requestLogout());
-  app
-    .auth()
+  app.auth()
     .signOut()
     .then(() => dispatch(receiveLogout()))
     .catch(error => {
-      //Do something with the error if you want!
       console.warn(error);
       const errorInfo = FirebaseErrorHandler.interpret(error);
       dispatch(logoutError(errorInfo.message));
     });
 };
 
+/**
+ * FORGOT PASSWORD
+ */
 export const forgetPassword = email => dispatch => {
   dispatch(requestResetPassword());
-  app
-    .auth()
+  app.auth()
     .sendPasswordResetEmail(email)
     .then(() => {
       dispatch(receiveResetPassword());
     })
     .catch(error => {
-      //Do something with the error if you want!
       console.warn(error);
       const errorInfo = FirebaseErrorHandler.interpret(error);
       dispatch(resetPasswordError(errorInfo.message));
     });
 };
 
+/**
+ * VERIFY AUTH - Clean Slate Only
+ * Simplified auth verification with automatic migration
+ */
 export const verifyAuth = () => dispatch => {
   dispatch(verifyRequest());
+  
   app.auth().onAuthStateChanged(async (user) => {
     if (user !== null) {
-      // User is signed in - load their full profile
       try {
-      let mUser = getFirebaseUserFromObject(user);
+        let mUser = getFirebaseUserFromObject(user);
         mUser = { ...mUser, lastLogin: Date.now() };
 
-        // Load user RBAC data from Firestore for verification
+        // Load user data from Firestore
         const userDoc = await app.firestore()
           .collection('users')
           .doc(user.uid)
@@ -768,149 +641,195 @@ export const verifyAuth = () => dispatch => {
         if (userDoc.exists) {
           const userData = userDoc.data();
           
-          // Enhanced status checking for pending users - Don't sign them out
-          const authStatus = userData.auth || {};
-          const statusData = userData.status || {};
-          const isApproved = authStatus.isApproved ?? statusData.isApproved ?? false;
-          const isActive = authStatus.isActive ?? statusData.isActive ?? false;
-          const approvalStatus = authStatus.approvalStatus || statusData.approvalStatus || 'pending';
+          // Validate user status
+          const statusValidation = validateUserStatus(userData);
           
-          // Handle pending approval users - keep them signed in but mark as pending
-          if (!isApproved || approvalStatus === 'pending') {
-            console.log('User account pending approval, keeping signed in with pending status:', user.uid);
-            
-            const userType = authStatus.userType || 'new';
-            const department = authStatus.department || 'ไม่ระบุ';
-            const branch = authStatus.homeBranch || 'ไม่ระบุ';
+          // Handle pending approval users - keep them signed in
+          if (statusValidation.isPending) {
+            console.log('⏳ Pending approval user during verification:', user.uid);
             
             mUser = {
               ...mUser,
-              ...userData.auth,
-              // Mark as pending approval
+              // Essential identity
+              uid: user.uid,
+              email: userData.email || user.email,
+              firstName: userData.firstName || '',
+              lastName: userData.lastName || '',
+              displayName: userData.displayName || user.displayName,
+              
+              // Pending status
               isPendingApproval: true,
               approvalStatus: 'pending',
               isApproved: false,
               isActive: false,
-              // Include metadata for pending page
-              userType,
-              department,
-              homeProvince: authStatus.homeProvince || 'ไม่ระบุ',
-              homeBranch: branch,
-              approvalLevel: authStatus.approvalLevel || (userType === 'existing' ? 'branch_manager' : 'province_manager'),
-              // Basic identity info
-              firstName: authStatus.firstName,
-              lastName: authStatus.lastName,
-              email: authStatus.email,
-              displayName: authStatus.displayName || `${authStatus.firstName || ''} ${authStatus.lastName || ''}`,
-              uid: user.uid
+              
+              // Clean Slate structure if available
+              access: userData.access || null,
+              userType: userData.userType || 'new'
             };
             
-            // Set up approval status listener for this user
+            // Set up approval listener
             setupApprovalListener(user.uid, dispatch);
             
-            dispatch(receiveLogin(mUser));
+            dispatch(receiveLogin(mUser, 'verifyAuth'));
             dispatch(verifySuccess());
             return;
           }
 
-          // Check if user is rejected or suspended - these should be signed out
-          if (!isActive && (approvalStatus === 'rejected' || approvalStatus === 'suspended')) {
-            console.warn('User account rejected/suspended, signing out:', user.uid);
+          // Handle rejected/suspended users - sign them out
+          if (statusValidation.isRejected || statusValidation.isSuspended) {
+            console.warn('❌ User rejected/suspended during verification, signing out:', user.uid);
             app.auth().signOut();
             return;
           }
 
-          // Merge RBAC data for verified users
-          const legacyAccessLevel = userData.rbac?.accessLevel || userData.auth?.accessLevel || 'STAFF';
-          const legacyHomeProvince = userData.rbac?.geographic?.homeProvince || userData.auth?.homeProvince || 'นครราชสีมา';
-          const legacyHomeBranch = userData.rbac?.geographic?.homeBranch || userData.auth?.homeBranch || '0450';
+          // Check if user has Clean Slate structure
+          if (!isValidCleanSlateUser(userData)) {
+            console.log('🔄 Auto-migrating legacy user during verification:', user.uid);
+            
+            const { migrateToOrthogonalSystem } = await import('../../utils/orthogonal-rbac');
+            const cleanSlateUser = migrateToOrthogonalSystem(userData);
+            
+            if (cleanSlateUser?.access) {
+              // Update user in database with Clean Slate structure
+              const updatedUserData = {
+                uid: user.uid,
+                email: userData.email || user.email,
+                displayName: userData.displayName || user.displayName,
+                firstName: userData.firstName || '',
+                lastName: userData.lastName || '',
+                access: cleanSlateUser.access,
+                isActive: userData.isActive !== false,
+                isApproved: userData.isApproved !== false,
+                approvalStatus: userData.approvalStatus || 'approved',
+                isDev: userData.isDev || false,
+                created: userData.created || Date.now(),
+                updatedAt: Date.now(),
+                migratedAt: Date.now(),
+              };
+
+              await app.firestore()
+                .collection('users')
+                .doc(user.uid)
+                .set(updatedUserData, { merge: false });
+              
+              userData = updatedUserData;
+              console.log('✅ User auto-migrated during verification');
+            } else {
+              console.error('❌ Auto-migration failed during verification');
+              app.auth().signOut();
+              return;
+            }
+          }
           
+          // Create final user object with Clean Slate structure
           mUser = {
             ...mUser,
-            ...userData.auth,
-            // RBAC fields with legacy fallbacks
-            accessLevel: legacyAccessLevel,
-            permissions: userData.rbac?.permissions || {},
-            allowedProvinces: userData.rbac?.geographic?.allowedProvinces || userData.auth?.allowedProvinces || [legacyHomeProvince],
-            allowedBranches: userData.rbac?.geographic?.allowedBranches || userData.auth?.allowedBranches || [legacyHomeBranch],
-            homeProvince: legacyHomeProvince,
-            homeBranch: legacyHomeBranch,
-            department: userData.auth?.department || 'general',
-            // Profile fields
-            firstName: userData.auth?.firstName || userData.profile?.firstName,
-            lastName: userData.auth?.lastName || userData.profile?.lastName,
-            displayName: userData.auth?.displayName || `${userData.profile?.firstName || 'User'} ${userData.profile?.lastName || ''}`,
-            // Developer flag - check both root level and auth nested object
-            isDev: userData.isDev || userData.auth?.isDev || false,
-            // Status with legacy defaults
-            isApproved: userData.auth?.isApproved !== false,
-            isActive: userData.auth?.isActive !== false,
-            approvalStatus: userData.auth?.approvalStatus || 'approved'
+            // Clean Slate RBAC structure
+            access: userData.access,
+            
+            // Core profile fields
+            firstName: userData.firstName || '',
+            lastName: userData.lastName || '',
+            displayName: userData.displayName || user.displayName,
+            email: userData.email || user.email,
+            
+            // Status fields
+            isDev: userData.isDev || false,
+            isApproved: userData.isApproved !== false,
+            isActive: userData.isActive !== false,
+            approvalStatus: userData.approvalStatus || 'approved',
+            isPendingApproval: false,
+            
+            // Metadata
+            created: userData.created,
+            updatedAt: userData.updatedAt || Date.now()
           };
+          
+          console.log('✅ Clean Slate user verified successfully:', user.uid);
         }
 
-        // Load provinces data for geographic context
-        try {
-          console.log('🌏 Loading provinces data during auth verification...');
-          const provinces = await getProvinces();
-          if (provinces && Object.keys(provinces).length > 0) {
-            dispatch(setProvinces(provinces));
-            console.log('✅ Provinces loaded successfully during verification:', Object.keys(provinces).length, 'provinces');
-          } else {
-            // Fallback to default provinces for development/legacy support
-            console.log('🔄 No provinces found during verification, using default fallback data');
-            const defaultProvinces = {
-              'นครราชสีมา': {
-                id: 'นครราชสีมา',
-                provinceName: 'นครราชสีมา',
-                provinceNameEn: 'Nakhon Ratchasima',
-                isActive: true,
-                isDefault: true
-              },
-              'นครสวรรค์': {
-                id: 'นครสวรรค์',
-                provinceName: 'นครสวรรค์',
-                provinceNameEn: 'Nakhon Sawan',
-                isActive: true,
-                isDefault: false
-              }
-            };
-            dispatch(setProvinces(defaultProvinces));
-          }
-        } catch (provincesError) {
-          console.warn('Error loading provinces data during verification:', provincesError);
-          // Set minimal default provinces as fallback
-          const defaultProvinces = {
-            'นครราชสีมา': {
-              id: 'นครราชสีมา',
-              provinceName: 'นครราชสีมา',
-              provinceNameEn: 'Nakhon Ratchasima',
-              isActive: true,
-              isDefault: true
-            }
-          };
-          dispatch(setProvinces(defaultProvinces));
-          console.log('🔄 Set minimal default provinces during verification due to loading error');
-        }
+        // Load provinces data
+        await loadProvincesData(dispatch);
 
-      dispatch(receiveLogin(mUser));
+        dispatch(receiveLogin(mUser, 'verifyAuth'));
       } catch (error) {
-        console.warn('Error verifying user auth:', error);
-        // Sign out on verification error
+        console.error('Error verifying user auth:', error);
         app.auth().signOut();
       }
     } else {
-      // User is signed out - ensure Redux state reflects this
+      // User signed out
       console.log('🔄 User signed out, clearing authentication state');
       dispatch(receiveLogout());
     }
+    
     dispatch(verifySuccess());
   });
 };
 
-export const updateUser = user => {
-  return {
-    type: USER_UPDATE,
-    user
-  };
+/**
+ * Helper function to set up real-time approval status listener
+ */
+const setupApprovalListener = (userId, dispatch) => {
+  console.log('🔔 Setting up approval status listener for user:', userId);
+  
+  // Clean up existing listener
+  if (window.approvalListener && typeof window.approvalListener === 'function') {
+    window.approvalListener();
+    window.approvalListener = null;
+  }
+  
+  const userRef = app.firestore().collection('users').doc(userId);
+  
+  const unsubscribe = userRef.onSnapshot(
+    (doc) => {
+      if (doc.exists) {
+        const userData = doc.data();
+        const statusValidation = validateUserStatus(userData);
+        
+        console.log('🔄 Approval status update:', userId, statusValidation);
+        
+        // If user gets approved, reload profile and redirect
+        if (!statusValidation.isPending && statusValidation.isApproved && statusValidation.isActive) {
+          console.log('✅ User approved! Reloading profile...');
+          
+          unsubscribe();
+          window.approvalListener = null;
+          
+          dispatch(verifyAuth());
+          
+          window.dispatchEvent(new CustomEvent('userApproved', {
+            detail: { userId, userData }
+          }));
+        }
+        
+        // If user gets rejected, sign them out
+        if (statusValidation.isRejected || statusValidation.isSuspended) {
+          console.log('❌ User rejected/suspended, signing out...');
+          
+          unsubscribe();
+          window.approvalListener = null;
+          
+          app.auth().signOut();
+        }
+      }
+    },
+    (error) => {
+      console.error('Error in approval status listener:', error);
+      if (unsubscribe) {
+        unsubscribe();
+        window.approvalListener = null;
+      }
+    }
+  );
+  
+  window.approvalListener = unsubscribe;
 };
+
+/**
+ * UPDATE USER
+ */
+export const updateUser = user => ({
+  type: USER_UPDATE,
+  user
+});

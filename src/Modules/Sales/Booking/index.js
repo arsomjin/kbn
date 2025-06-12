@@ -1,7 +1,7 @@
 import { Form, Radio, Select, Skeleton } from 'antd';
 import { CommonSteps } from 'data/Constant';
 import { Stepper, Button } from 'elements';
-import React, { useContext, useEffect, useRef, useState, useCallback } from 'react';
+import React, { useContext, useEffect, useRef, useState, useCallback, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { showWarn } from 'functions';
 import HiddenItem from 'components/HiddenItem';
@@ -40,7 +40,7 @@ import { firstKey } from 'functions';
 import { TotalSummary } from 'components/common/TotalSummary';
 import { BuyMore, TurnOverVehicle } from '../components';
 import SourceOfDataSelector from 'components/SourceOfDataSelector';
-import PrintComponent from 'components/PrintComponent';
+// import PrintComponent from 'components/PrintComponent';
 import { showPrint } from 'functions';
 import { CheckOutlined, PrinterFilled } from '@ant-design/icons';
 import { __DEV__ } from 'utils';
@@ -64,15 +64,15 @@ import { checkPayments } from 'Modules/Utils';
 import BookingLicence from 'components/PrintComponent/BookingLicence';
 // RBAC Integration
 import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
-import { Card, Row, Col, Space, Typography } from 'antd';
-import { useResponsive } from 'hooks/useResponsive';
+import { Row, Col, Alert } from 'antd';
+// import { usePermissions } from 'hooks/usePermissions'; // Currently unused
+import PermissionGate from 'components/PermissionGate';
 // Legacy imports for Container and PageTitle
 import { Container } from 'shards-react';
 import PageTitle from 'components/common/PageTitle';
 import PropTypes from 'prop-types';
 
 const { Option } = Select;
-const { Title } = Typography;
 
 const BOOKING_STEPS = [
   { title: 'บันทึกข้อมูล', description: 'บันทึกรายการจองขายรถ' },
@@ -92,7 +92,7 @@ const initProps = {
 
 // Content component to properly handle props from LayoutWithRBAC
 const BookingContent = ({ geographic, auditTrail, mProps, ...contentProps }) => {
-  const { isMobile } = useResponsive();
+
   
   return (
     <div>
@@ -536,23 +536,24 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
     form.resetFields();
   };
 
-  const _getProTotal = dArr => {
-    let promotions = dArr.filter(l => !!l);
-    if (promotions.length > 0) {
-      return promotions.reduce((sum, elem) => sum + Numb(elem?.total), 0);
-    } else {
-      return 0;
-    }
-  };
+  // Helper functions for calculations (currently unused but kept for future use)
+  // const _getProTotal = dArr => {
+  //   let promotions = dArr.filter(l => !!l);
+  //   if (promotions.length > 0) {
+  //     return promotions.reduce((sum, elem) => sum + Numb(elem?.total), 0);
+  //   } else {
+  //     return 0;
+  //   }
+  // };
 
-  const _getDeductTotal = dArr => {
-    let deductOthers = dArr.filter(l => !!l);
-    if (deductOthers.length > 0) {
-      return deductOthers.reduce((sum, elem) => sum + Numb(elem?.total), 0);
-    } else {
-      return 0;
-    }
-  };
+  // const _getDeductTotal = dArr => {
+  //   let deductOthers = dArr.filter(l => !!l);
+  //   if (deductOthers.length > 0) {
+  //     return deductOthers.reduce((sum, elem) => sum + Numb(elem?.total), 0);
+  //   } else {
+  //     return 0;
+  //   }
+  // };
 
   const _getNetIncomeFromValues = values => Numb(values.amtReceived);
 
@@ -602,6 +603,16 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
     return PrintComponentForBooking;
   };
 
+  // Memoized print component to prevent infinite re-renders
+  const memoizedPrintComponent = useMemo(() => {
+    return printComponent;
+  }, []);
+
+  // Create stable print component based on current values
+  const createStablePrintComponent = useCallback((values, printChecked) => {
+    return memoizedPrintComponent(values, printChecked);
+  }, [memoizedPrintComponent]);
+
   const _print = async () => {
     try {
       const validatedValues = await form.validateFields();
@@ -614,7 +625,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
 
   return (
     <Container fluid className="main-content-container py-3">
-      <Row noGutters className="page-header px-3 bg-white">
+      <Row className="page-header px-3 bg-white">
         <PageTitle sm="4" title="งานรับจอง" subtitle="รถและอุปกรณ์" className="text-sm-left" />
         <Col>
           <Stepper
@@ -651,7 +662,10 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
             if (values.editedBy) {
               editData = getEditArr(values.editedBy, users);
             }
-            const hasReferrer = values.referrer?.firstName;
+            // const hasReferrer = values.referrer?.firstName; // Currently unused
+
+            // Create stable print component to prevent infinite loops
+            const currentPrintComponent = createStablePrintComponent(values, printChecked);
 
             return (
               <div className={`${isMobile ? '' : 'px-3 '}bg-light`}>
@@ -662,7 +676,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                 <div className="bg-light">
                   <SalesHeader disableAllBranches />
                 </div>
-                <Row form className="mb-3 border-bottom">
+                <Row className="mb-3 border-bottom">
                   <Col md="3">
                     <Form.Item
                       name="bookNo"
@@ -709,7 +723,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                   </Col>
                 </Row>
                 {values.editedBy && (
-                  <Row form className="mb-3 ml-2" style={{ alignItems: 'center' }}>
+                  <Row className="mb-3 ml-2" style={{ alignItems: 'center' }}>
                     <NotificationIcon
                       icon="edit"
                       data={editData}
@@ -720,7 +734,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                   </Row>
                 )}
                 <div className="px-3 bg-white border pt-3">
-                  <Row form>
+                  <Row>
                     <Col md="2">
                       <h6>ข้อมูลลูกค้า</h6>
                     </Col>
@@ -781,7 +795,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                 </div>
 
                 <div className="px-3 bg-white border my-3 pt-3">
-                  <Row form>
+                  <Row>
                     {!['other'].includes(values.saleType) ? (
                       <Col md="3">
                         <Form.Item name="amtReceived" label="จำนวนเงินมัดจำ" rules={getRules(['required', 'number'])}>
@@ -837,7 +851,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                 </div>
                 {values.saleType === 'other' && (
                   <div className="px-3 bg-white border pt-3 mb-3">
-                    <Row form className="bg-white">
+                    <Row className="bg-white">
                       <Col md="4">
                         <Form.Item name="amtOther" label="รายรับอื่นๆ" rules={getRules(['number'])}>
                           <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
@@ -863,7 +877,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                   readOnly={mProps.readOnly}
                   permanentDelete={true}
                 />
-                <Row form>
+                <Row>
                   <Col md="4">
                     <Form.Item name="amtSKC" label="ส่วนลด SKC" rules={getRules(['number'])}>
                       <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
@@ -880,7 +894,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                     </Form.Item>
                   </Col>
                 </Row>
-                <Row form>
+                <Row>
                   <Col md="4">
                     <Form.Item name="amtKBN" label="ส่วนลด KBN" rules={getRules(['number'])}>
                       <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
@@ -893,11 +907,11 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                   </Col>
                   <Col md="4">
                     <Form.Item name="proMonth" label="โปรโมชั่นประจำเดือน">
-                      <DatePicker picker="month" />
+                      <DatePicker picker="month" allowClear />
                     </Form.Item>
                   </Col>
                 </Row>
-                <Row form>
+                <Row>
                   <Col md="4">
                     <Form.Item name="amtTurnOver" label="หัก ตีเทิร์น" rules={getRules(['number'])}>
                       <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
@@ -918,7 +932,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                     </Form.Item>
                   </Col>
                 </Row>
-                <Row form>
+                <Row>
                   <Col md="4">
                     <Form.Item name="oweKBNLeasing" label="หัก ค้างโครงการร้าน" rules={getRules(['number'])}>
                       <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
@@ -926,7 +940,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                   </Col>
                 </Row>
                 {!['other'].includes(values.saleType) && (
-                  <Row form>
+                  <Row>
                     <Col md="8">
                       <Form.Item label="ของแถม">
                         <ArrayInput name="giveaways" columns={arrayInputColumns2} form={form} />
@@ -973,7 +987,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                   <h6 className="text-primary">ค่าแนะนำ</h6>
                   <div className="border my-2 p-3 bg-light">
                     <label className="text-muted">ข้อมูลผู้แนะนำ</label>
-                    <Row form>
+                    <Row>
                       <Col md="4">
                         <Form.Item name="isNewReferrer">
                           <Radio.Group buttonStyle="solid">
@@ -1039,7 +1053,7 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                 <Form.Item label="การชำระเงิน" name="payments">
                   <Payments disabled={!grant || mProps.readOnly} permanentDelete={true} />
                 </Form.Item>
-                <Row form>
+                <Row>
                   <Col md={8}>
                     <Form.Item name="remark" label="หมายเหตุ">
                       <Input disabled={!grant} />
@@ -1054,10 +1068,11 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                   okPopConfirmText="ยืนยัน?"
                   okIcon={<CheckOutlined />}
                   alignRight
-                  extraButtons={
+                  />
+                  {/* extraButtons={
                     isMobile ? (
                       <PrintComponent
-                        ComponentToPrint={printComponent(values, printChecked)}
+                        ComponentToPrint={currentPrintComponent}
                         hideComponent
                         disabled={!grant}
                         type="primary"
@@ -1101,8 +1116,8 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
                   }
                 />
                 {__DEV__ && (
-                  <PrintComponent ComponentToPrint={printComponent(values, printChecked)} disabled={!grant} />
-                )}
+                  <PrintComponent ComponentToPrint={currentPrintComponent} disabled={!grant} />
+                )} */}
               </div>
             );
           }}
@@ -1129,8 +1144,9 @@ const BookingFormContent = ({ geographic, auditTrail, ...props }) => {
           title={`พิมพ์เอกสาร ${showBeforePrint.values?.bookNo || showBeforePrint.values?.bookId}`}
           docName="ใบแสดงสิทธิ์การจองซื้อรถ"
           onOk={() => {
+            const beforePrintComponent = createStablePrintComponent(showBeforePrint.values, printChecked);
             showPrint(
-              printComponent(showBeforePrint.values, printChecked),
+              beforePrintComponent,
               () => hidePrint(),
               `KBN-${showBeforePrint.values?.bookNo || showBeforePrint.values?.bookId}`
             );
@@ -1152,7 +1168,7 @@ BookingFormContent.propTypes = {
 
 // Main BookingComponent with RBAC integration
 const BookingComponent = () => {
-  const history = useHistory();
+  // const history = useHistory(); // Currently unused
   let location = useLocation();
   const params = location.state?.params;
 
@@ -1197,27 +1213,37 @@ const BookingComponent = () => {
   }
 
   return (
-    <LayoutWithRBAC
-      title="งานรับจอง"
-      subtitle="รถและอุปกรณ์"
-      permission="sales.view"
-      editPermission="sales.edit"
-      requireBranchSelection={false}
-      onBranchChange={handleGeographicChange}
-      documentId={documentId}
-      documentType="booking"
-      showAuditTrail={true}
-      showStepper={true}
-      steps={BOOKING_STEPS}
-      currentStep={mProps.activeStep}
-      autoInjectProvinceId={true}
-    >
-      <BookingContent 
-        mProps={mProps}
-        setProps={setProps}
-        params={params}
+    <PermissionGate permission="sales.view" fallback={
+      <Alert
+        message="ไม่มีสิทธิเข้าถึง"
+        description="คุณไม่มีสิทธิเข้าถึงระบบขายรถ กรุณาติดต่อผู้ดูแลระบบ"
+        type="warning"
+        showIcon
+        style={{ margin: '24px' }}
       />
-    </LayoutWithRBAC>
+    }>
+      <LayoutWithRBAC
+        title="งานรับจอง"
+        subtitle="รถและอุปกรณ์ - Multi-Province Support"
+        permission="sales.view"
+        editPermission="sales.edit"
+        requireBranchSelection={false}
+        onBranchChange={handleGeographicChange}
+        documentId={documentId}
+        documentType="booking"
+        showAuditTrail={true}
+        showStepper={true}
+        steps={BOOKING_STEPS}
+        currentStep={mProps.activeStep}
+        autoInjectProvinceId={true}
+      >
+        <BookingContent 
+          mProps={mProps}
+          setProps={setProps}
+          params={params}
+        />
+      </LayoutWithRBAC>
+    </PermissionGate>
   );
 };
 

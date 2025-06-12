@@ -26,6 +26,9 @@ import { errorHandler } from 'functions';
 import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
 import PropTypes from 'prop-types';
 import { useResponsive } from 'hooks/useResponsive';
+// 🚀 RBAC Integration Imports
+import { usePermissions } from 'hooks/usePermissions';
+import PermissionGate from 'components/PermissionGate';
 
 const { Option } = Select;
 
@@ -101,6 +104,9 @@ const IncomeDaily = () => {
 
   const { firestore, api } = useContext(FirebaseContext);
   const { user } = useSelector(state => state.auth);
+  
+  // 🚀 RBAC Integration
+  const { hasPermission, filterDataByUserAccess } = usePermissions();
   
   const [mProps, setProps] = useMergeState(initProps);
   const [ready, setReady] = useState(false);
@@ -380,29 +386,39 @@ const IncomeDaily = () => {
   }
 
   return (
-    <LayoutWithRBAC
-      title="รับเงินประจำวัน"
-      subtitle="Management"
-      permission="accounting.view"
-      editPermission="accounting.edit"
-      requireBranchSelection={false}
-      onBranchChange={handleGeographicChange}
-      documentId={documentId}
-      documentType="income_daily"
-      showAuditTrail={true}
-      showStepper={true}
-      steps={INCOME_DAILY_STEPS}
-      currentStep={mProps.activeStep}
-      autoInjectProvinceId={true}
-    >
-      <IncomeDailyContent 
-        category={category}
-        _changeCategory={_changeCategory}
-        currentView={currentView}
-        mProps={mProps}
-        geographic={geographic}
+    <PermissionGate permission="accounting.view" fallback={
+      <Alert
+        message="ไม่มีสิทธิเข้าถึง"
+        description="คุณไม่มีสิทธิเข้าถึงระบบบัญชี กรุณาติดต่อผู้ดูแลระบบ"
+        type="warning"
+        showIcon
+        style={{ margin: '24px' }}
       />
-    </LayoutWithRBAC>
+    }>
+      <LayoutWithRBAC
+        title="รับเงินประจำวัน"
+        subtitle="Accounting Management - Multi-Province Support"
+        permission="accounting.view"
+        editPermission="accounting.edit"
+        requireBranchSelection={false}
+        onBranchChange={handleGeographicChange}
+        documentId={documentId}
+        documentType="income_daily"
+        showAuditTrail={true}
+        showStepper={true}
+        steps={INCOME_DAILY_STEPS}
+        currentStep={mProps.activeStep}
+        autoInjectProvinceId={true}
+      >
+        <IncomeDailyContent 
+          category={category}
+          _changeCategory={_changeCategory}
+          currentView={currentView}
+          mProps={mProps}
+          geographic={geographic}
+        />
+      </LayoutWithRBAC>
+    </PermissionGate>
   );
 };
 

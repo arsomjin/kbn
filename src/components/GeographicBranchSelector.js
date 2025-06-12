@@ -104,7 +104,7 @@ const GeographicBranchSelector = ({
     return branchList.sort((a, b) => {
       const nameA = a.branchName || a.name || a.branchCode || a.key;
       const nameB = b.branchName || b.name || b.branchCode || b.key;
-      return nameA.localeCompare(nameB, 'th');
+      return nameA?.localeCompare(nameB, 'th');
     });
   }, [branches, respectRBAC, isSuperAdmin, accessibleBranches, province, includeInactive]);
 

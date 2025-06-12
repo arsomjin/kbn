@@ -121,17 +121,21 @@ const LayoutWithRBAC = ({
     canAccessBranch,
     accessibleProvinces,
     accessibleBranches,
-    getGeographicContext,
     enhanceDataForSubmission,
     getQueryFilters,
     userRBAC,
     primaryDepartment,
-    isActive
+    isActive,
+    homeLocation
   } = usePermissions();
 
   // Initialize with user's default geographic context
   useEffect(() => {
-    const context = getGeographicContext();
+    // Use homeLocation from usePermissions instead of getGeographicContext()
+    const context = {
+      defaultProvince: homeLocation?.province,
+      defaultBranch: homeLocation?.branch
+    };
     
     // Auto-select if there's only one province available
     if (!selectedProvince) {
@@ -150,7 +154,19 @@ const LayoutWithRBAC = ({
         setSelectedBranch(accessibleBranches[0]);
       }
     }
-  }, [getGeographicContext, selectedProvince, selectedBranch, accessibleProvinces, accessibleBranches]);
+  }, [selectedProvince, selectedBranch, accessibleProvinces, accessibleBranches, homeLocation]);
+
+  // Notify parent component when branch changes
+  useEffect(() => {
+    if (onBranchChange && selectedBranch) {
+      onBranchChange({
+        selectedBranch,
+        selectedProvince,
+        branchCode: selectedBranch,
+        provinceId: selectedProvince
+      });
+    }
+  }, [selectedBranch, selectedProvince, onBranchChange]);
 
   // Initialize audit trail functionality (conditionally enabled)
   const auditTrailHook = useBaseAuditTrail({
@@ -171,7 +187,6 @@ const LayoutWithRBAC = ({
 
   // Enhanced geographic context with comprehensive provinceId injection
   const geographic = useMemo(() => {
-    const context = getGeographicContext();
     const provinceData = selectedProvince ? { provinceId: selectedProvince } : {};
     const branchData = selectedBranch ? { branchCode: selectedBranch } : {};
     
@@ -231,7 +246,6 @@ const LayoutWithRBAC = ({
     canAccessBranch, 
     accessibleProvinces, 
     accessibleBranches,
-    getGeographicContext,
     getQueryFilters,
     enhanceDataForSubmission,
     autoInjectProvinceId
@@ -246,12 +260,7 @@ const LayoutWithRBAC = ({
     if (branchData?.provinceId && branchData.provinceId !== selectedProvince) {
       setSelectedProvince(branchData.provinceId);
     }
-    
-    // Notify parent component
-    if (onBranchChange) {
-      onBranchChange(geographic);
-    }
-  }, [branches, selectedProvince, geographic, onBranchChange]);
+  }, [branches, selectedProvince]);
 
   // Handle province selection changes
   const handleProvinceChange = useCallback((provinceCode) => {
@@ -320,8 +329,7 @@ const LayoutWithRBAC = ({
     showStepper,
     steps,
     currentStep,
-    onStepClick,
-    props
+    onStepClick
   ]);
 
   // Available branches for current province
@@ -334,8 +342,8 @@ const LayoutWithRBAC = ({
     });
   }, [selectedProvince, accessibleBranches, branches]);
 
-  // Province selector component
-  const ProvinceSelector = () => (
+  // Province selector component - memoized component function
+  const ProvinceSelector = useCallback(() => (
     <Select
       placeholder={accessibleProvinces.length === 0 ? "No provinces available" : "Select Province"}
       value={selectedProvince}
@@ -353,10 +361,10 @@ const LayoutWithRBAC = ({
         </Option>
       ))}
     </Select>
-  );
+  ), [accessibleProvinces, selectedProvince, handleProvinceChange]);
 
-  // Branch selector component
-  const BranchSelector = () => (
+  // Branch selector component - memoized component function
+  const BranchSelector = useCallback(() => (
     <Select
       placeholder={
         availableBranches.length === 0 
@@ -380,16 +388,16 @@ const LayoutWithRBAC = ({
         </Option>
       ))}
     </Select>
-  );
+  ), [availableBranches, selectedBranch, selectedProvince, handleBranchChange]);
 
-  // User info display
-  const UserInfo = () => (
+  // User info display - memoized component function
+  const UserInfo = useCallback(() => (
     <Space>
       <UserOutlined />
       <Text strong>{userRBAC?.authority}</Text>
       {primaryDepartment && <Text type="secondary">({primaryDepartment})</Text>}
     </Space>
-  );
+  ), [userRBAC?.authority, primaryDepartment]);
 
   // Loading state
   if (loading) {

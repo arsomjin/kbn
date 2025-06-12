@@ -104,7 +104,7 @@ export default () => {
           });
           mData.push(cValues);
         });
-      showLog({ mData, sValues, data });
+      // showLog({ mData, sValues, data }); // Disabled to prevent console spam
       setData(mData);
       setLoading(false);
     } catch (e) {
@@ -168,7 +168,7 @@ export default () => {
       <Row style={{ alignItems: 'center' }}></Row>
       <Form form={form} initialValues={searchValuesRef.current} onValuesChange={onSearch} layout="vertical">
         {values => {
-          showLog({ values });
+          // showLog({ values }); // Disabled to prevent console spam
           return (
             <>
               {renderHeader({ handleUpdate, loading })}

@@ -1,5 +1,5 @@
 import { w, h } from 'api';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { isMobile } from 'react-device-detect';
 
 // Navigation menus have been moved to src/data/navigationConfig.js
@@ -686,8 +686,8 @@ export const giveAwayInputColumnsHidePrice = [
 
 export const initDuration = [
   // moment().subtract(10, 'years').format('YYYY-MM-DD'),
-  moment().startOf('week').format('YYYY-MM-DD'),
-  moment().format('YYYY-MM-DD')
+  dayjs().startOf('week').format('YYYY-MM-DD'),
+  dayjs().format('YYYY-MM-DD')
 ];
 
 export const MKT_Channels = {

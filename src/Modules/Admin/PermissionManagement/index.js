@@ -121,10 +121,14 @@ const PermissionManagement = () => {
           uid: doc.id,
           ...authData,
           displayName: authData.displayName || `${authData.firstName} ${authData.lastName}`,
-          // Read permissions from new RBAC structure first, fallback to legacy
-          permissions: accessData.permissions || authData.permissions || [],
-          accessLevel: accessData.authority || authData.accessLevel || 'STAFF',
-          department: accessData.departments?.[0] || authData.department || 'general'
+          // Read permissions from Clean Slate RBAC structure with fallbacks
+          permissions: accessData.permissions || userData.userRBAC?.permissions || authData.permissions || [],
+          accessLevel: accessData.authority || userData.userRBAC?.authority || authData.accessLevel || 'STAFF',
+          department: accessData.departments?.[0] || userData.userRBAC?.departments?.[0] || authData.department || 'general',
+          // Store raw data for debugging
+          _rawAccessData: accessData,
+          _rawUserRBAC: userData.userRBAC,
+          _rawAuthData: authData
         };
       });
 
@@ -142,15 +146,17 @@ const PermissionManagement = () => {
       const { permissions } = values;
       const timestamp = Date.now();
       
-      // Update new RBAC structure only
+      // Update Clean Slate RBAC structure
+      const updateData = {
+        'access.permissions': permissions,
+        'access.lastUpdate': timestamp,
+        'access.updatedBy': currentUser.uid
+      };
+            
       await app.firestore()
         .collection('users')
         .doc(selectedUser.uid)
-        .update({
-          'access.permissions': permissions,
-          'access.lastUpdate': timestamp,
-          'access.updatedBy': currentUser.uid
-        });
+        .update(updateData);
 
       message.success('อัปเดตสิทธิ์การใช้งานเรียบร้อยแล้ว');
       setModalVisible(false);

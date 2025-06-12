@@ -10,6 +10,7 @@ import { usePermissions } from './usePermissions';
 import { useGeographicData } from './useGeographicData';
 import { useAuditTrail as useBaseAuditTrail } from 'components/AuditTrail';
 import dayjs from 'dayjs';
+import { getProvinceName, getBranchName } from 'utils/mappings';
 
 /**
  * One-line integration audit trail hook
@@ -62,8 +63,7 @@ export const useAuditTrail = (
 
   // Core hooks
   const { user } = useSelector(state => state.auth);
-  const { hasPermission } = usePermissions();
-  const { getCurrentProvince, getCurrentBranch, getGeographicContext } = useGeographicData();
+  const { hasPermission, homeLocation, accessibleProvinces, accessibleBranches } = usePermissions();
   
   // Auto-detect department from documentType
   const department = useMemo(() => {
@@ -115,8 +115,13 @@ export const useAuditTrail = (
     canViewAllAudits: hasPermission('audit.view_all') || hasPermission('super_admin.all')
   }), [department, hasPermission]);
 
-  // Geographic context
-  const geoContext = useMemo(() => getGeographicContext(), [getGeographicContext]);
+  // Geographic context - use homeLocation and accessible areas from usePermissions
+  const geoContext = useMemo(() => ({
+    provinceId: homeLocation?.province || (accessibleProvinces.length === 1 ? accessibleProvinces[0] : null),
+    branchCode: homeLocation?.branch || (accessibleBranches.length === 1 ? accessibleBranches[0] : null),
+    provinceName: homeLocation?.province ? getProvinceName(homeLocation.province) : '',
+    branchName: homeLocation?.branch ? getBranchName(homeLocation.branch) : ''
+  }), [homeLocation, accessibleProvinces, accessibleBranches]);
 
   // Enhanced save function with comprehensive audit trail
   const saveWithCompleteAudit = useCallback(async ({
@@ -265,6 +270,16 @@ export const useAuditTrail = (
     }
   }, [saveOnMount, documentId, autoSave, saveWithCompleteAudit]);
 
+  // Cleanup effect to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      // Clear any pending state updates
+      setIsProcessing(false);
+      setLastSaveTime(null);
+      setErrors([]);
+    };
+  }, []);
+
   // Return comprehensive audit trail interface
   return {
     // Core audit trail data
@@ -281,7 +296,7 @@ export const useAuditTrail = (
     isProcessing,
     lastSaveTime,
     errors,
-    clearErrors: () => setErrors([]),
+    clearErrors: useCallback(() => setErrors([]), []),
     
     // Permission helpers
     permissions,
@@ -301,7 +316,7 @@ export const useAuditTrail = (
     },
     
     // Helper functions for UI integration
-    getStatusColor: (status) => {
+    getStatusColor: useCallback((status) => {
       const statusColors = {
         'pending': '#faad14',
         'in_progress': '#1890ff', 
@@ -311,16 +326,16 @@ export const useAuditTrail = (
         'cancelled': '#d9d9d9'
       };
       return statusColors[status] || '#d9d9d9';
-    },
+    }, []),
     
-    getStepStatus: (stepIndex) => {
+    getStepStatus: useCallback((stepIndex) => {
       if (stepIndex < currentStep) return 'completed';
       if (stepIndex === currentStep) return 'current';
       return 'pending';
-    },
+    }, [currentStep]),
 
     // Quick integration props for LayoutWithRBAC
-    getLayoutProps: () => ({
+    getLayoutProps: useCallback(() => ({
       documentId,
       documentType,
       showAuditTrail: true,
@@ -328,7 +343,7 @@ export const useAuditTrail = (
       steps,
       currentStep,
       onAuditApprove: permissions.canApprove ? approveDocument : null
-    })
+    }), [documentId, documentType, steps, currentStep, permissions.canApprove, approveDocument])
   };
 };
 

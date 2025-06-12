@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { usePermissions } from './usePermissions';
 import { NAVIGATION_CONFIG } from 'data/navigationConfig';
@@ -8,18 +8,27 @@ import { NAVIGATION_CONFIG } from 'data/navigationConfig';
  * Focused on reactivity and simplicity
  */
 export const useNavigationGenerator = () => {
-  const { hasPermission } = usePermissions();
+  const { hasPermission, userRBAC, authority, departments, isDev } = usePermissions();
   const { user } = useSelector(state => state.auth);
 
-  // SIMPLIFIED: Extract user role directly for better reactivity
+  // SIMPLIFIED: Extract user role from Clean Slate RBAC structure
   const userRole = useMemo(() => {
-    return user?.auth?.accessLevel || user?.accessLevel || 'STAFF';
-  }, [user]);
+    return authority || user?.auth?.accessLevel || user?.accessLevel || 'STAFF';
+  }, [authority, user]);
 
-  // SIMPLIFIED: Check if user is developer
-  const isDev = useMemo(() => {
-    return user?.isDev || false;
-  }, [user]);
+  // DEBUG: Add logging for permission debugging
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development' && userRBAC) {
+      console.log('🔍 Navigation Debug - User RBAC:', {
+        authority: userRBAC.authority,
+        departments: userRBAC.departments,
+        hasAccountingView: hasPermission('accounting.view'),
+        hasAccountingEdit: hasPermission('accounting.edit'),
+        isDev: userRBAC.isDev,
+        permissions: userRBAC.permissions
+      });
+    }
+  }, [userRBAC, hasPermission]);
 
   /**
    * SIMPLIFIED: Filter navigation items based on permissions
@@ -29,9 +38,21 @@ export const useNavigationGenerator = () => {
       if (!items || !Array.isArray(items)) return [];
       
       return items.filter(item => {
+        // Dev users see everything
+        if (isDev) return true;
+        
         // Check if user has permission for this item
         if (item.permission && !hasPermission(item.permission)) {
+          // DEBUG: Log failed permission checks
+          if (process.env.NODE_ENV === 'development') {
+            console.log(`❌ Permission denied for "${item.title}" (${item.permission})`);
+          }
           return false;
+        }
+
+        // DEBUG: Log successful permission checks
+        if (process.env.NODE_ENV === 'development' && item.permission) {
+          console.log(`✅ Permission granted for "${item.title}" (${item.permission})`);
         }
 
         // Recursively filter sub-items
@@ -46,7 +67,7 @@ export const useNavigationGenerator = () => {
         return true;
       });
     };
-  }, [hasPermission]);
+  }, [hasPermission, isDev]);
 
   /**
    * SIMPLIFIED: Generate filtered navigation based on user permissions

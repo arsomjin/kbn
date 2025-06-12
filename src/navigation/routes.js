@@ -94,8 +94,7 @@ import Chevrolet from 'Modules/Account/screens/Expense/Components/Chevrolet';
 import ExpenseTransferCycle from 'Modules/Account/screens/ExpenseTransferCycle';
 import TestPrint from 'dev/screens/TestPrint';
 import TestAccessControl from 'dev/screens/TestAccessControl';
-import TestAuthentication from 'dev/screens/TestAuthentication';
-import TestGranularRoles from 'dev/screens/TestGranularRoles';
+import RBACIntegrationTester from 'dev/screens/RBACIntegrationTester';
 import MigrationTools from 'dev/screens/MigrationTools';
 import RBACTester from 'dev/screens/RBACTester';
 import SimpleRBAC from 'dev/simple-rbac';
@@ -1043,14 +1042,9 @@ export default [
     component: TestAccessControl
   },
   {
-    path: '/dev/test-authentication',
+    path: '/dev/rbac-integration-tester',
     layout: DefaultLayout,
-    component: TestAuthentication
-  },
-  {
-    path: '/dev/test-granular-roles',
-    layout: DefaultLayout,
-    component: TestGranularRoles
+    component: RBACIntegrationTester
   },
   {
     path: '/developer/migration-tools',

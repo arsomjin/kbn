@@ -20,8 +20,6 @@ import 'styles/nature-enhancement.css';
 import 'styles/print.css';
 import 'styles/network-status.css';
 
-import moment from 'moment';
-import 'moment/locale/th';
 import { PrivateRoutes } from './components/PrivateRoutes';
 import AuthRoutes from './components/AuthRoutes';
 import FirebaseProvider from '../firebase';
@@ -47,8 +45,7 @@ const Navigation = () => {
     });
     // Get device info.
     _getDevice();
-    // Set Thai language.
-    moment.locale('th');
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -60,7 +57,7 @@ const Navigation = () => {
             <AuthRoutes />
           ) : isLoggingOut ? ( // Avoid Firebase PERMISSION_DENIED ISSUE.
             <Load loading />
-          ) : user?.isPendingApproval ? ( // Show approval status for pending users
+          ) : (user?.isApproved !== true || user?.isActive !== true) ? ( // Show approval status for pending users
             <AuthRoutes showApprovalStatus={true} user={user} />
           ) : (
             <PrivateRoutes />

@@ -188,19 +188,22 @@ export const determineRoleFromPermissions = (permissions, user) => {
     return getLegacyRoleName(user);
   }
   
+  // Handle permissions safety - ensure it's an array
+  const safePermissions = Array.isArray(permissions) ? permissions : [];
+  
   // Legacy fallback
-  if (permissions.includes('*') || user?.isDev) {
+  if (safePermissions.includes('*') || user?.isDev) {
     if (user?.isExecutive || user?.accessLevel === 'EXECUTIVE') {
       return 'EXECUTIVE';
     }
     return 'SUPER_ADMIN';
   }
   
-  // Legacy staff role detection
-  const hasAccounting = permissions.some(p => p.startsWith('accounting.'));
-  const hasSales = permissions.some(p => p.startsWith('sales.'));
-  const hasService = permissions.some(p => p.startsWith('service.'));
-  const hasInventory = permissions.some(p => p.startsWith('inventory.'));
+  // Legacy staff role detection - with safety checks
+  const hasAccounting = safePermissions.some(p => p && p.startsWith('accounting.'));
+  const hasSales = safePermissions.some(p => p && p.startsWith('sales.'));
+  const hasService = safePermissions.some(p => p && p.startsWith('service.'));
+  const hasInventory = safePermissions.some(p => p && p.startsWith('inventory.'));
   
   // Determine primary department
   if (hasAccounting && !hasSales && !hasService) return 'ACCOUNTING_STAFF';

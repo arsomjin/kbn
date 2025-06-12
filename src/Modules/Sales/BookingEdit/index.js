@@ -160,7 +160,7 @@ const BookingEditComponent = () => {
         if (bookSnap) {
           bookSnap.forEach(book => {
             let dbValues = formatValuesBeforeLoad(book.data());
-            showLog({ bookDoc: book.data(), dbValues });
+            // showLog({ bookDoc: book.data(), dbValues }); // Disabled to prevent console spam
             form.setFieldsValue({
               ...values,
               ...dbValues

@@ -8,7 +8,7 @@ import { AlertManager } from 'api/AlertDialog';
 import namor from 'namor';
 import { message, Modal } from 'antd';
 import { FieldMapping } from 'data/fields-mapping';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { FieldMappingToThai } from 'data/fields-mapping';
 import { ProgressManager } from 'api/Progress';
 import numeral from 'numeral';
@@ -632,7 +632,7 @@ export const getChanges = (oldObject = {}, newObject = {}) => {
   }
 
   if (Object.keys(changes).length > 0) {
-    showLog({ oldObject, newObject, changes });
+    // showLog({ oldObject, newObject, changes }); // Disabled to prevent console spam
   }
 
   return Object.keys(changes).length > 0 ? changes : false;
@@ -678,7 +678,7 @@ export const getArrayChanges = (oldArray, newArray) => {
   });
 
   if (changes.length > 0) {
-    showLog({ oldArray, newArray, changes });
+    // showLog({ oldArray, newArray, changes }); // Disabled to prevent console spam
   }
 
   return changes;
@@ -711,11 +711,11 @@ export const formatExcelToJson = (dat, api, user) =>
               it[fieldName] = isDate
                 ? val.length > 9
                   ? fieldName === 'effectiveDate'
-                    ? moment(val, 'DD.MM.YYYY').format('YYYY-MM-DD')
-                    : moment(val, 'DD/MM/YYYY').format('YYYY-MM-DD')
+                    ? dayjs(val, 'DD.MM.YYYY').format('YYYY-MM-DD')
+                    : dayjs(val, 'DD/MM/YYYY').format('YYYY-MM-DD')
                   : fieldName === 'effectiveDate'
-                    ? moment(val, 'DD.MM.YY').format('YYYY-MM-DD')
-                    : moment(val, 'DD/MM/YY').format('YYYY-MM-DD')
+                    ? dayjs(val, 'DD.MM.YY').format('YYYY-MM-DD')
+                    : dayjs(val, 'DD/MM/YY').format('YYYY-MM-DD')
                 : val;
             } else {
               it[excelFieldName] = val;
@@ -726,7 +726,7 @@ export const formatExcelToJson = (dat, api, user) =>
               });
             }
           } else {
-            showLog({ error: { n, col: dat.cols[n + 1], row: dat.rows[i] } });
+            // showLog({ error: { n, col: dat.cols[n + 1], row: dat.rows[i] } }); // Disabled to prevent console spam
           }
         }
         if (hasKey('productCode', it) && hasKey('fullName', it) && hasKey('department', it)) {
@@ -912,7 +912,7 @@ export const cleanValuesBeforeSave = (values, skipDate) => {
       return k;
     }
     if (!skipDate && k.length >= 4 && (k.substr(-4) === 'Date' || k === 'date') && !!values[k]) {
-      mValues[k] = moment(values[k]).format('YYYY-MM-DD');
+              mValues[k] = dayjs(values[k]).format('YYYY-MM-DD');
     }
     if (Array.isArray(values[k])) {
       // showLog({ isArray: k, val: values[k] });
@@ -955,7 +955,7 @@ const cleanObject = (obj, skipDate) => {
       return k;
     }
     if (!skipDate && k.length >= 4 && (k.substr(-4) === 'Date' || k === 'date')) {
-      mObj[k] = moment(obj[k]).format('YYYY-MM-DD');
+              mObj[k] = dayjs(obj[k]).format('YYYY-MM-DD');
     }
     if (hasToParse(k) && ['number', 'string'].includes(typeof mObj[k])) {
       mObj[k] = parser(obj[k]);
@@ -983,7 +983,7 @@ export const formatValuesBeforeLoad = values => {
   Object.keys(values).map((k, i) => {
     let dateType = k.length >= 4 && (k.substr(-4) === 'Date' || k === 'date');
     if (dateType && !!values[k]) {
-      mValues[k] = moment(values[k], 'YYYY-MM-DD');
+      mValues[k] = dayjs(values[k], 'YYYY-MM-DD');
     }
     if (dateType && !values[k]) {
       mValues[k] = undefined;
@@ -1046,28 +1046,28 @@ export const hasKey = (key, obj) => {
 };
 
 export const getStartDateFromDuration = val => {
-  let result = moment().startOf('d').format('YYYY-MM-DD');
+  let result = dayjs().startOf('d').format('YYYY-MM-DD');
   switch (val) {
     case 'today':
-      result = moment().startOf('d').format('YYYY-MM-DD');
+      result = dayjs().startOf('d').format('YYYY-MM-DD');
       break;
     case 'sevenDays':
-      result = moment().subtract(7, 'd').format('YYYY-MM-DD');
+      result = dayjs().subtract(7, 'd').format('YYYY-MM-DD');
       break;
     case 'thisWeek':
-      result = moment().startOf('week').format('YYYY-MM-DD');
+      result = dayjs().startOf('week').format('YYYY-MM-DD');
       break;
     case 'thisMonth':
-      result = moment().startOf('month').format('YYYY-MM-DD');
+      result = dayjs().startOf('month').format('YYYY-MM-DD');
       break;
     case 'thirtyDays':
-      result = moment().subtract(30, 'd').format('YYYY-MM-DD');
+      result = dayjs().subtract(30, 'd').format('YYYY-MM-DD');
       break;
     case 'threeMonth':
-      result = moment().subtract(3, 'month').format('YYYY-MM-DD');
+      result = dayjs().subtract(3, 'month').format('YYYY-MM-DD');
       break;
     case 'all':
-      result = moment().subtract(10, 'years').format('YYYY-MM-DD'); // 10 years.
+      result = dayjs().subtract(10, 'years').format('YYYY-MM-DD'); // 10 years.
       break;
 
     default:
@@ -1092,8 +1092,8 @@ export const getDates = (startDate, stopDate, format) => {
   var dateArray = [];
   var currentDate = startDate;
   while (currentDate <= stopDate) {
-    dateArray.push(moment(currentDate, 'YYYY-MM-DD').format(format));
-    currentDate = moment(currentDate, 'YYYY-MM-DD').add(1, 'day').format('YYYY-MM-DD');
+    dateArray.push(dayjs(currentDate, 'YYYY-MM-DD').format(format));
+    currentDate = dayjs(currentDate, 'YYYY-MM-DD').add(1, 'day').format('YYYY-MM-DD');
   }
   // showLog({ startDate, stopDate, format, dateArray });
   return dateArray;
@@ -1102,7 +1102,7 @@ export const getDates = (startDate, stopDate, format) => {
 export const getMonths = (startDate, stopDate, dateFormat, monthFormat) => {
   var monthArray = [];
   var dateArr = getDates(startDate, stopDate, dateFormat);
-  monthArray = dateArr.map(d => moment(d, dateFormat).format(monthFormat || 'MMM YYYY'));
+  monthArray = dateArr.map(d => dayjs(d, dateFormat).format(monthFormat || 'MMM YYYY'));
   return distinctElement(monthArray).map(l => l.name);
 };
 
@@ -1110,7 +1110,7 @@ export const formatDate = mDate => {
   if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(mDate)) {
     return mDate;
   } else {
-    return moment(mDate).format('YYYY-MM-DD');
+    return dayjs(mDate).format('YYYY-MM-DD');
   }
 };
 
@@ -1148,7 +1148,7 @@ export const errorHandler = error => {
     showAlert('ไม่สำเร็จ', msg || '', 'warning');
     alertShown = true;
   }
-  showLog({ error, msg });
+      // showLog({ error, msg }); // Disabled to prevent console spam
   addErrorLogs(Object.assign(error, { msg }));
 };
 
@@ -1182,7 +1182,7 @@ export const daysInMonth = mth => {
   return days;
 };
 
-export const dateToThai = text => moment(text, 'YYYY-MM-DD').add(543, 'year').locale('th').format('D MMM YY');
+export const dateToThai = text => dayjs(text, 'YYYY-MM-DD').add(543, 'year').locale('th').format('D MMM YY');
 
 export const arrayToText = arr => {
   let txt = '';

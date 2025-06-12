@@ -43,7 +43,16 @@ const UserApproval = () => {
   const [actionLoading, setActionLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState('pending');
   
-const { user } = useSelector(state => state.auth);
+  const { user } = useSelector(state => state.auth);
+  const { filterDataByUserAccess, hasPermission, userRBAC } = usePermissions();
+
+  // Validate Clean Slate RBAC structure
+  React.useEffect(() => {
+    if (user && !user.access) {
+      console.warn('🚨 UserApproval: User missing Clean Slate RBAC structure:', user.uid);
+      console.warn('⚠️ User needs migration to user.access.* format');
+    }
+  }, [user]);
 
   useEffect(() => {
     fetchApprovalRequests();
@@ -59,20 +68,29 @@ const { user } = useSelector(state => state.auth);
         query = query.where('status', '==', filterStatus);
       }
 
-      // Filter by user's geographic permissions
-      if (user?.accessLevel !== 'SUPER_ADMIN') {
-        if (user?.allowedProvinces?.length > 0) {
-          query = query.where('targetProvince', 'in', user.allowedProvinces);
+      // Apply Clean Slate RBAC geographic filtering
+      if (userRBAC?.geographic?.scope !== 'ALL') {
+        const allowedProvinces = userRBAC?.geographic?.allowedProvinces || [];
+        if (allowedProvinces.length > 0) {
+          query = query.where('targetProvince', 'in', allowedProvinces);
         }
       }
 
       const snapshot = await query.orderBy('createdAt', 'desc').get();
       
-      const requests = snapshot.docs.map(doc => ({
+      let requests = snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
         createdAt: new Date(doc.data().createdAt),
       }));
+
+      // Apply additional RBAC filtering if needed (for branch-level access)
+      if (userRBAC?.geographic?.scope === 'BRANCH') {
+        requests = filterDataByUserAccess(requests, {
+          provinceField: 'targetProvince',
+          branchField: 'targetBranch'
+        });
+      }
 
       setApprovalRequests(requests);
     } catch (error) {
@@ -250,7 +268,10 @@ const { user } = useSelector(state => state.auth);
             ดูรายละเอียด
           </Button>
           
-          {record.status === 'pending' && (
+          {record.status === 'pending' && hasPermission('users.approve', {
+            provinceId: record.targetProvince,
+            branchCode: record.targetBranch
+          }) && (
             <>
               <Popconfirm
                 title="อนุมัติผู้ใช้นี้?"
@@ -362,7 +383,7 @@ const { user } = useSelector(state => state.auth);
               ) : '-'}
             </Descriptions.Item>
             <Descriptions.Item label="ระดับการเข้าถึง">
-              {selectedRequest.userData?.accessLevel}
+              {selectedRequest.userData?.access?.authority || 'ไม่ระบุ'}
             </Descriptions.Item>
             <Descriptions.Item label="จังหวัด">
               {getLocationInfo(selectedRequest.targetProvince, '').provinceName || selectedRequest.targetProvince}

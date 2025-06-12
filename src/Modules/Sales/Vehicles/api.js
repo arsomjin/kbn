@@ -6,7 +6,11 @@ import { parser } from 'functions';
 import { showLog } from 'functions';
 import { formatValuesBeforeLoad } from 'functions';
 import { getItemId } from 'Modules/Account/api';
+import dayjs from 'dayjs';
 import moment from 'moment';
+
+// Create static current month to prevent infinite re-renders
+const CURRENT_MONTH = dayjs().format('YYYY-MM');
 
 export const getInitialItems = (sale, branchCode) => [
   {
@@ -97,7 +101,7 @@ const InitValue = {
   isEquipment: false,
   isUsed: false,
   sourceOfData: [],
-  date: moment(),
+  date: undefined,
   deliverDate: undefined,
   amtReceived: null,
   amtFull: null,
@@ -108,7 +112,7 @@ const InitValue = {
   amtMAX: null,
   amtKBN: null,
   promotions: [],
-  proMonth: `${moment().format('YYYY-MM')}`,
+  proMonth: CURRENT_MONTH,
   amtPro: null,
   amtBaacFee: null,
   amtBaacDebtor: null,

@@ -56,7 +56,7 @@ const Referrer = ({
     }
   };
 
-  showLog({ values });
+  // showLog({ values }); // Disabled to prevent console spam
   return (
     <Fragment>
       {/* <label className="text-light my-2">คนแนะนำ</label> */}

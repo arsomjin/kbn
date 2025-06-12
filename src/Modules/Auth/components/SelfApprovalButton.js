@@ -11,17 +11,27 @@ const SelfApprovalButton = () => {
     try {
       const success = await guidedSelfApproval();
       if (success) {
-        message.success('Self-approval successful! Refreshing page...');
-        // Delay to show success message, then reload
+        message.success({
+          content: 'Self-approval successful with enhanced RBAC! Redirecting to main app...',
+          duration: 2
+        });
+        console.log('🎉 Self-approval completed with enhanced RBAC structure');
+        
+        // Force a complete page reload to trigger fresh auth verification
+        // This ensures the updated Firestore data is properly loaded
         setTimeout(() => {
-          window.location.reload();
-        }, 2000);
+          console.log('🔄 Forcing complete app reload to refresh auth state...');
+          window.location.href = window.location.origin;
+        }, 1500);
       } else {
-        message.error('Self-approval failed. Check console for details.');
+        message.error('Self-approval failed. Check console for detailed error information.');
       }
     } catch (error) {
       console.error('Self-approval error:', error);
-      message.error('Self-approval failed: ' + error.message);
+      message.error({
+        content: 'Self-approval failed: ' + error.message,
+        duration: 5
+      });
     } finally {
       setLoading(false);
     }

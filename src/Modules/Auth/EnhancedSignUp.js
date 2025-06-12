@@ -6,12 +6,7 @@ import { UserOutlined, MailOutlined, LockOutlined, BankOutlined, EnvironmentOutl
 import { fetchProvinces } from '../../redux/actions/provinces';
 import { DEPARTMENTS } from '../../data/permissions';
 import { getBranchName } from '../../utils/mappings';
-import { 
-  verifyEmployee, 
-  CONFIDENCE_LEVELS,
-  formatEmployeeInfo,
-  getEmployeeStatusInfo 
-} from '../../utils/employeeVerification';
+import { createCleanSlateUser, validateCleanSlateUser } from '../../utils/clean-slate-helpers';
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -19,14 +14,11 @@ const { Text } = Typography;
 const EnhancedSignUp = ({ handleConfirm, change }) => {
   const [form] = Form.useForm();
   const [selectedProvince, setSelectedProvince] = useState(null);
-  const [registrationSuccess, setRegistrationSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [userType, setUserType] = useState('new'); // 'new' or 'existing'
+  const [userType, setUserType] = useState('new');
   const [error, setError] = useState(null);
-  const [employeeVerificationResult, setEmployeeVerificationResult] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [dataLoading, setDataLoading] = useState(true);
 
-  
   const dispatch = useDispatch();
   const { signUpError, isLoggingIn } = useSelector(state => state.auth);
   const { provinces } = useSelector(state => state.provinces);
@@ -36,6 +28,33 @@ const EnhancedSignUp = ({ handleConfirm, change }) => {
   useEffect(() => {
     dispatch(fetchProvinces());
   }, [dispatch]);
+
+  // Static fallback data for signup form
+  const STATIC_PROVINCES = {
+    'nakhon-ratchasima': { 
+      name: 'นครราชสีมา', 
+      nameTh: 'นครราชสีมา',
+      nameEn: 'Nakhon Ratchasima' 
+    },
+    'nakhon-sawan': { 
+      name: 'นครสวรรค์', 
+      nameTh: 'นครสวรรค์',
+      nameEn: 'Nakhon Sawan' 
+    }
+  };
+
+  // Handle data loading completion
+  useEffect(() => {
+    const hasProvinces = Object.keys(provinces || {}).length > 0;
+    const hasFallbackData = Object.keys(STATIC_PROVINCES).length > 0;
+    
+    if (hasProvinces || hasFallbackData) {
+      setDataLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provinces]);
+
+  const provincesToShow = Object.keys(provinces || {}).length > 0 ? provinces : STATIC_PROVINCES;
 
   // Default branches for provinces
   const DEFAULT_BRANCHES = {
@@ -56,7 +75,7 @@ const EnhancedSignUp = ({ handleConfirm, change }) => {
     ]
   };
 
-  // Filter branches by selected province
+  // Get branches for selected province
   const availableBranches = selectedProvince 
     ? Object.values(branches || {}).filter(branch => 
         branch.provinceId === selectedProvince || 
@@ -65,274 +84,209 @@ const EnhancedSignUp = ({ handleConfirm, change }) => {
       )
     : [];
 
-  // If no branches found from Redux state, use default branches
   const branchesToShow = availableBranches.length > 0 
     ? availableBranches 
     : (selectedProvince ? DEFAULT_BRANCHES[selectedProvince] || [] : []);
 
   const handleProvinceChange = (value) => {
     setSelectedProvince(value);
-    form.setFieldsValue({ branch: undefined }); // Reset branch when province changes
+    form.setFieldsValue({ branch: undefined });
+    form.setFields([{ name: 'province', errors: [] }]);
   };
 
   const handleUserTypeChange = (e) => {
     setUserType(e.target.value);
-    form.resetFields(); // Reset form when switching user types
+    form.resetFields();
+    form.setFieldsValue({ userType: e.target.value });
   };
 
-  const determineDefaultAccessLevel = (department, userType) => {
-    if (userType === 'existing') {
-      // Existing employees get staff level initially, can be upgraded later
-      return 'STAFF';
+  // Simplified employee lookup function
+  const findEmployee = (employeeCode, firstName, lastName) => {
+    if (!employees || Object.keys(employees).length === 0) {
+      return null;
     }
+
+    const employeeList = Object.values(employees);
     
-    // New users get basic staff access
-    switch (department) {
-      case 'management':
-        return 'BRANCH_MANAGER'; // Will need approval from province manager
-      case 'accounting':
-      case 'sales':
-      case 'service':
-      case 'inventory':
-        return 'STAFF';
-      default:
-        return 'STAFF';
+    // Try exact employee code match first
+    if (employeeCode) {
+      const codeMatch = employeeList.find(emp => 
+        emp.employeeCode === employeeCode || emp.id === employeeCode
+      );
+      if (codeMatch) return codeMatch;
     }
+
+    // Try name match
+    if (firstName && lastName) {
+      const nameMatch = employeeList.find(emp => 
+        emp.firstName === firstName && emp.lastName === lastName
+      );
+      if (nameMatch) return nameMatch;
+    }
+
+    return null;
   };
 
+  // Simplified submission handler using unified Clean Slate helpers
   const handleSubmit = async (values) => {
-    if (loading) return;
+    if (submitting) return;
     
-    setLoading(true);
-    setError('');
-    setEmployeeVerificationResult(null);
+    setSubmitting(true);
+    setError(null);
 
     try {
-      console.log('📝 Starting registration process:', values);
+      console.log('📝 Starting Clean Slate registration process:', values);
 
-      // Enhanced employee verification for existing employees
-      if (values.userType === 'existing') {
-        console.log('🔍 Starting enhanced employee verification');
-        
-        const verificationResult = await verifyEmployee({
-          employeeCode: values.employeeId,
-          firstName: values.firstName,
-          lastName: values.lastName,
-          employees: employees // Use Redux employee data for faster lookup
-        });
-
-        console.log('📊 Employee verification result:', verificationResult);
-        setEmployeeVerificationResult(verificationResult);
-
-        // Handle verification results
-        if (!verificationResult.success) {
-          let errorMessage = verificationResult.message;
-          
-          if (verificationResult.confidence === CONFIDENCE_LEVELS.MULTIPLE_MATCHES) {
-            errorMessage += '\n\nพนักงานที่พบ:\n' + 
-              verificationResult.suggestions.slice(2).join('\n');
-          } else if (verificationResult.suggestions.length > 0) {
-            errorMessage += '\n\nคำแนะนำ:\n' + 
-              verificationResult.suggestions.join('\n');
-          }
-          
-          setError(errorMessage);
-          setLoading(false);
-          return;
-        }
-
-        // Verification successful - populate employee data
-        const employee = verificationResult.employee;
-        const employeeInfo = formatEmployeeInfo(employee);
-        const statusInfo = getEmployeeStatusInfo(employee);
-
-        console.log('✅ Employee verification successful:', {
-          employee: employeeInfo,
-          status: statusInfo,
-          confidence: verificationResult.confidence
-        });
-
-        // Check if employee can register
-        if (!statusInfo.canRegister) {
-          setError(statusInfo.message + '\n\n' + statusInfo.suggestions.join('\n'));
-          setLoading(false);
-          return;
-        }
-
-        // Auto-populate employee data for registration
-        const enhancedValues = {
-          ...values,
-          // Employee identity verification
-          employeeId: employee.employeeCode,
-          firstName: employee.firstName,
-          lastName: employee.lastName,
-          nickName: employee.nickName,
-          
-          // Geographic data from employee record
-          province: employee.provinceId === 'nakhon-ratchasima' ? 'นครราชสีมา' : 'นครสวรรค์',
-          branch: employee.affiliate, // Branch name from employee record
-          
-          // Additional metadata for approval process
-          verificationConfidence: verificationResult.confidence,
-          employeePosition: employee.position,
-          employeeStartDate: employee.startDate,
-          employeeAffiliate: employee.affiliate,
-          
-          // Registration metadata
-          registrationSource: 'enhanced_verification',
-          verificationTimestamp: Date.now()
-        };
-
-        console.log('🚀 Proceeding with enhanced registration data:', enhancedValues);
-        values = enhancedValues;
-      }
-
-      setSubmitting(true);
-      setError(null); // Clear any previous errors
-      
-      const accessLevel = determineDefaultAccessLevel(values.department, userType);
-      
-      const signUpData = {
+      let finalValues = {
         ...values,
-        userType,
-        accessLevel,
-        status: 'pending',
-        requestedAt: new Date().toISOString(),
-        requestType: userType === 'existing' ? 'existing_employee_registration' : 'new_employee_registration',
-        // Geographic data for RBAC
-        allowedProvinces: [values.province],
-        allowedBranches: values.branch ? [values.branch] : [],
-        // Additional metadata
-        registrationSource: 'web',
-        needsManagerApproval: true,
-        approvalLevel: userType === 'existing' ? 'branch_manager' : 'province_manager'
+        userType: values.userType || userType
       };
 
-      console.log('📝 Submitting registration:', signUpData);
+      // Handle existing employee verification
+      if (finalValues.userType === 'existing') {
+        console.log('🔍 Verifying existing employee');
+        
+        if (!employees || Object.keys(employees).length === 0) {
+          setError('ไม่สามารถตรวจสอบข้อมูลพนักงานได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง');
+          setSubmitting(false);
+          return;
+        }
+
+        const employee = findEmployee(
+          finalValues.employeeId,
+          finalValues.firstName,
+          finalValues.lastName
+        );
+
+        if (!employee) {
+          setError('ไม่พบข้อมูลพนักงานที่ตรงกับข้อมูลที่กรอก กรุณาตรวจสอบข้อมูลอีกครั้ง');
+          setSubmitting(false);
+          return;
+        }
+
+        console.log('✅ Employee found:', employee);
+
+        // Enhance values with employee data
+        finalValues = {
+          ...finalValues,
+          employeeId: employee.employeeCode || employee.id,
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          province: employee.provinceId || finalValues.province,
+          branch: employee.affiliate || finalValues.branch,
+          employeePosition: employee.position,
+          registrationSource: 'employee_verification'
+        };
+      }
+
+      // Normalize province format
+      let normalizedProvince = finalValues.province;
+      if (finalValues.province === 'นครราชสีมา') {
+        normalizedProvince = 'nakhon-ratchasima';
+      } else if (finalValues.province === 'นครสวรรค์') {
+        normalizedProvince = 'nakhon-sawan';
+      }
+
+      // Prepare data for Clean Slate user creation (unified structure)
+      const cleanSlateUserData = {
+        // Will be set by auth.js after Firebase Auth creation
+        uid: null, // Set by signUpUserWithRBAC
+        email: finalValues.email,
+        firstName: finalValues.firstName,
+        lastName: finalValues.lastName,
+        displayName: `${finalValues.firstName} ${finalValues.lastName}`,
+        
+        // Clean Slate mapping fields
+        department: finalValues.department,
+        accessLevel: 'STAFF', // New users start as STAFF
+        province: normalizedProvince,
+        branch: finalValues.branch,
+        userType: finalValues.userType
+      };
+
+      // Validate the structure before sending
+      console.log('🔍 Validating Clean Slate user data structure:', cleanSlateUserData);
+
+      const signUpData = {
+        // Core registration data
+        firstName: finalValues.firstName,
+        lastName: finalValues.lastName,
+        email: finalValues.email,
+        password: finalValues.password,
+        
+        // Work information
+        department: finalValues.department ? finalValues.department.toUpperCase() : 'GENERAL',
+        province: normalizedProvince,
+        branch: finalValues.branch,
+        
+        // Registration metadata
+        userType: finalValues.userType,
+        employeeId: finalValues.employeeId || null,
+        requestType: finalValues.userType === 'existing' ? 'existing_employee_registration' : 'new_employee_registration',
+        registrationSource: 'web',
+        needsManagerApproval: true,
+        approvalLevel: finalValues.userType === 'existing' ? 'branch_manager' : 'province_manager',
+        
+        // Additional metadata
+        status: 'pending',
+        requestedAt: new Date().toISOString(),
+      };
+
+      console.log('📝 Submitting unified Clean Slate regitration:', signUpData);
+      
       const result = await handleConfirm(signUpData);
       
-      // Check if registration was successful but requires approval
-      if (result && result.type === 'REGISTRATION_PENDING') {
-        console.log('✅ Registration successful, pending approval - reloading page for clean state');
-        // Clear form and reload page for clean state transition
-        form.resetFields();
-        // Small delay to ensure the registration is completed, then reload
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
+      if (result && (result.type === 'REGISTRATION_PENDING' || result.type === 'SIGNUP_SUCCESS')) {
+        console.log('✅ Registration successful, auth system will handle redirect');
+        
+        // Don't show success screen - let navigation handle the redirect
+        // The user is now logged in with isPendingApproval: true
+        // Navigation component will automatically redirect to approval page
         return;
-      } else if (result && result.type === 'SIGNUP_SUCCESS') {
-        console.log('✅ Registration completed successfully');
-        setRegistrationSuccess(true);
-        form.resetFields();
-      } else {
-        // For any other result, do not set registration success
-        // The error will be handled by the signUpError state
-        console.log('⚠️ Registration result:', result);
       }
+
+      console.log('⚠️ Unexpected registration result:', result);
+      
     } catch (error) {
       console.error('❌ Registration error:', error);
-      // Don't set registration success if there's an error
-      // The error will be handled by the useEffect hook for signUpError
-      // Don't reset form on error so user can fix the issue
+      setError(error.message || 'เกิดข้อผิดพลาดในการสมัครสมาชิก กรุณาลองใหม่อีกครั้ง');
     } finally {
       setSubmitting(false);
-      setLoading(false);
     }
   };
 
-  // Handle signup error with user-friendly messages
+  // Handle signup error from Redux
   useEffect(() => {
     if (signUpError) {
-      // signUpError from Redux is already an interpreted message string
-      // Set the error directly without any re-interpretation
-      const errorInfo = {
-        message: signUpError,
-        code: 'signup-error',
-        severity: 'error'
-      };
-      
-      // Set error directly without calling handleError to avoid re-interpretation
-      setError(errorInfo);
+      setError(signUpError);
     } else {
       setError(null);
     }
   }, [signUpError]);
 
-  // Cleanup on unmount to prevent React state update warnings
-  useEffect(() => {
-    return () => {
-      // Cleanup any pending operations
-      setSubmitting(false);
-      setError(null);
-    };
-  }, []);
-
-  // Auto-redirect for successful registrations (Navigation will handle pending users)
-  useEffect(() => {
-    if (registrationSuccess) {
-      // For pending users, Navigation component will automatically redirect to approval page
-      // No need to manually redirect - just show the success state briefly
-      console.log('✅ Registration success state shown, Navigation will handle redirect');
-    }
-  }, [registrationSuccess]);
-
-  // Success screen
-  if (registrationSuccess) {
-    // For pending users, redirect will be handled by Navigation component
-    // Show a brief success message with automatic redirect
+  // Show loading state while data is loading
+  if (dataLoading) {
     return (
-      <>
-        <style>
-          {`
-            @keyframes pulse {
-              0%, 100% { opacity: 1; transform: scale(1); }
-              50% { opacity: 0.7; transform: scale(1.1); }
-            }
-            .redirect-loading {
-              animation: pulse 2s infinite;
-            }
-          `}
-        </style>
-        <div>
-          <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-            <CheckCircleOutlined 
-              className="redirect-loading"
-              style={{ 
-                fontSize: '64px', 
-                color: '#52c41a',
-                marginBottom: '16px'
-              }} 
-            />
-            <h1 className="nature-login-title" style={{ fontSize: '28px' }}>
-              สมัครสมาชิกสำเร็จ!
-            </h1>
-            <p style={{ 
-              color: '#6b7280',
-              fontSize: '16px',
-              margin: '16px 0 0 0',
-              fontWeight: '500',
-              textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
-            }}>
-              กำลังเปลี่ยนหน้าไปยังสถานะการอนุมัติ...
-            </p>
-          </div>
-
-          <div style={{ marginBottom: '32px' }}>
-            <Alert
-              message="การสมัครสมาชิกเสร็จสิ้น"
-              description="ระบบได้รับข้อมูลการสมัครของคุณแล้ว กำลังเปลี่ยนหน้าไปยังหน้าติดตามสถานะการอนุมัติ"
-              type="success"
-              showIcon
-              className="nature-login-success"
-            />
-          </div>
-
-          <div className="nature-login-footer">
-            <p>© {new Date().getFullYear()} KBN</p>
-          </div>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '400px',
+        flexDirection: 'column',
+        gap: '16px'
+      }}>
+        <div className="ant-spin ant-spin-lg">
+          <span className="ant-spin-dot ant-spin-dot-spin">
+            <i className="ant-spin-dot-item"></i>
+            <i className="ant-spin-dot-item"></i>
+            <i className="ant-spin-dot-item"></i>
+            <i className="ant-spin-dot-item"></i>
+          </span>
         </div>
-      </>
+        <Text style={{ color: '#6b7280', fontSize: '16px' }}>
+          กำลังโหลดข้อมูลสำหรับการสมัครสมาชิก...
+        </Text>
+      </div>
     );
   }
 
@@ -379,7 +333,7 @@ const EnhancedSignUp = ({ handleConfirm, change }) => {
         </p>
       </div>
 
-      {/* Enhanced User Type Selection with Glassmorphism */}
+      {/* User Type Selection */}
       <div style={{ 
         marginBottom: '24px',
         background: 'rgba(255, 255, 255, 0.1)',
@@ -594,13 +548,13 @@ const EnhancedSignUp = ({ handleConfirm, change }) => {
         </Radio.Group>
       </div>
 
-      {/* Information Alert based on user type */}
+      {/* Information Alert */}
       <Alert
         message={userType === 'new' ? 'สำหรับพนักงานใหม่' : 'สำหรับพนักงานเดิม'}
         description={
           userType === 'new' 
             ? 'ระบบจะส่งข้อมูลของคุณไปยังผู้จัดการสาขาเพื่อยืนยันข้อมูลและอนุมัติการเข้าใช้งาน'
-            : 'ระบบจะตรวจสอบข้อมูลของคุณกับฐานข้อมูลพนักงานและดำเนินการอนุมัติอัตโนมัติหากข้อมูลถูกต้อง'
+            : 'ระบบจะตรวจสอบข้อมูลของคุณกับฐานข้อมูลพนักงานและดำเนินการอนุมัติ'
         }
         type="info"
         showIcon
@@ -612,7 +566,7 @@ const EnhancedSignUp = ({ handleConfirm, change }) => {
         <div style={{ marginBottom: '24px' }}>
           <Alert
             message="เกิดข้อผิดพลาด"
-            description={error.message}
+            description={error}
             type="error"
             showIcon
             className="nature-login-error"
@@ -630,33 +584,10 @@ const EnhancedSignUp = ({ handleConfirm, change }) => {
         className="nature-login-form"
         scrollToFirstError
       >
-        {/* Employee Verification Result Display */}
-        {employeeVerificationResult && employeeVerificationResult.success && (
-          <Alert
-            type="success"
-            showIcon
-            style={{ marginBottom: 16 }}
-            message="ยืนยันข้อมูลพนักงานสำเร็จ"
-            description={
-              <div>
-                <Text strong>{employeeVerificationResult.message}</Text>
-                {employeeVerificationResult.employee && (
-                  <div style={{ marginTop: 8, fontSize: '12px', color: '#666' }}>
-                    <div>ตำแหน่ง: {employeeVerificationResult.employee.position || 'ไม่ระบุ'}</div>
-                    <div>สาขา: {employeeVerificationResult.employee.affiliate || 'ไม่ระบุ'}</div>
-                    <div>ระดับความมั่นใจ: {
-                      employeeVerificationResult.confidence === CONFIDENCE_LEVELS.EXACT_MATCH 
-                        ? 'สูงมาก (รหัส + ชื่อตรงกัน)' 
-                        : employeeVerificationResult.confidence === CONFIDENCE_LEVELS.CODE_MATCH
-                        ? 'สูง (รหัสพนักงานตรงกัน)'
-                        : 'ปานกลาง (ชื่อตรงกัน)'
-                    }</div>
-                  </div>
-                )}
-              </div>
-            }
-          />
-        )}
+        {/* Hidden field for userType */}
+        <Form.Item name="userType" initialValue={userType} style={{ display: 'none' }}>
+          <Input type="hidden" />
+        </Form.Item>
 
         {/* Personal Information */}
         <Divider orientation="left">ข้อมูลส่วนตัว</Divider>
@@ -779,12 +710,15 @@ const EnhancedSignUp = ({ handleConfirm, change }) => {
                 placeholder="เลือกจังหวัด"
                 onChange={handleProvinceChange}
                 suffixIcon={<EnvironmentOutlined />}
-                
+                showSearch
                 optionFilterProp="children"
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
               >
-                {Object.entries(provinces || {}).map(([key, province]) => (
+                {Object.entries(provincesToShow).map(([key, province]) => (
                   <Option key={key} value={key}>
-                    {province.name || key}
+                    {province.name || province.nameTh || key}
                   </Option>
                 ))}
               </Select>
@@ -800,12 +734,15 @@ const EnhancedSignUp = ({ handleConfirm, change }) => {
               <Select
                 placeholder="เลือกแผนก"
                 suffixIcon={<BankOutlined />}
-                
+                showSearch
                 optionFilterProp="children"
+                filterOption={(input, option) =>
+                  option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                }
               >
                 {Object.entries(DEPARTMENTS).map(([key, dept]) => (
-                  <Option key={dept.key} value={dept.key}>
-                    {dept.name}
+                  <Option key={key} value={key.toLowerCase()}>
+                    {dept.name || dept.nameTh}
                   </Option>
                 ))}
               </Select>
@@ -823,8 +760,12 @@ const EnhancedSignUp = ({ handleConfirm, change }) => {
             placeholder={selectedProvince ? "เลือกสาขา" : "กรุณาเลือกจังหวัดก่อน"}
             disabled={!selectedProvince || branchesToShow.length === 0}
             suffixIcon={<BankOutlined />}
-            
+            showSearch
             optionFilterProp="children"
+            filterOption={(input, option) =>
+              option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            }
+            notFoundContent={selectedProvince ? "ไม่พบสาขาในจังหวัดนี้" : "กรุณาเลือกจังหวัดก่อน"}
           >
             {branchesToShow.map((branch) => {
               const branchCode = branch.branchCode || branch.id || branch.branchId;
@@ -838,14 +779,14 @@ const EnhancedSignUp = ({ handleConfirm, change }) => {
           </Select>
         </Form.Item>
 
-        {/* Additional Information for existing employees */}
+        {/* Employee ID for existing employees */}
         {userType === 'existing' && (
           <>
-            <Divider orientation="left">ข้อมูลเพิ่มเติม (ทางเลือก)</Divider>
+            <Divider orientation="left">ข้อมูลเพิ่มเติม</Divider>
             <Form.Item
               name="employeeId"
-              label="รหัสพนักงาน (หากมี)"
-              help="กรอกรหัสพนักงานเพื่อเร่งการอนุมัติ"
+              label="รหัสพนักงาน (ทางเลือก)"
+              help="กรอกรหัสพนักงานเพื่อความแม่นยำในการตรวจสอบ"
             >
               <Input
                 prefix={<UserOutlined />}

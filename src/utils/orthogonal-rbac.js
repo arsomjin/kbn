@@ -172,28 +172,68 @@ const generateUserPermissions = (user) => {
   if (!user?.access) {
     return { permissions: [], geographic: null };
   }
-
+  console.log('[generateUserPermissions] user.access', user.access);
   const { authority, geographic, departments = ['GENERAL'] } = user.access;
   
+  // DEBUG: Enhanced logging for permission generation
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Permission Generation Debug:', {
+      authority,
+      geographic,
+      departments,
+      authorityObj: AUTHORITY_LEVELS[authority],
+      geographicType: typeof geographic
+    });
+  }
+  
+  // Handle both new geographic object structure and legacy string format
+  let geoScope;
+  let geoScopeKey;
+  
+  if (typeof geographic === 'string') {
+    // Legacy format: geographic is a string like "BRANCH", "PROVINCE", "ALL"
+    geoScopeKey = geographic;
+    geoScope = GEOGRAPHIC_SCOPE[geographic];
+  } else if (geographic && typeof geographic === 'object' && geographic.scope) {
+    // New format: geographic is an object with scope property
+    geoScopeKey = geographic.scope;
+    geoScope = GEOGRAPHIC_SCOPE[geographic.scope];
+  } else {
+    console.warn('Invalid geographic structure - expected string or object with scope property', { geographic });
+    
+    // FALLBACK: Default to BRANCH scope for regular users, ALL for admins
+    geoScopeKey = authority === 'ADMIN' ? 'ALL' : 'BRANCH';
+    geoScope = GEOGRAPHIC_SCOPE[geoScopeKey];
+    
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🔄 Using fallback geographic scope: ${geoScopeKey} for authority: ${authority}`);
+    }
+  }
+  
   const authorityLevel = AUTHORITY_LEVELS[authority];
-  const geoScope = GEOGRAPHIC_SCOPE[geographic];
   
   if (!authorityLevel || !geoScope) {
-    console.warn('Invalid authority or geographic scope', { authority, geographic });
+    console.warn('Invalid authority or geographic scope', { authority, geographic: geoScopeKey });
     return { permissions: [], geographic: null };
   }
 
   const permissions = [];
   
   // Special case: ADMIN authority with ALL geographic = Super Admin
-  if (authority === 'ADMIN' && geographic === 'ALL') {
+  if (authority === 'ADMIN' && geoScopeKey === 'ALL') {
     permissions.push('*');
   } else {
     // Generate department.action permissions
     departments.forEach(dept => {
       const deptKey = dept.toLowerCase();
       authorityLevel.actions.forEach(action => {
-        permissions.push(`${deptKey}.${action.toLowerCase()}`);
+        const permission = `${deptKey}.${action.toLowerCase()}`;
+        permissions.push(permission);
+        
+        // DEBUG: Log each permission being generated
+        if (process.env.NODE_ENV === 'development' && deptKey === 'accounting') {
+          console.log(`🔍 Generated permission: ${permission} for dept: ${dept}, action: ${action}`);
+        }
       });
     });
     
@@ -216,12 +256,24 @@ const generateUserPermissions = (user) => {
     }
   }
 
+  // DEBUG: Log final permissions array
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🔍 Final Generated Permissions:', permissions);
+  }
+
   return {
     permissions,
     geographic: {
-      scope: geographic,
+      scope: geoScopeKey,
       level: geoScope.level,
-      access: geoScope.access
+      access: geoScope.access,
+      // Preserve original geographic object if it was an object
+      ...(typeof geographic === 'object' ? { 
+        homeProvince: geographic.homeProvince,
+        homeBranch: geographic.homeBranch,
+        allowedProvinces: geographic.allowedProvinces,
+        allowedBranches: geographic.allowedBranches
+      } : {})
     },
     authority: {
       level: authority,
@@ -242,8 +294,11 @@ const getLegacyRoleName = (user) => {
   
   const { authority, geographic, departments } = user.access;
   
+  // Extract scope from geographic (handle both string and object formats)
+  const scope = typeof geographic === 'string' ? geographic : geographic?.scope;
+  
   // Super admin case
-  if (authority === 'ADMIN' && geographic === 'ALL') {
+  if (authority === 'ADMIN' && scope === 'ALL') {
     return 'SUPER_ADMIN';
   }
   
@@ -254,9 +309,9 @@ const getLegacyRoleName = (user) => {
   
   // Manager cases
   if (authority === 'MANAGER') {
-    if (geographic === 'ALL') return 'PROVINCE_MANAGER';
-    if (geographic === 'PROVINCE') return 'PROVINCE_MANAGER';
-    if (geographic === 'BRANCH') return 'BRANCH_MANAGER';
+    if (scope === 'ALL') return 'PROVINCE_MANAGER';
+    if (scope === 'PROVINCE') return 'PROVINCE_MANAGER';
+    if (scope === 'BRANCH') return 'BRANCH_MANAGER';
   }
   
   // Department-specific roles
@@ -284,12 +339,31 @@ const getLegacyRoleName = (user) => {
  * @returns {boolean}
  */
 const hasOrthogonalPermission = (user, permission, context = {}) => {
-  if (!user?.access) return false;
+  if (!user?.access) {
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`❌ hasOrthogonalPermission: No user access for ${permission}`);
+    }
+    return false;
+  }
   
   const userPermissions = generateUserPermissions(user);
   
+  // DEBUG: Enhanced permission checking logging
+  if (process.env.NODE_ENV === 'development' && permission.startsWith('accounting.')) {
+    console.log(`🔍 Permission Check Debug for ${permission}:`, {
+      userHasAccess: !!user?.access,
+      userPermissions: userPermissions.permissions,
+      hasWildcard: userPermissions.permissions.includes('*'),
+      hasSpecific: userPermissions.permissions.includes(permission),
+      context
+    });
+  }
+  
   // Check super admin
   if (userPermissions.permissions.includes('*')) {
+    if (process.env.NODE_ENV === 'development' && permission.startsWith('accounting.')) {
+      console.log(`✅ hasOrthogonalPermission: Super admin access for ${permission}`);
+    }
     return true;
   }
   
@@ -297,11 +371,22 @@ const hasOrthogonalPermission = (user, permission, context = {}) => {
   if (userPermissions.permissions.includes(permission)) {
     // Check geographic constraints if context provided
     if (context.province || context.branch) {
-      return checkGeographicAccess(user, context);
+      const geoAccess = checkGeographicAccess(user, context);
+      if (process.env.NODE_ENV === 'development' && permission.startsWith('accounting.')) {
+        console.log(`🔍 hasOrthogonalPermission: Geographic check for ${permission}: ${geoAccess}`);
+      }
+      return geoAccess;
+    }
+    
+    if (process.env.NODE_ENV === 'development' && permission.startsWith('accounting.')) {
+      console.log(`✅ hasOrthogonalPermission: Permission granted for ${permission}`);
     }
     return true;
   }
   
+  if (process.env.NODE_ENV === 'development' && permission.startsWith('accounting.')) {
+    console.log(`❌ hasOrthogonalPermission: Permission denied for ${permission}`);
+  }
   return false;
 };
 
@@ -316,15 +401,29 @@ const checkGeographicAccess = (user, context) => {
   
   const { geographic, assignedProvinces, assignedBranches } = user.access;
   
+  // Extract scope from geographic (handle both string and object formats)
+  let scope;
+  let allowedProvinces = assignedProvinces;
+  let allowedBranches = assignedBranches;
+  
+  if (typeof geographic === 'string') {
+    scope = geographic;
+  } else if (geographic && typeof geographic === 'object') {
+    scope = geographic.scope;
+    // Use geographic object properties if available
+    allowedProvinces = allowedProvinces || geographic.allowedProvinces;
+    allowedBranches = allowedBranches || geographic.allowedBranches;
+  }
+  
   // ALL scope - can access anything
-  if (geographic === 'ALL') {
+  if (scope === 'ALL') {
     return true;
   }
   
   // PROVINCE scope - check province access
-  if (geographic === 'PROVINCE') {
+  if (scope === 'PROVINCE') {
     if (context.province) {
-      return !assignedProvinces || assignedProvinces.includes(context.province);
+      return !allowedProvinces || allowedProvinces.includes(context.province);
     }
     // If checking branch, need to verify it's in allowed province
     if (context.branch) {
@@ -335,9 +434,9 @@ const checkGeographicAccess = (user, context) => {
   }
   
   // BRANCH scope - check specific branch access
-  if (geographic === 'BRANCH') {
+  if (scope === 'BRANCH') {
     if (context.branch) {
-      return !assignedBranches || assignedBranches.includes(context.branch);
+      return !allowedBranches || allowedBranches.includes(context.branch);
     }
     return false; // Branch-level users can't access province-level data
   }
@@ -354,15 +453,83 @@ const checkGeographicAccess = (user, context) => {
  * @returns {Object} User access object
  */
 const createUserAccess = (authority, geographic, departments, assignments = {}) => {
+  // Helper function to generate department permissions based on authority
+  const generateDepartmentPermissions = (deptList, authorityLevel) => {
+    const deptPermissions = {};
+    
+    // Define permissions based on authority level
+    const permissionLevels = {
+      'ADMIN': { view: true, edit: true, approve: true },
+      'MANAGER': { view: true, edit: true, approve: true },
+      'LEAD': { view: true, edit: true, approve: false },
+      'STAFF': { view: true, edit: true, approve: false }
+    };
+    
+    const permissions = permissionLevels[authorityLevel] || permissionLevels['STAFF'];
+    
+    // Generate permissions for each department
+    const allDepartments = ['accounting', 'sales', 'service', 'inventory', 'hr'];
+    allDepartments.forEach(dept => {
+      if (deptList.includes(dept.toUpperCase()) || deptList.includes('GENERAL')) {
+        deptPermissions[dept] = { ...permissions };
+      } else {
+        // Departments not assigned to user get view-only access
+        deptPermissions[dept] = { view: false, edit: false, approve: false };
+      }
+    });
+    
+    return deptPermissions;
+  };
+  
+  // Helper function to generate feature permissions
+  const generateFeaturePermissions = (authorityLevel) => {
+    const features = {
+      reports: { view: false, export: false },
+      admin: { userManagement: false, systemConfig: false },
+      developer: { tools: false, migration: false }
+    };
+    
+    switch (authorityLevel) {
+      case 'ADMIN':
+        return {
+          reports: { view: true, export: true },
+          admin: { userManagement: true, systemConfig: true },
+          developer: { tools: true, migration: true }
+        };
+      case 'MANAGER':
+        return {
+          reports: { view: true, export: true },
+          admin: { userManagement: true, systemConfig: false },
+          developer: { tools: false, migration: false }
+        };
+      case 'LEAD':
+        return {
+          reports: { view: true, export: false },
+          admin: { userManagement: false, systemConfig: false },
+          developer: { tools: false, migration: false }
+        };
+      case 'STAFF':
+      default:
+        return features; // All false
+    }
+  };
+  
+  // Create structure according to DATA_STRUCTURES_REFERENCE.md Clean Slate format
   return {
     authority,
-    geographic,
+    geographic: {
+      scope: geographic || 'BRANCH',
+      allowedProvinces: assignments.provinces || [],
+      allowedBranches: assignments.branches || [],
+      homeProvince: assignments.provinces?.[0] || null,
+      homeBranch: assignments.homeBranch || null
+    },
+    permissions: {
+      departments: generateDepartmentPermissions(departments, authority),
+      features: generateFeaturePermissions(authority)
+    },
     departments,
-    assignedProvinces: assignments.provinces || [],
-    assignedBranches: assignments.branches || [],
-    homeBranch: assignments.homeBranch || null,
-    effectiveDate: new Date().toISOString().split('T')[0],
-    grantedBy: 'system' // Should be actual granting user
+    createdAt: new Date().toISOString(),
   };
 };
 
@@ -421,7 +588,7 @@ const migrateToOrthogonalSystem = (legacyUser) => {
  */
 const determineDepartmentsFromLegacy = (legacyUser) => {
   const accessLevel = legacyUser.accessLevel || '';
-  const permissions = legacyUser.permissions || [];
+  const rawPermissions = legacyUser.permissions;
   
   // Based on access level
   if (accessLevel.includes('ACCOUNTING')) return ['ACCOUNTING'];
@@ -430,13 +597,30 @@ const determineDepartmentsFromLegacy = (legacyUser) => {
   if (accessLevel.includes('INVENTORY')) return ['INVENTORY'];
   if (accessLevel.includes('HR')) return ['HR'];
   
-  // Based on permissions (simplified)
+  // Based on permissions - handle different permission formats
   const depts = [];
-  if (permissions.some(p => p.includes('accounting'))) depts.push('ACCOUNTING');
-  if (permissions.some(p => p.includes('sales'))) depts.push('SALES');
-  if (permissions.some(p => p.includes('service'))) depts.push('SERVICE');
-  if (permissions.some(p => p.includes('inventory'))) depts.push('INVENTORY');
-  if (permissions.some(p => p.includes('hr'))) depts.push('HR');
+  
+  if (rawPermissions) {
+    let permissionArray = [];
+    
+    // Handle different permission formats
+    if (Array.isArray(rawPermissions)) {
+      permissionArray = rawPermissions;
+    } else if (typeof rawPermissions === 'object') {
+      // If permissions is an object, get its keys or values
+      permissionArray = Object.keys(rawPermissions);
+    } else if (typeof rawPermissions === 'string') {
+      // If permissions is a string, split it
+      permissionArray = [rawPermissions];
+    }
+    
+    // Check for department permissions
+    if (permissionArray.some(p => p && p.toString().includes('accounting'))) depts.push('ACCOUNTING');
+    if (permissionArray.some(p => p && p.toString().includes('sales'))) depts.push('SALES');
+    if (permissionArray.some(p => p && p.toString().includes('service'))) depts.push('SERVICE');
+    if (permissionArray.some(p => p && p.toString().includes('inventory'))) depts.push('INVENTORY');
+    if (permissionArray.some(p => p && p.toString().includes('hr'))) depts.push('HR');
+  }
   
   return depts.length > 0 ? depts : ['GENERAL'];
 };

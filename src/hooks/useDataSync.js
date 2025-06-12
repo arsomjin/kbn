@@ -79,40 +79,71 @@ const COLLECTION_SYNC_CONFIG = {
 /**
  * Custom hook to handle all data collection synchronization
  * Automatically syncs all configured collections
+ * 🔧 FIX: Wait for complete authentication before starting data sync
  */
 export const useDataSynchronization = () => {
-  const { user } = useSelector(state => state.auth);
+  const { user, isAuthenticated } = useSelector(state => state.auth);
   
-  // Company-related collections
-  useCollectionSync('data/company/provinces', setProvinces);
-  useCollectionSync('data/company/banks', setBanks);
-  useCollectionSync('data/company/bankNames', setBankNames);
-  useCollectionSync('data/company/branches', setBranches);
-  useCollectionSync('data/company/departments', setDepartments);
-  useCollectionSync('data/company/executives', setExecutives);
-  useCollectionSync('data/company/employees', setEmployees);
-  useCollectionSync('data/company/locations', setLocations);
-  useCollectionSync('data/company/permissions', setPermissions);
-  useCollectionSync('data/company/permissionCategories', setPermissionCategories);
-  useCollectionSync('data/company/userGroups', setUserGroups);
-  useCollectionSync('data/company/warehouses', setWarehouses);
+  // 🔧 CHECK: Only sync data when authentication is complete and user has RBAC structure
+  const isAuthenticationComplete = isAuthenticated && 
+                                   user && 
+                                   user.uid && 
+                                   (user.access || user.isPendingApproval);
+  
+  // 🔧 DEBUG: Log authentication state for debugging (reduced frequency)
+  if (process.env.NODE_ENV === 'development') {
+    // Only log once when auth state changes, not on every hook call
+    const authStateKey = `${isAuthenticated}-${!!user}-${!!user?.uid}-${!!user?.access}-${!!user?.isPendingApproval}`;
+    if (!window._lastAuthStateKey || window._lastAuthStateKey !== authStateKey) {
+      console.log('🔍 Data Sync State Change:', {
+        isAuthenticated,
+        hasUser: !!user,
+        hasUID: !!user?.uid,
+        hasAccess: !!user?.access,
+        isPending: !!user?.isPendingApproval,
+        authComplete: isAuthenticationComplete
+      });
+      window._lastAuthStateKey = authStateKey;
+    }
+  }
+  
+  // Company-related collections - wait for authentication completion
+  useCollectionSync(isAuthenticationComplete ? 'data/company/provinces' : null, setProvinces);
+  useCollectionSync(isAuthenticationComplete ? 'data/company/banks' : null, setBanks);
+  useCollectionSync(isAuthenticationComplete ? 'data/company/bankNames' : null, setBankNames);
+  useCollectionSync(isAuthenticationComplete ? 'data/company/branches' : null, setBranches);
+  useCollectionSync(isAuthenticationComplete ? 'data/company/departments' : null, setDepartments);
+  useCollectionSync(isAuthenticationComplete ? 'data/company/executives' : null, setExecutives);
+  useCollectionSync(isAuthenticationComplete ? 'data/company/employees' : null, setEmployees);
+  useCollectionSync(isAuthenticationComplete ? 'data/company/locations' : null, setLocations);
+  useCollectionSync(isAuthenticationComplete ? 'data/company/permissions' : null, setPermissions);
+  useCollectionSync(isAuthenticationComplete ? 'data/company/permissionCategories' : null, setPermissionCategories);
+  useCollectionSync(isAuthenticationComplete ? 'data/company/userGroups' : null, setUserGroups);
+  useCollectionSync(isAuthenticationComplete ? 'data/company/warehouses' : null, setWarehouses);
 
-  // Sales-related collections
-  useCollectionSync('data/sales/dataSources', setDataSources);
-  useCollectionSync('data/sales/dealers', setDealers);
-  useCollectionSync('data/sales/plants', setPlants);
+  // Sales-related collections - wait for authentication completion
+  useCollectionSync(isAuthenticationComplete ? 'data/sales/dataSources' : null, setDataSources);
+  useCollectionSync(isAuthenticationComplete ? 'data/sales/dealers' : null, setDealers);
+  useCollectionSync(isAuthenticationComplete ? 'data/sales/plants' : null, setPlants);
 
-  // Account-related collections
-  useCollectionSync('data/account/expenseName', setExpenseAccountNames);
-  useCollectionSync('data/account/expenseCategory', setExpenseCategories);
+  // Account-related collections - wait for authentication completion
+  useCollectionSync(isAuthenticationComplete ? 'data/account/expenseName' : null, setExpenseAccountNames);
+  useCollectionSync(isAuthenticationComplete ? 'data/account/expenseCategory' : null, setExpenseCategories);
 
-  // User management - only sync if user has admin-level permissions
+  // User management - only sync if user has admin-level permissions AND authentication is complete
+  // Check both legacy (accessLevel) and Clean Slate (access.authority) structures
   const hasUserManagementAccess = user?.accessLevel === 'SUPER_ADMIN' || 
                                   user?.accessLevel === 'PROVINCE_MANAGER' || 
-                                  user?.accessLevel === 'BRANCH_MANAGER';
+                                  user?.accessLevel === 'BRANCH_MANAGER' ||
+                                  user?.access?.authority === 'PROVINCE_MANAGER' ||
+                                  user?.access?.authority === 'BRANCH_MANAGER' ||
+                                  user?.isDev;
   
-  // Pass null as collectionPath when user doesn't have access to prevent sync
-  const usersCollectionPath = (hasUserManagementAccess && user?.auth?.isApproved) ? 'users' : null;
+  // Check if user is approved using Clean Slate structure
+  const isUserApproved = user?.isApproved !== false && user?.isActive !== false;
+  
+  // Pass null as collectionPath when user doesn't have access or auth isn't complete
+  const usersCollectionPath = (isAuthenticationComplete && hasUserManagementAccess && isUserApproved) ? 'users' : null;
   useCollectionSync(usersCollectionPath, setUsers);
 };
 
@@ -159,11 +190,18 @@ export const useAccountSync = () => {
 export const useUserManagementSync = () => {
   const { user } = useSelector(state => state.auth);
   
+  // Check both legacy (accessLevel) and Clean Slate (access.authority) structures
   const hasUserManagementAccess = user?.accessLevel === 'SUPER_ADMIN' || 
                                   user?.accessLevel === 'PROVINCE_MANAGER' || 
-                                  user?.accessLevel === 'BRANCH_MANAGER';
+                                  user?.accessLevel === 'BRANCH_MANAGER' ||
+                                  user?.access?.authority === 'PROVINCE_MANAGER' ||
+                                  user?.access?.authority === 'BRANCH_MANAGER' ||
+                                  user?.isDev;
   
-  const usersCollectionPath = hasUserManagementAccess ? 'users' : null;
+  // Check if user is approved using Clean Slate structure
+  const isUserApproved = user?.isApproved !== false && user?.isActive !== false;
+  
+  const usersCollectionPath = (hasUserManagementAccess && isUserApproved) ? 'users' : null;
   
   useCollectionSync(usersCollectionPath, setUsers);
 };
@@ -176,9 +214,13 @@ export const useManualDataSync = () => {
   const { user } = useSelector(state => state.auth);
   
   const retryUsersSync = useCallback(() => {
+    // Check both legacy (accessLevel) and Clean Slate (access.authority) structures
     const hasUserManagementAccess = user?.accessLevel === 'SUPER_ADMIN' || 
                                     user?.accessLevel === 'PROVINCE_MANAGER' || 
-                                    user?.accessLevel === 'BRANCH_MANAGER';
+                                    user?.accessLevel === 'BRANCH_MANAGER' ||
+                                    user?.access?.authority === 'PROVINCE_MANAGER' ||
+                                    user?.access?.authority === 'BRANCH_MANAGER' ||
+                                    user?.isDev;
     
     if (hasUserManagementAccess) {
       console.log('🔄 Manually retrying users collection sync...');
@@ -188,7 +230,7 @@ export const useManualDataSync = () => {
       console.warn('⚠️ User does not have permission to sync users collection');
       return { success: false, message: 'Insufficient permissions for users sync' };
     }
-  }, [user?.accessLevel]);
+  }, [user?.accessLevel, user?.access?.authority, user?.isDev]);
 
   return { retryUsersSync };
 };

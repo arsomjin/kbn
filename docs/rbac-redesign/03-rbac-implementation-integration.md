@@ -236,7 +236,7 @@ const ComponentWithPermissions = () => {
     // 🗺️ Geographic Access
     filterDataByUserAccess,
     accessibleBranches,
-    getDefaultBranch,
+    homeLocation,
 
     // 👤 User Context
     isAdmin,

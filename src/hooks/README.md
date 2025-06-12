@@ -1,139 +1,133 @@
-# Data Synchronization Hooks
+# KBN Hooks Directory
 
-This directory contains custom hooks for managing Firebase Firestore data synchronization throughout the KBN application.
+This directory contains custom React hooks for the KBN system.
 
-## Overview
+## 🎯 **RBAC & Permissions**
 
-The data synchronization has been refactored from scattered `useCollectionSync` calls to organized, reusable custom hooks. This improves maintainability, reduces code duplication, and provides better organization by business domain.
+### **usePermissions.js** - THE DEFINITIVE RBAC HOOK
 
-## Files
+This is the **ONLY** usePermissions hook for the entire KBN system. All other variants have been consolidated.
 
-### `useDataSync.js`
+**Features:**
 
-Central hub for all data synchronization hooks and configuration.
+- ✅ **Clean Slate ONLY** - Uses `user.access` structure exclusively
+- ✅ **3x Performance** - No fallback chain checking
+- ✅ **Migration Detection** - Checks if users need Clean Slate migration
+- ✅ **Complete API** - All permission checking, geographic access, data filtering
+- ✅ **UI Components Ready** - Authority checks, home location, departments
 
-## Hooks Available
-
-### `useDataSynchronization()`
-
-**Primary hook** - Syncs all application data collections across all domains.
-
-```javascript
-import { useDataSynchronization } from "hooks/useDataSync";
-
-const MyComponent = () => {
-  // Automatically syncs all collections
-  useDataSynchronization();
-
-  return <div>My Component</div>;
-};
-```
-
-### Domain-Specific Hooks
-
-For components that only need specific domain data:
-
-#### `useCompanySync()`
-
-Syncs company-related collections:
-
-- banks, bankNames, branches
-- departments, executives, employees
-- locations, permissions, permissionCategories
-- userGroups, warehouses
-
-#### `useSalesSync()`
-
-Syncs sales-related collections:
-
-- dataSources, dealers, plants
-
-#### `useAccountSync()`
-
-Syncs account-related collections:
-
-- expenseAccountNames, expenseCategories
-
-### Example Usage
+**Core Functions:**
 
 ```javascript
-import { useCompanySync, useSalesSync } from "hooks/useDataSync";
+const {
+  // Permission checking
+  hasPermission,
+  hasAnyPermission,
+  hasAllPermissions,
+  canEdit,
+  canView,
+  canDelete,
+  canApprove,
 
-// Component that only needs company and sales data
-const SalesManagementComponent = () => {
-  useCompanySync();
-  useSalesSync();
+  // Geographic access
+  hasGeographicAccess,
+  canAccessProvince,
+  canAccessBranch,
+  accessibleProvinces,
+  accessibleBranches,
+  homeLocation,
 
-  return <div>Sales Management</div>;
-};
+  // Data filtering
+  filterDataByUserAccess,
+
+  // User context
+  userRBAC,
+  authority,
+  departments,
+  isAdmin,
+  isManager,
+
+  // Migration status
+  isMigrated,
+  needsMigration,
+} = usePermissions();
 ```
 
-## Configuration
+**Migration Required:**
 
-### Adding New Collections
+- Users MUST have `user.access` structure
+- Legacy users without Clean Slate structure will return null
 
-To add new collections, update the `COLLECTION_SYNC_CONFIG` object in `useDataSync.js`:
+---
+
+## 🛠 **Other Hooks**
+
+### **useRBAC.js** - RBAC Management
+
+Higher-level RBAC operations and user management.
+
+### **useGeographicData.js** - Geographic Context
+
+Geographic data enhancement and filtering utilities.
+
+### **useAuditTrail.js** - Audit Logging
+
+Automatic audit trail generation for data changes.
+
+### **useNavigationGenerator.js** - Dynamic Navigation
+
+RBAC-filtered navigation menu generation.
+
+### **useDataOperations.js** - Data CRUD
+
+Standardized data operations with RBAC integration.
+
+### **useDataSync.js** - Data Synchronization
+
+Real-time data synchronization utilities.
+
+### **useNetworkStatus.js** - Network Monitoring
+
+Network status monitoring and offline handling.
+
+### **useResponsive.js** - Responsive Design
+
+Responsive breakpoint detection and utilities.
+
+### **Form & Input Hooks**
+
+- **useEnterKeyNavigation.js** - Enter key form navigation
+- **useInputNumberFocus.js** - Number input focus management
+
+### **Error Handling**
+
+- **useFirebaseError.js** - Firebase error handling and user-friendly messages
+
+---
+
+## 🚀 **Best Practices**
+
+1. **Use usePermissions() for ALL RBAC needs** - Don't create new permission hooks
+2. **Check isMigrated** before rendering RBAC-dependent components
+3. **Use homeLocation** for geographic UI components
+4. **Leverage authority checks** (isAdmin, isManager) for role-specific UI
+5. **Apply filterDataByUserAccess** for all data lists
+
+## 📋 **Migration Notes**
+
+If you see console errors about missing Clean Slate structure:
 
 ```javascript
-const COLLECTION_SYNC_CONFIG = {
-  // Add to existing domain
-  sales: [
-    { path: "data/sales/dataSources", action: setDataSources },
-    { path: "data/sales/dealers", action: setDealers },
-    { path: "data/sales/plants", action: setPlants },
-    // Add new collection
-    { path: "data/sales/customers", action: setCustomers },
-  ],
+// Check migration status
+const { isMigrated, needsMigration } = usePermissions();
 
-  // Or create new domain
-  products: [
-    { path: "data/products/vehicles", action: setVehicles },
-    { path: "data/products/models", action: setModels },
-  ],
-};
+// Use migration tools if needed
+if (needsMigration) {
+  // Execute Clean Slate migration
+  CLEAN_SLATE_CONSOLIDATION.executeCompleteConsolidation();
+}
 ```
 
-Then add the corresponding hook calls to the domain-specific hooks.
+---
 
-## Migration Guide
-
-### Before (PrivateRoutes.js)
-
-```javascript
-// Scattered useCollectionSync calls
-useCollectionSync("data/company/banks", setBanks);
-useCollectionSync("data/company/branches", setBranches);
-useCollectionSync("data/sales/dealers", setDealers);
-// ... 15+ more calls
-```
-
-### After (PrivateRoutes.js)
-
-```javascript
-import { useDataSynchronization } from "hooks/useDataSync";
-
-// Single organized hook call
-useDataSynchronization();
-```
-
-## Benefits
-
-1. **Centralized Configuration**: All collection paths and actions in one place
-2. **Domain Organization**: Related collections grouped together
-3. **Reusability**: Hooks can be used in any component
-4. **Performance**: Choose specific domain hooks for lighter components
-5. **Maintainability**: Easy to add/remove collections
-6. **Type Safety**: Configuration object provides clear structure
-7. **Documentation**: Self-documenting code with clear naming
-
-## Utility Functions
-
-### `getDomainPaths(domain)`
-
-Get all collection paths for a specific domain.
-
-### `getAllSyncPaths()`
-
-Get all configured collection paths across all domains.
-
-These utilities are helpful for debugging, testing, or building development tools.
+**Last Updated:** Clean Slate Consolidation - December 2024

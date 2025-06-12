@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
-import { Form, Input, Button, Alert, Space } from 'antd';
+import { Form, Input, Button, Alert, Space, Checkbox } from 'antd';
 import { LockOutlined, MailOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 
 const NatureLogin = ({ handleConfirm, change }) => {
   const [form] = Form.useForm();
-  const [rememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState(null);
   const { loginError, isLoggingIn } = useSelector(state => state.auth);
 
@@ -32,6 +32,7 @@ const NatureLogin = ({ handleConfirm, change }) => {
   useEffect(() => {
     return () => {
       // Cleanup any pending operations
+      // Only cleanup if component is actually unmounting
       setError(null);
     };
   }, []);
@@ -52,7 +53,7 @@ const NatureLogin = ({ handleConfirm, change }) => {
         <img
           className="nature-login-logo"
           src={require('../../images/logo192.png')}
-                      alt="KBN"
+          alt="KBN"
           style={{
             width: '88px',
             height: '88px',
@@ -107,19 +108,19 @@ const NatureLogin = ({ handleConfirm, change }) => {
         </Form.Item>
 
         {/* Remember Me and Forgot Password */}
-        <Form.Item>
+        {/* <Form.Item>
           <div style={{ 
             display: 'flex', 
-            justifyContent: 'flex-end', 
+            justifyContent: 'space-between', 
             alignItems: 'center',
             marginBottom: '24px'
           }}>
-            {/* <Checkbox 
+            <Checkbox 
               checked={rememberMe} 
               onChange={(e) => setRememberMe(e.target.checked)}
             >
               จดจำการเข้าสู่ระบบ
-            </Checkbox> */}
+            </Checkbox>
             <Button 
               type="link"
               onClick={() => change('ForgetPassword')}
@@ -129,7 +130,7 @@ const NatureLogin = ({ handleConfirm, change }) => {
               ลืมรหัสผ่าน?
             </Button>
           </div>
-        </Form.Item>
+        </Form.Item> */}
 
         {/* Error Display */}
         {error && (

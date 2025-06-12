@@ -8,6 +8,7 @@ import { toggleSidebar } from 'redux/actions/unPersisted';
 import SidebarMainNavbar from './SidebarMainNavbar';
 import SidebarSearch from './SidebarSearch';
 import EnhancedSidebarNavItems from './EnhancedSidebarNavItems';
+import { useResponsive } from 'hooks/useResponsive';
 import 'styles/enhanced-navigation.css';
 
 const { Sider } = Layout;
@@ -15,10 +16,10 @@ const { Sider } = Layout;
 const MainSidebar = forwardRef((props, ref) => {
   const { menuVisible } = useSelector(state => state.unPersisted);
   const dispatch = useDispatch();
+  const { isMobile } = useResponsive()
 
   // Set initial sidebar state based on screen size on first mount
   useEffect(() => {
-    const isMobile = window.innerWidth <= 768;
     if (isMobile && menuVisible) {
       dispatch(toggleSidebar(false));
     } else if (!isMobile && !menuVisible) {

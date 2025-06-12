@@ -170,7 +170,7 @@ const IncomeOther = ({ order, onConfirm, onBack, isEdit, readOnly, reset }) => {
       if (!validatePayments(mValues.payments, showMessageBar)) {
         return;
       }
-      showLog('[IncomeOther] clean values', mValues);
+      // showLog('[IncomeOther] clean values', mValues); // Disabled to prevent console spam
       showConfirm(() => onConfirm(mValues, resetToInitial), `บันทึกข้อมูลรับเงินประจำวัน อื่นๆ`);
     } catch (e) {
       load(false);

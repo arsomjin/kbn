@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import 'moment/locale/th';
+import 'dayjs/locale/th';
 import DatePick from './DatePick';
 import RangePick from './RangePick';
 

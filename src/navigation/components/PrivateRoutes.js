@@ -48,14 +48,26 @@ export const PrivateRoutes = props => {
 
   const all_menu_items = [...navItems]; // Using new navigationConfig.js system
 
-  // Initialize all data synchronization hooks
+  // 🔧 CHECK: Determine if authentication is complete before initializing data
+  const isAuthenticationComplete = user && 
+                                   user.uid && 
+                                   (user.access || user.isPendingApproval) &&
+                                   !isVerifying;
+
+  // Initialize all data synchronization hooks - they will handle auth checks internally
   useDataSynchronization();
   
-  // Initialize all listener hooks
+  // Initialize all listener hooks - they will handle auth checks internally
   useAppListeners(api, user);
 
   // Force an update for example logic:
   const _forceUpdate = () => {
+    // 🔧 SAFETY: Only run force update if authentication is complete
+    if (!isAuthenticationComplete) {
+      console.log('⏳ Skipping force update - authentication not complete');
+      return;
+    }
+    
     // Example user status check
     const updateStateRef = app.firestore().collection('status').doc(user.uid);
     updateStateRef.get().then(doc => {
@@ -82,22 +94,43 @@ export const PrivateRoutes = props => {
           last_online: Date.now()
         });
       }
+    }).catch(error => {
+      // Handle permission errors gracefully
+      if (error.code === 'permission-denied') {
+        console.log('🔒 No access to status collection - this is normal for some users');
+      } else {
+        console.warn('❌ Error updating user status:', error);
+      }
     });
   };
 
   useEffect(() => {
+    // 🔧 DEFER: Only run initialization when authentication is complete
+    if (!isAuthenticationComplete) {
+      console.log('⏳ Waiting for authentication to complete...');
+      return;
+    }
+    
     _forceUpdate();
     api.getVersion();
 
-    // Validate path
+    // 🔧 SAFE PATH VALIDATION: Only validate paths when auth is complete
     if (props.location?.pathname) {
       const all_paths = getAllPaths(all_menu_items);
       if (['/login', '/'].includes(props.location.pathname)) {
         history.push('/overview');
       } else if (!all_paths.includes(props.location.pathname)) {
-        history.push('/not-found');
+        // 🔧 GRACE PERIOD: Give a moment for navigation items to load
+        setTimeout(() => {
+          const updated_paths = getAllPaths(all_menu_items);
+          if (!updated_paths.includes(props.location.pathname)) {
+            console.log('🔍 Invalid path after grace period:', props.location.pathname);
+            history.push('/not-found');
+          }
+        }, 1000);
       }
     }
+    
     async function registerPush() {
       try {
         // Only register FCM in production or if explicitly enabled
@@ -133,7 +166,12 @@ export const PrivateRoutes = props => {
     registerPush();
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isAuthenticationComplete]); // 🔧 DEPENDENCY: Re-run when auth completes
+
+  // 🔧 LOADING STATE: Show loading while authentication is completing
+  if (!isAuthenticationComplete) {
+    return <Load loading />;
+  }
 
   return (
     <div>

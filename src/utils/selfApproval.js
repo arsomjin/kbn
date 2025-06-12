@@ -4,6 +4,7 @@
  */
 
 import { app } from '../firebase';
+import { createUserAccess } from './orthogonal-rbac';
 
 /**
  * Approve yourself (for development/testing only)
@@ -15,19 +16,80 @@ export const approveSelf = async (userId) => {
     console.log('🔓 Self-approving user:', userId);
     
     const timestamp = Date.now();
+    
+    // Get current user data to preserve existing info
+    const userDoc = await app.firestore()
+      .collection('users')
+      .doc(userId)
+      .get();
+      
+    if (!userDoc.exists) {
+      console.error('❌ User document not found');
+      return false;
+    }
+    
+    const userData = userDoc.data();
+    
+    // Get user data from Clean Slate structure (primary) or legacy fallback
+    const userProvince = userData.access?.geographic?.homeProvince || 
+                        userData.province || 
+                        userData.auth?.province || 
+                        'nakhon-ratchasima';
+    const userBranch = userData.access?.geographic?.homeBranch || 
+                      userData.branch || 
+                      userData.auth?.branch || 
+                      '0450';
+    const userDepartment = userData.access?.departments?.[0] || 
+                          userData.department || 
+                          userData.auth?.department || 
+                          'GENERAL';
+    
+    console.log('📋 Self-approval using user data:', {
+      province: userProvince,
+      branch: userBranch,
+      department: userDepartment,
+      hasCleanSlate: !!userData.access?.authority
+    });
+    
+    // Create proper Clean Slate RBAC structure using unified helper
+    const cleanSlateAccess = createUserAccess(
+      'STAFF', // Authority level for self-approval
+      'BRANCH', // Geographic scope
+      [userDepartment.toUpperCase()], // Departments array
+      {
+        provinces: [userProvince],
+        branches: [userBranch],
+        homeBranch: userBranch
+      }
+    );
+    
+    // Create the Clean Slate user structure
     const updates = {
-      'auth.isActive': true,
-      'auth.isApproved': true,
-      'auth.approvalStatus': 'approved',
-      'auth.approvedBy': 'self-dev',
-      'auth.approvedAt': timestamp,
-      'status.isActive': true,
-      'status.isApproved': true,
-      'status.approvalStatus': 'approved',
-      'status.lastStatusUpdate': timestamp
+      // Core user data
+      isActive: true,
+      isApproved: true,
+      approvalStatus: 'approved',
+      
+      // Clean Slate RBAC structure (ONLY structure)
+      access: cleanSlateAccess,
+      
+      // Essential metadata
+      updatedAt: Date.now(),
+      approvedAt: timestamp,
+      approvedBy: 'self-dev'
     };
 
-    // Update user document
+    console.log('📝 Updating user with Clean Slate structure:', {
+      userId,
+      authority: cleanSlateAccess.authority,
+      geographic: cleanSlateAccess.geographic.scope,
+      departments: cleanSlateAccess.departments,
+      permissions: Object.keys(cleanSlateAccess.permissions.departments).filter(
+        dept => cleanSlateAccess.permissions.departments[dept].view
+      )
+    });
+
+    // Update user document with Clean Slate structure
     await app.firestore()
       .collection('users')
       .doc(userId)
@@ -46,13 +108,19 @@ export const approveSelf = async (userId) => {
           status: 'approved',
           approvedBy: 'self-dev',
           approvedAt: timestamp,
-          approvalNotes: 'Self-approved for development/testing'
+          approvalNotes: 'Self-approved for development/testing with Clean Slate RBAC'
         })
       );
       await Promise.all(promises);
+      console.log('✅ Updated approval requests');
     }
 
-    console.log('✅ Self-approval successful!');
+    console.log('✅ Self-approval successful with Clean Slate structure!');
+    console.log('🎯 Created access structure:', {
+      authority: cleanSlateAccess.authority,
+      geographic: cleanSlateAccess.geographic,
+      departments: cleanSlateAccess.departments
+    });
     return true;
   } catch (error) {
     console.error('❌ Self-approval failed:', error);
@@ -86,21 +154,38 @@ export const checkUserStatus = async (userId) => {
     }
 
     const userData = userDoc.data();
-    const authStatus = userData.auth || {};
-    const statusData = userData.status || {};
+    const accessData = userData.access || {}; // Clean Slate RBAC structure
 
     return {
       exists: true,
-      isApproved: authStatus.isApproved ?? statusData.isApproved ?? false,
-      isActive: authStatus.isActive ?? statusData.isActive ?? false,
-      approvalStatus: authStatus.approvalStatus || statusData.approvalStatus || 'pending',
-      approvedBy: authStatus.approvedBy || statusData.approvedBy,
-      approvedAt: authStatus.approvedAt || statusData.approvedAt,
-      userType: authStatus.userType || 'new',
-      employeeId: authStatus.employeeId,
-      department: authStatus.department,
-      homeProvince: authStatus.homeProvince,
-      homeBranch: authStatus.homeBranch
+      
+      // Core status fields (Clean Slate structure)
+      isApproved: userData.isApproved ?? false,
+      isActive: userData.isActive ?? false,
+      approvalStatus: userData.approvalStatus || 'pending',
+      approvedBy: userData.approvedBy,
+      approvedAt: userData.approvedAt,
+      
+      // User identification
+      userType: userData.userType || 'new',
+      employeeId: userData.employeeId,
+      
+      // Clean Slate RBAC information
+      hasCleanSlateRBAC: !!accessData.authority,
+      authority: accessData.authority,
+      geographicScope: accessData.geographic?.scope,
+      allowedProvinces: accessData.geographic?.allowedProvinces || [],
+      allowedBranches: accessData.geographic?.allowedBranches || [],
+      departments: accessData.departments || [],
+      homeProvince: accessData.geographic?.homeProvince,
+      homeBranch: accessData.geographic?.homeBranch,
+      
+      // Department permissions summary
+      departmentPermissions: accessData.permissions?.departments || {},
+      featurePermissions: accessData.permissions?.features || {},
+      
+      // Full access structure for debugging
+      fullAccessStructure: accessData
     };
   } catch (error) {
     console.error('Error checking user status:', error);

@@ -43,7 +43,7 @@ const IncomeSummaryReport = () => {
    */
   const handleValuesChange = useCallback(async changedValues => {
     if (firstKey(changedValues) === 'date') {
-      showLog({ range: changedValues.date });
+      // showLog({ range: changedValues.date }); // Disabled to prevent console spam
       setColumns(getColumnsFromRange(changedValues.date));
     }
     searchValues.current = { ...searchValues.current, ...changedValues };

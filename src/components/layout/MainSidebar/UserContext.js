@@ -1,25 +1,76 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, Tag, Typography } from 'antd';
 import { EnvironmentOutlined, HomeOutlined, UserOutlined } from '@ant-design/icons';
+import { useSelector } from 'react-redux';
 import { usePermissions } from 'hooks/usePermissions';
 import { getProvinceName, getBranchName } from 'utils/mappings';
 
 const { Text } = Typography;
 
 const UserContext = () => {
-  // Use the unified permissions hook for Clean Slate RBAC
+  // Get user from Redux state directly to ensure updates
+  const { user } = useSelector(state => state.auth);
+  const [forceUpdate, setForceUpdate] = useState(0);
+  
+  // Use Clean Slate RBAC hook
   const {
     userRBAC,
     isAdmin,
-    isProvinceLevel,
-    isBranchLevel,
-    isDepartmentLevel,
-    isExecutive,
+    isManager,
+    authority,
     accessibleProvinces,
     accessibleBranches,
-    homeProvince,
-    homeBranch
+    homeLocation,
+    departments,
+    hasPermission
   } = usePermissions();
+
+  // Force component update when user changes (for role switching)
+  useEffect(() => {
+    console.log('👤 UserContext: User changed', user?.displayName || user?.email);
+    setForceUpdate(prev => prev + 1);
+  }, [user?.uid, user?.role, user?.displayName, user?.email, user?._forceUpdate]);
+
+  // Listen for manual RBAC refresh events
+  useEffect(() => {
+    const handleRBACRefresh = (event) => {
+      console.log('👤 UserContext: Received RBAC refresh event');
+      setForceUpdate(prev => prev + 1);
+    };
+
+    window.addEventListener('rbac-refresh', handleRBACRefresh);
+    
+    return () => {
+      window.removeEventListener('rbac-refresh', handleRBACRefresh);
+    };
+  }, []);
+
+  // Debug logging for role switching
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 UserContext Debug:', {
+        userRBAC: !!userRBAC,
+        isAdmin,
+        isManager,
+        authority,
+        accessibleProvincesCount: accessibleProvinces?.length || 0,
+        accessibleBranchesCount: accessibleBranches?.length || 0,
+        homeProvince: homeLocation?.province,
+        homeBranch: homeLocation?.branch,
+        userName: userRBAC?.displayName || user?.displayName,
+        departments: departments?.join(', ') || 'None',
+        
+        // ADDITIONAL DEBUG INFO for permission troubleshooting
+        hasAccountingView: userRBAC ? hasPermission('accounting.view') : 'No userRBAC',
+        hasAccountingEdit: userRBAC ? hasPermission('accounting.edit') : 'No userRBAC',
+        userPermissions: userRBAC?.permissions || 'No permissions object',
+        rawUserAccess: user?.access || 'No access object',
+        rawUserUserRBAC: user?.userRBAC || 'No userRBAC object',
+        isAccountingStaff: authority === 'ACCOUNTING_STAFF' || departments?.includes('accounting'),
+        isDeveloper: userRBAC?.isDev
+      });
+    }
+  }, [userRBAC, isAdmin, isManager, authority, accessibleProvinces, accessibleBranches, homeLocation, user, departments, forceUpdate, hasPermission]);
 
   // Get user-friendly province display using Clean Slate RBAC
   const getProvinceDisplay = () => {
@@ -30,30 +81,23 @@ const UserContext = () => {
       return 'ทั้งหมด';
     }
     
-    // Province level - show accessible provinces
-    if (isProvinceLevel) {
-      const provinceCount = accessibleProvinces.length;
-      if (provinceCount === 1) {
-        return getProvinceName(accessibleProvinces[0]?.provinceKey || accessibleProvinces[0]?.key);
-      } else if (provinceCount > 1) {
-        return `${provinceCount} จังหวัด`;
-      }
+    // Home province first priority - fix the access pattern
+    if (homeLocation?.province) {
+      return getProvinceName(homeLocation.province) || homeLocation.province;
     }
     
-    // Branch level - show province of home branch
-    if (isBranchLevel && homeBranch) {
-      return getProvinceName(homeBranch.provinceKey || homeBranch.provinceId);
+    // If user has access to multiple provinces, show count
+    if (accessibleProvinces.length > 1) {
+      return `${accessibleProvinces.length} จังหวัด`;
     }
     
-    // Fallback to home province
-    if (homeProvince) {
-      return getProvinceName(homeProvince.provinceKey || homeProvince.key);
+    // Single province access - fix the access pattern
+    if (accessibleProvinces.length === 1) {
+      return getProvinceName(accessibleProvinces[0]) || accessibleProvinces[0];
     }
     
-    // Final fallback
-    return accessibleProvinces.length > 0 
-      ? getProvinceName(accessibleProvinces[0]?.provinceKey || accessibleProvinces[0]?.key)
-      : 'นครราชสีมา';
+    // Default fallback - use Nakhon Sawan for new system
+    return 'นครสวรรค์';
   };
 
   // Get user-friendly branch display using Clean Slate RBAC
@@ -65,24 +109,29 @@ const UserContext = () => {
       return 'ทั้งหมด';
     }
     
-    // Province level sees all branches in province
-    if (isProvinceLevel) {
+    // Home branch first priority - fix the access pattern
+    if (homeLocation?.branch) {
+      return getBranchName(homeLocation.branch) || homeLocation.branch;
+    }
+    
+    // Manager level - show scope description
+    if (isManager && authority === 'MANAGER') {
+      if (accessibleBranches.length > 1) {
+        return `${accessibleBranches.length} สาขา`;
+      } else if (accessibleBranches.length === 1) {
+        return getBranchName(accessibleBranches[0]) || accessibleBranches[0];
+      }
       return 'ทั้งหมดในจังหวัด';
     }
     
-    // Branch level - show accessible branches
-    if (isBranchLevel) {
-      const branchCount = accessibleBranches.length;
-      if (branchCount === 1) {
-        return getBranchName(accessibleBranches[0]?.branchCode || accessibleBranches[0]?.code);
-      } else if (branchCount > 1) {
-        return `${branchCount} สาขา`;
-      }
+    // Single branch access - fix the access pattern
+    if (accessibleBranches.length === 1) {
+      return getBranchName(accessibleBranches[0]) || accessibleBranches[0];
     }
     
-    // Fallback to home branch
-    if (homeBranch) {
-      return getBranchName(homeBranch.branchCode || homeBranch.code);
+    // Multiple branches
+    if (accessibleBranches.length > 1) {
+      return `${accessibleBranches.length} สาขา`;
     }
     
     return 'ไม่ระบุ';
@@ -92,16 +141,9 @@ const UserContext = () => {
   const getAccessLevelInfo = () => {
     if (!userRBAC) return { label: 'ผู้ใช้งาน', color: 'default' };
     
-    // Handle Clean Slate authority levels first
-    const departments = userRBAC.departments || [];
-    
     // Special cases
     if (userRBAC.isDev) {
       return { label: 'นักพัฒนา', color: 'purple' };
-    }
-    
-    if (isExecutive) {
-      return { label: 'ผู้บริหาร', color: 'gold' };
     }
     
     // Authority-based mapping
@@ -109,16 +151,19 @@ const UserContext = () => {
       return { label: 'ผู้ดูแลระบบ', color: 'red' };
     }
     
-    if (isProvinceLevel) {
-      return { label: 'ผู้จัดการจังหวัด', color: 'purple' };
-    }
-    
-    if (isBranchLevel) {
-      return { label: 'ผู้จัดการสาขา', color: 'blue' };
+    if (isManager && authority === 'MANAGER') {
+      // Determine manager type based on scope
+      if (accessibleProvinces.length > 1) {
+        return { label: 'ผู้จัดการภูมิภาค', color: 'gold' };
+      } else if (accessibleBranches.length > 1) {
+        return { label: 'ผู้จัดการจังหวัด', color: 'purple' };
+      } else {
+        return { label: 'ผู้จัดการสาขา', color: 'blue' };
+      }
     }
     
     // Department-based staff roles
-    if (isDepartmentLevel && departments.length > 0) {
+    if (authority === 'STAFF' && departments && departments.length > 0) {
       const primaryDept = departments[0];
       switch (primaryDept.toLowerCase()) {
         case 'accounting':
@@ -131,31 +176,23 @@ const UserContext = () => {
           return { label: 'เจ้าหน้าที่คลัง', color: 'geekblue' };
         case 'hr':
           return { label: 'เจ้าหน้าที่ HR', color: 'magenta' };
+        case 'general':
+          return { label: 'พนักงานทั่วไป', color: 'default' };
         default:
           return { label: 'พนักงาน', color: 'default' };
       }
     }
     
-    // Legacy fallback for backward compatibility
-    const legacyRole = userRBAC.legacyRole || userRBAC.accessLevel;
-    switch (legacyRole) {
-      case 'EXECUTIVE':
-      case 'Executive':
-        return { label: 'ผู้บริหาร', color: 'gold' };      
-      case 'SUPER_ADMIN':
-        return { label: 'ผู้ดูแลสูงสุด', color: 'red' };
-      case 'PROVINCE_MANAGER':
-        return { label: 'ผู้จัดการจังหวัด', color: 'purple' };
-      case 'BRANCH_MANAGER':
-        return { label: 'ผู้จัดการสาขา', color: 'blue' };
-      case 'ACCOUNTING_STAFF':
-        return { label: 'เจ้าหน้าที่บัญชี', color: 'green' };
-      case 'SALES_STAFF':
-        return { label: 'เจ้าหน้าที่ขาย', color: 'orange' };
-      case 'SERVICE_STAFF':
-        return { label: 'เจ้าหน้าที่บริการ', color: 'cyan' };
-      case 'INVENTORY_STAFF':
-        return { label: 'เจ้าหน้าที่คลัง', color: 'geekblue' };
+    // Default based on authority
+    switch (authority) {
+      case 'ADMIN':
+        return { label: 'ผู้ดูแลระบบ', color: 'red' };
+      case 'MANAGER':
+        return { label: 'ผู้จัดการ', color: 'blue' };
+      case 'LEAD':
+        return { label: 'หัวหน้างาน', color: 'cyan' };
+      case 'STAFF':
+        return { label: 'พนักงาน', color: 'default' };
       default:
         return { label: 'ผู้ใช้งาน', color: 'default' };
     }
@@ -167,8 +204,8 @@ const UserContext = () => {
   
   // Get user name from Clean Slate or legacy format
   const userName = userRBAC?.uid 
-    ? (userRBAC.name || userRBAC.displayName || 'ผู้ใช้งาน')
-    : 'ผู้ใช้งาน';
+    ? (userRBAC.name || userRBAC.displayName || user?.displayName || user?.email || 'ผู้ใช้งาน')
+    : (user?.displayName || user?.email || 'ผู้ใช้งาน');
 
   // Simplified version for production
   const isProduction = process.env.NODE_ENV === 'production';
@@ -246,7 +283,27 @@ const UserContext = () => {
         {/* Clean Slate RBAC Info (Development Only) */}
         {userRBAC && (
           <div className="mb-2" style={{ fontSize: '10px', opacity: 0.7 }}>
-            Authority: {userRBAC.authority} | Depts: {userRBAC.departments?.join(', ') || 'None'}
+            Authority: {authority} | Depts: {departments?.join(', ') || 'None'}
+          </div>
+        )}
+
+        {/* DEBUG: Permission status for accounting (Development Only) */}
+        {process.env.NODE_ENV === 'development' && userRBAC && (
+          <div className="mb-2" style={{ 
+            fontSize: '9px', 
+            background: 'rgba(255,255,255,0.1)', 
+            padding: '4px', 
+            borderRadius: '4px',
+            opacity: 0.8
+          }}>
+            <div>🔍 Acct.View: {hasPermission('accounting.view') ? '✅' : '❌'}</div>
+            <div>🔍 Acct.Edit: {hasPermission('accounting.edit') ? '✅' : '❌'}</div>
+            <div>🔍 HomeProvince: {homeLocation?.province || 'None'}</div>
+            <div>🔍 HomeBranch: {homeLocation?.branch || 'None'}</div>
+            <div>🔍 Authority: {authority || 'None'}</div>
+            <div>🔍 Depts: {departments?.join(',') || 'None'}</div>
+            <div>🔍 GeoScope: {userRBAC?.geographic?.scope || 'None'}</div>
+            <div>🔍 IsActive: {userRBAC?.isActive ? '✅' : '❌'}</div>
           </div>
         )}
 

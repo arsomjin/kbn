@@ -6,7 +6,10 @@ import ApprovalStatus from 'Modules/Auth/ApprovalStatus';
 
 const AuthRoutes = ({ showApprovalStatus, user }) => {
   // If showing approval status for pending user
-  if (showApprovalStatus && user?.isPendingApproval) {
+  // Check actual approval status - prioritize isApproved and isActive over isPendingApproval flag
+  const isPendingApproval = user?.isApproved !== true || user?.isActive !== true;
+
+  if (showApprovalStatus && isPendingApproval) {
     return (
       <div>
         <Route path="/approval-status" render={() => <ApprovalStatus user={user} />} />
@@ -28,6 +31,8 @@ AuthRoutes.propTypes = {
   showApprovalStatus: PropTypes.bool,
   user: PropTypes.shape({
     isPendingApproval: PropTypes.bool,
+    isApproved: PropTypes.bool,
+    isActive: PropTypes.bool,
     userType: PropTypes.string,
     department: PropTypes.string,
     homeBranch: PropTypes.string,

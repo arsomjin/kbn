@@ -1,8 +1,8 @@
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useMemo } from 'react';
 import { DatePicker } from 'antd';
-import 'moment/locale/th';
+import dayjs from 'dayjs';
+import 'dayjs/locale/th';
 import locale from 'antd/es/date-picker/locale/th_TH';
-import moment from 'moment';
 import { isMobile } from 'react-device-detect';
 
 export default forwardRef(
@@ -13,8 +13,27 @@ export default forwardRef(
 
     const _onChange = (date, dateString) => {
       //   showLog({ date, dateString });
-      onChange && onChange(moment(date).format(mFormat), dateString);
+      if (onChange) {
+        if (date) {
+          onChange(dayjs(date).format(mFormat), dateString);
+        } else {
+          onChange(null, dateString);
+        }
+      }
     };
+
+    // Memoize the dayjs value to prevent infinite re-renders
+    const dayjsValue = useMemo(() => {
+      if (typeof value === 'undefined' || value === null) {
+        return null;
+      }
+      // If value is already a dayjs object, return it as-is
+      if (dayjs.isDayjs(value)) {
+        return value;
+      }
+      // Parse string value to dayjs object
+      return dayjs(value, mFormat);
+    }, [value, mFormat]);
 
     return (
       <DatePicker
@@ -23,8 +42,8 @@ export default forwardRef(
         placeholder={placeholder || (isMonth ? 'เดือน' : isYear ? 'ปี' : isTime ? 'เวลา' : 'วันที่')}
         locale={locale}
         onChange={_onChange}
-        value={typeof value === 'undefined' ? value : !!value ? moment(value, mFormat) : moment()}
-        allowClear={false}
+        value={dayjsValue}
+        allowClear={true}
         picker={picker}
         disabledDate={disabledDate}
         onFocus={e => isMobile && (e.target.readOnly = true)} // Disable virtual keyboard on mobile devices.

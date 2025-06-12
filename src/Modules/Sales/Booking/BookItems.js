@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import { showWarn } from 'functions';
 import { TableSummary } from 'api/Table';
 import { StatusMap } from 'data/Constant';
@@ -68,7 +68,7 @@ const BookItems = ({
     try {
       const lastNo = parseInt(Math.floor(Math.random() * 10000));
       const padLastNo = ('0'.repeat(3) + lastNo).slice(-5);
-      const bookItemId = `BOOK-VEH-ITEM${moment().format('YYYYMMDD')}${padLastNo}`;
+      const bookItemId = `BOOK-VEH-ITEM${dayjs().format('YYYYMMDD')}${padLastNo}`;
 
       let newItem = {
         ...initItem,

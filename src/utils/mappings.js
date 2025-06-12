@@ -12,7 +12,13 @@ export const PROVINCE_MAPPINGS = {
   'nakhon-sawan': 'นครสวรรค์',
   'นครสวรรค์': 'นครสวรรค์',
   'NMA': 'นครราชสีมา',
-  'NSN': 'นครสวรรค์'
+  'NSN': 'นครสวรรค์',
+  // Additional mappings for different variations
+  'nakhonsawan': 'นครสวรรค์',
+  'nsn': 'นครสวรรค์',
+  'nma': 'นครราชสีมา',
+  'NAKHON_SAWAN': 'นครสวรรค์',
+  'NAKHON_RATCHASIMA': 'นครราชสีมา'
 };
 
 // Branch mappings
@@ -63,6 +69,21 @@ export const APPROVAL_LEVEL_MAPPINGS = {
   'province_manager': 'ผู้จัดการจังหวัด',
   'executive': 'ผู้บริหาร',
   'super_admin': 'ผู้ดูแลระบบ'
+};
+
+// Access level mappings (for RBAC authority levels)
+export const ACCESS_LEVEL_MAPPINGS = {
+  'SUPER_ADMIN': 'ผู้ดูแลระบบสูงสุด',
+  'ADMIN': 'ผู้ดูแลระบบ',
+  'PROVINCE_MANAGER': 'ผู้จัดการจังหวัด',
+  'BRANCH_MANAGER': 'ผู้จัดการสาขา',
+  'MANAGER': 'ผู้จัดการ',
+  'STAFF': 'พนักงาน',
+  'ACCOUNTING_STAFF': 'พนักงานบัญชี',
+  'SALES_STAFF': 'พนักงานขาย',
+  'SERVICE_STAFF': 'พนักงานบริการ',
+  'INVENTORY_STAFF': 'พนักงานคลัง',
+  'VIEWER': 'ผู้ดูข้อมูล'
 };
 
 /**
@@ -162,6 +183,24 @@ export const getApprovalLevelName = (approvalLevel) => {
   if (directMapping) return directMapping;
   
   return approvalLevel || 'ไม่ระบุ';
+};
+
+/**
+ * Get access level full name (for RBAC authority levels)
+ * @param {string} accessLevel - Access level/authority code
+ * @returns {string} Full Thai access level name
+ */
+export const getAccessLevelName = (accessLevel) => {
+  if (!accessLevel) return 'ไม่ระบุ';
+  
+  const directMapping = ACCESS_LEVEL_MAPPINGS[accessLevel];
+  if (directMapping) return directMapping;
+  
+  // Fallback to approval level mapping
+  const approvalMapping = APPROVAL_LEVEL_MAPPINGS[accessLevel];
+  if (approvalMapping) return approvalMapping;
+  
+  return accessLevel || 'ไม่ระบุ';
 };
 
 /**

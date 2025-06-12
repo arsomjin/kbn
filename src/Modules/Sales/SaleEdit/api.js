@@ -46,7 +46,7 @@ export const onSaleSelect = (refNo, values, form, user) =>
             ...values,
             ...dbValues
           };
-          showLog({ values, dbValues, setValue });
+          // showLog({ values, dbValues, setValue }); // Disabled to prevent console spam
           form.setFieldsValue(setValue);
         });
       }

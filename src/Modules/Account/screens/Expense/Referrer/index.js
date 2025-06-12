@@ -27,7 +27,7 @@ export default ({ subtitle, saleType }) => {
 
   const _getData = useCallback(
     async sValues => {
-      showLog({ sValues });
+      // showLog({ sValues }); // Disabled to prevent console spam
       try {
         setLoading(true);
         let mData = [];

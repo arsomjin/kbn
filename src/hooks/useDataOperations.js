@@ -8,13 +8,11 @@ import { useCallback, useContext } from 'react';
 import { useSelector } from 'react-redux';
 import { FirebaseContext } from '../firebase';
 import { usePermissions } from './usePermissions';
-import { useGeographicData } from './useGeographicData';
 
 export const useDataOperations = (geographic = null) => {
   const { firestore } = useContext(FirebaseContext);
   const { user } = useSelector(state => state.auth);
   const { hasPermission } = usePermissions();
-  const { checkBranchAccess, getCurrentProvince } = useGeographicData();
 
   // Enhanced data submission with automatic provinceId injection
   const submitData = useCallback(async ({
@@ -31,7 +29,7 @@ export const useDataOperations = (geographic = null) => {
       enhancedData = geographic.enhanceDataForSubmission(enhancedData);
     } else {
       // Fallback: manual injection
-      const currentProvince = getCurrentProvince();
+      const currentProvince = geographic?.getCurrentProvince?.();
       const defaultBranch = user.homeBranch || (user?.allowedBranches?.[0]);
       
       enhancedData = {
@@ -69,7 +67,7 @@ export const useDataOperations = (geographic = null) => {
         return await docRef.set(enhancedData);
       }
     }
-  }, [geographic, firestore, user, getCurrentProvince]);
+  }, [geographic, firestore, user]);
 
   // Enhanced data fetching with automatic filtering
   const fetchData = useCallback(async ({
@@ -183,6 +181,6 @@ export const useDataOperations = (geographic = null) => {
     canView: (requiredPermission) => hasPermission(requiredPermission),
     
     // Access validation
-    canAccessBranch: (branchCode) => checkBranchAccess(branchCode)
+    canAccessBranch: (branchCode) => geographic?.checkBranchAccess?.(branchCode) || false
   };
 }; 

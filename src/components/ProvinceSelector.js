@@ -96,7 +96,7 @@ const ProvinceSelector = ({
     return provinceList.sort((a, b) => {
       const nameA = a.provinceName || a.name || a.key;
       const nameB = b.provinceName || b.name || b.key;
-      return nameA.localeCompare(nameB, 'th');
+      return nameA?.localeCompare(nameB, 'th');
     });
   }, [provinces, respectRBAC, isSuperAdmin, accessibleProvinces, includeInactive]);
 

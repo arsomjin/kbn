@@ -24,7 +24,7 @@ const PROVINCES = {
     name: "นครราชสีมา",
     nameEn: "Nakhon Ratchasima",
     code: "NMA",
-    branches: ["0450", "NMA002", "NMA003"],
+    branches: ["0450", "0451", "0452", "0453", "0454", "0455", "0456", "0500"],
   },
   นครสวรรค์: {
     id: "นครสวรรค์",
@@ -41,11 +41,11 @@ const PROVINCES = {
 ```javascript
 const BRANCH_TO_PROVINCE = {
   "0450": "นครราชสีมา",
-  NMA002: "นครราชสีมา",
-  NMA003: "นครราชสีมา",
-  NSN001: "นครสวรรค์",
-  NSN002: "นครสวรรค์",
-  NSN003: "นครสวรรค์",
+  "0451": "บัวใหญ่",
+  "0452": "จักราช",
+  "0453": "สีดา",
+  "0454": "โคกกรวด",
+  "0455": "หนองบุญมาก",
 };
 ```
 
@@ -208,19 +208,19 @@ const standardDocumentStructure = {
 ```javascript
 const enhanceExistingDocument = (existingDoc) => {
   // Derive provinceId from existing branchCode
-  const provinceId = getBranchProvince(existingDoc.branchCode || "0450");
+  const provinceId = getBranchProvince(existingDoc.branchCode);
 
   return {
     ...existingDoc,
     // Add required geographic fields
     provinceId,
     recordedProvince: provinceId,
-    recordedBranch: existingDoc.branchCode || "0450",
+    recordedBranch: existingDoc.branchCode,
     recordedAt: existingDoc.createdAt || Date.now(),
 
     // Add search keywords for better querying
     provinceKeywords: generateProvinceKeywords(provinceId),
-    branchKeywords: generateBranchKeywords(existingDoc.branchCode || "0450"),
+    branchKeywords: generateBranchKeywords(existingDoc.branchCode),
   };
 };
 ```

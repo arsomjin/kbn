@@ -24,6 +24,7 @@ import UserContext from './UserContext';
 import { toggleSidebar } from 'redux/actions/unPersisted';
 import { setSelectedKeys, setOpenKeys } from 'redux/actions/unPersisted';
 import { isMobile } from 'react-device-detect';
+import { usePermissions } from 'hooks/usePermissions';
 
 const { SubMenu } = Menu;
 const { Text } = Typography;
@@ -45,9 +46,10 @@ const ICON_MAP = {
 };
 
 const EnhancedSidebarNavItems = () => {
-  const { navigation = [], navigationStats, userRole } = useNavigationGenerator();
+  const { navigation = [], navigationStats, userRole, isDev } = useNavigationGenerator();
   const { openKeys } = useSelector(state => state.unPersisted);
   const { user } = useSelector(state => state.auth);
+  const { hasPermission, authority, departments } = usePermissions();
   const history = useHistory();
   const location = useLocation();
   const dispatch = useDispatch();
@@ -107,6 +109,24 @@ const EnhancedSidebarNavItems = () => {
       window.removeEventListener('userDataRefreshed', handleUserDataRefresh);
     };
   }, [isMounted]);
+
+  // DEBUG: Log navigation and user context
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 EnhancedSidebarNavItems Debug:', {
+        navigationSections: navigation.length,
+        navigationTitles: navigation.map(nav => nav.title),
+        userRole,
+        isDev,
+        authority,
+        departments,
+        hasAccountingView: hasPermission('accounting.view'),
+        hasAccountingEdit: hasPermission('accounting.edit'),
+        accountingSection: navigation.find(nav => nav.title === 'บัญชีและการเงิน'),
+        userEmail: user?.email
+      });
+    }
+  }, [navigation, userRole, isDev, authority, departments, hasPermission, user]);
 
   /*
    * Production Mode Behavior:

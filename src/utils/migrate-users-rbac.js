@@ -157,7 +157,6 @@ export const migrateAllUsersToAdditiveSystem = async (dryRun = true) => {
         type: 'additive_permissions_migration',
         timestamp: Date.now(),
         summary,
-        version: '2.0-additive'
       });
     }
     

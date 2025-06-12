@@ -19,7 +19,6 @@
 ### **2. ORTHOGONAL DESIGN**
 
 - **4×3×6 Matrix System** - Authority × Geographic × Departments
-- **No Role Explosion** - Replace 50+ complex roles with systematic combinations
 - **Predictable Permissions** - Same authority level = same permissions across contexts
 - **Clear Hierarchies** - Authority levels with distinct capabilities
 

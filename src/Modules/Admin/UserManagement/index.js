@@ -195,17 +195,62 @@ const UserManagement = () => {
         setActionLoading(false);
         return;
       }
-      
+
+      // Import Clean Slate helpers
+      const { createUserAccess } = await import('../../../utils/orthogonal-rbac');
+      const { mapDepartmentToAuthority, mapLocationToGeographic, mapDepartmentToDepartments } = await import('../../../utils/clean-slate-helpers');
+
+      // Map legacy values to Clean Slate structure
+      const authority = mapDepartmentToAuthority(values.department, newRole);
+      const geographic = mapLocationToGeographic(values.homeProvince, values.homeBranch);
+      const departments = mapDepartmentToDepartments(values.department);
+
+      // Create Clean Slate access structure
+      const cleanSlateAccess = createUserAccess(
+        authority,
+        geographic,
+        departments,
+        {
+          provinces: values.allowedProvinces || [values.homeProvince],
+          branches: values.allowedBranches || [values.homeBranch],
+          homeBranch: values.homeBranch
+        }
+      );
+
+      // Clean Slate updates (remove all legacy fields)
       const updates = {
-        'auth.accessLevel': values.accessLevel,
-        'auth.department': values.department,
-        'auth.homeProvince': values.homeProvince,
-        'auth.homeBranch': values.homeBranch,
-        'auth.additionalPermissions': values.additionalPermissions || [],
-        'auth.allowedProvinces': values.allowedProvinces || [values.homeProvince],
-        'auth.allowedBranches': values.allowedBranches || [values.homeBranch],
-        'auth.lastUpdated': Date.now(),
-        'auth.updatedBy': currentUser.uid
+        // Clean Slate structure ONLY
+        access: cleanSlateAccess,
+        
+        // User metadata
+        department: values.department,
+        
+        // Status tracking
+        isActive: true,
+        isApproved: true,
+        approvalStatus: 'approved',
+        
+        // System metadata
+        updatedAt: Date.now(),
+        updatedBy: currentUser.uid,
+        migrationType: 'admin_update',
+        
+        // REMOVE legacy fields (clean up existing users)
+        'auth.accessLevel': null,
+        'auth.department': null,
+        'auth.homeProvince': null,
+        'auth.homeBranch': null,
+        'auth.allowedProvinces': null,
+        'auth.allowedBranches': null,
+        'userRBAC': null,
+        'rbac': null,
+        'accessLevel': null,
+        'homeProvince': null,
+        'homeBranch': null,
+        'allowedProvinces': null,
+        'allowedBranches': null,
+        'role': null,
+        'permissions': null
       };
 
       await app.firestore()
@@ -222,7 +267,7 @@ const UserManagement = () => {
           oldAdditionalPerms,
           newAdditionalPerms,
           currentUser.uid,
-          `Updated via UserManagement by ${currentUser.displayName}`
+          `Updated via UserManagement to Clean Slate by ${currentUser.displayName}`
         );
         
         await app.firestore()
@@ -230,11 +275,11 @@ const UserManagement = () => {
           .add(auditLog);
       }
 
-      message.success('อัปเดตข้อมูลผู้ใช้เรียบร้อยแล้ว');
+      message.success('อัปเดตข้อมูลผู้ใช้เป็น Clean Slate เรียบร้อยแล้ว');
       setEditModalVisible(false);
       fetchUsers();
     } catch (error) {
-      console.error('Error updating user:', error);
+      console.error('Error updating user to Clean Slate:', error);
       message.error('ไม่สามารถอัปเดตข้อมูลผู้ใช้ได้');
     }
     setActionLoading(false);
@@ -243,15 +288,24 @@ const UserManagement = () => {
   const handleDeleteUser = async (userId) => {
     setActionLoading(true);
     try {
-      // Mark as deleted rather than actually deleting
+      // Mark as deleted using Clean Slate structure
       await app.firestore()
         .collection('users')
         .doc(userId)
         .update({
-          'auth.isDeleted': true,
-          'auth.isActive': false,
-          'auth.deletedAt': Date.now(),
-          'auth.deletedBy': currentUser.uid
+          // Clean Slate status fields
+          isDeleted: true,
+          isActive: false,
+          approvalStatus: 'deleted',
+          deletedAt: Date.now(),
+          deletedBy: currentUser.uid,
+          updatedAt: Date.now(),
+          
+          // Clear legacy fields if they exist
+          'auth.isDeleted': null,
+          'auth.isActive': null,
+          'auth.deletedAt': null,
+          'auth.deletedBy': null
         });
 
       message.success('ลบผู้ใช้เรียบร้อยแล้ว');
