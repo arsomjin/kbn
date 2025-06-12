@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
 import {
   Card,
   Table,
@@ -33,8 +32,17 @@ import {
   FileTextOutlined,
   PlusOutlined,
   MinusOutlined,
-  CheckOutlined
+  CheckOutlined,
+  ReloadOutlined
 } from '@ant-design/icons';
+import {
+  fetchUsersWithCleanSlate,
+  updateUserRoleCleanSlate,
+  toggleUserStatusCleanSlate,
+  deleteUserCleanSlate,
+  getUserDisplayInfo,
+  handleUserManagementError
+} from 'utils/user-management-shared';
 import { useSelector } from 'react-redux';
 import { app } from '../../../firebase';
 import { usePermissions } from 'hooks/usePermissions';
@@ -47,6 +55,7 @@ import {
   getDepartmentName,
   getUserTypeName,
   getApprovalLevelName,
+  getAccessLevelName,
   PROVINCE_MAPPINGS,
   BRANCH_MAPPINGS,
   DEPARTMENT_MAPPINGS,
@@ -54,16 +63,14 @@ import {
   APPROVAL_LEVEL_MAPPINGS
 } from 'utils/mappings';
 import { 
-  BASE_ROLES,
   GRANULAR_PERMISSIONS,
   PERMISSION_CATEGORIES,
-  getRoleDisplayInfo, 
   getCompatiblePermissions,
   getPermissionsByCategory,
-  validateRoleAssignment,
   createRoleChangeAuditLog,
   getEffectivePermissions
 } from 'utils/rbac-enhanced';
+import { useResponsive } from 'hooks/useResponsive';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -82,11 +89,176 @@ const UserManagement = () => {
 
   const { hasPermission } = usePermissions();
   const { user: currentUser } = useSelector(state => state.auth);
+  const { isMobile, isTablet, isDesktop } = useResponsive();
   const [form] = Form.useForm();
 
   useEffect(() => {
     fetchUsers();
   }, []);
+
+  // Helper function to map geographic scope to Thai names
+  const getScopeName = (scope) => {
+    const scopeMapping = {
+      'ALL': 'ทุกพื้นที่',
+      'PROVINCE': 'ระดับจังหวัด', 
+      'BRANCH': 'ระดับสาขา'
+    };
+    return scopeMapping[scope] || scope || 'ไม่ระบุ';
+  };
+
+  // Clean Slate role validation (replaces Enhanced RBAC validation)
+  const validateRoleAssignment = (targetRole, currentUserRole) => {
+    const cleanSlateRoles = {
+      'ADMIN': { level: 4, name: 'ผู้ดูแลระบบ' },
+      'MANAGER': { level: 3, name: 'ผู้จัดการ' },
+      'LEAD': { level: 2, name: 'หัวหน้าแผนก' },
+      'STAFF': { level: 1, name: 'เจ้าหน้าที่' }
+    };
+
+    const targetRoleData = cleanSlateRoles[targetRole];
+    const currentUserRoleData = cleanSlateRoles[currentUserRole];
+    
+    if (!targetRoleData || !currentUserRoleData) {
+      return { valid: false, reason: 'บทบาทไม่ถูกต้อง' };
+    }
+    
+    // Admin can assign any role
+    if (currentUserRole === 'ADMIN') {
+      return { valid: true };
+    }
+    
+    // Manager can assign roles below them
+    if (currentUserRole === 'MANAGER') {
+      if (['ADMIN'].includes(targetRole)) {
+        return { valid: false, reason: 'ไม่มีสิทธิ์มอบหมายบทบาทนี้' };
+      }
+    }
+    
+    // Lead can only assign staff roles
+    if (currentUserRole === 'LEAD') {
+      if (!['STAFF'].includes(targetRole)) {
+        return { valid: false, reason: 'สามารถมอบหมายได้เฉพาะบทบาทเจ้าหน้าที่' };
+      }
+    }
+    
+    // Staff cannot assign roles
+    if (currentUserRole === 'STAFF') {
+      return { valid: false, reason: 'ไม่มีสิทธิ์มอบหมายบทบาท' };
+    }
+    
+    return { valid: true };
+  };
+
+  // Clean Slate role display info (replaces Enhanced RBAC function)
+  const getRoleDisplayInfo = (roleKey) => {
+    const cleanSlateRoleInfo = {
+      'ADMIN': {
+        name: 'ผู้ดูแลระบบ',
+        description: 'เข้าถึงทุกฟังก์ชันในระบบ',
+        accessLevel: 'all',
+        tag: 'red'
+      },
+      'MANAGER': {
+        name: 'ผู้จัดการ',
+        description: 'จัดการในขอบเขตที่ได้รับมอบหมาย',
+        accessLevel: 'province',
+        tag: 'blue'
+      },
+      'LEAD': {
+        name: 'หัวหน้าแผนก',
+        description: 'หัวหน้าทีมในแผนก',
+        accessLevel: 'branch',
+        tag: 'green'
+      },
+      'STAFF': {
+        name: 'เจ้าหน้าที่',
+        description: 'การเข้าถึงระดับปฏิบัติการ',
+        accessLevel: 'branch',
+        tag: 'orange'
+      }
+    };
+
+    return cleanSlateRoleInfo[roleKey] || { 
+      name: roleKey, 
+      description: '', 
+      accessLevel: 'branch',
+      tag: 'default' 
+    };
+  };
+
+  // Clean Slate base roles (replaces BASE_ROLES)
+  const BASE_ROLES = {
+    'ADMIN': {
+      name: 'ผู้ดูแลระบบ',
+      permissions: ['*'],
+      description: 'เข้าถึงทุกฟังก์ชันในระบบ'
+    },
+    'MANAGER': {
+      name: 'ผู้จัดการ',
+      permissions: ['accounting.view', 'sales.view', 'service.view', 'inventory.view', 'hr.view'],
+      description: 'จัดการในขอบเขตที่ได้รับมอบหมาย'
+    },
+    'LEAD': {
+      name: 'หัวหน้าแผนก',
+      permissions: ['accounting.view', 'sales.view', 'service.view'],
+      description: 'หัวหน้าทีมในแผนก'
+    },
+    'STAFF': {
+      name: 'เจ้าหน้าที่',
+      permissions: ['sales.view'],
+      description: 'การเข้าถึงระดับปฏิบัติการ'
+    }
+  };
+
+  // Helper function to get user display name with fallbacks
+  const getUserDisplayName = (userData) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[UserManagement] getUserDisplayName input:', {
+        displayName: userData.displayName,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        fullData: userData
+      });
+    }
+    
+    // Check displayName first (if valid)
+    if (userData.displayName && userData.displayName !== 'ไม่ระบุชื่อ') {
+      return userData.displayName;
+    }
+    
+    // Try firstName + lastName combination
+    if (userData.firstName && userData.lastName) {
+      return `${userData.firstName} ${userData.lastName}`.trim();
+    }
+    
+    // Try individual name fields
+    if (userData.firstName) {
+      return userData.firstName;
+    }
+    if (userData.lastName) {
+      return userData.lastName;
+    }
+    
+    // Check if data is nested in auth object (legacy structure)
+    if (userData.auth) {
+      if (userData.auth.displayName && userData.auth.displayName !== 'ไม่ระบุชื่อ') {
+        return userData.auth.displayName;
+      }
+      if (userData.auth.firstName && userData.auth.lastName) {
+        return `${userData.auth.firstName} ${userData.auth.lastName}`.trim();
+      }
+      if (userData.auth.firstName) return userData.auth.firstName;
+      if (userData.auth.lastName) return userData.auth.lastName;
+    }
+    
+    // Use email prefix as final fallback
+    if (userData.email) {
+      return userData.email.split('@')[0];
+    }
+    
+    return 'ไม่ระบุชื่อ';
+  };
 
   // Set form values when modal opens with selectedUser
   useEffect(() => {
@@ -98,13 +270,53 @@ const UserManagement = () => {
         // Set field values with user data (check multiple possible locations)
         const userData = selectedUser.fullData || selectedUser;
         const authData = userData.auth || {};
+        
+        // For Clean Slate RBAC, try to extract from access structure
+        const rawAccessLevel = selectedUser.accessLevel || 
+                              userData.accessLevel || 
+                              authData.accessLevel ||
+                              userData.access?.authority ||  // Clean Slate authority
+                              'STAFF';  // Default fallback
+
+        // Ensure the accessLevel matches our Clean Slate authorities
+        const accessLevel = (['ADMIN', 'MANAGER', 'LEAD', 'STAFF'].includes(rawAccessLevel)) 
+                           ? rawAccessLevel 
+                           : 'STAFF';  // Default to STAFF if unknown value
+                           
+        const rawDepartment = selectedUser.department || 
+                             userData.department || 
+                             authData.department ||
+                             userData.access?.departments?.[0]?.toLowerCase() ||  // Clean Slate department
+                             'general';  // Default fallback
+
+        // Ensure the department matches our Clean Slate departments  
+        const department = (['accounting', 'sales', 'service', 'inventory', 'hr', 'general'].includes(rawDepartment))
+                          ? rawDepartment
+                          : 'general';  // Default to general if unknown value
+        
         const formValues = {
-          accessLevel: selectedUser.accessLevel || userData.accessLevel || authData.accessLevel,
-          department: selectedUser.department || userData.department || authData.department,
+          accessLevel: accessLevel,
+          department: department,
           homeProvince: selectedUser.homeProvince || userData.homeProvince || authData.homeProvince,
           homeBranch: selectedUser.homeBranch || userData.homeBranch || authData.homeBranch,
           additionalPermissions: selectedUser.additionalPermissions || userData.additionalPermissions || authData.additionalPermissions || []
         };
+        
+        // Debug logging for development
+        if (process.env.NODE_ENV === 'development') {
+          console.log('[UserManagement] Setting form values:', {
+            selectedUser,
+            userData,
+            rawAccessLevel,
+            mappedAccessLevel: accessLevel,
+            rawDepartment,
+            mappedDepartment: department,
+            formValues,
+            cleanSlateAccess: userData.access,
+            availableRoles: getAllRoles().map(r => ({ value: r.value, label: r.label })),
+            availableDepartments: getAllDepartments().map(d => ({ value: d.value, label: d.label }))
+          });
+        }
         
         // Use setTimeout to ensure form is fully mounted
         setTimeout(() => {
@@ -117,17 +329,16 @@ const UserManagement = () => {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const snapshot = await app.firestore().collection('users').get();
-
-      const usersData = await Promise.all(
-        snapshot.docs.map(async (doc) => {
-          const userData = doc.data();
-          const authData = userData.auth || {};
-
+      // Use shared fetch function for 100% accuracy with CleanSlatePermissionsDemo
+      const usersData = await fetchUsersWithCleanSlate({ includeDebug: true });
+      
+      // Add approval request data for each user
+      const enrichedUsersData = await Promise.all(
+        usersData.map(async (user) => {
           // Get approval requests for this user
           const approvalSnapshot = await app.firestore()
             .collection('approvalRequests')
-            .where('userId', '==', doc.id)
+            .where('userId', '==', user.uid)
             .orderBy('createdAt', 'desc')
             .limit(1)
             .get();
@@ -138,22 +349,18 @@ const UserManagement = () => {
           }
 
           return {
-            uid: doc.id,
-            ...authData,
-            fullData: userData,
+            ...user,
             latestApprovalRequest,
-            displayName: authData.displayName || `${authData.firstName} ${authData.lastName}`,
-            status: authData.isActive && authData.isApproved ? 'active' :
-              authData.approvalStatus === 'pending' ? 'pending' :
-                authData.approvalStatus === 'rejected' ? 'rejected' : 'inactive'
+            status: user.isActive && user.isApproved ? 'active' :
+              user.approvalStatus === 'pending' ? 'pending' :
+                user.approvalStatus === 'rejected' ? 'rejected' : 'inactive'
           };
         })
       );
-
-      setUsers(usersData);
+      
+      setUsers(enrichedUsersData);
     } catch (error) {
-      console.error('Error fetching users:', error);
-      message.error('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
+      handleUserManagementError(error, 'โหลดข้อมูลผู้ใช้');
     }
     setLoading(false);
   };
@@ -161,21 +368,17 @@ const UserManagement = () => {
   const handleToggleUserStatus = async (userId, currentStatus) => {
     setActionLoading(true);
     try {
-      const newStatus = !currentStatus;
-      await app.firestore()
-        .collection('users')
-        .doc(userId)
-        .update({
-          'auth.isActive': newStatus,
-          'auth.lastStatusUpdate': Date.now(),
-          'auth.statusUpdatedBy': currentUser.uid
-        });
-
-      message.success(`${newStatus ? 'เปิดใช้งาน' : 'ปิดใช้งาน'}ผู้ใช้เรียบร้อยแล้ว`);
+      // Use shared toggle function for 100% accuracy with CleanSlatePermissionsDemo  
+      const result = await toggleUserStatusCleanSlate({ 
+        userId, 
+        currentStatus, 
+        currentUser 
+      });
+      
+      message.success(result.message);
       fetchUsers();
     } catch (error) {
-      console.error('Error updating user status:', error);
-      message.error('ไม่สามารถอัปเดตสถานะผู้ใช้ได้');
+      handleUserManagementError(error, 'อัปเดตสถานะผู้ใช้');
     }
     setActionLoading(false);
   };
@@ -288,31 +491,13 @@ const UserManagement = () => {
   const handleDeleteUser = async (userId) => {
     setActionLoading(true);
     try {
-      // Mark as deleted using Clean Slate structure
-      await app.firestore()
-        .collection('users')
-        .doc(userId)
-        .update({
-          // Clean Slate status fields
-          isDeleted: true,
-          isActive: false,
-          approvalStatus: 'deleted',
-          deletedAt: Date.now(),
-          deletedBy: currentUser.uid,
-          updatedAt: Date.now(),
-          
-          // Clear legacy fields if they exist
-          'auth.isDeleted': null,
-          'auth.isActive': null,
-          'auth.deletedAt': null,
-          'auth.deletedBy': null
-        });
-
-      message.success('ลบผู้ใช้เรียบร้อยแล้ว');
+      // Use shared delete function for 100% accuracy with CleanSlatePermissionsDemo
+      const result = await deleteUserCleanSlate({ userId, currentUser });
+      
+      message.success(result.message);
       fetchUsers();
     } catch (error) {
-      console.error('Error deleting user:', error);
-      message.error('ไม่สามารถลบผู้ใช้ได้');
+      handleUserManagementError(error, 'ลบผู้ใช้');
     }
     setActionLoading(false);
   };
@@ -367,7 +552,8 @@ const UserManagement = () => {
       'service': 'green',
       'inventory': 'purple',
       'hr': 'cyan',
-      'management': 'red'
+      'management': 'red',
+      'general': 'gray'  // Add color for general department
     };
     return <Tag color={departmentColors[department] || 'default'}>{departmentName}</Tag>;
   };
@@ -391,28 +577,53 @@ const UserManagement = () => {
 
   // Helper functions for dropdowns
   const getAllRoles = () => {
-    // Use base roles instead of enhanced roles
-    return Object.entries(BASE_ROLES).map(([key, roleData]) => ({
-      value: key,
-      label: roleData.name,
-      description: roleData.description,
-      accessLevel: roleData.accessLevel,
-      tag: getRoleDisplayInfo(key).tag
-    }));
+    // Return Clean Slate RBAC authorities (not Enhanced RBAC roles)
+    const cleanSlateRoles = [
+      {
+        value: 'ADMIN',
+        label: 'ผู้ดูแลระบบ',
+        description: 'เข้าถึงทุกฟังก์ชันในระบบ',
+        accessLevel: 'all',
+        tag: 'red'
+      },
+      {
+        value: 'MANAGER', 
+        label: 'ผู้จัดการ',
+        description: 'จัดการในขอบเขตที่ได้รับมอบหมาย',
+        accessLevel: 'province',
+        tag: 'blue'
+      },
+      {
+        value: 'LEAD',
+        label: 'หัวหน้าแผนก', 
+        description: 'หัวหน้าทีมในแผนก',
+        accessLevel: 'branch',
+        tag: 'green'
+      },
+      {
+        value: 'STAFF',
+        label: 'เจ้าหน้าที่',
+        description: 'การเข้าถึงระดับปฏิบัติการ',
+        accessLevel: 'branch', 
+        tag: 'orange'
+      }
+    ];
+    
+    return cleanSlateRoles;
   };
 
   const getAllDepartments = () => {
-    // Only return actual operational departments, not system permissions
-    const operationalDepartments = {
-      'accounting': 'บัญชีและการเงิน',
+    // Use Clean Slate RBAC departments (matches DEPARTMENTS object)
+    const cleanSlateDepartments = {
+      'accounting': 'บัญชีการเงิน',
       'sales': 'ขายและลูกค้า', 
-      'service': 'บริการและซ่อมบำรุง',
-      'inventory': 'คลังสินค้าและอะไหล่',
+      'service': 'บริการซ่อม',
+      'inventory': 'คลังสินค้า',
       'hr': 'ทรัพยากรบุคคล',
-      'management': 'ผู้บริหาร'
+      'general': 'ทั่วไป'  // General department for staff without specific department
     };
     
-    return Object.entries(operationalDepartments).map(([key, value]) => ({
+    return Object.entries(cleanSlateDepartments).map(([key, value]) => ({
       value: key,
       label: value
     }));
@@ -452,39 +663,117 @@ const UserManagement = () => {
       title: 'ผู้ใช้',
       dataIndex: 'displayName',
       key: 'displayName',
-      render: (text, record) => (
-        <Space>
-          <UserOutlined />
-          <div>
-            <div style={{ fontWeight: 500 }}>{text}</div>
-            <div style={{ fontSize: '12px', color: '#666' }}>{record.email}</div>
-          </div>
-        </Space>
-      ),
+      width: isMobile ? 120 : isTablet ? 140 : 150,
+      ellipsis: isMobile,
+      render: (text, record) => {
+        const displayName = getUserDisplayName(record);
+        return (
+          <Space direction={isMobile ? 'vertical' : 'horizontal'} size="small">
+            <UserOutlined />
+            <div>
+              <div style={{ 
+                fontWeight: 500, 
+                fontSize: isMobile ? '13px' : '14px' 
+              }}>
+                {isMobile && displayName.length > 15 
+                  ? `${displayName.substring(0, 15)}...` 
+                  : displayName
+                }
+              </div>
+              {!isMobile && (
+                <div style={{ fontSize: '12px', color: '#666' }}>
+                  {record.email}
+                </div>
+              )}
+            </div>
+          </Space>
+        );
+      },
     },
     {
       title: 'บทบาท',
       dataIndex: 'accessLevel',
       key: 'accessLevel',
-      render: (accessLevel) => getRoleTag(accessLevel),
+      width: isMobile ? 60 : isTablet ? 70 : 80,
+      responsive: ['sm'],
+      render: (accessLevel, record) => {
+        // Get Thai name for accessLevel/authority using mapping utility
+        const authorityName = getAccessLevelName(accessLevel);
+        
+        // Get scope from Clean Slate structure if available
+        const scope = record.access?.geographic?.scope;
+        const scopeName = scope ? getScopeName(scope) : null;
+        
+        return (
+          <div>
+            <Tag 
+              color="blue" 
+              style={{ fontSize: isMobile ? '10px' : '12px' }}
+            >
+              {isMobile 
+                ? authorityName.substring(0, 4) + (authorityName.length > 4 ? '...' : '')
+                : authorityName
+              }
+            </Tag>
+            {!isMobile && scopeName && (
+              <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
+                {scopeName}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: 'แผนก',
       dataIndex: 'department',
       key: 'department',
-      render: (department) => getDepartmentTag(department),
+      width: isMobile ? 60 : isTablet ? 70 : 80,
+      responsive: ['md'],
+      render: (department) => {
+        const tag = getDepartmentTag(department);
+        if (isMobile && React.isValidElement(tag)) {
+          return React.cloneElement(tag, {
+            style: { fontSize: '10px' },
+            children: tag.props.children.length > 4 
+              ? tag.props.children.substring(0, 4) + '...'
+              : tag.props.children
+          });
+        }
+        return tag;
+      },
     },
     {
-      title: 'จังหวัด/สาขา',
+      title: isMobile ? 'ที่ตั้ง' : 'จังหวัด/สาขา',
       key: 'location',
+      width: isMobile ? 80 : isTablet ? 90 : 100,
+      responsive: ['lg'],
       render: (_, record) => {
         const provinceName = getProvinceName(record.homeProvince);
         const branchName = getBranchName(record.homeBranch);
+        
+        if (isMobile) {
+          return (
+            <div style={{ fontSize: '11px' }}>
+              <div title={provinceName}>
+                <EnvironmentOutlined style={{ marginRight: '2px' }} />
+                {provinceName ? provinceName.substring(0, 6) + '...' : '-'}
+              </div>
+            </div>
+          );
+        }
+        
         return (
-        <div>
-            <div><EnvironmentOutlined /> {provinceName || '-'}</div>
-            <div><BankOutlined /> {branchName || '-'}</div>
-        </div>
+          <div style={{ minWidth: isTablet ? '160px' : '180px' }}>
+            <div style={{ marginBottom: '2px' }}>
+              <EnvironmentOutlined style={{ marginRight: '4px' }} />
+              <span style={{ fontSize: '13px' }}>{provinceName || '-'}</span>
+            </div>
+            <div>
+              <BankOutlined style={{ marginRight: '4px' }} />
+              <span style={{ fontSize: '13px' }}>{branchName || '-'}</span>
+            </div>
+          </div>
         );
       },
     },
@@ -492,6 +781,7 @@ const UserManagement = () => {
       title: 'สถานะ',
       dataIndex: 'status',
       key: 'status',
+      width: 60,
       render: (status, record) => (
         <Space direction="vertical" size="small">
           {getStatusTag(status)}
@@ -508,6 +798,8 @@ const UserManagement = () => {
       title: 'การใช้งาน',
       dataIndex: 'isActive',
       key: 'isActive',
+      align: 'center',
+      width: 60,
       render: (isActive, record) => (
         <Switch
           checked={isActive}
@@ -520,8 +812,10 @@ const UserManagement = () => {
     {
       title: 'จัดการ',
       key: 'actions',
+      ...(!isMobile && { fixed: 'right' }),
+      width: isMobile ? 80 : isTablet ? 120 : 160,
       render: (_, record) => (
-        <Space>
+        <Space direction={isMobile ? 'vertical' : 'horizontal'} size="small">
           <Button
             icon={<EyeOutlined />}
             size="small"
@@ -530,7 +824,7 @@ const UserManagement = () => {
               setModalVisible(true);
             }}
           >
-            ดู
+            {!isMobile && 'ดู'}
           </Button>
           <Button
             icon={<EditOutlined />}
@@ -542,22 +836,24 @@ const UserManagement = () => {
             }}
             disabled={!hasPermission('users.manage')}
           >
-            แก้ไข
+            {!isMobile && 'แก้ไข'}
           </Button>
-          <Popconfirm
-            title="คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้?"
-            onConfirm={() => handleDeleteUser(record.uid)}
-            disabled={!hasPermission('users.manage')}
-          >
-            <Button
-              icon={<DeleteOutlined />}
-              size="small"
-              danger
+          {!isMobile && (
+            <Popconfirm
+              title="คุณแน่ใจหรือไม่ที่จะลบผู้ใช้นี้?"
+              onConfirm={() => handleDeleteUser(record.uid)}
               disabled={!hasPermission('users.manage')}
             >
-              ลบ
-            </Button>
-          </Popconfirm>
+              <Button
+                icon={<DeleteOutlined />}
+                size="small"
+                danger
+                disabled={!hasPermission('users.manage')}
+              >
+                ลบ
+              </Button>
+            </Popconfirm>
+          )}
         </Space>
       ),
     },
@@ -571,61 +867,96 @@ const UserManagement = () => {
       showAuditTrail={false}
       showStepper={false}
     >
-      <Card>
-        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-          <Col span={24}>
-            <Space size="large">
-              <Title level={4} style={{ margin: 0 }}>
-                <TeamOutlined /> จัดการผู้ใช้งาน
-              </Title>
-              <Select
-                value={filterRole}
-                onChange={setFilterRole}
-                style={{ width: 240 }}
-                placeholder="กรองตามบทบาท"
+      <Card 
+        title={
+          <Row align="middle" justify="space-between">
+            <Col>
+              <Space>
+                <TeamOutlined />
+                <span>จัดการผู้ใช้งาน</span>
+              </Space>
+            </Col>
+            <Col>
+              <Button 
+                icon={<ReloadOutlined />}
+                onClick={fetchUsers} 
+                loading={loading}
+                size={isMobile ? 'small' : 'default'}
               >
-                <Option value="all">ทุกบทบาท</Option>
-                {getAllRoles().map(role => (
-                  <Option key={role.value} value={role.value}>{role.label}</Option>
-                ))}
-              </Select>
-              <Select
-                value={filterStatus}
-                onChange={setFilterStatus}
-                style={{ width: 150 }}
-                placeholder="กรองตามสถานะ"
-              >
-                <Option value="all">ทุกสถานะ</Option>
-                <Option value="active">ใช้งานได้</Option>
-                <Option value="pending">รออนุมัติ</Option>
-                <Option value="rejected">ถูกปฏิเสธ</Option>
-                <Option value="inactive">ไม่ใช้งาน</Option>
-              </Select>
-              <Input.Search
-                placeholder="ค้นหาชื่อหรืออีเมล"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                style={{ width: 250 }}
-              />
-              <Button onClick={fetchUsers} loading={loading}>
-                รีเฟรช
+                {!isMobile && 'รีเฟรช'}
               </Button>
-            </Space>
+            </Col>
+          </Row>
+        }
+        bodyStyle={{ 
+          padding: isMobile ? '12px' : '16px',
+          overflowX: 'hidden'
+        }}
+      >
+        {/* Filters Section with Responsive Grid */}
+        <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              value={filterRole}
+              onChange={setFilterRole}
+              style={{ width: '100%' }}
+              placeholder="กรองตามบทบาท"
+              size={isMobile ? 'small' : 'default'}
+            >
+              <Option value="all">ทุกบทบาท</Option>
+              {getAllRoles().map(role => (
+                <Option key={role.value} value={role.value}>{role.label}</Option>
+              ))}
+            </Select>
+          </Col>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              value={filterStatus}
+              onChange={setFilterStatus}
+              style={{ width: '100%' }}
+              placeholder="กรองตามสถานะ"
+              size={isMobile ? 'small' : 'default'}
+            >
+              <Option value="all">ทุกสถานะ</Option>
+              <Option value="active">ใช้งานได้</Option>
+              <Option value="pending">รออนุมัติ</Option>
+              <Option value="rejected">ถูกปฏิเสธ</Option>
+              <Option value="inactive">ไม่ใช้งาน</Option>
+            </Select>
+          </Col>
+          <Col xs={24} sm={24} md={8} lg={12}>
+            <Input.Search
+              placeholder="ค้นหาชื่อหรืออีเมล"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              style={{ width: '100%' }}
+              size={isMobile ? 'small' : 'default'}
+              allowClear
+            />
           </Col>
         </Row>
 
+        {/* Table Section - Remove extra wrapper and fixed height */}
         <Table
           columns={columns}
           dataSource={filteredUsers}
           rowKey="uid"
           loading={loading}
+          scroll={{ 
+            x: isMobile ? 'max-content' : isTablet ? 1000 : 1200
+            // Remove y scroll to prevent double scrollbar
+          }}
+          size={isMobile ? 'small' : 'middle'}
           pagination={{
             total: filteredUsers.length,
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} จาก ${total} ผู้ใช้`,
+            pageSize: isMobile ? 5 : isTablet ? 8 : 10,
+            showSizeChanger: !isMobile,
+            showQuickJumper: !isMobile,
+            showTotal: !isMobile ? (total, range) =>
+              `${range[0]}-${range[1]} จาก ${total} ผู้ใช้` : undefined,
+            simple: isMobile,
+            position: isMobile ? ['bottomCenter'] : ['bottomRight'],
+            size: isMobile ? 'small' : 'default'
           }}
         />
       </Card>
@@ -637,13 +968,15 @@ const UserManagement = () => {
         onCancel={() => setModalVisible(false)}
         footer={null}
         width={800}
+        okText="ตกลง"
+        cancelText="ยกเลิก"
       >
         {selectedUser && (
           <Tabs defaultActiveKey="basic">
             <TabPane tab="ข้อมูลพื้นฐาน" key="basic">
               <Descriptions bordered size="small">
                 <Descriptions.Item label="ชื่อ-สกุล" span={2}>
-                  {selectedUser.displayName}
+                  {getUserDisplayName(selectedUser)}
                 </Descriptions.Item>
                 <Descriptions.Item label="อีเมล" span={1}>
                   {selectedUser.email}
@@ -704,7 +1037,7 @@ const UserManagement = () => {
 
       {/* Edit User Modal */}
       <Modal
-        title={<><EditOutlined /> แก้ไขข้อมูลผู้ใช้: {selectedUser?.displayName}</>}
+        title={<><EditOutlined /> แก้ไขข้อมูลผู้ใช้: {selectedUser ? getUserDisplayName(selectedUser) : ''}</>}
         visible={editModalVisible}
         onCancel={() => {
           setEditModalVisible(false);
@@ -713,8 +1046,11 @@ const UserManagement = () => {
         }}
         onOk={() => form.submit()}
         confirmLoading={actionLoading}
-        width={800}
+        width={isMobile ? '95%' : isTablet ? 600 : 800}
         destroyOnClose={true}
+        okText="บันทึก"
+        cancelText="ยกเลิก"
+        style={isMobile ? { top: 20 } : {}}
       >
         {editModalVisible && selectedUser && (
         <Form
@@ -727,8 +1063,8 @@ const UserManagement = () => {
             <Tabs defaultActiveKey="role">
               {/* Role & Permissions Tab */}
               <TabPane tab={<><UserOutlined /> บทบาทและสิทธิ์</>} key="role">
-          <Row gutter={16}>
-            <Col span={12}>
+          <Row gutter={isMobile ? 8 : 16}>
+            <Col span={isMobile ? 24 : 12}>
               <Form.Item name="accessLevel" label="บทบาท" rules={[{ required: true }]}>
                       <Select placeholder="เลือกบทบาท" optionLabelProp="label">
                         {getAllRoles().map(role => (
@@ -737,10 +1073,19 @@ const UserManagement = () => {
                             value={role.value}
                             label={role.label}
                           >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ 
+                              display: 'flex', 
+                              justifyContent: 'space-between', 
+                              alignItems: 'center',
+                              fontSize: isMobile ? '13px' : '14px'
+                            }}>
                               <div>
                                 <div style={{ fontWeight: 500 }}>{role.label}</div>
-                                <div style={{ fontSize: '12px', color: '#888' }}>{role.description}</div>
+                                {!isMobile && (
+                                  <div style={{ fontSize: '12px', color: '#888' }}>
+                                    {role.description}
+                                  </div>
+                                )}
                               </div>
                               <Tag 
                                 color={role.tag} 
@@ -755,7 +1100,7 @@ const UserManagement = () => {
                 </Select>
               </Form.Item>
             </Col>
-            <Col span={12}>
+            <Col span={isMobile ? 24 : 12}>
               <Form.Item name="department" label="แผนก" rules={[{ required: true }]}>
                 <Select placeholder="เลือกแผนก">
                         {getAllDepartments().map(dept => (
@@ -1138,7 +1483,7 @@ const UserManagement = () => {
                                 <div style={{ fontSize: '48px', color: '#1890ff', marginBottom: '8px' }}>
                                   <UserOutlined />
                                 </div>
-                                <Title level={4} style={{ margin: 0 }}>{selectedUser.displayName}</Title>
+                                <Title level={4} style={{ margin: 0 }}>{getUserDisplayName(selectedUser)}</Title>
                                 <Text type="secondary">{selectedUser.email}</Text>
                               </div>
                             </Col>
@@ -1267,7 +1612,7 @@ const UserManagement = () => {
                           <Col span={12}>
                             <Card title="ข้อมูลติดต่อ" size="small">
                               <Descriptions size="small" column={1}>
-                                <Descriptions.Item label="ชื่อ-สกุล">{selectedUser.displayName || '-'}</Descriptions.Item>
+                                <Descriptions.Item label="ชื่อ-สกุล">{getUserDisplayName(selectedUser)}</Descriptions.Item>
                                 <Descriptions.Item label="อีเมล">{selectedUser.email || '-'}</Descriptions.Item>
                                 <Descriptions.Item label="เบอร์โทรศัพท์">{selectedUser.phoneNumber || 'ไม่ระบุ'}</Descriptions.Item>
                               </Descriptions>

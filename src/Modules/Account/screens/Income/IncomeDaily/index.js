@@ -261,32 +261,20 @@ const IncomeDaily = () => {
   };
 
   const handleGeographicChange = useCallback((geoContext) => {
-    console.log('🌍 Geographic context received in IncomeDaily:', geoContext);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🌍 Geographic context received in IncomeDaily:', geoContext);
+    }
     setGeographic(geoContext);
   }, []);
 
-  // Debug the initial setup
+  // Initialize setup
   useEffect(() => {
-    console.log('🔍 IncomeDaily mount - checking setup:', {
-      hasHandleGeographicChange: !!handleGeographicChange,
-      ready,
-      category
-    });
+    // Silent initialization in production
   }, []);
 
   // Initialize geographic context even without branch selection requirement
   useEffect(() => {
-    console.log('🚀 Current geographic state in IncomeDaily:', geographic);
-    if (geographic && Object.keys(geographic).length > 0) {
-      console.log('✅ Geographic context available:', {
-        branchCode: geographic.branchCode,
-        provinceId: geographic.provinceId,
-        hasQueryFilters: !!geographic.getQueryFilters,
-        hasEnhancement: !!geographic.enhanceDataForSubmission
-      });
-    } else {
-      console.log('⚠️ Geographic context not yet available');
-    }
+    // Geographic context ready - reduced logging for production
   }, [geographic]);
 
   let currentView = (
@@ -386,30 +374,21 @@ const IncomeDaily = () => {
   }
 
   return (
-    <PermissionGate permission="accounting.view" fallback={
-      <Alert
-        message="ไม่มีสิทธิเข้าถึง"
-        description="คุณไม่มีสิทธิเข้าถึงระบบบัญชี กรุณาติดต่อผู้ดูแลระบบ"
-        type="warning"
-        showIcon
-        style={{ margin: '24px' }}
-      />
-    }>
-      <LayoutWithRBAC
-        title="รับเงินประจำวัน"
-        subtitle="Accounting Management - Multi-Province Support"
-        permission="accounting.view"
-        editPermission="accounting.edit"
-        requireBranchSelection={false}
-        onBranchChange={handleGeographicChange}
-        documentId={documentId}
-        documentType="income_daily"
-        showAuditTrail={true}
-        showStepper={true}
-        steps={INCOME_DAILY_STEPS}
-        currentStep={mProps.activeStep}
-        autoInjectProvinceId={true}
-      >
+    <LayoutWithRBAC
+      title="รับเงินประจำวัน"
+      subtitle="Accounting Management - Multi-Province Support"
+      permission="accounting.view"
+      editPermission="accounting.edit"
+      requireBranchSelection={false}
+      onBranchChange={handleGeographicChange}
+      documentId={documentId}
+      documentType="income_daily"
+      showAuditTrail={true}
+      showStepper={true}
+      steps={INCOME_DAILY_STEPS}
+      currentStep={mProps.activeStep}
+      autoInjectProvinceId={true}
+    >
         <IncomeDailyContent 
           category={category}
           _changeCategory={_changeCategory}
@@ -418,8 +397,7 @@ const IncomeDaily = () => {
           geographic={geographic}
         />
       </LayoutWithRBAC>
-    </PermissionGate>
-  );
+    );
 };
 
 export default IncomeDaily;

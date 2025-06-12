@@ -10,7 +10,7 @@
  */
 
 import { useSelector } from 'react-redux';
-import { useMemo, useCallback } from 'react';
+import { useMemo, useCallback, useEffect, useState, useRef } from 'react';
 import { 
   AUTHORITY_LEVELS,
   DEPARTMENTS,
@@ -22,6 +22,7 @@ import {
   getAccessibleBranches,
   filterDataByUserAccess as orthogonalFilterData
 } from '../utils/orthogonal-rbac';
+import { getProvinceName, getBranchName } from '../utils/mappings';
 
 /**
  * Clean Slate ONLY permissions hook
@@ -42,14 +43,14 @@ export const usePermissions = () => {
 
     // Check if user data is still loading (has uid but no access structure yet)
     // This prevents false error messages during the loading process
-    const isUserDataLoading = user.uid && !user.access && !user.userRBAC && !user.accessLevel;
+    const isUserDataLoading = user.uid && !user.access && !user.accessLevel;
     
     if (isUserDataLoading) {
       // User data is still loading from Firestore, don't log errors yet
       return null;
     }
 
-    // ENFORCE Clean Slate structure - no fallbacks
+    // ENFORCE Clean Slate structure ONLY - no fallbacks allowed
     if (!user.access) {
       console.error('🚨 User missing Clean Slate access structure:', user.uid);
       console.warn('⚠️ User needs migration to Clean Slate format. Use migration tools.');
@@ -111,7 +112,7 @@ export const usePermissions = () => {
   
   /**
    * Check if user has specific permission (main function)
-   * Clean Slate version - no legacy permission support
+   * Clean Slate RBAC ONLY - no fallback support
    */
   const hasPermission = useCallback((permission, context = {}) => {
     // DEV USERS CAN ACCESS EVERYTHING - NO RESTRICTIONS
@@ -121,25 +122,9 @@ export const usePermissions = () => {
     
     if (!userRBAC || !userRBAC.isActive) {
       if (process.env.NODE_ENV === 'development') {
-        console.warn('User not active or no RBAC data:', userRBAC);
+        console.warn('User not active or no Clean Slate RBAC data:', userRBAC);
+        console.warn('🔄 User needs migration to Clean Slate RBAC format');
       }
-      
-      // TEMPORARY FALLBACK: Check for legacy accounting staff indicators
-      if (permission.startsWith('accounting.') && user) {
-        const isAccountingStaff = (
-          user.accessLevel === 'ACCOUNTING_STAFF' ||
-          user.departments?.includes('accounting') ||
-          user.userType === 'accounting' ||
-          user.role?.includes('accounting') ||
-          user.role?.includes('บัญชี')
-        );
-        
-        if (isAccountingStaff && process.env.NODE_ENV === 'development') {
-          console.log('🔄 Fallback: Allowing accounting permission for legacy accounting staff');
-          return true;
-        }
-      }
-      
       return false;
     }
     
@@ -151,11 +136,11 @@ export const usePermissions = () => {
     // Geographic context check if required
     if (context.provinceId || context.branchCode || context.province || context.branch) {
       const geoContext = {
-        provinceId: context.provinceId || context.province,
-        branchCode: context.branchCode || context.branch
+        province: context.provinceId || context.province,
+        branch: context.branchCode || context.branch
       };
       
-      // Fix: checkGeographicAccess expects user with .access property
+      // checkGeographicAccess expects user with .access property
       const userWithAccess = {
         ...user,
         access: {
@@ -169,7 +154,7 @@ export const usePermissions = () => {
       if (!hasGeoAccess) return false;
     }
 
-    // Use Clean Slate permission checker
+    // Use Clean Slate permission checker ONLY
     const userWithAccess = {
       ...user,
       access: {
@@ -207,8 +192,8 @@ export const usePermissions = () => {
     if (!userRBAC) return false;
     
     const geoContext = {
-      provinceId: context.provinceId || context.province,
-      branchCode: context.branchCode || context.branch
+      province: context.provinceId || context.province,
+      branch: context.branchCode || context.branch
     };
     
     // Fix: checkGeographicAccess expects user with .access property
@@ -439,11 +424,111 @@ export const usePermissions = () => {
   }, [userRBAC]);
 
   /**
+   * Check if user works in a specific department (alias for hasDepartmentAccess)
+   */
+  const worksInDepartment = useCallback((department) => {
+    return hasDepartmentAccess(department);
+  }, [hasDepartmentAccess]);
+
+  /**
+   * Check if user has required authority level or higher
+   */
+  const hasAuthorityLevel = useCallback((requiredAuthority) => {
+    if (!userRBAC || !requiredAuthority) return false;
+    
+    // DEV users bypass all checks
+    if (userRBAC.isDev) return true;
+    
+    const userAuth = userRBAC.authority;
+    
+    // Define authority hierarchy (higher authority can access lower levels)
+    const authorityHierarchy = {
+      [AUTHORITY_LEVELS.ADMIN]: 4,
+      [AUTHORITY_LEVELS.MANAGER]: 3,
+      [AUTHORITY_LEVELS.LEAD]: 2,
+      [AUTHORITY_LEVELS.STAFF]: 1
+    };
+    
+    const userLevel = authorityHierarchy[userAuth] || 0;
+    const requiredLevel = authorityHierarchy[requiredAuthority] || 0;
+    
+    return userLevel >= requiredLevel;
+  }, [userRBAC]);
+
+  /**
    * Check if user is super admin (alias for isAdmin)
    */
   const isSuperAdmin = useMemo(() => {
     return userRBAC?.authority === AUTHORITY_LEVELS.ADMIN || userRBAC?.isDev;
   }, [userRBAC]);
+
+  // BACKWARD COMPATIBILITY FUNCTIONS
+  // These functions maintain compatibility with existing modules while using Clean Slate RBAC
+
+  /**
+   * Get default branch for the current user (backward compatibility)
+   * @returns {string|null} Default branch code
+   */
+  const getDefaultBranch = useCallback(() => {
+    return homeLocation?.branch || 
+           (accessibleBranches.length === 1 ? accessibleBranches[0] : null) || 
+           user?.homeBranch || 
+           (user?.allowedBranches?.[0]) || 
+           null;
+  }, [homeLocation, accessibleBranches, user]);
+
+  /**
+   * Get current province for the user (backward compatibility)
+   * @returns {string|null} Current province ID
+   */
+  const getCurrentProvince = useCallback(() => {
+    return homeLocation?.province || 
+           (accessibleProvinces.length === 1 ? accessibleProvinces[0] : null) || 
+           user?.homeProvince || 
+           (user?.allowedProvinces?.[0]) || 
+           null;
+  }, [homeLocation, accessibleProvinces, user]);
+
+  /**
+   * Get geographic context (backward compatibility)
+   * @returns {Object} Geographic context object
+   */
+  const getGeographicContext = useCallback(() => {
+    const currentProvince = getCurrentProvince();
+    const currentBranch = getDefaultBranch();
+    
+    return {
+      provinceId: currentProvince,
+      branchCode: currentBranch,
+      provinceName: currentProvince ? getProvinceName(currentProvince) : '',
+      branchName: currentBranch ? getBranchName(currentBranch) : '',
+      recordedProvince: currentProvince,
+      recordedBranch: currentBranch,
+      // Legacy aliases
+      homeProvince: currentProvince,
+      homeBranch: currentBranch,
+      defaultProvince: currentProvince,
+      defaultBranch: currentBranch
+    };
+  }, [getCurrentProvince, getDefaultBranch]);
+
+  /**
+   * Check branch access (backward compatibility)
+   * @param {string} branchCode Branch code to check
+   * @returns {boolean} Has access to branch
+   */
+  const checkBranchAccess = useCallback((branchCode) => {
+    return canAccessBranch(branchCode);
+  }, [canAccessBranch]);
+
+  /**
+   * Check province access (backward compatibility)
+   * @param {string} provinceId Province ID to check
+   * @returns {boolean} Has access to province
+   */
+  const checkProvinceAccess = useCallback((provinceId) => {
+    return canAccessProvince(provinceId);
+  }, [canAccessProvince]);
 
   // RETURN COMPREHENSIVE API
   return {
@@ -486,14 +571,24 @@ export const usePermissions = () => {
     canDelete,
     canApprove,
     hasDepartmentAccess,
+    worksInDepartment,
+    hasAuthorityLevel,
+    
+    // BACKWARD COMPATIBILITY FUNCTIONS
+    // For easy migration from useGeographicData
+    getDefaultBranch,
+    getCurrentProvince,
+    getGeographicContext,
+    checkBranchAccess,
+    checkProvinceAccess,
     
     // Raw data access
     authority: userRBAC?.authority,
     departments: userRBAC?.departments || [],
     geographic: userRBAC?.geographic || {},
     isActive: userRBAC?.isActive || false,
-    isDev: userRBAC?.isDev || false,
-      };
+    isDev: userRBAC?.isDev || false
+  };
 };
 
 // Named export for specific use cases

@@ -90,22 +90,7 @@ export const useDataSynchronization = () => {
                                    user.uid && 
                                    (user.access || user.isPendingApproval);
   
-  // 🔧 DEBUG: Log authentication state for debugging (reduced frequency)
-  if (process.env.NODE_ENV === 'development') {
-    // Only log once when auth state changes, not on every hook call
-    const authStateKey = `${isAuthenticated}-${!!user}-${!!user?.uid}-${!!user?.access}-${!!user?.isPendingApproval}`;
-    if (!window._lastAuthStateKey || window._lastAuthStateKey !== authStateKey) {
-      console.log('🔍 Data Sync State Change:', {
-        isAuthenticated,
-        hasUser: !!user,
-        hasUID: !!user?.uid,
-        hasAccess: !!user?.access,
-        isPending: !!user?.isPendingApproval,
-        authComplete: isAuthenticationComplete
-      });
-      window._lastAuthStateKey = authStateKey;
-    }
-  }
+  // Silent in production - data sync monitoring reduced
   
   // Company-related collections - wait for authentication completion
   useCollectionSync(isAuthenticationComplete ? 'data/company/provinces' : null, setProvinces);
@@ -223,11 +208,12 @@ export const useManualDataSync = () => {
                                     user?.isDev;
     
     if (hasUserManagementAccess) {
-      console.log('🔄 Manually retrying users collection sync...');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔄 Manually retrying users collection sync...');
+      }
       // This will trigger a fresh useCollectionSync attempt
       return { success: true, message: 'Users sync retry initiated' };
     } else {
-      console.warn('⚠️ User does not have permission to sync users collection');
       return { success: false, message: 'Insufficient permissions for users sync' };
     }
   }, [user?.accessLevel, user?.access?.authority, user?.isDev]);

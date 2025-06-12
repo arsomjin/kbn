@@ -36,15 +36,15 @@ const persistor = persistStore(store, null, () => {
 const App = () => {
 
   const onBeforeLift = () => {
-    console.log('PersistGate OPEN!');
-    // Safe access to process.env with fallback
+    // Silent initialization in production
     const isDev = process?.env?.NODE_ENV === 'development';
-    const projectId = process?.env?.REACT_APP_FIREBASE_PROJECT_ID || 'development';
-    console.log("🔥 Connected to Firebase Project:", projectId);
     
-    // 🔍 DEBUGGING: Start authentication flow monitoring in development
     if (isDev) {
-      console.log('🔍 Starting authentication flow debugger...');
+      console.log('🔥 KBN Application Ready');
+    }
+    
+    // 🔍 DEBUGGING: Start authentication flow monitoring in development (silent)
+    if (isDev) {
       import('./utils/authFlowDebugger').then(({ debugAuthFlow }) => {
         // Start monitoring but don't store the cleanup function unless needed
         const cleanup = debugAuthFlow();
@@ -52,39 +52,21 @@ const App = () => {
         // Optional: Stop monitoring after 30 seconds to reduce noise
         setTimeout(() => {
           cleanup();
-          console.log('🔍 Auto-stopped auth flow monitoring after 30 seconds');
         }, 30000);
       }).catch(error => {
-        console.warn('Could not load auth flow debugger:', error);
+        // Silent error handling
       });
     }
     
-    // Load self-approval utilities for development
+    // Load utilities silently in development
     if (isDev) {
-      import('./utils/selfApproval').catch(error => {
-        console.warn('Could not load self-approval utilities:', error);
-      });
-      import('./utils/debugAuth').catch(error => {
-        console.warn('Could not load debug utilities:', error);
-      });
-      import('./dev/approval-debug').catch(error => {
-        console.warn('Could not load approval debug utilities:', error);
-      });
-
-      import('./fix-auth-instability').catch(error => {
-        console.warn('Could not load auth instability fix utility:', error);
-      });
+      import('./utils/selfApproval').catch(() => {});
+      import('./utils/debugAuth').catch(() => {});
+      import('./dev/approval-debug').catch(() => {});
+      import('./fix-auth-instability').catch(() => {});
+      import('./role-testing-utilities').catch(() => {});
+      import('./dev/quick-rbac-setup').catch(() => {});
     }
-    
-    // 🎭 Load role testing utilities for multi-role testing
-    import('./role-testing-utilities').catch(error => {
-      console.warn('Could not load role testing utilities:', error);
-    });
-    
-    // 🚀 Load quick RBAC setup and testing script
-    import('./dev/quick-rbac-setup').catch(error => {
-      console.warn('Could not load quick RBAC setup:', error);
-    });
     
   };
 

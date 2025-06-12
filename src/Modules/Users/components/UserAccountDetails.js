@@ -10,8 +10,8 @@ import {
   Form,
   FormSelect,
   FormTextarea,
-  Button
 } from 'shards-react';
+import { Button } from 'antd';
 import { useDispatch, useSelector } from 'react-redux';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
@@ -26,6 +26,16 @@ import FSelect from 'Formiks/FSelect';
 import { cleanValuesBeforeSave } from 'functions';
 import { errorHandler } from 'functions';
 import { useLocation } from 'react-router-dom';
+import { 
+  getUserId, 
+  getUserFirstName, 
+  getUserLastName, 
+  getUserEmail, 
+  getUserPhoneNumber, 
+  getUserHomeBranch,
+  getUserDisplayName,
+  safeUserUpdate 
+} from 'utils/user-structure-safety';
 
 const UserSchema = Yup.object().shape({
   firstName: Yup.string().required('กรุณาป้อนชื่อ'),
@@ -65,10 +75,16 @@ const UserAccountDetails = ({ title, app, api, onCancel, selectedUser }) => {
     } = values;
     try {
       load(true);
-      let docId = isUserProfile ? selectedUser.uid : selectedUser._key;
-      // Update firestore.
-      let currentUser = app.auth().currentUser;
-      // showLog({ selectedUser, currentUser });
+      
+      // Use safety utility to get user ID
+      const docId = getUserId(selectedUser);
+      
+      if (!docId) {
+        throw new Error('Unable to identify user document ID. User data structure may be invalid.');
+      }
+      
+      // Update Firebase Auth profile if it's the current user
+      const currentUser = app.auth().currentUser;
       if (currentUser && currentUser.uid === docId) {
         await currentUser.updateProfile({
           displayName: `${firstName} ${lastName}`,
@@ -76,35 +92,27 @@ const UserAccountDetails = ({ title, app, api, onCancel, selectedUser }) => {
           phoneNumber
         });
       }
+      
+      // Prepare update data - this will go to the appropriate structure location
+      const updateData = {
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        displayName: `${firstName} ${lastName}`,
+        group,
+        description,
+        branch,
+        department,
+        status
+      };
+      
+      // Use safe update utility to handle both Clean Slate and legacy structures
       const userRef = app.firestore().collection('users').doc(docId);
-      const docSnap = await userRef.get();
-      if (docSnap.exists) {
-        let updateSnap = {
-          auth: {
-            ...docSnap.data().auth,
-            // prefix,
-            firstName,
-            lastName,
-            email,
-            phoneNumber
-          },
-          group,
-          description,
-          branch,
-          department,
-          status
-        };
-        updateSnap = cleanValuesBeforeSave(updateSnap);
-        // showLog({ updateSnap });
-        await userRef.update(updateSnap);
-      }
+      await safeUserUpdate(userRef, updateData);
 
-      // Update redux store.
-      let mUsers = JSON.parse(JSON.stringify(users));
-      mUsers[docId] = { ...mUsers[docId], ...values };
-      dispatch(setUsers(mUsers));
-      // Update data
-      await api.updateData('users');
+      // Note: Redux state will be automatically updated by the real-time listener
+      // No need to manually dispatch or refresh cache
 
       load(false);
       showSuccess(() => onCancel(), 'บันทึกข้อมูลสำเร็จ');
@@ -132,7 +140,7 @@ const UserAccountDetails = ({ title, app, api, onCancel, selectedUser }) => {
   return (
     <Card small className="mb-4">
       <CardHeader className="border-bottom">
-        <h6 className="m-0">{selectedUser.displayName}</h6>
+        <h6 className="m-0">{getUserDisplayName(selectedUser)}</h6>
       </CardHeader>
       <ListGroup flush>
         <ListGroupItem className="p-3">
@@ -141,12 +149,12 @@ const UserAccountDetails = ({ title, app, api, onCancel, selectedUser }) => {
               <Formik
                 initialValues={{
                   // prefix: selectedUser.prefix || 'นาย',
-                  firstName: selectedUser.firstName || '',
-                  lastName: selectedUser.lastName || '',
-                  email: selectedUser.email || '',
-                  phoneNumber: selectedUser.phoneNumber || '',
+                  firstName: getUserFirstName(selectedUser),
+                  lastName: getUserLastName(selectedUser),
+                  email: getUserEmail(selectedUser),
+                  phoneNumber: getUserPhoneNumber(selectedUser),
                   group: selectedUser.group || 'group011',
-                  branch: selectedUser.homeBranch || (selectedUser?.allowedBranches?.[0]) || '0450',
+                  branch: getUserHomeBranch(selectedUser) || '0450',
                   description: selectedUser.description || '',
                   department: selectedUser.department || '',
                   status: selectedUser.status || 'ปกติ'
@@ -346,10 +354,10 @@ const UserAccountDetails = ({ title, app, api, onCancel, selectedUser }) => {
                       </Col>
                     </Row>
                     <Row form style={{ justifyContent: 'space-between' }}>
-                      <Button onClick={() => onCancel()} className="btn-white">
+                      <Button onClick={() => onCancel()} >
                         &larr; กลับ
                       </Button>
-                      <Button theme="accent" onClick={handleSubmit} disabled={!grant}>
+                      <Button type="primary" onClick={handleSubmit} disabled={!grant}>
                         บันทึกข้อมูล
                       </Button>
                     </Row>
@@ -368,7 +376,23 @@ UserAccountDetails.propTypes = {
   /**
    * The component's title.
    */
-  title: PropTypes.string
+  title: PropTypes.string,
+  /**
+   * Firebase app instance
+   */
+  app: PropTypes.object.isRequired,
+  /**
+   * API utilities
+   */
+  api: PropTypes.object.isRequired,
+  /**
+   * Cancel callback function
+   */
+  onCancel: PropTypes.func.isRequired,
+  /**
+   * Selected user object
+   */
+  selectedUser: PropTypes.object.isRequired
 };
 
 UserAccountDetails.defaultProps = {

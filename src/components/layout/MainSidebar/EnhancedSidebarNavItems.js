@@ -110,22 +110,9 @@ const EnhancedSidebarNavItems = () => {
     };
   }, [isMounted]);
 
-  // DEBUG: Log navigation and user context
+  // Navigation ready - logs reduced for production
   useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('🔍 EnhancedSidebarNavItems Debug:', {
-        navigationSections: navigation.length,
-        navigationTitles: navigation.map(nav => nav.title),
-        userRole,
-        isDev,
-        authority,
-        departments,
-        hasAccountingView: hasPermission('accounting.view'),
-        hasAccountingEdit: hasPermission('accounting.edit'),
-        accountingSection: navigation.find(nav => nav.title === 'บัญชีและการเงิน'),
-        userEmail: user?.email
-      });
-    }
+    // Silent in production for performance
   }, [navigation, userRole, isDev, authority, departments, hasPermission, user]);
 
   /*

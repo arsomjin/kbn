@@ -16,43 +16,53 @@ export const useNavigationGenerator = () => {
     return authority || user?.auth?.accessLevel || user?.accessLevel || 'STAFF';
   }, [authority, user]);
 
-  // DEBUG: Add logging for permission debugging
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development' && userRBAC) {
-      console.log('🔍 Navigation Debug - User RBAC:', {
-        authority: userRBAC.authority,
-        departments: userRBAC.departments,
-        hasAccountingView: hasPermission('accounting.view'),
-        hasAccountingEdit: hasPermission('accounting.edit'),
-        isDev: userRBAC.isDev,
-        permissions: userRBAC.permissions
-      });
-    }
-  }, [userRBAC, hasPermission]);
 
   /**
-   * SIMPLIFIED: Filter navigation items based on permissions
+   * ENHANCED: Check if we should respect RBAC filtering (even for dev users during role simulation)
+   */
+  const shouldRespectRBAC = useMemo(() => {
+    // Always respect RBAC for non-dev users
+    if (!isDev) return true;
+    
+    // For dev users, check if we're in role simulation mode
+    // Role simulation is detected by checking if the user has a test profile structure
+    const isRoleSimulation = user?.uid?.startsWith('test_') || 
+                           user?.email?.includes('@test.com') ||
+                           user?.displayName?.includes('Test ') ||
+                           window.localStorage.getItem('rbac_simulation_mode') === 'true';
+    
+    return isRoleSimulation;
+  }, [isDev, user]);
+
+    // Debug logging for simulation mode
+    useEffect(() => {
+      if (process.env.NODE_ENV === 'development' && isDev) {
+        if (shouldRespectRBAC) {
+          console.log('🎭 Navigation: Role simulation mode ACTIVE - RBAC filtering enabled');
+          console.log('👤 Simulated Role:', userRole);
+          console.log('💡 Tip: Use window.exitSimulation() to restore dev navigation');
+        } else {
+          console.log('🔧 Navigation: Dev mode - showing ALL items (RBAC bypassed)');
+        }
+      }
+    }, [isDev, shouldRespectRBAC, userRole]);  
+
+  /**
+   * ENHANCED: Filter navigation items based on permissions with role simulation support
    */
   const filterItems = useMemo(() => {
     return (items) => {
       if (!items || !Array.isArray(items)) return [];
       
       return items.filter(item => {
-        // Dev users see everything
-        if (isDev) return true;
+        // Dev users bypass RBAC only when NOT in simulation mode
+        if (isDev && !shouldRespectRBAC) {
+          return true;
+        }
         
         // Check if user has permission for this item
         if (item.permission && !hasPermission(item.permission)) {
-          // DEBUG: Log failed permission checks
-          if (process.env.NODE_ENV === 'development') {
-            console.log(`❌ Permission denied for "${item.title}" (${item.permission})`);
-          }
           return false;
-        }
-
-        // DEBUG: Log successful permission checks
-        if (process.env.NODE_ENV === 'development' && item.permission) {
-          console.log(`✅ Permission granted for "${item.title}" (${item.permission})`);
         }
 
         // Recursively filter sub-items
@@ -67,7 +77,7 @@ export const useNavigationGenerator = () => {
         return true;
       });
     };
-  }, [hasPermission, isDev]);
+  }, [hasPermission, isDev, shouldRespectRBAC]);
 
   /**
    * SIMPLIFIED: Generate filtered navigation based on user permissions
@@ -77,7 +87,7 @@ export const useNavigationGenerator = () => {
     
     Object.entries(NAVIGATION_CONFIG).forEach(([key, section]) => {
       // Special handling for developer-only sections
-      if (section.isDeveloperOnly && !isDev) {
+      if (section.isDeveloperOnly && (!isDev || shouldRespectRBAC)) {
         return;
       }
 
@@ -100,7 +110,7 @@ export const useNavigationGenerator = () => {
     });
 
     return result;
-  }, [hasPermission, filterItems, isDev]);
+  }, [hasPermission, filterItems, isDev, shouldRespectRBAC]);
 
   /**
    * SIMPLIFIED: Get navigation statistics
@@ -125,7 +135,9 @@ export const useNavigationGenerator = () => {
       totalSections,
       totalItems,
       userRole,
-      isDev
+      isDev,
+      isSimulating: shouldRespectRBAC && isDev,
+      rbacActive: shouldRespectRBAC
     };
   }, [navigation, userRole, isDev]);
 

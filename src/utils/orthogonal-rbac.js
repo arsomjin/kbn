@@ -172,20 +172,8 @@ const generateUserPermissions = (user) => {
   if (!user?.access) {
     return { permissions: [], geographic: null };
   }
-  console.log('[generateUserPermissions] user.access', user.access);
   const { authority, geographic, departments = ['GENERAL'] } = user.access;
-  
-  // DEBUG: Enhanced logging for permission generation
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 Permission Generation Debug:', {
-      authority,
-      geographic,
-      departments,
-      authorityObj: AUTHORITY_LEVELS[authority],
-      geographicType: typeof geographic
-    });
-  }
-  
+    
   // Handle both new geographic object structure and legacy string format
   let geoScope;
   let geoScopeKey;
@@ -230,10 +218,6 @@ const generateUserPermissions = (user) => {
         const permission = `${deptKey}.${action.toLowerCase()}`;
         permissions.push(permission);
         
-        // DEBUG: Log each permission being generated
-        if (process.env.NODE_ENV === 'development' && deptKey === 'accounting') {
-          console.log(`🔍 Generated permission: ${permission} for dept: ${dept}, action: ${action}`);
-        }
       });
     });
     
@@ -254,11 +238,6 @@ const generateUserPermissions = (user) => {
     if (authorityLevel.level >= 3) {
       permissions.push("reports.approve");
     }
-  }
-
-  // DEBUG: Log final permissions array
-  if (process.env.NODE_ENV === 'development') {
-    console.log('🔍 Final Generated Permissions:', permissions);
   }
 
   return {
@@ -340,30 +319,13 @@ const getLegacyRoleName = (user) => {
  */
 const hasOrthogonalPermission = (user, permission, context = {}) => {
   if (!user?.access) {
-    if (process.env.NODE_ENV === 'development') {
-      console.log(`❌ hasOrthogonalPermission: No user access for ${permission}`);
-    }
     return false;
   }
   
   const userPermissions = generateUserPermissions(user);
-  
-  // DEBUG: Enhanced permission checking logging
-  if (process.env.NODE_ENV === 'development' && permission.startsWith('accounting.')) {
-    console.log(`🔍 Permission Check Debug for ${permission}:`, {
-      userHasAccess: !!user?.access,
-      userPermissions: userPermissions.permissions,
-      hasWildcard: userPermissions.permissions.includes('*'),
-      hasSpecific: userPermissions.permissions.includes(permission),
-      context
-    });
-  }
-  
+    
   // Check super admin
   if (userPermissions.permissions.includes('*')) {
-    if (process.env.NODE_ENV === 'development' && permission.startsWith('accounting.')) {
-      console.log(`✅ hasOrthogonalPermission: Super admin access for ${permission}`);
-    }
     return true;
   }
   
@@ -372,21 +334,12 @@ const hasOrthogonalPermission = (user, permission, context = {}) => {
     // Check geographic constraints if context provided
     if (context.province || context.branch) {
       const geoAccess = checkGeographicAccess(user, context);
-      if (process.env.NODE_ENV === 'development' && permission.startsWith('accounting.')) {
-        console.log(`🔍 hasOrthogonalPermission: Geographic check for ${permission}: ${geoAccess}`);
-      }
       return geoAccess;
     }
     
-    if (process.env.NODE_ENV === 'development' && permission.startsWith('accounting.')) {
-      console.log(`✅ hasOrthogonalPermission: Permission granted for ${permission}`);
-    }
     return true;
   }
   
-  if (process.env.NODE_ENV === 'development' && permission.startsWith('accounting.')) {
-    console.log(`❌ hasOrthogonalPermission: Permission denied for ${permission}`);
-  }
   return false;
 };
 

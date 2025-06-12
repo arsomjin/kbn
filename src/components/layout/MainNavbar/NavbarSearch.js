@@ -37,6 +37,7 @@ export default () => {
 
   const _search = async (txt, iType) => {
     try {
+      return setData([])  // TODO: Enhance new search across all modules.
       if (!txt) {
         return setData([]);
       }

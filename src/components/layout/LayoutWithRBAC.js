@@ -18,6 +18,7 @@ import { useSelector } from 'react-redux';
 
 // Use Clean Slate RBAC system
 import { usePermissions } from 'hooks/usePermissions';
+import { useResponsive } from 'hooks/useResponsive';
 import PermissionGate from '../PermissionGate';
 import { getProvinceName, getBranchName } from 'utils/mappings';
 import GeographicBranchSelector from '../GeographicBranchSelector';
@@ -128,6 +129,8 @@ const LayoutWithRBAC = ({
     isActive,
     homeLocation
   } = usePermissions();
+  
+  const { isMobile, isTablet, isDesktop } = useResponsive();
 
   // Initialize with user's default geographic context
   useEffect(() => {
@@ -348,20 +351,24 @@ const LayoutWithRBAC = ({
       placeholder={accessibleProvinces.length === 0 ? "No provinces available" : "Select Province"}
       value={selectedProvince}
       onChange={handleProvinceChange}
-      style={{ minWidth: 200 }}
+      style={{ 
+        minWidth: 200,
+        width: '100%'
+      }}
+      size={isMobile ? 'middle' : 'large'}
       disabled={accessibleProvinces.length <= 1}
     >
       {accessibleProvinces.map(provinceCode => (
         <Option key={provinceCode} value={provinceCode}>
           <Space>
-            <GlobalOutlined />
-            {getProvinceName(provinceCode)}
+            <GlobalOutlined style={{ color: '#1890ff' }} />
+            <span style={{ fontWeight: 500 }}>{getProvinceName(provinceCode)}</span>
             {accessibleProvinces.length === 1 && <Text type="secondary">(auto-selected)</Text>}
           </Space>
         </Option>
       ))}
     </Select>
-  ), [accessibleProvinces, selectedProvince, handleProvinceChange]);
+  ), [accessibleProvinces, selectedProvince, handleProvinceChange, isMobile]);
 
   // Branch selector component - memoized component function
   const BranchSelector = useCallback(() => (
@@ -375,29 +382,69 @@ const LayoutWithRBAC = ({
       }
       value={selectedBranch}
       onChange={handleBranchChange}
-      style={{ minWidth: 200 }}
+      style={{ 
+        minWidth: 200,
+        width: '100%'
+      }}
+      size={isMobile ? 'middle' : 'large'}
       disabled={!selectedProvince || availableBranches.length <= 1}
     >
       {availableBranches.map(branchCode => (
         <Option key={branchCode} value={branchCode}>
           <Space>
-            <BankOutlined />
-            {getBranchName(branchCode)}
+            <BankOutlined style={{ color: '#52c41a' }} />
+            <span style={{ fontWeight: 500 }}>{getBranchName(branchCode)}</span>
             {availableBranches.length === 1 && <Text type="secondary">(auto-selected)</Text>}
           </Space>
         </Option>
       ))}
     </Select>
-  ), [availableBranches, selectedBranch, selectedProvince, handleBranchChange]);
+  ), [availableBranches, selectedBranch, selectedProvince, handleBranchChange, isMobile]);
 
   // User info display - memoized component function
   const UserInfo = useCallback(() => (
-    <Space>
-      <UserOutlined />
-      <Text strong>{userRBAC?.authority}</Text>
-      {primaryDepartment && <Text type="secondary">({primaryDepartment})</Text>}
-    </Space>
-  ), [userRBAC?.authority, primaryDepartment]);
+    <div style={{
+      background: 'linear-gradient(135deg, #f6f8ff 0%, #f0f5ff 100%)',
+      border: '1px solid #e6f0ff',
+      borderRadius: isMobile ? '8px' : '10px',
+      padding: isMobile ? '8px 12px' : '10px 16px'
+    }}>
+      <Space 
+        direction={isMobile ? "vertical" : "horizontal"}
+        size="small"
+        style={{ 
+          alignItems: isMobile ? "flex-start" : "center"
+        }}
+      >
+        <Space size="small">
+          <UserOutlined style={{ 
+            fontSize: isMobile ? '14px' : '16px',
+            color: '#1890ff'
+          }} />
+          <Text 
+            strong
+            style={{ 
+              fontSize: isMobile ? '13px' : '14px',
+              color: '#262626'
+            }}
+          >
+            {userRBAC?.authority}
+          </Text>
+        </Space>
+        {primaryDepartment && (
+          <Text 
+            type="secondary"
+            style={{ 
+              fontSize: isMobile ? '12px' : '13px',
+              fontWeight: 500
+            }}
+          >
+            ({primaryDepartment})
+          </Text>
+        )}
+      </Space>
+    </div>
+  ), [userRBAC?.authority, primaryDepartment, isMobile]);
 
   // Loading state
   if (loading) {
@@ -437,13 +484,20 @@ const LayoutWithRBAC = ({
       allOf={allOf}
       authority={authority}
       department={department}
-      geographic={{ provinceId: selectedProvince, branchCode: selectedBranch }}
+      geographic={
+        selectedProvince || selectedBranch 
+          ? { provinceId: selectedProvince, branchCode: selectedBranch }
+          : undefined
+      }
       fallback={
         <Layout className={className} style={style}>
-          <Content style={{ padding: '24px' }}>
+          <Content style={{ 
+            padding: isMobile ? '16px 20px' : '24px',
+            overflow: 'hidden'
+          }}>
             <Alert
               message="Access Denied"
-              description="You don't have permission to access this page."
+              description="คุณไม่มีสิทธิ์เข้าถึงหน้านี้"
               type="error"
               showIcon
               icon={<LockOutlined />}
@@ -453,10 +507,17 @@ const LayoutWithRBAC = ({
       }
     >
       <Layout className={className} style={style}>
-        <Content style={{ padding: '24px' }}>
+        <Content style={{ 
+          maxWidth: '100vw',
+          overflow: 'hidden',
+          padding: isMobile ? '12px 16px 16px 16px' : isTablet ? '16px 20px 20px 20px' : '20px 24px 24px 24px'
+        }}>
           {/* Breadcrumb */}
           {showBreadcrumb && breadcrumbItems.length > 0 && (
-            <Breadcrumb style={{ marginBottom: '16px' }}>
+            <Breadcrumb style={{ 
+              marginBottom: isMobile ? '12px' : '16px',
+              paddingLeft: isMobile ? '4px' : '0'
+            }}>
               {breadcrumbItems.map((item, index) => (
                 <Breadcrumb.Item key={index} href={item.href}>
                   {item.title}
@@ -466,60 +527,200 @@ const LayoutWithRBAC = ({
           )}
 
           {/* Page Header */}
-          <Card style={{ marginBottom: '24px' }}>
-            <Row justify="space-between" align="middle">
-              <Col>
-                <Space direction="vertical" size="small">
-                  <Title level={2} style={{ margin: 0 }}>
+          <Card 
+            style={{ 
+              marginBottom: isMobile ? '16px' : isTablet ? '20px' : '24px',
+              borderRadius: isMobile ? '12px' : '16px',
+              boxShadow: isMobile 
+                ? '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)' 
+                : '0 4px 6px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.08)',
+              border: '1px solid #f0f0f0',
+              background: '#ffffff'
+            }}
+            bodyStyle={{ 
+              padding: isMobile ? '18px 20px' : isTablet ? '22px 24px' : '24px 28px'
+            }}
+          >
+            <Row 
+              justify="space-between" 
+              align={isMobile ? "top" : "middle"}
+              gutter={[16, 16]}
+            >
+              <Col xs={24} sm={24} md={16} lg={16} xl={16}>
+                <Space direction="vertical" size={isMobile ? "small" : "middle"} style={{ width: '100%' }}>
+                  <Title 
+                    level={isMobile ? 4 : 2} 
+                    style={{ 
+                      margin: 0,
+                      fontSize: isMobile ? '20px' : isTablet ? '24px' : '28px',
+                      lineHeight: isMobile ? '28px' : isTablet ? '32px' : '36px',
+                      fontWeight: 600,
+                      color: '#1a1a1a',
+                      letterSpacing: '-0.01em'
+                    }}
+                  >
                     {title}
                   </Title>
                   {subtitle && (
-                    <Text type="secondary">{subtitle}</Text>
+                    <Text 
+                      type="secondary"
+                      style={{ 
+                        fontSize: isMobile ? '14px' : isTablet ? '15px' : '16px',
+                        lineHeight: isMobile ? '20px' : '24px',
+                        color: '#666666',
+                        fontWeight: 400
+                      }}
+                    >
+                      {subtitle}
+                    </Text>
                   )}
                 </Space>
               </Col>
-              <Col>
-                <Space>
+              <Col xs={24} sm={24} md={8} lg={8} xl={8}>
+                <div style={{ 
+                  display: 'flex',
+                  flexDirection: isMobile ? 'column' : 'row',
+                  gap: isMobile ? '12px' : '16px',
+                  alignItems: isMobile ? 'flex-start' : 'flex-end',
+                  justifyContent: isMobile ? 'flex-start' : 'flex-end',
+                  width: '100%'
+                }}>
                   {showUserInfo && <UserInfo />}
                   {headerExtra}
-                </Space>
+                </div>
               </Col>
             </Row>
           </Card>
 
-          {/* Geographic Selectors */}
+          {/* Geographic Selectors - Only show if there are actual choices to make */}
           {showGeographicSelector && (
-            (requireProvinceSelection && accessibleProvinces.length > 0) ||
+            ((requireProvinceSelection && accessibleProvinces.length > 0) ||
             (requireBranchSelection && accessibleBranches.length > 0) ||
-            (accessibleProvinces.length > 1 || accessibleBranches.length > 1)
+            (accessibleProvinces.length > 1 || accessibleBranches.length > 1)) &&
+            // Only show if user actually has choices to make
+            (accessibleProvinces.length > 1 || (selectedProvince && availableBranches.length > 1))
           ) && (
-            <Card style={{ marginBottom: '24px' }}>
-              <Row justify="space-between" align="middle">
-                <Col>
-                  <Space>
-                    <Text strong>Geographic Selection:</Text>
-                    {(requireProvinceSelection || accessibleProvinces.length > 1) && <ProvinceSelector />}
-                    {(requireBranchSelection || accessibleBranches.length > 1) && <BranchSelector />}
-                  </Space>
-                </Col>
-              </Row>
-            </Card>
+              <Card style={{ 
+                marginBottom: isMobile ? '16px' : isTablet ? '20px' : '24px',
+                borderRadius: isMobile ? '12px' : '16px',
+                border: '1px solid #f0f0f0',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
+                background: '#ffffff'
+              }}
+              bodyStyle={{
+                padding: isMobile ? '18px 20px' : isTablet ? '22px 24px' : '24px 28px'
+              }}>
+                <Row justify="start" align="middle">
+                  <Col span={24}>
+                    <Space 
+                      direction="vertical"
+                      size={isMobile ? "middle" : "large"}
+                      style={{ width: '100%' }}
+                    >
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        paddingBottom: isMobile ? '8px' : '12px',
+                        borderBottom: '1px solid #f5f5f5'
+                      }}>
+                        <GlobalOutlined style={{ 
+                          fontSize: isMobile ? '16px' : '18px',
+                          color: '#1890ff'
+                        }} />
+                        <Text 
+                          strong
+                          style={{ 
+                            fontSize: isMobile ? '15px' : '16px',
+                            fontWeight: 600,
+                            color: '#1a1a1a'
+                          }}
+                        >
+                          Geographic Selection
+                        </Text>
+                      </div>
+                      <Row gutter={[16, 16]}>
+                        {/* Only show province selector if there are multiple provinces to choose from */}
+                        {accessibleProvinces.length > 1 && (
+                          <Col xs={24} sm={12} md={8} lg={6}>
+                            <div style={{ marginBottom: isMobile ? '8px' : '0' }}>
+                              <Text style={{ 
+                                fontSize: '13px', 
+                                color: '#666',
+                                fontWeight: 500,
+                                display: 'block',
+                                marginBottom: '6px'
+                              }}>
+                                Province
+                              </Text>
+                              <ProvinceSelector />
+                            </div>
+                          </Col>
+                        )}
+                        {/* Only show branch selector if there are multiple branches to choose from */}
+                        {selectedProvince && availableBranches.length > 1 && (
+                          <Col xs={24} sm={12} md={8} lg={6}>
+                            <div style={{ marginBottom: isMobile ? '8px' : '0' }}>
+                              <Text style={{ 
+                                fontSize: '13px', 
+                                color: '#666',
+                                fontWeight: 500,
+                                display: 'block',
+                                marginBottom: '6px'
+                              }}>
+                                Branch
+                              </Text>
+                              <BranchSelector />
+                            </div>
+                          </Col>
+                        )}
+                      </Row>
+                    </Space>
+                  </Col>
+                </Row>
+              </Card>
           )}
 
-          {/* Workflow Stepper */}
+          {/* Workflow Stepper - Only show if there are actual steps */}
           {showStepper && steps.length > 0 && (
-            <Card style={{ marginBottom: '24px' }}>
+            <Card style={{ 
+              marginBottom: isMobile ? '16px' : isTablet ? '20px' : '24px',
+              borderRadius: isMobile ? '12px' : '16px',
+              border: '1px solid #f0f0f0',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
+              background: '#ffffff'
+            }}
+            bodyStyle={{
+              padding: isMobile ? '18px 20px' : isTablet ? '22px 24px' : '24px 28px'
+            }}>
               <Steps
                 current={currentStep}
                 onChange={onStepClick}
                 items={steps}
+                direction={isMobile ? 'vertical' : 'horizontal'}
+                size={isMobile ? 'small' : 'default'}
+                style={{
+                  '.ant-steps-item-title': {
+                    fontSize: isMobile ? '14px' : '16px',
+                    fontWeight: 500
+                  }
+                }}
               />
             </Card>
           )}
 
-          {/* Audit Trail Section */}
+          {/* Audit Trail Section - Only show if document ID exists */}
           {showAuditSection && documentId && (
-            <Card style={{ marginBottom: '24px' }}>
+            <Card style={{ 
+              marginBottom: isMobile ? '16px' : isTablet ? '20px' : '24px',
+              borderRadius: isMobile ? '12px' : '16px',
+              border: '1px solid #f0f0f0',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
+              background: '#ffffff'
+            }}
+            bodyStyle={{
+              padding: isMobile ? '18px 20px' : isTablet ? '22px 24px' : '24px 28px'
+            }}>
               <AuditTrailSection
                 documentId={documentId}
                 documentType={documentType}
@@ -531,42 +732,90 @@ const LayoutWithRBAC = ({
 
           {/* Main Content */}
           {!geographicRequirementsMet ? (
-            <Alert
-              message="Geographic Selection Required"
-              description={
-                requireProvinceSelection && !selectedProvince 
-                  ? "Please select a province to continue."
-                  : "Please select a branch to continue."
-              }
-              type="info"
-              showIcon
-              icon={<GlobalOutlined />}
-            />
+            <Card style={{ 
+              borderRadius: isMobile ? '12px' : '16px',
+              border: '1px solid #e6f7ff',
+              background: '#f6ffed'
+            }}>
+              <Alert
+                message="Geographic Selection Required"
+                description={
+                  requireProvinceSelection && !selectedProvince 
+                    ? "Please select a province to continue."
+                    : "Please select a branch to continue."
+                }
+                type="info"
+                showIcon
+                icon={<GlobalOutlined />}
+                style={{
+                  borderRadius: isMobile ? '8px' : '12px',
+                  border: 'none',
+                  background: 'transparent'
+                }}
+              />
+            </Card>
           ) : !geographicAccessValid ? (
-            <Alert
-              message="Access Denied to Selected Location"
-              description={
-                selectedProvince && !canAccessProvince(selectedProvince)
-                  ? `You don't have access to ${getProvinceName(selectedProvince)}. Please select a different province.`
-                  : `You don't have access to ${getBranchName(selectedBranch)}. Please select a different branch.`
-              }
-              type="warning"
-              showIcon
-              icon={<LockOutlined />}
-              style={{ marginBottom: '24px' }}
-            />
+            <Card style={{ 
+              borderRadius: isMobile ? '12px' : '16px',
+              border: '1px solid #fff2e8',
+              background: '#fff7e6'
+            }}>
+              <Alert
+                message="Access Denied to Selected Location"
+                description={
+                  selectedProvince && !canAccessProvince(selectedProvince)
+                    ? `You don't have access to ${getProvinceName(selectedProvince)}. Please select a different province.`
+                    : `You don't have access to ${getBranchName(selectedBranch)}. Please select a different branch.`
+                }
+                type="warning"
+                showIcon
+                icon={<LockOutlined />}
+                style={{
+                  borderRadius: isMobile ? '8px' : '12px',
+                  border: 'none',
+                  background: 'transparent'
+                }}
+              />
+            </Card>
           ) : (
-            enhancedChildren
+            <div style={{
+              display: 'grid',
+              gap: isMobile ? '16px' : isTablet ? '20px' : '24px',
+              gridTemplateColumns: '1fr'
+            }}>
+              {enhancedChildren}
+            </div>
           )}
 
-          {/* Audit History */}
+          {/* Audit History - Only show if document ID exists */}
           {showAuditTrail && documentId && (
-            <Card style={{ marginTop: '24px' }} title={
-              <Space>
-                <HistoryOutlined />
-                <Text>Audit History</Text>
-              </Space>
-            }>
+            <Card 
+              style={{ 
+                marginTop: isMobile ? '16px' : isTablet ? '20px' : '24px',
+                borderRadius: isMobile ? '12px' : '16px',
+                border: '1px solid #f0f0f0',
+                boxShadow: '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
+                background: '#ffffff'
+              }}
+              bodyStyle={{
+                padding: isMobile ? '18px 20px' : isTablet ? '22px 24px' : '24px 28px'
+              }}
+              title={
+                <Space size={isMobile ? "small" : "middle"}>
+                  <HistoryOutlined style={{ 
+                    fontSize: isMobile ? '16px' : '18px',
+                    color: '#1890ff'
+                  }} />
+                  <Text style={{ 
+                    fontSize: isMobile ? '15px' : '16px', 
+                    fontWeight: 600,
+                    color: '#1a1a1a'
+                  }}>
+                    Audit History
+                  </Text>
+                </Space>
+              }
+            >
               <AuditHistory
                 documentId={documentId}
                 documentType={documentType}

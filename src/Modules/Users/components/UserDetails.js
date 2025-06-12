@@ -7,6 +7,7 @@ import { setUsers } from 'redux/actions/data';
 import { showWarn, showLog } from 'functions';
 import { checkDoc } from 'firebase/api';
 import moment from 'moment';
+import { getUserId, getUserDisplayName, safeUserUpdate } from 'utils/user-structure-safety';
 
 const UserDetails = ({ app, api, selectedUser }) => {
   const { userGroups, users } = useSelector(state => state.data);
@@ -16,7 +17,15 @@ const UserDetails = ({ app, api, selectedUser }) => {
 
   const getStatus = async () => {
     try {
-      const stateDoc = await checkDoc('status', selectedUser.auth.uid);
+      // Use safety utility to get user ID
+      const userId = getUserId(selectedUser);
+      
+      if (!userId) {
+        console.error('UserDetails: Cannot determine user ID from selectedUser structure');
+        return;
+      }
+      
+      const stateDoc = await checkDoc('status', userId);
       if (stateDoc) {
         setStatus(stateDoc.data());
       }
@@ -41,34 +50,37 @@ const UserDetails = ({ app, api, selectedUser }) => {
 
   const _setPhotoUrl = async photoURL => {
     try {
+      // Use safety utility to get user ID
+      const userId = getUserId(selectedUser);
+      
+      if (!userId) {
+        console.error('UserDetails: Cannot determine user ID for photo update');
+        showWarn('Cannot identify user for photo update');
+        return;
+      }
+      
       const currentUser = app.auth().currentUser;
-      if (currentUser && currentUser.uid === selectedUser.uid) {
+      if (currentUser && currentUser.uid === userId) {
         await currentUser.updateProfile({ photoURL });
       }
-      const userRef = app.firestore().collection('users').doc(selectedUser.uid);
-      const docSnap = await userRef.get();
-      if (docSnap.exists) {
-        await userRef.update({
-          auth: {
-            ...docSnap.data().auth,
-            photoURL
-          }
-        });
-      }
+      
+      const userRef = app.firestore().collection('users').doc(userId);
+      
+      // Use safe update utility to prevent Firestore corruption
+      await safeUserUpdate(userRef, { photoURL });
 
-      const updatedUsers = {
-        ...users,
-        [selectedUser.uid]: { ...users[selectedUser.uid], photoURL }
-      };
-      dispatch(setUsers(updatedUsers));
-      await api.updateData('users');
+      // Note: Redux state will be automatically updated by the real-time listener
+      // No need to manually dispatch or refresh cache - the Firestore listener handles this
     } catch (error) {
+      console.error('UserDetails: Error updating photo URL:', error);
       showWarn(error);
     }
   };
 
+  // Use safety utility for permissions check
+  const selectedUserId = getUserId(selectedUser);
   const grantUserEdit =
-    (user.permissions && user.permissions.permission702) || user.isDev || user.uid === selectedUser.uid;
+    (user.permissions && user.permissions.permission702) || user.isDev || user.uid === selectedUserId;
 
   return (
     <Card small className="mb-4 pt-3">
@@ -77,11 +89,11 @@ const UserDetails = ({ app, api, selectedUser }) => {
           <UploadPhoto
             disabled={!grantUserEdit}
             src={selectedUser.photoURL}
-            storeRef={`images/users/${selectedUser.uid}`}
+            storeRef={`images/users/${selectedUserId}`}
             setUrl={_setPhotoUrl}
           />
         </div>
-        <h5 className="mb-0">{selectedUser.displayName}</h5>
+        <h5 className="mb-0">{getUserDisplayName(selectedUser)}</h5>
         {selectedUser.group && (
           <span className="text-muted d-block mb-2">
             {selectedUser.jobTitle || userGroups[selectedUser.group].userGroupName}

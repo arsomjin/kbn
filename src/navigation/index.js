@@ -19,6 +19,7 @@ import 'styles/nature-enhancement.css';
 // Additional styles
 import 'styles/print.css';
 import 'styles/network-status.css';
+import 'styles/mobile-overflow-fix.css';
 
 import { PrivateRoutes } from './components/PrivateRoutes';
 import AuthRoutes from './components/AuthRoutes';

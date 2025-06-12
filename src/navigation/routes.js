@@ -93,7 +93,6 @@ import SalesByPerson from 'Modules/Reports/Sales/SalesByPerson';
 import Chevrolet from 'Modules/Account/screens/Expense/Components/Chevrolet';
 import ExpenseTransferCycle from 'Modules/Account/screens/ExpenseTransferCycle';
 import TestPrint from 'dev/screens/TestPrint';
-import TestAccessControl from 'dev/screens/TestAccessControl';
 import RBACIntegrationTester from 'dev/screens/RBACIntegrationTester';
 import MigrationTools from 'dev/screens/MigrationTools';
 import RBACTester from 'dev/screens/RBACTester';
@@ -103,10 +102,7 @@ import AuditTrailDemo from 'components/AuditTrail/AuditTrailDemo';
 
 import NatureThemeDemo from 'views/NatureThemeDemo';
 // Clean Slate RBAC Demo Pages
-import CleanSlateRBACDemo from 'examples/CleanSlateRBACDemo';
-import CleanSlateLayoutDemo from 'dev/screens/CleanSlateLayoutDemo';
 import CleanSlatePermissionsDemo from 'dev/screens/CleanSlatePermissionsDemo';
-import CleanSlateMigrationDemo from 'dev/screens/CleanSlateMigrationDemo';
 
 import IncomeParts from 'Modules/Reports/Parts/Income';
 import SaleAssessmentReport from 'Modules/Reports/Sales/Assessment';
@@ -1036,11 +1032,7 @@ export default [
     layout: DefaultLayout,
     component: TestPrint
   },
-  {
-    path: '/developer/test-access-control',
-    layout: DefaultLayout,
-    component: TestAccessControl
-  },
+
   {
     path: '/dev/rbac-integration-tester',
     layout: DefaultLayout,
@@ -1068,25 +1060,12 @@ export default [
   },
   // Clean Slate RBAC Demo Routes
   {
-    path: '/dev/clean-slate-rbac-demo',
-    layout: DefaultLayout,
-    component: CleanSlateRBACDemo
-  },
-  {
-    path: '/dev/clean-slate-layout-demo',
-    layout: DefaultLayout,
-    component: CleanSlateLayoutDemo
-  },
-  {
     path: '/dev/clean-slate-permissions-demo',
     layout: DefaultLayout,
     component: CleanSlatePermissionsDemo
   },
-  {
-    path: '/dev/clean-slate-migration-demo',
-    layout: DefaultLayout,
-    component: CleanSlateMigrationDemo
-  },
+
+
   {
     path: '/developer/audit-trail-demo',
     layout: DefaultLayout,

@@ -1,38 +1,86 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Typography, 
-  Row, 
-  Col, 
-  Table, 
-  Tag, 
-  Button, 
-  Space, 
-  Modal, 
-  Form, 
-  Select, 
-  Input, 
-  Checkbox, 
-  Alert, 
-  message,
+import PropTypes from 'prop-types';
+import {
+  Card,
+  Table,
+  Button,
+  Space,
+  Tag,
+  Modal,
   Descriptions,
+  Alert,
+  Select,
+  Input,
+  Row,
+  Col,
+  Typography,
+  Switch,
   Tabs,
-  Tree
+  Form,
+  Popconfirm,
+  Badge,
+  notification,
+  Checkbox
 } from 'antd';
-import { 
-  SafetyOutlined, 
-  SettingOutlined, 
+import {
   UserOutlined,
+  EyeOutlined,
+  EditOutlined,
+  DeleteOutlined,
   TeamOutlined,
-  ToolOutlined,
-  LockOutlined,
+  EnvironmentOutlined,
+  BankOutlined,
+  SettingOutlined,
+  FileTextOutlined,
+  PlusOutlined,
+  MinusOutlined,
+  CheckOutlined,
   UnlockOutlined,
-  KeyOutlined
+  LockOutlined,
+  KeyOutlined,
+  SafetyOutlined
 } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
-import { app } from '../../../firebase';
 import { usePermissions } from 'hooks/usePermissions';
+import { useResponsive } from 'hooks/useResponsive';
 import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
+import ProvinceSelector from 'components/ProvinceSelector';
+import GeographicBranchSelector from 'components/GeographicBranchSelector';
+import { 
+  getProvinceName,
+  getBranchName, 
+  getDepartmentName,
+  getUserTypeName,
+  getApprovalLevelName,
+  getAccessLevelName,
+  PROVINCE_MAPPINGS,
+  BRANCH_MAPPINGS,
+  DEPARTMENT_MAPPINGS,
+  USER_TYPE_MAPPINGS,
+  APPROVAL_LEVEL_MAPPINGS
+} from 'utils/mappings';
+import { 
+  BASE_ROLES,
+  GRANULAR_PERMISSIONS,
+  PERMISSION_CATEGORIES,
+  getRoleDisplayInfo, 
+  getCompatiblePermissions,
+  getPermissionsByCategory,
+  validateRoleAssignment,
+  createRoleChangeAuditLog,
+  getEffectivePermissions
+} from 'utils/rbac-enhanced';
+
+// Import shared utilities for 100% accuracy with CleanSlatePermissionsDemo
+import {
+  fetchUsersWithCleanSlate,
+  updateUserRoleCleanSlate,
+  toggleUserStatusCleanSlate,
+  deleteUserCleanSlate,
+  handleUserManagementError,
+  getUserDisplayInfo,
+  validateCleanSlateStructure
+} from 'utils/user-management-shared';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -47,6 +95,7 @@ const PermissionManagement = () => {
   
   const { hasPermission } = usePermissions();
   const { user: currentUser } = useSelector(state => state.auth);
+  const { isMobile, isTablet, isDesktop } = useResponsive();
   const [form] = Form.useForm();
 
   // Permission categories and permissions mapping
@@ -107,74 +156,141 @@ const PermissionManagement = () => {
     fetchUsers();
   }, []);
 
+  // Use shared fetch function for 100% accuracy with CleanSlatePermissionsDemo
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const snapshot = await app.firestore().collection('users').get();
-      
-      const usersData = snapshot.docs.map((doc) => {
-        const userData = doc.data();
-        const authData = userData.auth || {};
-        const accessData = userData.access || {};
-        
-        return {
-          uid: doc.id,
-          ...authData,
-          displayName: authData.displayName || `${authData.firstName} ${authData.lastName}`,
-          // Read permissions from Clean Slate RBAC structure with fallbacks
-          permissions: accessData.permissions || userData.userRBAC?.permissions || authData.permissions || [],
-          accessLevel: accessData.authority || userData.userRBAC?.authority || authData.accessLevel || 'STAFF',
-          department: accessData.departments?.[0] || userData.userRBAC?.departments?.[0] || authData.department || 'general',
-          // Store raw data for debugging
-          _rawAccessData: accessData,
-          _rawUserRBAC: userData.userRBAC,
-          _rawAuthData: authData
-        };
-      });
-
+      const usersData = await fetchUsersWithCleanSlate({ includeDebug: true });
       setUsers(usersData);
     } catch (error) {
-      console.error('Error fetching users:', error);
-      message.error('ไม่สามารถโหลดข้อมูลผู้ใช้ได้');
+      handleUserManagementError(error, 'โหลดข้อมูลผู้ใช้');
     }
     setLoading(false);
   };
 
-  const handleUpdatePermissions = async (values) => {
+  // Use shared toggle function for 100% accuracy with CleanSlatePermissionsDemo  
+  const handleToggleUserStatus = async (userId, currentStatus) => {
     setActionLoading(true);
     try {
-      const { permissions } = values;
-      const timestamp = Date.now();
-      
-      // Update Clean Slate RBAC structure
-      const updateData = {
-        'access.permissions': permissions,
-        'access.lastUpdate': timestamp,
-        'access.updatedBy': currentUser.uid
-      };
-            
-      await app.firestore()
-        .collection('users')
-        .doc(selectedUser.uid)
-        .update(updateData);
-
-      message.success('อัปเดตสิทธิ์การใช้งานเรียบร้อยแล้ว');
-      setModalVisible(false);
+      const result = await toggleUserStatusCleanSlate({ 
+        userId, 
+        currentStatus, 
+        currentUser 
+      });
+      notification.success({
+        message: 'อัปเดตสถานะสำเร็จ',
+        description: result.message,
+        duration: 3
+      });
       fetchUsers();
     } catch (error) {
-      console.error('Error updating permissions:', error);
-      message.error('ไม่สามารถอัปเดตสิทธิ์การใช้งานได้');
+      handleUserManagementError(error, 'อัปเดตสถานะผู้ใช้');
+    }
+    setActionLoading(false);
+  };
+
+  // Use shared update function for 100% accuracy with CleanSlatePermissionsDemo
+  const handleUpdateUserRole = async (values) => {
+    setActionLoading(true);
+    try {
+      const result = await updateUserRoleCleanSlate({
+        selectedUser,
+        values,
+        currentUser,
+        validateRoleAssignment
+      });
+      
+      notification.success({
+        message: 'อัปเดตสิทธิ์สำเร็จ',
+        description: result.message,
+        duration: 3
+      });
+
+      // Refresh user list
+      await fetchUsers();
+      setModalVisible(false);
+      setSelectedUser(null);
+      form.resetFields();
+      
+    } catch (error) {
+      handleUserManagementError(error, 'อัปเดตข้อมูลผู้ใช้');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  // Use shared delete function for 100% accuracy with CleanSlatePermissionsDemo
+  const handleDeleteUser = async (userId) => {
+    setActionLoading(true);
+    try {
+      const result = await deleteUserCleanSlate({ userId, currentUser });
+      
+      notification.success({
+        message: 'ลบผู้ใช้สำเร็จ',
+        description: result.message,
+        duration: 3
+      });
+      
+      fetchUsers();
+    } catch (error) {
+      handleUserManagementError(error, 'ลบผู้ใช้');
     }
     setActionLoading(false);
   };
 
   const getPermissionDisplay = (permissions) => {
-    if (!permissions || permissions.length === 0) {
+    // Handle both legacy array format and Clean Slate object format
+    let permissionArray = [];
+    
+    // Debug log to help with troubleshooting
+    if (process.env.NODE_ENV === 'development' && permissions) {
+      console.log('🔍 Permission format detected:', {
+        isArray: Array.isArray(permissions),
+        isObject: typeof permissions === 'object',
+        hasDeparts: permissions?.departments ? 'yes' : 'no',
+        hasFeatures: permissions?.features ? 'yes' : 'no',
+        rawData: permissions
+      });
+    }
+    
+    if (Array.isArray(permissions)) {
+      // Legacy format: array of permission strings
+      permissionArray = permissions;
+    } else if (permissions && typeof permissions === 'object') {
+      // Clean Slate format: nested object structure
+      if (permissions.departments) {
+        // Extract permissions from Clean Slate departments structure
+        Object.entries(permissions.departments).forEach(([dept, actions]) => {
+          if (actions && typeof actions === 'object') {
+            Object.entries(actions).forEach(([action, hasPermission]) => {
+              if (hasPermission) {
+                permissionArray.push(`${dept}.${action}`);
+              }
+            });
+          }
+        });
+      }
+      
+      if (permissions.features) {
+        // Extract permissions from Clean Slate features structure
+        Object.entries(permissions.features).forEach(([feature, actions]) => {
+          if (actions && typeof actions === 'object') {
+            Object.entries(actions).forEach(([action, hasPermission]) => {
+              if (hasPermission) {
+                permissionArray.push(`${feature}.${action}`);
+              }
+            });
+          }
+        });
+      }
+    }
+    
+    if (!permissionArray || permissionArray.length === 0) {
       return <Tag color="default">ไม่มีสิทธิ์</Tag>;
     }
 
     const groupedPerms = {};
-    permissions.forEach(perm => {
+    permissionArray.forEach(perm => {
       const [category] = perm.split('.');
       if (!groupedPerms[category]) groupedPerms[category] = [];
       groupedPerms[category].push(perm);
@@ -208,6 +324,103 @@ const PermissionManagement = () => {
     return allPerms;
   };
 
+  // Helper function to map geographic scope to Thai names
+  const getScopeName = (scope) => {
+    const scopeMapping = {
+      'ALL': 'ทุกพื้นที่',
+      'PROVINCE': 'ระดับจังหวัด', 
+      'BRANCH': 'ระดับสาขา'
+    };
+    return scopeMapping[scope] || scope || 'ไม่ระบุ';
+  };
+
+  // Helper function to get user display name with fallbacks
+  const getUserDisplayName = (userData) => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[PermissionManagement] getUserDisplayName input:', {
+        displayName: userData.displayName,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        email: userData.email,
+        fullData: userData
+      });
+    }
+    
+    // Check displayName first
+    if (userData.displayName && userData.displayName !== 'ไม่ระบุชื่อ') {
+      return userData.displayName;
+    }
+    
+    // Try firstName + lastName combination
+    if (userData.firstName && userData.lastName) {
+      return `${userData.firstName} ${userData.lastName}`.trim();
+    }
+    
+    // Try individual name fields
+    if (userData.firstName) {
+      return userData.firstName;
+    }
+    if (userData.lastName) {
+      return userData.lastName;
+    }
+    
+    // Check if data is nested in auth object (legacy structure)
+    if (userData.auth) {
+      if (userData.auth.displayName && userData.auth.displayName !== 'ไม่ระบุชื่อ') {
+        return userData.auth.displayName;
+      }
+      if (userData.auth.firstName && userData.auth.lastName) {
+        return `${userData.auth.firstName} ${userData.auth.lastName}`.trim();
+      }
+      if (userData.auth.firstName) return userData.auth.firstName;
+      if (userData.auth.lastName) return userData.auth.lastName;
+    }
+    
+    // Use email prefix as fallback
+    if (userData.email) {
+      return userData.email.split('@')[0];
+    }
+    
+    return 'ไม่ระบุชื่อ';
+  };
+
+  // Helper function to convert Clean Slate permissions to array format for form
+  const convertPermissionsToArray = (permissions) => {
+    let permissionArray = [];
+    
+    if (Array.isArray(permissions)) {
+      // Already in array format
+      return permissions;
+    } else if (permissions && typeof permissions === 'object') {
+      // Clean Slate format: convert to array
+      if (permissions.departments) {
+        Object.entries(permissions.departments).forEach(([dept, actions]) => {
+          if (actions && typeof actions === 'object') {
+            Object.entries(actions).forEach(([action, hasPermission]) => {
+              if (hasPermission) {
+                permissionArray.push(`${dept}.${action}`);
+              }
+            });
+          }
+        });
+      }
+      
+      if (permissions.features) {
+        Object.entries(permissions.features).forEach(([feature, actions]) => {
+          if (actions && typeof actions === 'object') {
+            Object.entries(actions).forEach(([action, hasPermission]) => {
+              if (hasPermission) {
+                permissionArray.push(`${feature}.${action}`);
+              }
+            });
+          }
+        });
+      }
+    }
+    
+    return permissionArray;
+  };
+
   const getPermissionTree = () => {
     return Object.entries(permissionCategories).map(([key, category]) => ({
       title: (
@@ -236,41 +449,135 @@ const PermissionManagement = () => {
       title: 'ผู้ใช้',
       dataIndex: 'displayName',
       key: 'displayName',
-      render: (text, record) => (
-        <Space>
-          <UserOutlined />
-          <div>
-            <div style={{ fontWeight: 500 }}>{text}</div>
-            <div style={{ fontSize: '12px', color: '#666' }}>{record.email}</div>
-          </div>
-        </Space>
-      ),
+      width: isMobile ? 120 : isTablet ? 140 : 150,
+      render: (text, record) => {
+        const displayName = getUserDisplayName(record);
+        return (
+          <Space direction={'horizontal'} size="small">
+            <UserOutlined />
+            <div>
+              <div style={{ 
+                fontWeight: 500,
+                fontSize: isMobile ? '13px' : '14px'
+              }}>
+                {isMobile && displayName.length > 12 
+                  ? `${displayName.substring(0, 12)}...` 
+                  : displayName
+                }
+              </div>
+              {!isMobile && (
+                <div style={{ fontSize: '12px', color: '#666' }}>
+                  {record.email}
+                </div>
+              )}
+            </div>
+          </Space>
+        );
+      },
     },
     {
       title: 'บทบาท',
       dataIndex: 'accessLevel',
       key: 'accessLevel',
-      render: (accessLevel) => (
-        <Tag color="blue">{accessLevel}</Tag>
-      ),
+      width: isMobile ? 80 : isTablet ? 90 : 100,
+      responsive: ['sm'],
+      render: (accessLevel, record) => {
+        // Get Thai name for accessLevel/authority
+        const authorityName = getAccessLevelName(accessLevel);
+        
+        // Get scope from Clean Slate structure if available
+        const scope = record.access?.geographic?.scope;
+        const scopeName = scope ? getScopeName(scope) : null;
+        
+        return (
+          <div>
+            <Tag 
+              color="blue"
+              style={{ fontSize: isMobile ? '10px' : '12px' }}
+            >
+              {isMobile 
+                ? authorityName.substring(0, 4) + (authorityName.length > 4 ? '...' : '')
+                : authorityName
+              }
+            </Tag>
+            {!isMobile && scopeName && (
+              <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
+                {scopeName}
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: 'สิทธิ์การใช้งาน',
       dataIndex: 'permissions',
       key: 'permissions',
-      render: (permissions) => getPermissionDisplay(permissions),
+      width: isMobile ? 100 : isTablet ? 120 : 150,
+      responsive: ['md'],
+      ellipsis: isMobile,
+      render: (permissions) => {
+        const display = getPermissionDisplay(permissions);
+        if (isMobile && display && display.length > 2) {
+          // Show only first 2 permissions on mobile
+          return (
+            <div>
+              {display.slice(0, 2)}
+              {display.length > 2 && (
+                <Tag size="small" style={{ fontSize: '10px' }}>
+                  +{display.length - 2}
+                </Tag>
+              )}
+            </div>
+          );
+        }
+        return display;
+      },
     },
     {
-      title: 'จำนวนสิทธิ์',
+      title: isMobile ? 'จำนวน' : 'จำนวนสิทธิ์',
       dataIndex: 'permissions',
       key: 'permissionCount',
-      render: (permissions) => (
-        <Tag color="cyan">{permissions?.length || 0} สิทธิ์</Tag>
-      ),
+      width: isMobile ? 60 : isTablet ? 80 : 100,
+      responsive: ['lg'],
+      render: (permissions) => {
+        let count = 0;
+        
+        if (Array.isArray(permissions)) {
+          count = permissions.length;
+        } else if (permissions && typeof permissions === 'object') {
+          // Count permissions from Clean Slate structure
+          if (permissions.departments) {
+            Object.values(permissions.departments).forEach(actions => {
+              if (actions && typeof actions === 'object') {
+                count += Object.values(actions).filter(Boolean).length;
+              }
+            });
+          }
+          if (permissions.features) {
+            Object.values(permissions.features).forEach(actions => {
+              if (actions && typeof actions === 'object') {
+                count += Object.values(actions).filter(Boolean).length;
+              }
+            });
+          }
+        }
+        
+        return (
+          <Tag 
+            color="cyan" 
+            style={{ fontSize: isMobile ? '10px' : '12px' }}
+          >
+            {isMobile ? count : `${count} สิทธิ์`}
+          </Tag>
+        );
+      },
     },
     {
       title: 'จัดการ',
       key: 'actions',
+      width: isMobile ? 60 : isTablet ? 100 : 120,
+      fixed: !isMobile ? 'right' : undefined,
       render: (_, record) => (
         <Button
           icon={<SettingOutlined />}
@@ -278,14 +585,16 @@ const PermissionManagement = () => {
           type="primary"
           onClick={() => {
             setSelectedUser(record);
+            // Convert Clean Slate permissions to array format for the form
+            const permissionsArray = convertPermissionsToArray(record.permissions);
             form.setFieldsValue({
-              permissions: record.permissions || []
+              permissions: permissionsArray
             });
             setModalVisible(true);
           }}
           disabled={!hasPermission('admin.edit')}
         >
-          จัดการสิทธิ์
+          {isMobile ? '' : 'จัดการสิทธิ์'}
         </Button>
       ),
     },
@@ -293,42 +602,55 @@ const PermissionManagement = () => {
 
   return (
     <LayoutWithRBAC permission="admin.view" title="จัดการสิทธิ์การใช้งาน">
-      <Row gutter={[16, 16]}>
+      <Row gutter={isMobile ? [8, 8] : [16, 16]}>
         <Col span={24}>
-          <Card>
-            <Title level={4}>
-              <KeyOutlined /> จัดการสิทธิ์การใช้งาน
-            </Title>
-            
             <Alert
               message="คำแนะนำ"
-              description="หน้านี้ใช้สำหรับจัดการสิทธิ์การใช้งานของผู้ใช้แต่ละคน สิทธิ์จะถูกจัดกลุ่มตามแผนกและระดับการใช้งาน"
+              description={isMobile 
+                ? "จัดการสิทธิ์ผู้ใช้แต่ละคน"
+                : "หน้านี้ใช้สำหรับจัดการสิทธิ์การใช้งานของผู้ใช้แต่ละคน สิทธิ์จะถูกจัดกลุ่มตามแผนกและระดับการใช้งาน"
+              }
               type="info"
               showIcon
-              style={{ marginBottom: 16 }}
-            />
-
-            <Table
-              columns={columns}
-              dataSource={users}
-              rowKey="uid"
-              loading={loading}
-              pagination={{
-                pageSize: 10,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) => 
-                  `${range[0]}-${range[1]} จาก ${total} ผู้ใช้`,
+              style={{ 
+                marginBottom: isMobile ? 12 : 16,
+                fontSize: isMobile ? '13px' : undefined
               }}
             />
-          </Card>
+
+            <div className="permission-management-table-wrapper">
+              <Table
+                columns={columns}
+                dataSource={users}
+                rowKey="uid"
+                loading={loading}
+                scroll={{ 
+                  x: isMobile ? 'max-content' : isTablet ? 800 : 1000
+                }}
+                size={isMobile ? 'small' : 'middle'}
+                pagination={{
+                  pageSize: isMobile ? 5 : isTablet ? 8 : 10,
+                  showSizeChanger: !isMobile,
+                  showQuickJumper: !isMobile,
+                  showTotal: !isMobile ? (total, range) => 
+                    `${range[0]}-${range[1]} จาก ${total} ผู้ใช้` : undefined,
+                  simple: isMobile,
+                  position: isMobile ? ['bottomCenter'] : ['bottomRight'],
+                  size: isMobile ? 'small' : 'default'
+                }}
+              />
+            </div>
         </Col>
         
         <Col span={24}>
           <Card title={<><SafetyOutlined /> สิทธิ์ที่มีในระบบ</>}>
-            <Row gutter={16}>
+            <Row gutter={isMobile ? 8 : 16}>
               {Object.entries(permissionCategories).map(([key, category]) => (
-                <Col span={12} key={key} style={{ marginBottom: 16 }}>
+                <Col 
+                  span={isMobile ? 24 : isTablet ? 12 : 12} 
+                  key={key} 
+                  style={{ marginBottom: 16 }}
+                >
                   <Card 
                     size="small" 
                     title={
@@ -341,10 +663,21 @@ const PermissionManagement = () => {
                     <Space direction="vertical" size="small" style={{ width: '100%' }}>
                       {category.permissions.map(perm => (
                         <div key={perm.key}>
-                          <Text strong>{perm.name}</Text>
+                          <Text 
+                            strong 
+                            style={{ fontSize: isMobile ? '13px' : '14px' }}
+                          >
+                            {perm.name}
+                          </Text>
                           <br />
-                          <Text type="secondary" style={{ fontSize: '12px' }}>
-                            {perm.description}
+                          <Text 
+                            type="secondary" 
+                            style={{ fontSize: isMobile ? '11px' : '12px' }}
+                          >
+                            {isMobile && perm.description.length > 50
+                              ? `${perm.description.substring(0, 50)}...`
+                              : perm.description
+                            }
                           </Text>
                         </div>
                       ))}
@@ -358,28 +691,36 @@ const PermissionManagement = () => {
       </Row>
 
       {/* Permission Management Modal */}
-      <Modal
-        title={
-          <Space>
-            <SettingOutlined />
-            <span>จัดการสิทธิ์: {selectedUser?.displayName}</span>
-          </Space>
-        }
-        open={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        onOk={() => form.submit()}
-        confirmLoading={actionLoading}
-        width={800}
-      >
-        {selectedUser && (
+      {selectedUser && (
+        <Modal
+          title={
+            <Space>
+              <SettingOutlined />
+              <span>จัดการสิทธิ์: {getUserDisplayName(selectedUser)}</span>
+            </Space>
+          }
+          visible={modalVisible}
+          onCancel={() => {
+            setModalVisible(false);
+            setSelectedUser(null);
+            form.resetFields();
+          }}
+          onOk={() => form.submit()}
+          confirmLoading={actionLoading}
+          width={isMobile ? '95%' : isTablet ? 600 : 800}
+          style={isMobile ? { top: 20 } : {}}
+          className="permission-management-modal"
+          okText="บันทึก"
+          cancelText="ยกเลิก"
+        >
           <Form
             form={form}
             layout="vertical"
-            onFinish={handleUpdatePermissions}
+            onFinish={handleUpdateUserRole}
           >
             <Alert
-              message={`กำหนดสิทธิ์สำหรับ: ${selectedUser.displayName}`}
-              description={`บทบาท: ${selectedUser.accessLevel} | แผนก: ${selectedUser.department || 'ไม่ระบุ'}`}
+              message={`กำหนดสิทธิ์สำหรับ: ${getUserDisplayName(selectedUser)}`}
+              description={`บทบาท: ${getAccessLevelName(selectedUser.accessLevel)} | แผนก: ${getDepartmentName(selectedUser.department) || 'ไม่ระบุ'}`}
               type="info"
               style={{ marginBottom: 16 }}
             />
@@ -422,15 +763,30 @@ const PermissionManagement = () => {
                           </Space>
                         }
                       >
-                        <Row gutter={8}>
+                        <Row gutter={isMobile ? 4 : 8}>
                           {category.permissions.map(perm => (
-                            <Col span={24} key={perm.key} style={{ marginBottom: 8 }}>
+                            <Col 
+                              span={isMobile ? 24 : isTablet ? 12 : 24} 
+                              key={perm.key} 
+                              style={{ marginBottom: isMobile ? 4 : 8 }}
+                            >
                               <Checkbox value={perm.key}>
                                 <div>
-                                  <Text strong>{perm.name}</Text>
+                                  <Text 
+                                    strong 
+                                    style={{ fontSize: isMobile ? '13px' : '14px' }}
+                                  >
+                                    {perm.name}
+                                  </Text>
                                   <br />
-                                  <Text type="secondary" style={{ fontSize: '12px' }}>
-                                    {perm.description}
+                                  <Text 
+                                    type="secondary" 
+                                    style={{ fontSize: isMobile ? '11px' : '12px' }}
+                                  >
+                                    {isMobile && perm.description.length > 40
+                                      ? `${perm.description.substring(0, 40)}...`
+                                      : perm.description
+                                    }
                                   </Text>
                                 </div>
                               </Checkbox>
@@ -444,31 +800,33 @@ const PermissionManagement = () => {
               </Checkbox.Group>
             </Form.Item>
 
-            <Row gutter={16}>
-              <Col span={12}>
+            <Row gutter={isMobile ? 8 : 16}>
+              <Col span={isMobile ? 24 : 12} style={{ marginBottom: isMobile ? 8 : 0 }}>
                 <Button
                   block
+                  size={isMobile ? 'small' : 'middle'}
                   onClick={() => {
                     form.setFieldValue('permissions', getAllPermissions());
                   }}
                 >
-                  <UnlockOutlined /> เลือกทั้งหมด
+                  <UnlockOutlined /> {isMobile ? 'เลือกทั้งหมด' : 'เลือกทั้งหมด'}
                 </Button>
               </Col>
-              <Col span={12}>
+              <Col span={isMobile ? 24 : 12}>
                 <Button
                   block
+                  size={isMobile ? 'small' : 'middle'}
                   onClick={() => {
                     form.setFieldValue('permissions', []);
                   }}
                 >
-                  <LockOutlined /> ยกเลิกทั้งหมด
+                  <LockOutlined /> {isMobile ? 'ยกเลิกทั้งหมด' : 'ยกเลิกทั้งหมด'}
                 </Button>
               </Col>
             </Row>
           </Form>
-        )}
-      </Modal>
+        </Modal>
+      )}
     </LayoutWithRBAC>
   );
 };

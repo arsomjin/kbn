@@ -114,20 +114,58 @@ export const PrivateRoutes = props => {
     _forceUpdate();
     api.getVersion();
 
-    // 🔧 SAFE PATH VALIDATION: Only validate paths when auth is complete
+    // 🔧 SAFE PATH VALIDATION: Use route definitions instead of menu items
     if (props.location?.pathname) {
-      const all_paths = getAllPaths(all_menu_items);
-      if (['/login', '/'].includes(props.location.pathname)) {
+      // Get all valid paths from route definitions (not menu items)
+      const validPaths = routes.map(route => route.path).filter(Boolean);
+      const currentPath = props.location.pathname;
+      
+      if (['/login', '/'].includes(currentPath)) {
         history.push('/overview');
-      } else if (!all_paths.includes(props.location.pathname)) {
-        // 🔧 GRACE PERIOD: Give a moment for navigation items to load
-        setTimeout(() => {
-          const updated_paths = getAllPaths(all_menu_items);
-          if (!updated_paths.includes(props.location.pathname)) {
-            console.log('🔍 Invalid path after grace period:', props.location.pathname);
-            history.push('/not-found');
+      } else {
+        // Check if the current path matches any defined route
+        const isValidRoute = validPaths.some(routePath => {
+          // Handle exact routes
+          if (routePath === currentPath) return true;
+          
+          // Handle parameterized routes (e.g., /customer/:id, /admin/user/:userId)
+          if (routePath.includes(':')) {
+            const routePattern = routePath.replace(/:[^/]+/g, '[^/]+');
+            const regex = new RegExp(`^${routePattern}$`);
+            return regex.test(currentPath);
           }
-        }, 1000);
+          
+          // Handle wildcard routes (e.g., /admin/*)
+          if (routePath.includes('*')) {
+            const routePattern = routePath.replace(/\*/g, '.*');
+            const regex = new RegExp(`^${routePattern}`);
+            return regex.test(currentPath);
+          }
+          
+          return false;
+        });
+
+        // Additional check: Allow common admin and development routes that might not be in the routes array
+        const commonValidPaths = [
+          '/admin', '/admin/', 
+          '/admin/user-management', '/admin/permission-management', '/admin/user-approval',
+          '/dev', '/dev/',
+          '/developer', '/developer/',
+          '/reports', '/reports/'
+        ];
+        
+        const isCommonValidRoute = commonValidPaths.some(validPath => 
+          currentPath === validPath || currentPath.startsWith(validPath + '/')
+        );
+
+        if (!isValidRoute && !isCommonValidRoute) {
+          console.log('🔍 Invalid route - redirecting to not-found:', currentPath);
+          console.log('📋 Valid routes:', validPaths);
+          console.log('📋 Common valid routes:', commonValidPaths);
+          history.push('/not-found');
+        } else if (isCommonValidRoute && !isValidRoute) {
+          console.log('✅ Allowing common valid route:', currentPath);
+        }
       }
     }
     

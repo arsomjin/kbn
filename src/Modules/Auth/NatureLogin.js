@@ -108,19 +108,20 @@ const NatureLogin = ({ handleConfirm, change }) => {
         </Form.Item>
 
         {/* Remember Me and Forgot Password */}
-        {/* <Form.Item>
+        <Form.Item>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center',
             marginBottom: '24px'
           }}>
-            <Checkbox 
+            {/* <Checkbox 
               checked={rememberMe} 
               onChange={(e) => setRememberMe(e.target.checked)}
-            >
+              >
               จดจำการเข้าสู่ระบบ
-            </Checkbox>
+              </Checkbox> */}
+              <div />
             <Button 
               type="link"
               onClick={() => change('ForgetPassword')}
@@ -130,7 +131,7 @@ const NatureLogin = ({ handleConfirm, change }) => {
               ลืมรหัสผ่าน?
             </Button>
           </div>
-        </Form.Item> */}
+        </Form.Item>
 
         {/* Error Display */}
         {error && (

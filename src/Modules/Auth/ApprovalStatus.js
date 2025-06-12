@@ -34,6 +34,33 @@ const ApprovalStatus = ({ userData, user, onBackToLogin }) => {
   const currentUser = user || userData;
   const userType = getUserTypeName(currentUser?.userType || 'new');
   
+  // Read from Clean Slate RBAC structure ONLY - no fallbacks
+  const department = getDepartmentName(
+    currentUser?.access?.departments?.[0] || 
+    currentUser?.department || 
+    'ไม่ระบุ'
+  );
+  const province = getProvinceName(
+    currentUser?.access?.geographic?.homeProvince ||
+    currentUser?.access?.geographic?.allowedProvinces?.[0] || 
+    currentUser?.homeProvince || 
+    'นครสวรรค์'  // Default to Nakhon Sawan for new system
+  );
+  const branch = getBranchName(
+    currentUser?.access?.geographic?.homeBranch ||
+    currentUser?.access?.geographic?.allowedBranches?.[0] ||
+    currentUser?.homeBranch || 
+    'ไม่ระบุ'
+  );
+  
+  // Determine approval level from Clean Slate RBAC structure ONLY
+  const approvalLevel = currentUser?.approvalLevel || 
+    (currentUser?.access?.authority === 'ADMIN' ? 'super_admin' :
+     currentUser?.access?.authority === 'MANAGER' ? 'province_manager' :
+     currentUser?.access?.authority === 'LEAD' ? 'branch_manager' :
+     currentUser?.userType === 'existing' ? 'branch_manager' : 'province_manager');
+  const approvalLevelName = getApprovalLevelName(approvalLevel);
+  
   // DEBUG: Add detailed logging to understand RBAC structure
   useEffect(() => {
     if (process.env.NODE_ENV === 'development' && currentUser) {
@@ -42,49 +69,38 @@ const ApprovalStatus = ({ userData, user, onBackToLogin }) => {
         email: currentUser.email,
         userType: currentUser.userType,
         access: currentUser.access,
-        userRBAC: currentUser.userRBAC,
         homeProvince: currentUser.homeProvince,
         homeBranch: currentUser.homeBranch,
         approvalLevel: currentUser.approvalLevel,
         isActive: currentUser.isActive,
         isPendingApproval: currentUser.isPendingApproval
       });
+      
+      // Validate Clean Slate RBAC structure only
+      const hasCleanSlate = !!currentUser.access?.authority;
+      const hasLegacyAuth = !!(currentUser.accessLevel || currentUser.homeProvince);
+      
+      console.log('📊 ApprovalStatus RBAC Structure Analysis:', {
+        hasCleanSlate,
+        hasLegacyAuth,
+        migrationStatus: hasCleanSlate ? 'Clean Slate ✅' : 
+                        hasLegacyAuth ? 'Legacy - Needs Migration 🔄' : 
+                        'No RBAC Data ❌'
+      });
+      
+      // Warn about missing essential data
+      if (!department || department === 'ไม่ระบุ') {
+        console.warn('⚠️ ApprovalStatus: Missing department data');
+      }
+      if (!province || province === 'นครสวรรค์') {
+        console.warn('⚠️ ApprovalStatus: Using default province (Nakhon Sawan)');
+      }
+      if (!branch || branch === 'ไม่ระบุ') {
+        console.warn('⚠️ ApprovalStatus: Missing branch data');
+      }
     }
-  }, [currentUser]);
+  }, [currentUser, department, province, branch]);
   
-  // Read from Clean Slate RBAC structure with legacy fallbacks
-  const department = getDepartmentName(
-    currentUser?.access?.departments?.[0] || 
-    currentUser?.userRBAC?.departments?.[0] ||
-    currentUser?.department || 
-    'ไม่ระบุ'
-  );
-  const province = getProvinceName(
-    currentUser?.access?.geographic?.homeProvince ||
-    currentUser?.access?.geographic?.allowedProvinces?.[0] || 
-    currentUser?.userRBAC?.geographic?.homeProvince ||
-    currentUser?.homeProvince || 
-    'นครสวรรค์'  // Default to Nakhon Sawan for new system
-  );
-  const branch = getBranchName(
-    currentUser?.access?.geographic?.homeBranch ||
-    currentUser?.access?.geographic?.allowedBranches?.[0] ||
-    currentUser?.userRBAC?.geographic?.homeBranch ||
-    currentUser?.homeBranch || 
-    'ไม่ระบุ'
-  );
-  
-  // Determine approval level from Clean Slate RBAC structure
-  const approvalLevel = currentUser?.approvalLevel || 
-    (currentUser?.access?.authority === 'ADMIN' ? 'super_admin' :
-     currentUser?.access?.authority === 'MANAGER' ? 'province_manager' :
-     currentUser?.access?.authority === 'LEAD' ? 'branch_manager' :
-     currentUser?.userRBAC?.authority === 'ADMIN' ? 'super_admin' :
-     currentUser?.userRBAC?.authority === 'MANAGER' ? 'province_manager' :
-     currentUser?.userRBAC?.authority === 'LEAD' ? 'branch_manager' :
-     currentUser?.userType === 'existing' ? 'branch_manager' : 'province_manager');
-  const approvalLevelName = getApprovalLevelName(approvalLevel);
-
   const handleLogout = () => {
     console.log('🔄 User manually logging out from approval status page');
     dispatch(logoutUser());
@@ -158,10 +174,8 @@ const ApprovalStatus = ({ userData, user, onBackToLogin }) => {
     return getContactInfo(
       approvalLevel, 
       currentUser?.access?.geographic?.homeProvince || 
-      currentUser?.userRBAC?.geographic?.homeProvince || 
       currentUser?.homeProvince || 'ไม่ระบุ', 
       currentUser?.access?.geographic?.homeBranch || 
-      currentUser?.userRBAC?.geographic?.homeBranch || 
       currentUser?.homeBranch || 'ไม่ระบุ'
     );
   };

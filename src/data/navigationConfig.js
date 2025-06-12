@@ -1107,66 +1107,15 @@ export const NAVIGATION_CONFIG = {
     items: [
       {
         key: 'clean-slate-rbac-group',
-        title: 'Clean Slate RBAC',
+        title: 'CLEAN SLATE RBAC',
         type: 'group',
         items: [
-          {
-            key: 'clean-slate-rbac-demo',
-            title: 'Clean Slate RBAC Demo',
-            to: '/dev/clean-slate-rbac-demo',
-            description: 'ทดสอบระบบ Clean Slate RBAC ใหม่ - 4×3×6 Matrix',
-            priority: 'critical'
-          },
-          {
-            key: 'clean-slate-layout-demo',
-            title: 'Layout with Enhanced ProvinceId',
-            to: '/dev/clean-slate-layout-demo',
-            description: 'ทดสอบ LayoutWithRBAC และ ProvinceId Injection',
-            priority: 'high'
-          },
           {
             key: 'clean-slate-permissions-demo',
             title: 'Permission System Demo',
             to: '/dev/clean-slate-permissions-demo',
             description: 'ทดสอบระบบ Permission แบบ department.action',
             priority: 'high'
-          },
-          {
-            key: 'clean-slate-migration-demo',
-            title: 'Migration Demo',
-            to: '/dev/clean-slate-migration-demo',
-            description: 'ทดสอบการ migrate จาก Legacy เป็น Clean Slate',
-            priority: 'high'
-          },
-          {
-            key: 'rbac-integration-tester',
-            title: '🎯 RBAC Integration Tester',
-            to: '/dev/rbac-integration-tester',
-            description: 'ทดสอบการ integrate RBAC กับทุก component ในระบบ',
-            priority: 'critical'
-          }
-        ]
-      },
-      {
-        key: 'legacy-test-group',
-        title: 'Legacy Tests (Deprecated)',
-        type: 'group',
-        items: [
-          {
-            key: 'test-access-control-legacy',
-            title: '⚠️ Legacy Access Control',
-            to: '/developer/test-access-control',
-            description: '[DEPRECATED] ระบบหลายจังหวัดแบบเก่า - ใช้ Clean Slate แทน',
-            priority: 'low',
-            deprecated: true
-          },
-          {
-            key: 'test-granular-roles-legacy',
-            title: '⚠️ Legacy Granular Roles',
-            to: '/dev/test-granular-roles',
-            description: '[DEPRECATED] ระบบบทบาทแบบเก่า - ใช้ Clean Slate แทน',
-            priority: 'low',
-            deprecated: true
           }
         ]
       },
@@ -1229,7 +1178,7 @@ export const NAVIGATION_CONFIG = {
       },
       {
         key: 'migration-group',
-        title: 'Migration',
+        title: 'MIGRATION',
         type: 'group',
         items: [
           {
@@ -1246,14 +1195,7 @@ export const NAVIGATION_CONFIG = {
             key: 'migration-tools',
             title: 'Migration Tools',
             to: '/developer/migration-tools',
-            description: 'เครื่องมือสำหรับการ migrate ข้อมูลหลายจังหวัด',
-            priority: 'high'
-          },
-          {
-            key: 'phase3-migration',
-            title: 'Phase 3 Migration',
-            to: '/developer/phase3-migration',
-            description: 'การ migrate ข้อมูล Phase 3',
+            description: 'เครื่องมือสำหรับการ migrate ข้อมูลหลายจังหวัด ข้อมูลสำคัญ Production database',
             priority: 'high'
           }
         ]

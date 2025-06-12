@@ -300,8 +300,12 @@ window.simulateUser = (roleKey, customOptions = {}) => {
 
   const testUser = { ...profile, ...customOptions };
   
+  // Set simulation mode flag for navigation filtering
+  window.localStorage.setItem('rbac_simulation_mode', 'true');
+  
   console.log(`🎭 Simulating user role: ${roleKey}`);
   console.log(`👤 User:`, testUser.displayName);
+  console.log(`🎯 RBAC Simulation: ACTIVE (navigation will respect role permissions)`);
   
   // Use Clean Slate structure for logging
   if (testUser.access) {
@@ -330,6 +334,19 @@ window.simulateUser = (roleKey, customOptions = {}) => {
   }
 
   return testUser;
+};
+
+// Exit simulation mode function
+window.exitSimulation = () => {
+  window.localStorage.removeItem('rbac_simulation_mode');
+  console.log('🎭 Exiting role simulation mode...');
+  console.log('🔧 DEV MODE: Navigation will now show all items (dev bypass active)');
+  
+  // Restore original dev user if available
+  if (window.store) {
+    // You might want to restore the original user here
+    console.log('💡 Tip: Refresh the page to fully restore dev navigation');
+  }
 };
 
 // Quick test all roles function  
@@ -535,6 +552,51 @@ window.validateCleanSlateProfile = (roleKey, showDetails = true) => {
   return errors.length === 0;
 };
 
+// Check current simulation status
+window.checkSimulationStatus = () => {
+  const isSimulating = window.localStorage.getItem('rbac_simulation_mode') === 'true';
+  const currentUser = window.store?.getState()?.auth?.user;
+  
+  console.log('🎭 RBAC Simulation Status:');
+  console.log(`  Mode: ${isSimulating ? 'ACTIVE' : 'INACTIVE'}`);
+  console.log(`  User: ${currentUser?.displayName || 'No user'}`);
+  console.log(`  Is Dev: ${currentUser?.isDev || false}`);
+  
+  if (isSimulating) {
+    console.log('📋 Navigation will respect role permissions');
+    console.log('💡 Use window.exitSimulation() to restore dev navigation');
+  } else {
+    console.log('📋 Navigation shows all items (dev bypass active)');
+    console.log('💡 Use window.simulateUser(\'ROLE_NAME\') to test roles');
+  }
+  
+  return { isSimulating, currentUser };
+};
+
+// Show current available test menu items
+window.showTestMenu = () => {
+  console.log('🧪 Available Test Menu Items:');
+  console.log('');
+  console.log('📋 CLEAN SLATE RBAC:');
+  console.log('  ✅ Permission System Demo (/dev/clean-slate-permissions-demo)');
+  console.log('     - Tests department.action permission system');
+  console.log('');
+  console.log('🔄 MIGRATION:');
+  console.log('  🚨 URGENT RBAC Migration (/developer/migration-tools?tab=urgent-rbac)');
+  console.log('     - Fix Clean Slate RBAC missing access structures');
+  console.log('  ⚙️  Migration Tools (/developer/migration-tools)');
+  console.log('     - Production database migration tools');
+  console.log('');
+  console.log('❌ REMOVED (Cleaned up):');
+  console.log('  - Clean Slate RBAC Demo (deprecated)');
+  console.log('  - Layout with Enhanced Province (deprecated)');
+  console.log('  - Migration Demo (deprecated)');
+  console.log('  - Legacy Tests group (deprecated)');
+  console.log('  - Legacy Access Control (deprecated)');
+  console.log('');
+  console.log('💡 All remaining items are 100% working and maintained!');
+};
+
 // Export for use
 export {
   TEST_PROFILES
@@ -542,36 +604,36 @@ export {
 
 // Functions are attached to window object for console use
 
-console.log('🎭 Role Testing Utilities Loaded!');
-console.log('📝 Commands available:');
-console.log('  window.testAllRoles() - See all available test roles');
-console.log('  window.simulateUser("ROLE_NAME") - Switch to test role');
-console.log('  window.checkAccess() - Check current user permissions');
-console.log('  window.testNavigation("ROLE_NAME") - Get navigation test guide');
-console.log('');
-console.log('🚀 For comprehensive testing, use:');
-console.log('  window.comprehensiveTests.runAllTests() - Run full test suite');
-console.log('  window.businessWorkflowTests.testAccountingWorkflow() - Test accounting');
-console.log('  window.geographicTests.testProvinceSwitching() - Test provinces');
-console.log('');
-console.log('🔧 For debugging:');
-console.log('  window.loadProvinces() - Manually load provinces data');
-console.log('  window.debugRBAC() - Show complete RBAC state');
-console.log('  window.refreshRBAC("ROLE_NAME") - Force RBAC refresh with optional role switch');
-console.log('  window.forceUserContextUpdate() - Force UserContext sidebar to update');
-console.log('');
-console.log('🧪 Test Enhanced RBAC:');
-console.log('  window.testEnhancedRBAC() - Test all enhanced RBAC features');
-console.log('  window.validateTestProfile("ROLE_NAME") - Validate specific test profile structure');
-console.log('');
-console.log('🎯 UNIFIED CLEAN SLATE RBAC SYSTEM:');
-console.log('  ✅ ONE usePermissions hook (Clean Slate ONLY)');
-console.log('  ✅ 3x Performance improvement (no fallback chains)');
-console.log('  ✅ Complete API with migration detection');
-console.log('');
-console.log('🔄 Clean Slate Migration:');
-console.log('  window.CLEAN_SLATE_CONSOLIDATION.executeCompleteConsolidation() - Migrate to Clean Slate ONLY');
-console.log('  window.CLEAN_SLATE_CONSOLIDATION.verifyCleanSlateOnlyMigration() - Verify migration');
+// Main debug function to show all available commands
+window.debugRBAC = () => {
+  console.log('🎭 RBAC Testing Commands:');
+  console.log('');
+  console.log('🔧 Role Simulation:');
+  console.log('  window.simulateUser(ROLE_NAME) - Test different user roles');
+  console.log('  window.exitSimulation() - Return to dev navigation');
+  console.log('  window.checkSimulationStatus() - Check current mode');
+  console.log('');
+  console.log('🧪 Testing:');
+  console.log('  window.testAllRoles() - List all available test roles');
+  console.log('  window.checkAccess() - Check current user access');
+  console.log('  window.showTestMenu() - Show available test menu items');
+  console.log('');
+  console.log('🔍 Debug:');
+  console.log('  window.debugCleanSlateRBAC() - Show user RBAC structure');
+  console.log('  window.validateCleanSlateProfile(ROLE) - Validate test profile');
+  console.log('');
+  console.log('📋 Available Roles:');
+  Object.keys(TEST_PROFILES).forEach(role => {
+    console.log(`  - ${role}`);
+  });
+  console.log('');
+  console.log('💡 Example: window.simulateUser("ACCOUNTING_STAFF_MULTI")');
+};
+
+// Role Testing Utilities loaded silently in production
+if (process.env.NODE_ENV === 'development') {
+  console.log('🎭 Role Testing Utilities Loaded! Use window.debugRBAC() for commands');
+}
 
 // Load Complete Clean Slate Consolidation
 import('./utils/complete-clean-slate-migration').then(module => {
@@ -581,18 +643,10 @@ import('./utils/complete-clean-slate-migration').then(module => {
     verifyCleanSlateOnlyMigration: module.verifyCleanSlateOnlyMigration
   };
   
-  console.log('');
-  console.log('🎯 COMPLETE CLEAN SLATE CONSOLIDATION LOADED!');
-  console.log('='.repeat(60));
-  console.log('🚀 To consolidate to Clean Slate ONLY (LIVE MIGRATION):');
-  console.log('   CLEAN_SLATE_CONSOLIDATION.executeCompleteConsolidation({ dryRun: false })');
-  console.log('');
-  console.log('🧪 To test migration (DRY RUN):');
-  console.log('   CLEAN_SLATE_CONSOLIDATION.executeCompleteConsolidation({ dryRun: true })');
-  console.log('');
-  console.log('🔍 To verify after migration:');
-  console.log('   CLEAN_SLATE_CONSOLIDATION.verifyCleanSlateOnlyMigration()');
-  console.log('='.repeat(60));
+  // Silent load in production, only show in development
+  if (process.env.NODE_ENV === 'development') {
+    console.log('🎯 Clean Slate Consolidation loaded');
+  }
 }).catch(err => {
   console.warn('Could not load Complete Clean Slate Consolidation:', err);
 }); 

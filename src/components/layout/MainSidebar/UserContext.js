@@ -27,14 +27,18 @@ const UserContext = () => {
 
   // Force component update when user changes (for role switching)
   useEffect(() => {
-    console.log('👤 UserContext: User changed', user?.displayName || user?.email);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('👤 UserContext: User changed', user?.displayName || user?.email);
+    }
     setForceUpdate(prev => prev + 1);
   }, [user?.uid, user?.role, user?.displayName, user?.email, user?._forceUpdate]);
 
   // Listen for manual RBAC refresh events
   useEffect(() => {
     const handleRBACRefresh = (event) => {
-      console.log('👤 UserContext: Received RBAC refresh event');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('👤 UserContext: Received RBAC refresh event');
+      }
       setForceUpdate(prev => prev + 1);
     };
 

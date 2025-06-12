@@ -20,7 +20,9 @@ import {
   EyeOutlined,
   UserOutlined,
   BankOutlined,
-  EnvironmentOutlined
+  EnvironmentOutlined,
+  ReloadOutlined,
+  CheckCircleOutlined
 } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import { app } from '../../../firebase';
@@ -31,6 +33,7 @@ import {
   getDepartmentInfo, 
   getLocationInfo 
 } from 'utils/userMappings';
+import { useResponsive } from 'hooks/useResponsive';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -45,6 +48,7 @@ const UserApproval = () => {
   
   const { user } = useSelector(state => state.auth);
   const { filterDataByUserAccess, hasPermission, userRBAC } = usePermissions();
+  const { isMobile, isTablet, isDesktop } = useResponsive();
 
   // Validate Clean Slate RBAC structure
   React.useEffect(() => {
@@ -61,22 +65,79 @@ const UserApproval = () => {
   const fetchApprovalRequests = async () => {
     setLoading(true);
     try {
+      console.log('🔍 UserApproval: Fetching approval requests...');
+      console.log('📊 UserApproval Debug Info:', {
+        filterStatus,
+        userRBAC: userRBAC,
+        userScope: userRBAC?.geographic?.scope,
+        allowedProvinces: userRBAC?.geographic?.allowedProvinces,
+        allowedBranches: userRBAC?.geographic?.allowedBranches,
+        user: user
+      });
+      
+      // DEBUG: Check DEV user status specifically
+      console.log('🔍 DEV User Debug:', {
+        'user.isDev': user?.isDev,
+        'userRBAC.isDev': userRBAC?.isDev,
+        'user.displayName': user?.displayName,
+        'user.email': user?.email,
+        'Should bypass filtering': user?.isDev || userRBAC?.isDev
+      });
+      
+      // DEBUG: Check user's branch access specifically
+      console.log('🔍 Branch Access Debug:', {
+        'userRBAC.geographic.allowedBranches': userRBAC?.geographic?.allowedBranches,
+        'userRBAC.geographic.scope': userRBAC?.geographic?.scope,
+        'Geographic object': userRBAC?.geographic
+      });
+
       let query = app.firestore().collection('approvalRequests');
       
       // Filter by status
       if (filterStatus !== 'all') {
         query = query.where('status', '==', filterStatus);
+        console.log('🔍 Applied status filter:', filterStatus);
       }
 
-      // Apply Clean Slate RBAC geographic filtering
-      if (userRBAC?.geographic?.scope !== 'ALL') {
+      // Apply Clean Slate RBAC geographic filtering (SKIP FOR DEV USERS)
+      const isDevUser = user?.isDev || userRBAC?.isDev;
+      console.log('🔍 Is DEV user?', isDevUser);
+      
+      if (!isDevUser && userRBAC?.geographic?.scope !== 'ALL') {
         const allowedProvinces = userRBAC?.geographic?.allowedProvinces || [];
         if (allowedProvinces.length > 0) {
           query = query.where('targetProvince', 'in', allowedProvinces);
+          console.log('🔍 Applied province filter:', allowedProvinces);
         }
+      } else if (isDevUser) {
+        console.log('✅ DEV user detected - skipping geographic filtering');
       }
 
+      console.log('🔍 Executing Firestore query...');
       const snapshot = await query.orderBy('createdAt', 'desc').get();
+      
+      console.log('📊 Raw query results:', {
+        totalDocs: snapshot.docs.length,
+        isEmpty: snapshot.empty
+      });
+
+      if (snapshot.empty) {
+        console.warn('❌ No approval requests found with current filters');
+        
+        // DEBUG: Try fetching ALL requests without filters
+        const debugSnapshot = await app.firestore().collection('approvalRequests').get();
+        console.log('🔍 Debug - Total requests in database (no filters):', debugSnapshot.docs.length);
+        
+        if (!debugSnapshot.empty) {
+          const debugRequests = debugSnapshot.docs.map(doc => ({
+            id: doc.id,
+            status: doc.data().status,
+            targetProvince: doc.data().targetProvince,
+            createdAt: doc.data().createdAt
+          }));
+          console.table(debugRequests);
+        }
+      }
       
       let requests = snapshot.docs.map(doc => ({
         id: doc.id,
@@ -84,17 +145,45 @@ const UserApproval = () => {
         createdAt: new Date(doc.data().createdAt),
       }));
 
-      // Apply additional RBAC filtering if needed (for branch-level access)
-      if (userRBAC?.geographic?.scope === 'BRANCH') {
-        requests = filterDataByUserAccess(requests, {
-          provinceField: 'targetProvince',
-          branchField: 'targetBranch'
-        });
+      console.log('📊 Requests before RBAC filtering:', requests.length);
+
+      // Apply additional RBAC filtering if needed (for branch-level access) - SKIP FOR DEV USERS
+      if (!isDevUser && userRBAC?.geographic?.scope === 'BRANCH') {
+        const beforeBranchFilter = requests.length;
+        
+        // 🛠️ TEMPORARY FIX: Check if user has allowedBranches defined
+        const allowedBranches = userRBAC?.geographic?.allowedBranches;
+        console.log('🔍 Checking allowedBranches for filtering:', allowedBranches);
+        
+        if (!allowedBranches || allowedBranches.length === 0) {
+          console.warn('⚠️ BRANCH-level user has no allowedBranches - skipping branch filtering');
+          console.warn('⚠️ This user should probably be PROVINCE or ALL scope for admin functions');
+          // Skip branch filtering for users without proper branch assignments
+        } else {
+          requests = filterDataByUserAccess(requests, {
+            provinceField: 'targetProvince',
+            branchField: 'targetBranch'
+          });
+          console.log(`🔍 Branch-level filtering: ${beforeBranchFilter} → ${requests.length} requests`);
+        }
+      } else if (isDevUser) {
+        console.log('✅ DEV user detected - skipping branch-level filtering');
+      }
+
+      console.log('✅ Final approval requests:', requests.length);
+      if (requests.length > 0) {
+        console.table(requests.map(r => ({
+          id: r.id,
+          status: r.status,
+          userEmail: r.userData?.email,
+          targetProvince: r.targetProvince,
+          targetBranch: r.targetBranch
+        })));
       }
 
       setApprovalRequests(requests);
     } catch (error) {
-      console.error('Error fetching approval requests:', error);
+      console.error('❌ Error fetching approval requests:', error);
       message.error('ไม่สามารถโหลดข้อมูลคำขออนุมัติได้');
     }
     setLoading(false);
@@ -317,40 +406,104 @@ const UserApproval = () => {
 
   return (
     <LayoutWithRBAC permission="users.manage" title="จัดการการอนุมัติผู้ใช้">
-      <Card>
-        <Row gutter={[16, 16]} style={{ marginBottom: 16 }}>
-          <Col span={24}>
-            <Space size="large">
-              <Title level={4} style={{ margin: 0 }}>คำขออนุมัติผู้ใช้งาน</Title>
-              <Select
-                value={filterStatus}
-                onChange={setFilterStatus}
-                style={{ width: 200 }}
+      <Card 
+        title={
+          <Row align="middle" justify="space-between">
+            <Col>
+              <Space>
+                <CheckCircleOutlined />
+                <span>จัดการการอนุมัติผู้ใช้</span>
+              </Space>
+            </Col>
+            <Col>
+              <Button 
+                icon={<ReloadOutlined />}
+                onClick={fetchApprovalRequests} 
+                loading={loading}
+                size={isMobile ? 'small' : 'default'}
               >
-                <Option value="all">ทั้งหมด</Option>
-                <Option value="pending">รอการอนุมัติ</Option>
-                <Option value="approved">อนุมัติแล้ว</Option>
-                <Option value="rejected">ปฏิเสธ</Option>
-              </Select>
-              <Button onClick={fetchApprovalRequests} loading={loading}>
-                รีเฟรช
+                {!isMobile && 'รีเฟรช'}
               </Button>
-            </Space>
+            </Col>
+          </Row>
+        }
+        bodyStyle={{ 
+          padding: isMobile ? '12px' : '16px',
+          overflowX: 'hidden'
+        }}
+      >
+        {/* Filters Section with Responsive Grid */}
+        <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
+          <Col xs={24} sm={12} md={8} lg={6}>
+            <Select
+              value={filterStatus}
+              onChange={setFilterStatus}
+              style={{ width: '100%' }}
+              placeholder="กรองตามสถานะ"
+              size={isMobile ? 'small' : 'default'}
+            >
+              <Option value="all">ทั้งหมด</Option>
+              <Option value="pending">รอการอนุมัติ</Option>
+              <Option value="approved">อนุมัติแล้ว</Option>
+              <Option value="rejected">ปฏิเสธ</Option>
+            </Select>
           </Col>
+          
+          {process.env.NODE_ENV === 'development' && (
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Button 
+                type="dashed" 
+                size={isMobile ? 'small' : 'default'}
+                style={{ width: '100%' }}
+                onClick={async () => {
+                  console.log('🔍 Manual debug check...');
+                  
+                  // Import debug utility
+                  const { debugApprovalRequests } = await import('../../../utils/debugApprovalRequests');
+                  await debugApprovalRequests();
+                  
+                  // Also check if we can write to the collection
+                  try {
+                    const testDoc = await app.firestore()
+                      .collection('approvalRequests')
+                      .add({
+                        test: true,
+                        createdAt: new Date().toISOString()
+                      });
+                    console.log('✅ Test write successful, doc ID:', testDoc.id);
+                    await testDoc.delete();
+                    console.log('🧹 Test doc cleaned up');
+                  } catch (error) {
+                    console.error('❌ Test write failed:', error);
+                  }
+                }}
+              >
+                🔍 {isMobile ? 'Debug' : 'Debug Database'}
+              </Button>
+            </Col>
+          )}
         </Row>
 
+        {/* Table Section */}
         <Table
           columns={columns}
           dataSource={approvalRequests}
           rowKey="id"
           loading={loading}
+          scroll={{ 
+            x: isMobile ? 'max-content' : isTablet ? 800 : 1000
+          }}
+          size={isMobile ? 'small' : 'middle'}
           pagination={{
             total: approvalRequests.length,
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => 
-              `${range[0]}-${range[1]} จาก ${total} รายการ`,
+            pageSize: isMobile ? 5 : isTablet ? 8 : 10,
+            showSizeChanger: !isMobile,
+            showQuickJumper: !isMobile,
+            showTotal: !isMobile ? (total, range) => 
+              `${range[0]}-${range[1]} จาก ${total} รายการ` : undefined,
+            simple: isMobile,
+            position: isMobile ? ['bottomCenter'] : ['bottomRight'],
+            size: isMobile ? 'small' : 'default'
           }}
         />
       </Card>

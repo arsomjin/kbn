@@ -335,6 +335,27 @@
 
 .ant-btn {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  /* Global center alignment for all button content */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+}
+
+/* Exclude modal footer buttons from center alignment to preserve their layout */
+.ant-modal-footer .ant-btn {
+  display: inline-block !important;
+  justify-content: unset !important;
+}
+
+/* Exclude buttons in specific layouts that need normal behavior */
+.ant-space .ant-btn {
+  display: inline-flex !important;
+}
+
+.ant-btn-group .ant-btn {
+  display: inline-block !important;
+  justify-content: unset !important;
 }
 
 .ant-card {

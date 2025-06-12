@@ -49,13 +49,15 @@ export const USER_TYPE_MAPPINGS = {
   'temp': 'พนักงานชั่วคราว'
 };
 
-// Department mappings (from permissions.js)
+// Department mappings (Clean Slate RBAC departments)
 export const DEPARTMENT_MAPPINGS = {
-  'accounting': 'บัญชีและการเงิน',
+  'accounting': 'บัญชีการเงิน',
   'sales': 'ขายและลูกค้า',
-  'service': 'บริการและซ่อมบำรุง',
-  'inventory': 'คลังสินค้าและอะไหล่',
+  'service': 'บริการซ่อม',
+  'inventory': 'คลังสินค้า',
   'hr': 'ทรัพยากรบุคคล',
+  'general': 'ทั่วไป',  // General department for staff without specific department
+  // Legacy mappings (still supported)
   'management': 'ผู้บริหาร',
   'admin': 'ระบบและผู้ดูแล',
   'users': 'จัดการผู้ใช้งาน',
@@ -71,14 +73,18 @@ export const APPROVAL_LEVEL_MAPPINGS = {
   'super_admin': 'ผู้ดูแลระบบ'
 };
 
-// Access level mappings (for RBAC authority levels)
+// Access level mappings (Clean Slate RBAC authorities + legacy support)
 export const ACCESS_LEVEL_MAPPINGS = {
-  'SUPER_ADMIN': 'ผู้ดูแลระบบสูงสุด',
+  // Clean Slate RBAC authorities (primary)
   'ADMIN': 'ผู้ดูแลระบบ',
+  'MANAGER': 'ผู้จัดการ',
+  'LEAD': 'หัวหน้าแผนก',
+  'STAFF': 'เจ้าหน้าที่',
+  
+  // Legacy mappings (still supported for backward compatibility)
+  'SUPER_ADMIN': 'ผู้ดูแลระบบสูงสุด',
   'PROVINCE_MANAGER': 'ผู้จัดการจังหวัด',
   'BRANCH_MANAGER': 'ผู้จัดการสาขา',
-  'MANAGER': 'ผู้จัดการ',
-  'STAFF': 'พนักงาน',
   'ACCOUNTING_STAFF': 'พนักงานบัญชี',
   'SALES_STAFF': 'พนักงานขาย',
   'SERVICE_STAFF': 'พนักงานบริการ',

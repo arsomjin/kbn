@@ -76,18 +76,13 @@ const PermissionGate = ({
   // Map legacy role to authority (backward compatibility)
   const normalizedAuthority = authority || role;
 
-  // Debug logging
-  if (debug && userRBAC) {
-    console.log('🔐 PermissionGate Debug:', {
-      permission,
-      anyOf,
-      allOf,
-      authority: normalizedAuthority,
-      department,
+  // Debug logging for development
+  if (process.env.NODE_ENV === 'development' && debug) {
+    console.log('🔐 PermissionGate:', { 
+      permission, 
+      authority: normalizedAuthority, 
       geographic: normalizedGeographic,
-      userAuthority: userRBAC.authority,
-      userPermissions: userRBAC.permissions,
-      userDepartments: userRBAC.departments
+      userAuthority: userRBAC?.authority 
     });
   }
 
@@ -112,8 +107,29 @@ const PermissionGate = ({
 
   // Check if user is active
   if (!isActive) {
-    if (debug) console.log('🚫 User not active');
-    return showFallback ? (fallback || <Alert message="Account not active" type="warning" showIcon />) : null;
+    if (debug) console.log('🚫 ACCESS DENIED: User not active');
+    return showFallback ? (
+      fallback || (
+        <div style={{ 
+          padding: '20px 24px',
+          borderRadius: '12px',
+          background: 'linear-gradient(135deg, #fff2e8 0%, #fff7e6 100%)',
+          border: '1px solid #ffec99'
+        }}>
+          <Alert 
+            message="Account Not Active" 
+            description="Your account is currently inactive. Please contact your administrator."
+            type="warning" 
+            showIcon 
+            style={{
+              border: 'none',
+              background: 'transparent',
+              padding: 0
+            }}
+          />
+        </div>
+      )
+    ) : null;
   }
 
   // Custom check function
@@ -130,10 +146,30 @@ const PermissionGate = ({
       geographic: normalizedGeographic
     });
 
-    if (debug) console.log('🔍 Custom check result:', hasAccess);
-
     if (!hasAccess) {
-      return showFallback ? (fallback || <Alert message="Access denied" type="error" icon={<LockOutlined />} />) : null;
+      if (debug) console.log('🚫 ACCESS DENIED: Custom check failed');
+      return showFallback ? (
+        fallback || (
+          <div style={{ 
+            padding: '20px 24px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+            border: '1px solid #ffccc7'
+          }}>
+            <Alert 
+              message="Access Denied" 
+              description="You don't have permission to view this content."
+              type="error" 
+              icon={<LockOutlined />}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                padding: 0
+              }}
+            />
+          </div>
+        )
+      ) : null;
     }
 
     return (
@@ -146,16 +182,58 @@ const PermissionGate = ({
   // Authority level check (including legacy role mapping)
   if (normalizedAuthority) {
     if (!hasAuthorityLevel(normalizedAuthority)) {
-      if (debug) console.log(`🚫 Authority check failed: required ${normalizedAuthority}, user has ${userRBAC?.authority}`);
-      return showFallback ? (fallback || <Alert message={`${normalizedAuthority} access required`} type="error" icon={<LockOutlined />} />) : null;
+      if (debug) console.log(`🚫 ACCESS DENIED: Authority check failed - required ${normalizedAuthority}, user has ${userRBAC?.authority}`);
+      return showFallback ? (
+        fallback || (
+          <div style={{ 
+            padding: '20px 24px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+            border: '1px solid #ffccc7'
+          }}>
+            <Alert 
+              message={`${normalizedAuthority} Access Required`} 
+              description={`You need ${normalizedAuthority} level access to view this content.`}
+              type="error" 
+              icon={<LockOutlined />}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                padding: 0
+              }}
+            />
+          </div>
+        )
+      ) : null;
     }
   }
 
   // Department check
   if (department) {
     if (!worksInDepartment(department)) {
-      if (debug) console.log(`🚫 Department check failed: required ${department}`);
-      return showFallback ? (fallback || <Alert message={`${department} department access required`} type="error" icon={<LockOutlined />} />) : null;
+      if (debug) console.log(`🚫 ACCESS DENIED: Department check failed - required ${department}, user departments: ${userRBAC?.departments}`);
+      return showFallback ? (
+        fallback || (
+          <div style={{ 
+            padding: '20px 24px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+            border: '1px solid #ffccc7'
+          }}>
+            <Alert 
+              message={`${department} Department Access Required`} 
+              description={`You need access to the ${department} department to view this content.`}
+              type="error" 
+              icon={<LockOutlined />}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                padding: 0
+              }}
+            />
+          </div>
+        )
+      ) : null;
     }
   }
 
@@ -163,7 +241,28 @@ const PermissionGate = ({
   if (allOf && Array.isArray(allOf)) {
     if (!hasAllPermissions(allOf, normalizedGeographic)) {
       if (debug) console.log(`🚫 All permissions check failed:`, allOf);
-      return showFallback ? (fallback || <Alert message="Insufficient permissions" type="error" icon={<LockOutlined />} />) : null;
+      return showFallback ? (
+        fallback || (
+          <div style={{ 
+            padding: '20px 24px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+            border: '1px solid #ffccc7'
+          }}>
+            <Alert 
+              message="Insufficient Permissions" 
+              description="You don't have all the required permissions to view this content."
+              type="error" 
+              icon={<LockOutlined />}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                padding: 0
+              }}
+            />
+          </div>
+        )
+      ) : null;
     }
   }
 
@@ -171,15 +270,57 @@ const PermissionGate = ({
   if (anyOf && Array.isArray(anyOf)) {
     if (!hasAnyPermission(anyOf, normalizedGeographic)) {
       if (debug) console.log(`🚫 Any permissions check failed:`, anyOf);
-      return showFallback ? (fallback || <Alert message="Access denied" type="error" icon={<LockOutlined />} />) : null;
+      return showFallback ? (
+        fallback || (
+          <div style={{ 
+            padding: '20px 24px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+            border: '1px solid #ffccc7'
+          }}>
+            <Alert 
+              message="Access Denied" 
+              description="You don't have the required permissions to view this content."
+              type="error" 
+              icon={<LockOutlined />}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                padding: 0
+              }}
+            />
+          </div>
+        )
+      ) : null;
     }
   }
 
   // Single permission check
   if (permission) {
     if (!hasPermission(permission, normalizedGeographic)) {
-      if (debug) console.log(`🚫 Permission check failed: ${permission}`);
-      return showFallback ? (fallback || <Alert message={`${permission} permission required`} type="error" icon={<LockOutlined />} />) : null;
+      if (debug) console.log(`🚫 ACCESS DENIED: Permission check failed - ${permission} with context:`, normalizedGeographic);
+      return showFallback ? (
+        fallback || (
+          <div style={{ 
+            padding: '20px 24px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+            border: '1px solid #ffccc7'
+          }}>
+            <Alert 
+              message={`${permission} Permission Required`} 
+              description={`You need the '${permission}' permission to view this content.`}
+              type="error" 
+              icon={<LockOutlined />}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                padding: 0
+              }}
+            />
+          </div>
+        )
+      ) : null;
     }
   }
 
@@ -191,14 +332,33 @@ const PermissionGate = ({
     );
 
     if (!hasGeoAccess) {
-      if (debug) console.log(`🚫 Geographic access check failed:`, normalizedGeographic);
-      return showFallback ? (fallback || <Alert message="Geographic access denied" type="error" icon={<LockOutlined />} />) : null;
+      if (debug) console.log(`🚫 ACCESS DENIED: Geographic access check failed:`, normalizedGeographic);
+      return showFallback ? (
+        fallback || (
+          <div style={{ 
+            padding: '20px 24px',
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+            border: '1px solid #ffccc7'
+          }}>
+            <Alert 
+              message="Geographic Access Denied" 
+              description="You don't have access to the selected geographic location."
+              type="error" 
+              icon={<LockOutlined />}
+              style={{
+                border: 'none',
+                background: 'transparent',
+                padding: 0
+              }}
+            />
+          </div>
+        )
+      ) : null;
     }
   }
 
   // All checks passed
-  if (debug) console.log('✅ Access granted');
-  
   return (
     <div className={className} style={style}>
       {children}
