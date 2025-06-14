@@ -3,8 +3,8 @@
   "editor.formatOnPaste": true,
   "editor.formatOnType": false,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true,
-    "source.organizeImports": true
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "never"
   },
   "editor.defaultFormatter": "esbenp.prettier-vscode",
   "[javascript]": {
@@ -49,11 +49,15 @@
     "typescript",
     "typescriptreact"
   ],
-  "eslint.format.enable": true,
+  "eslint.format.enable": false,
+  "eslint.codeActionsOnSave.mode": "problems",
   "files.autoSave": "onFocusChange",
   "emmet.includeLanguages": {
     "javascript": "javascriptreact"
   },
   "javascript.preferences.quoteStyle": "single",
-  "typescript.preferences.quoteStyle": "single"
+  "typescript.preferences.quoteStyle": "single",
+  "typescript.preferences.includePackageJsonAutoImports": "off",
+  "javascript.suggest.autoImports": false,
+  "typescript.suggest.autoImports": false
 } 

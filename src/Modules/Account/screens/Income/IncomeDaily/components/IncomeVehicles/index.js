@@ -1,6 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Collapse, Form, Popconfirm, Select } from 'antd';
-import { getBookingData, getInitialValues, getSalesData, RenderSearch, searchKeys } from './api';
+import {
+  getBookingData,
+  getInitialValues,
+  getSalesData,
+  RenderSearch,
+  searchKeys,
+} from './api';
 import IncomeDailyHeader from '../../income-daily-header';
 import { useSelector } from 'react-redux';
 import { useGeographicData } from 'hooks/useGeographicData';
@@ -9,7 +15,15 @@ import { CardFooter, Col, Row } from 'shards-react';
 import { useHistory } from 'react-router-dom';
 import { Button, Input } from 'elements';
 import { _getNetIncomeFromValues } from 'Modules/Sales/Vehicles/api';
-import { firstKey, showLog, showWarn, showConfirm, load, cleanValuesBeforeSave, showMessageBar } from 'functions';
+import {
+  firstKey,
+  showLog,
+  showWarn,
+  showConfirm,
+  load,
+  cleanValuesBeforeSave,
+  showMessageBar,
+} from 'functions';
 import HiddenItem from 'components/HiddenItem';
 import { IncomeType, arrayInputColumns } from 'data/Constant';
 import { useMergeState } from 'api/CustomHooks';
@@ -26,10 +40,18 @@ import { getEditArr } from 'utils';
 import DocViewer from './DocViewer';
 import { validatePayments } from 'Modules/Utils';
 
-const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geographic = null }) => {
+const IncomeVehicles = ({
+  order,
+  onConfirm,
+  onBack,
+  isEdit,
+  readOnly,
+  reset,
+  geographic = null,
+}) => {
   // showLog({ order, onConfirm, onBack, isEdit, readOnly, reset });
-  const { user } = useSelector(state => state.auth);
-  const { users } = useSelector(state => state.data);
+  const { user } = useSelector((state) => state.auth);
+  const { users } = useSelector((state) => state.data);
   const { getDefaultBranch } = useGeographicData();
   const [form] = Form.useForm();
   const [form2] = Form.useForm();
@@ -37,14 +59,14 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
 
   const [saleDoc, setSale] = useMergeState({
     doc: {},
-    type: 'sale'
+    type: 'sale',
   });
   const [docType, setDocType] = useState(order?.incomeType || 'down');
 
   const [nProps, setProps] = useMergeState({
     readOnly,
     onBack,
-    isEdit
+    isEdit,
   });
   const [curDoc, setCurDoc] = useState({});
 
@@ -52,21 +74,27 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
     setProps({
       readOnly,
       onBack,
-      isEdit
+      isEdit,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isEdit, onBack, readOnly]);
 
-  const sKeys = Object.keys(searchKeys).map(k => k);
+  const sKeys = Object.keys(searchKeys).map((k) => k);
 
   const grant = true;
 
   useEffect(() => {
-    const distributeValues = mOrder => {
+    const distributeValues = (mOrder) => {
       form.setFieldsValue({
         incomeType: mOrder.incomeType,
-        branchCode: mOrder?.branchCode || user.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
-        date: mOrder?.date || undefined
+        branchCode:
+          mOrder?.branchCode ||
+          user.branch ||
+          getDefaultBranch() ||
+          user?.homeBranch ||
+          user?.allowedBranches?.[0] ||
+          '0450',
+        date: mOrder?.date || undefined,
       });
       switch (mOrder.incomeType) {
         case 'cash':
@@ -76,7 +104,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
           _onValuesChange({
             ...(order?.saleNo && { saleNo: order.saleNo }),
             ...(order?.bookNo && { bookNo: order.bookNo }),
-            ...(order?.refDoc && { refDoc: order.refDoc })
+            ...(order?.refDoc && { refDoc: order.refDoc }),
           });
           break;
         case 'licensePlateFee':
@@ -103,7 +131,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
             recordedBy,
             amtDuringDay,
             receiverDuringDay,
-            remark
+            remark,
           } = mOrder;
           form2.setFieldsValue({
             incomeId,
@@ -115,13 +143,18 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
             phoneNumber,
             amtBaacDebtor,
             ...(mOrder.incomeType === 'licensePlateFee' && {
-              amtPlateAndInsurance
+              amtPlateAndInsurance,
             }),
             ...(mOrder.incomeType === 'installment' && {
               amtSKLInstallment:
                 amtSKLInstallment ||
                 Numb(amtReceived) -
-                  (deductOthers.length > 0 ? deductOthers.reduce((sum, elem) => sum + Numb(elem?.total || 0), 0) : 0)
+                  (deductOthers.length > 0
+                    ? deductOthers.reduce(
+                        (sum, elem) => sum + Numb(elem?.total || 0),
+                        0
+                      )
+                    : 0),
             }),
             ...(mOrder.incomeType === 'kbnLeasing' && { oweKBNLeasings }),
             ...(mOrder.incomeType === 'other' && { amtOthers }),
@@ -131,7 +164,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
             recordedBy,
             amtDuringDay,
             receiverDuringDay,
-            remark
+            remark,
           });
           break;
         default:
@@ -142,14 +175,20 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
       distributeValues(order);
     } else {
       form.setFieldsValue({
-        branchCode: order?.branchCode || user.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450'
+        branchCode:
+          order?.branchCode ||
+          user.branch ||
+          getDefaultBranch() ||
+          user?.homeBranch ||
+          user?.allowedBranches?.[0] ||
+          '0450',
       });
       form2.setFieldsValue(getInitialValues(order));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [order]);
 
-  const _onValuesChange = async val => {
+  const _onValuesChange = async (val) => {
     try {
       showLog({ val, sKeys, firstKey: firstKey(val) });
       if (sKeys.includes(firstKey(val))) {
@@ -159,39 +198,46 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
           if (val?.refDoc) {
             refDoc = val.refDoc.doc;
           } else {
-            mData = val?.refDoc ? [val.refDoc.doc] : await getSalesData(val, true);
+            mData = val?.refDoc
+              ? [val.refDoc.doc]
+              : await getSalesData(val, true);
             refDoc = mData[0];
           }
           setSale({
             doc: {
               ...refDoc,
-              title: `ใบขายเลขที่ ${refDoc?.saleNo}`
+              title: `ใบขายเลขที่ ${refDoc?.saleNo}`,
             },
-            type: 'sale'
+            type: 'sale',
           });
           form2.setFieldsValue({
-            total: typeof order?.total !== 'undefined' ? order.total : _getNetIncomeFromValues(refDoc),
+            total:
+              typeof order?.total !== 'undefined'
+                ? order.total
+                : _getNetIncomeFromValues(refDoc),
             ...(refDoc.saleType === 'baac' && {
-              amtBaacDebtor: refDoc.amtBaacDebtor
+              amtBaacDebtor: refDoc.amtBaacDebtor,
             }),
-            payments: order?.payments || refDoc?.payments || []
+            payments: order?.payments || refDoc?.payments || [],
           });
           form.setFieldsValue({
-            bookNo: null
+            bookNo: null,
           });
         } else if (firstKey(val) === 'bookNo') {
           if (val?.refDoc) {
             refDoc = val.refDoc.doc;
           } else {
-            mData = val?.refDoc ? [val.refDoc.doc] : await getBookingData(val, true);
+            mData = val?.refDoc
+              ? [val.refDoc.doc]
+              : await getBookingData(val, true);
             refDoc = mData[0];
           }
           setSale({
             doc: {
               ...refDoc,
-              title: `ใบจองเลขที่ ${refDoc?.bookNo}`
+              title: `ใบจองเลขที่ ${refDoc?.bookNo}`,
             },
-            type: 'booking'
+            type: 'booking',
           });
           form2.setFieldsValue({
             total:
@@ -202,11 +248,11 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
                   : isEdit
                     ? refDoc.total
                     : refDoc.amtReceived,
-            payments: order?.payments || refDoc?.payments || []
+            payments: order?.payments || refDoc?.payments || [],
           });
           form.setFieldsValue({
             saleNo: null,
-            incomeType: 'reservation'
+            incomeType: 'reservation',
           });
         }
         setCurDoc(refDoc);
@@ -220,26 +266,45 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
     }
   };
 
-  const _onValues2Change = async val => {
+  const _onValues2Change = async (val) => {
     try {
       if (
-        ['deductOthers', 'amtPlateAndInsurance', 'amtSKLInstallment', 'kbnLeasing', 'amtOthers'].includes(firstKey(val))
+        [
+          'deductOthers',
+          'amtPlateAndInsurance',
+          'amtSKLInstallment',
+          'kbnLeasing',
+          'amtOthers',
+        ].includes(firstKey(val))
       ) {
         let amt = 0;
         if (docType === 'other') {
           let amtOthers = form2.getFieldValue('amtOthers');
-          amt = amtOthers.reduce((sum, elem) => sum + Numb(elem?.total || 0), 0);
+          amt = amtOthers.reduce(
+            (sum, elem) => sum + Numb(elem?.total || 0),
+            0
+          );
         } else if (docType === 'kbnLeasing') {
           let oweKBNLeasings = form2.getFieldValue('oweKBNLeasings');
-          amt = Object.keys(oweKBNLeasings).reduce((sum, elem) => sum + Numb(oweKBNLeasings[elem]), 0);
+          amt = Object.keys(oweKBNLeasings).reduce(
+            (sum, elem) => sum + Numb(oweKBNLeasings[elem]),
+            0
+          );
         } else {
-          amt = form2.getFieldValue(docType === 'installment' ? 'amtSKLInstallment' : 'amtPlateAndInsurance');
+          amt = form2.getFieldValue(
+            docType === 'installment'
+              ? 'amtSKLInstallment'
+              : 'amtPlateAndInsurance'
+          );
         }
         let deductOthers = form2.getFieldValue('deductOthers');
-        let amtDeduct = deductOthers.reduce((sum, elem) => sum + Numb(elem?.total || 0), 0);
+        let amtDeduct = deductOthers.reduce(
+          (sum, elem) => sum + Numb(elem?.total || 0),
+          0
+        );
         let total = Numb(amt) - Numb(amtDeduct);
         form2.setFieldsValue({
-          total: total > 0 ? total : 0
+          total: total > 0 ? total : 0,
         });
       }
     } catch (e) {
@@ -252,7 +317,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
     form2.resetFields();
     setSale({
       doc: {},
-      type: 'sale'
+      type: 'sale',
     });
     setCurDoc({});
   };
@@ -266,14 +331,18 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
 
       let mValues = { ...values2 };
 
-      if (['licensePlateFee', 'installment', 'kbnLeasing', 'other'].includes(docType)) {
+      if (
+        ['licensePlateFee', 'installment', 'kbnLeasing', 'other'].includes(
+          docType
+        )
+      ) {
         mValues = {
           ...mValues,
           incomeType,
           docBranchCode: branchCode,
           docDate: date,
           branchCode,
-          date
+          date,
         };
       } else {
         const {
@@ -288,12 +357,19 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
           lastName,
           phoneNumber,
           receiverEmployee,
-          deleted
+          deleted,
           // payments,
         } = saleDoc.doc;
-        if (!((saleDoc.type === 'sale' && saleId) || (saleDoc.type === 'booking' && bookId))) {
+        if (
+          !(
+            (saleDoc.type === 'sale' && saleId) ||
+            (saleDoc.type === 'booking' && bookId)
+          )
+        ) {
           load(false);
-          return showMessageBar('กรุณาป้อนข้อมูลเลขที่ใบขาย / ใบจอง / ชื่อลูกค้า');
+          return showMessageBar(
+            'กรุณาป้อนข้อมูลเลขที่ใบขาย / ใบจอง / ชื่อลูกค้า'
+          );
         }
 
         // Delete extra fields.
@@ -322,7 +398,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
           lastName,
           phoneNumber,
           receiverEmployee,
-          deleted: deleted || false
+          deleted: deleted || false,
         };
       }
       let doc = cleanValuesBeforeSave(curDoc);
@@ -335,7 +411,7 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
         'amtPlateAndInsurance',
         'amtSKLInstallment',
         'amtDuringDay',
-        'total'
+        'total',
       ]);
       let values = cleanValuesBeforeSave(mValues);
       // showLog('values', values);
@@ -368,20 +444,19 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
     setCurDoc({ ...curDoc, ...values });
     // setSale({ doc: { ...saleDoc.doc, values }, type: saleDoc.type });
     form2.setFieldsValue({
-      total
+      total,
     });
   };
 
-  let IncomeTypeArr = Object.keys(IncomeType).map(k => k);
+  let IncomeTypeArr = Object.keys(IncomeType).map((k) => k);
 
   const IncomeOptions =
     saleDoc.type === 'booking'
-      ? IncomeTypeArr.filter(l => l === 'reservation')
-      : IncomeTypeArr.filter(l => l !== 'reservation');
-
+      ? IncomeTypeArr.filter((l) => l === 'reservation')
+      : IncomeTypeArr.filter((l) => l !== 'reservation');
 
   return (
-    <div className="bg-white px-3 py-3">
+    <div className='bg-white px-3 py-3'>
       <Form
         form={form}
         // onFinish={_onPreConfirm}
@@ -389,28 +464,45 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
         initialValues={{
           ...searchKeys,
           incomeType: 'down',
-          branchCode: order?.branchCode || user.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
+          branchCode:
+            order?.branchCode ||
+            user.branch ||
+            getDefaultBranch() ||
+            user?.homeBranch ||
+            user?.allowedBranches?.[0] ||
+            '0450',
           date: undefined,
-          amtReceived: null
+          amtReceived: null,
         }}
-        size="small"
-        layout="vertical"
+        size='small'
+        layout='vertical'
       >
-        {values => {
+        {(values) => {
           return (
             <>
-              {!['licensePlateFee', 'installment', 'kbnLeasing', 'other'].includes(docType) && !nProps.readOnly && (
-                <RenderSearch type={values.incomeType} geographic={geographic} />
-              )}
+              {![
+                'licensePlateFee',
+                'installment',
+                'kbnLeasing',
+                'other',
+              ].includes(docType) &&
+                !nProps.readOnly && (
+                  <RenderSearch
+                    type={values.incomeType}
+                    geographic={geographic}
+                  />
+                )}
               <Row form>
-                <Col md="4" className="d-flex flex-column">
-                  <Form.Item label="สด/ดาวน์/จอง/อื่นๆ" name="incomeType">
+                <Col md='4' className='d-flex flex-column'>
+                  <Form.Item label='สด/ดาวน์/จอง/อื่นๆ' name='incomeType'>
                     <Select
-                      name="incomeType"
-                      disabled={!grant || nProps.readOnly || saleDoc.type === 'booking'}
-                      className="text-primary"
+                      name='incomeType'
+                      disabled={
+                        !grant || nProps.readOnly || saleDoc.type === 'booking'
+                      }
+                      className='text-primary'
                     >
-                      {IncomeOptions.map(k => (
+                      {IncomeOptions.map((k) => (
                         <Select.Option value={k} key={k}>
                           {IncomeType[k]}
                         </Select.Option>
@@ -418,17 +510,30 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
                     </Select>
                   </Form.Item>
                 </Col>
-                <Col md="8">
-                  <IncomeDailyHeader disabled={!grant || nProps.readOnly} disableAllBranches />
+                <Col md='8'>
+                  <IncomeDailyHeader
+                    disabled={!grant || nProps.readOnly}
+                    disableAllBranches
+                  />
                 </Col>
               </Row>
             </>
           );
         }}
       </Form>
-      {!['licensePlateFee', 'installment', 'kbnLeasing', 'other'].includes(docType) && (
-        <Collapse className="my-3" activeKey={saleDoc.doc?.saleNo || saleDoc.doc?.bookNo ? '1' : undefined}>
-          <Collapse.Panel header={saleDoc.doc?.title || 'ข้อมูลจากฝ่ายขาย'} key="1">
+      {!['licensePlateFee', 'installment', 'kbnLeasing', 'other'].includes(
+        docType
+      ) && (
+        <Collapse
+          className='my-3'
+          activeKey={
+            saleDoc.doc?.saleNo || saleDoc.doc?.bookNo ? '1' : undefined
+          }
+        >
+          <Collapse.Panel
+            header={saleDoc.doc?.title || 'ข้อมูลจากฝ่ายขาย'}
+            key='1'
+          >
             <DocViewer
               sale={saleDoc}
               grant={grant}
@@ -447,10 +552,10 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
         form={form2}
         onValuesChange={_onValues2Change}
         initialValues={getInitialValues(order)}
-        size="small"
-        layout="vertical"
+        size='small'
+        layout='vertical'
       >
-        {values => {
+        {(values) => {
           // showLog('incomeVehicles_values', values);
           let editData = [];
           if (values.editedBy) {
@@ -458,32 +563,55 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
           }
           return (
             <>
-              <HiddenItem name="incomeId" />
-              <HiddenItem name="customerId" />
+              <HiddenItem name='incomeId' />
+              <HiddenItem name='customerId' />
               {values.editedBy && (
-                <Row form className="mb-3 ml-2" style={{ alignItems: 'center' }}>
-                  <NotificationIcon icon="edit" data={editData} badgeNumber={values.editedBy.length} theme="warning" />
-                  <span className="ml-2 text-light">ประวัติการแก้ไขเอกสาร</span>
+                <Row
+                  form
+                  className='mb-3 ml-2'
+                  style={{ alignItems: 'center' }}
+                >
+                  <NotificationIcon
+                    icon='edit'
+                    data={editData}
+                    badgeNumber={values.editedBy.length}
+                    theme='warning'
+                  />
+                  <span className='ml-2 text-light'>ประวัติการแก้ไขเอกสาร</span>
                 </Row>
               )}
               {docType === 'baac' && (
-                <div className="px-3 pt-3 border mb-3">
-                  <Form.Item name="amtBaacDebtor" label="หัก ลูกหนี้ สกต/ธกส." rules={getRules(['number'])}>
-                    <Input currency placeholder="จำนวนเงิน" disabled={!grant} readOnly={nProps.readOnly} />
+                <div className='px-3 pt-3 border mb-3'>
+                  <Form.Item
+                    name='amtBaacDebtor'
+                    label='หัก ลูกหนี้ สกต/ธกส.'
+                    rules={getRules(['number'])}
+                  >
+                    <Input
+                      currency
+                      placeholder='จำนวนเงิน'
+                      disabled={!grant}
+                      readOnly={nProps.readOnly}
+                    />
                   </Form.Item>
                 </div>
               )}
-              {['licensePlateFee', 'installment', 'kbnLeasing', 'other'].includes(docType) && (
-                <div className="px-3 pt-3 border mb-3">
-                  <label className="text-primary">{`รับเงิน ${IncomeType[docType]}`}</label>
-                  <div className="bg-light pt-3 border mb-3">
-                    <Col md="4">
-                      <Form.Item name="isNewCustomer">
+              {[
+                'licensePlateFee',
+                'installment',
+                'kbnLeasing',
+                'other',
+              ].includes(docType) && (
+                <div className='px-3 pt-3 border mb-3'>
+                  <label className='text-primary'>{`รับเงิน ${IncomeType[docType]}`}</label>
+                  <div className='bg-light pt-3 border mb-3'>
+                    <Col md='4'>
+                      <Form.Item name='isNewCustomer'>
                         <Toggles
                           disabled={!grant || nProps.readOnly}
                           buttons={[
                             { label: 'ลูกค้าใหม่', value: true },
-                            { label: 'ลูกค้าเก่า', value: false }
+                            { label: 'ลูกค้าเก่า', value: false },
                           ]}
                         />
                       </Form.Item>
@@ -494,64 +622,93 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
                       // onClick={() => _onShowCustomerDetail(values)}
                       values={values}
                       form={form2}
-                      size="small"
+                      size='small'
                     />
                   </div>
                   {docType === 'kbnLeasing' ? (
                     <>
-                      <Row form className="bg-light">
-                        <Col md="4">
+                      <Row form className='bg-light'>
+                        <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'Down']}
-                            label="ค้างดาวน์ร้าน"
+                            label='ค้างดาวน์ร้าน'
                             rules={getRules(['number'])}
                           >
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
-                        <Col md="4">
+                        <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'Installment']}
-                            label="ค้างค่างวดร้าน"
+                            label='ค้างค่างวดร้าน'
                             rules={getRules(['number'])}
                           >
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
-                        <Col md="4">
+                        <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'Equipment']}
-                            label="ค้างอุปกรณ์ร้าน"
+                            label='ค้างอุปกรณ์ร้าน'
                             rules={getRules(['number'])}
                           >
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
-                      <Row form className="bg-light">
-                        <Col md="4">
+                      <Row form className='bg-light'>
+                        <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'Borrow']}
-                            label="ยืมเงินร้าน"
+                            label='ยืมเงินร้าน'
                             rules={getRules(['number'])}
                           >
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
-                        <Col md="4">
+                        <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'overdueFines']}
-                            label="เบี้ยปรับล่าช้า"
+                            label='เบี้ยปรับล่าช้า'
                             rules={getRules(['number'])}
                           >
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
-                      <Row form className="bg-light">
-                        <Col md="4">
-                          <Form.Item label="รายการหักเงิน อื่นๆ">
-                            <ArrayInput name="deductOthers" columns={arrayInputColumns} readOnly={nProps.readOnly} />
+                      <Row form className='bg-light'>
+                        <Col md='4'>
+                          <Form.Item label='รายการหักเงิน อื่นๆ'>
+                            <ArrayInput
+                              name='deductOthers'
+                              columns={arrayInputColumns}
+                              readOnly={nProps.readOnly}
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
@@ -559,102 +716,137 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
                   ) : (
                     <Row>
                       {docType === 'other' ? (
-                        <Col md="4">
-                          <Form.Item label="รายรับ อื่นๆ">
-                            <ArrayInput name="amtOthers" columns={arrayInputColumns} readOnly={nProps.readOnly} />
+                        <Col md='4'>
+                          <Form.Item label='รายรับ อื่นๆ'>
+                            <ArrayInput
+                              name='amtOthers'
+                              columns={arrayInputColumns}
+                              readOnly={nProps.readOnly}
+                            />
                           </Form.Item>
                         </Col>
                       ) : (
-                        <Col md="4">
+                        <Col md='4'>
                           <Form.Item
-                            name={docType === 'licensePlateFee' ? 'amtPlateAndInsurance' : 'amtSKLInstallment'}
-                            label={docType === 'licensePlateFee' ? 'ค่าทะเบียน + พรบ.' : 'ค่างวด SKL'}
+                            name={
+                              docType === 'licensePlateFee'
+                                ? 'amtPlateAndInsurance'
+                                : 'amtSKLInstallment'
+                            }
+                            label={
+                              docType === 'licensePlateFee'
+                                ? 'ค่าทะเบียน + พรบ.'
+                                : 'ค่างวด SKL'
+                            }
                             rules={[
                               {
-                                required: ['licensePlateFee', 'installment'].includes(docType),
-                                message: 'กรุณาป้อนข้อมูล'
+                                required: [
+                                  'licensePlateFee',
+                                  'installment',
+                                ].includes(docType),
+                                message: 'กรุณาป้อนข้อมูล',
                               },
-                              ...getRules(['number'])
+                              ...getRules(['number']),
                             ]}
                           >
-                            <Input currency placeholder="จำนวนเงิน" disabled={!grant} readOnly={nProps.readOnly} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              disabled={!grant}
+                              readOnly={nProps.readOnly}
+                            />
                           </Form.Item>
                         </Col>
                       )}
-                      <Col md="4">
-                        <Form.Item label="รายการหักเงิน อื่นๆ">
-                          <ArrayInput name="deductOthers" columns={arrayInputColumns} readOnly={nProps.readOnly} />
+                      <Col md='4'>
+                        <Form.Item label='รายการหักเงิน อื่นๆ'>
+                          <ArrayInput
+                            name='deductOthers'
+                            columns={arrayInputColumns}
+                            readOnly={nProps.readOnly}
+                          />
                         </Form.Item>
                       </Col>
                     </Row>
                   )}
-                  <Form.Item label="การชำระเงิน" name="payments">
-                    <Payments disabled={!grant || nProps.readOnly} permanentDelete={true} />
+                  <Form.Item label='การชำระเงิน' name='payments'>
+                    <Payments
+                      disabled={!grant || nProps.readOnly}
+                      permanentDelete={true}
+                    />
                   </Form.Item>
                 </div>
               )}
-              <div className="px-3 pt-3 border mb-3">
+              <div className='px-3 pt-3 border mb-3'>
                 <Row>
-                  <Col md="4">
+                  <Col md='4'>
                     <Form.Item
-                      name="total"
-                      label={<div className="text-primary">จำนวนเงินสุทธิ</div>}
+                      name='total'
+                      label={<div className='text-primary'>จำนวนเงินสุทธิ</div>}
                       rules={[
                         {
                           required: !['kbnLeasing', 'other'].includes(docType),
-                          message: 'กรุณาป้อนจำนวนเงิน'
+                          message: 'กรุณาป้อนจำนวนเงิน',
                         },
-                        ...getRules(['number'])
+                        ...getRules(['number']),
                       ]}
                     >
                       <Input
                         currency
-                        placeholder="จำนวนเงิน"
-                        addonAfter="บาท"
+                        placeholder='จำนวนเงิน'
+                        addonAfter='บาท'
                         disabled={!grant}
                         // readOnly={nProps.readOnly}
-                        className="text-primary"
+                        className='text-primary'
                       />
                     </Form.Item>
                   </Col>
-                  <Col md="4">
+                  <Col md='4'>
                     <Form.Item
-                      name="recordedBy"
-                      label="ผู้บันทึก"
+                      name='recordedBy'
+                      label='ผู้บันทึก'
                       rules={[{ required: true, message: 'กรุณาป้อนข้อมูล' }]}
                     >
                       <EmployeeSelector disabled={!grant} />
                     </Form.Item>
                   </Col>
                 </Row>
-                {!['licensePlateFee', 'installment', 'kbnLeasing', 'other'].includes(docType) && (
-                  <Form.Item label="การชำระเงิน" name="payments">
-                    <Payments disabled={!grant || nProps.readOnly} permanentDelete={true} />
+                {![
+                  'licensePlateFee',
+                  'installment',
+                  'kbnLeasing',
+                  'other',
+                ].includes(docType) && (
+                  <Form.Item label='การชำระเงิน' name='payments'>
+                    <Payments
+                      disabled={!grant || nProps.readOnly}
+                      permanentDelete={true}
+                    />
                   </Form.Item>
                 )}
               </div>
               <DuringDayMoney grant={grant} />
               <Row form>
                 <Col md={8}>
-                  <Form.Item name="remark" label="หมายเหตุ">
+                  <Form.Item name='remark' label='หมายเหตุ'>
                     <Input disabled={!grant} />
                   </Form.Item>
                 </Col>
               </Row>
-              <CardFooter className="border-top ">
+              <CardFooter className='border-top '>
                 <Row style={{ justifyContent: 'flex-end' }} form>
                   <Row
                     style={{
                       justifyContent: 'flex-end',
-                      marginRight: 10
+                      marginRight: 10,
                     }}
                     form
                   >
                     {!readOnly ? (
                       <Popconfirm
-                        title="ยืนยัน?"
-                        okText="ล้าง"
-                        cancelText="ยกเลิก"
+                        title='ยืนยัน?'
+                        okText='ล้าง'
+                        cancelText='ยกเลิก'
                         onConfirm={() => {
                           resetToInitial();
                           reset();
@@ -662,9 +854,9 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
                       >
                         <Button
                           // onClick={() => form.resetFields()}
-                          className="mr-3"
+                          className='mr-3'
                           disabled={!grant || nProps.readOnly}
-                          size="middle"
+                          size='medium'
                         >
                           ล้างข้อมูล
                         </Button>
@@ -673,20 +865,20 @@ const IncomeVehicles = ({ order, onConfirm, onBack, isEdit, readOnly, reset, geo
                       <Button
                         onClick={() =>
                           history.push(nProps.onBack.path, {
-                            params: nProps.onBack
+                            params: nProps.onBack,
                           })
                         }
-                        className="mr-3"
-                        size="middle"
+                        className='mr-3'
+                        size='medium'
                       >
                         &larr; กลับ
                       </Button>
                     )}
                     <Button
-                      type="primary"
+                      type='primary'
                       onClick={() => _onPreConfirm()}
                       disabled={!grant}
-                      size="middle"
+                      size='medium'
                       // className="d-flex ml-auto mr-auto ml-sm-auto mr-sm-0 mt-3 mt-sm-0"
                     >
                       บันทึกข้อมูล

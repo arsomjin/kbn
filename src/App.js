@@ -32,6 +32,8 @@ import './utils/test-approval-fixes';
 import './utils/auth-recovery';
 // 🌍 Enterprise i18n System
 import i18n from './translations/i18n-enterprise';
+// 🚀 Super Admin Creation Script (Testing)
+import './create-super-admin';
 import './App.css';
 
 export const store = configureStore();
@@ -45,30 +47,31 @@ const persistor = persistStore(store, null, () => {
 });
 
 const App = () => {
-
   const onBeforeLift = () => {
     // Silent initialization in production
     const isDev = process?.env?.NODE_ENV === 'development';
-    
+
     if (isDev) {
       console.log('🔥 KBN Application Ready');
     }
-    
+
     // 🔍 DEBUGGING: Start authentication flow monitoring in development (silent)
     if (isDev) {
-      import('./utils/authFlowDebugger').then(({ debugAuthFlow }) => {
-        // Start monitoring but don't store the cleanup function unless needed
-        const cleanup = debugAuthFlow();
-        
-        // Optional: Stop monitoring after 30 seconds to reduce noise
-        setTimeout(() => {
-          cleanup();
-        }, 30000);
-      }).catch(error => {
-        // Silent error handling
-      });
+      import('./utils/authFlowDebugger')
+        .then(({ debugAuthFlow }) => {
+          // Start monitoring but don't store the cleanup function unless needed
+          const cleanup = debugAuthFlow();
+
+          // Optional: Stop monitoring after 30 seconds to reduce noise
+          setTimeout(() => {
+            cleanup();
+          }, 30000);
+        })
+        .catch((error) => {
+          // Silent error handling
+        });
     }
-    
+
     // Load utilities silently in development
     if (isDev) {
       import('./utils/selfApproval').catch(() => {});
@@ -78,18 +81,24 @@ const App = () => {
       import('./role-testing-utilities').catch(() => {});
       import('./dev/quick-rbac-setup').catch(() => {});
     }
-    
+
     // 🔧 CRITICAL: Auto-detect and recover from auth limbo states
-    import('./utils/auth-recovery').then(({ autoRecoverAuthLimbo }) => {
-      autoRecoverAuthLimbo();
-    }).catch(() => {
-      // Silent error handling
-    });
+    import('./utils/auth-recovery')
+      .then(({ autoRecoverAuthLimbo }) => {
+        autoRecoverAuthLimbo();
+      })
+      .catch(() => {
+        // Silent error handling
+      });
   };
 
   return (
     <Provider store={store}>
-      <PersistGate loading={<Load loading />} persistor={persistor} onBeforeLift={onBeforeLift}>
+      <PersistGate
+        loading={<Load loading />}
+        persistor={persistor}
+        onBeforeLift={onBeforeLift}
+      >
         <I18nextProvider i18n={i18n}>
           <ErrorBoundary>
             <NatureThemeProvider>

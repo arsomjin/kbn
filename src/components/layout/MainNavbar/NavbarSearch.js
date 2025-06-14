@@ -1,96 +1,187 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Input, Dropdown, Menu, Spin, Typography, Empty } from 'antd';
+import { SearchOutlined, ClockCircleOutlined } from '@ant-design/icons';
 import { showWarn } from 'functions';
 import { debounce } from 'lodash';
-import {
-  Form,
-  InputGroup,
-  InputGroupAddon,
-  InputGroupText,
-  FormInput,
-  Collapse,
-  DropdownItem,
-  DropdownMenu,
-  NavItem
-} from 'shards-react';
 import { getNavBarSearchData } from 'utils';
 import { useHistory } from 'react-router-dom';
-import { Spin } from 'antd';
 
-export default () => {
+const { Text } = Typography;
+
+const NavbarSearch = () => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
-  const [searchText, setSearchText] = useState(null);
+  const [searchText, setSearchText] = useState('');
   const [data, setData] = useState([]);
   const [allData, setAllData] = useState([]);
+  const [dropdownVisible, setDropdownVisible] = useState(false);
 
   useEffect(() => {
-    let arr = getNavBarSearchData();
-    // showLog({ nav_search_arr: arr });
+    const arr = getNavBarSearchData();
     setAllData(arr);
   }, []);
 
-  const _onSearch = debounce(ev => {
-    const txt = ev.target.value;
-    setSearchText(txt);
-    _search(txt);
-  }, 200);
+  const _search = useCallback(
+    async (txt) => {
+      try {
+        if (!txt) {
+          setData([]);
+          setDropdownVisible(false);
+          return;
+        }
 
-  const _search = async (txt, iType) => {
-    try {
-      return setData([])  // TODO: Enhance new search across all modules.
-      if (!txt) {
-        return setData([]);
+        setLoading(true);
+        const arr = allData.filter((item) =>
+          ['title'].some((key) => {
+            const sTxt = item[key]
+              .toString()
+              .replace(/(\r\n|\n|\r|,| |-)/g, '');
+            return sTxt.toLowerCase().includes(txt.toLowerCase());
+          })
+        );
+
+        setData(arr);
+        setDropdownVisible(arr.length > 0);
+        setLoading(false);
+      } catch (e) {
+        showWarn(e);
+        setLoading(false);
+        setDropdownVisible(false);
       }
-      setLoading(true);
-      // let arr = searchArr(allData, Numb(txt), ['title']);
-      const arr = allData.filter(item =>
-        ['title'].some(key => {
-          let sTxt = item[key].toString().replace(/(\r\n|\n|\r|,| |-)/g, '');
-          // showLog({ sTxt });
-          return sTxt.toLowerCase().includes(txt.toLowerCase());
-        })
-      );
-      // showLog({ allData, arr, rTxt: Numb(txt) });
-      setData(arr);
-      setLoading(false);
-    } catch (e) {
-      showWarn(e);
-      setLoading(false);
+    },
+    [allData]
+  );
+
+  const _onSearch = useCallback(
+    debounce((value) => {
+      setSearchText(value);
+      _search(value);
+    }, 200),
+    [_search]
+  );
+
+  const _onClick = useCallback(
+    (path) => {
+      setSearchText('');
+      setData([]);
+      setDropdownVisible(false);
+      history.push(path);
+    },
+    [history]
+  );
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setSearchText(value);
+    _onSearch(value);
+  };
+
+  const handleInputFocus = () => {
+    if (searchText && data.length > 0) {
+      setDropdownVisible(true);
     }
   };
 
-  const _onClick = path => {
-    setSearchText(null);
-    setData([]);
-    history.push(path);
+  const handleInputBlur = () => {
+    // Delay hiding dropdown to allow for menu item clicks
+    setTimeout(() => {
+      setDropdownVisible(false);
+    }, 200);
   };
 
+  // Create menu items for dropdown
+  const menuItems = data.map((item, index) => ({
+    key: index,
+    label: (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          padding: '4px 0',
+          cursor: 'pointer',
+        }}
+        onClick={() => _onClick(item.to)}
+      >
+        <ClockCircleOutlined style={{ marginRight: '8px', color: '#8c8c8c' }} />
+        <Text style={{ fontSize: '13px' }}>{item.title}</Text>
+      </div>
+    ),
+    onClick: () => _onClick(item.to),
+  }));
+
+  if (loading && data.length === 0) {
+    menuItems.push({
+      key: 'loading',
+      label: (
+        <div style={{ textAlign: 'center', padding: '8px' }}>
+          <Spin size='small' />
+        </div>
+      ),
+      disabled: true,
+    });
+  }
+
+  if (searchText && data.length === 0 && !loading) {
+    menuItems.push({
+      key: 'empty',
+      label: (
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={`ไม่พบผลลัพธ์สำหรับ "${searchText}"`}
+          style={{ margin: '12px 0' }}
+        />
+      ),
+      disabled: true,
+    });
+  }
+
+  const searchMenu = (
+    <Menu
+      items={menuItems}
+      style={{
+        maxHeight: '300px',
+        overflowY: 'auto',
+        minWidth: '280px',
+      }}
+    />
+  );
+
   return (
-    <>
-      <Form className="main-navbar__search w-100 d-none d-md-flex d-lg-flex">
-        <InputGroup seamless className="ml-3">
-          <InputGroupAddon type="prepend">
-            <InputGroupText>
-              <i className="material-icons">search</i>
-            </InputGroupText>
-          </InputGroupAddon>
-          <FormInput className="navbar-search" placeholder="ค้นหา..." onChange={_onSearch} />
-        </InputGroup>
-      </Form>
-      <NavItem>
-        <Collapse tag={DropdownMenu} small open={!!searchText && data.length > 0}>
-          {data.map((it, i) => (
-            <DropdownItem key={i} onClick={() => _onClick(it.to)}>
-              <i className="material-icons mr-1">schedule</i> {it.title}
-            </DropdownItem>
-          ))}
-          {loading && (
-            <DropdownItem key="load">
-              <Spin size="small" />
-            </DropdownItem>
-          )}
-        </Collapse>
-      </NavItem>
-    </>
+    <div
+      className='main-navbar__search w-100 d-none d-md-flex d-lg-flex'
+      style={{ marginLeft: '12px' }}
+    >
+      <Dropdown
+        overlay={searchMenu}
+        open={
+          dropdownVisible &&
+          (data.length > 0 || loading || (searchText && !loading))
+        }
+        trigger={[]}
+        placement='bottomLeft'
+        overlayStyle={{
+          borderRadius: '8px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        }}
+      >
+        <Input
+          placeholder='ค้นหาเมนู...'
+          prefix={<SearchOutlined style={{ color: '#8c8c8c' }} />}
+          value={searchText}
+          onChange={handleInputChange}
+          onFocus={handleInputFocus}
+          onBlur={handleInputBlur}
+          size='middle'
+          allowClear={false}
+          style={{
+            width: '280px',
+            borderRadius: '6px',
+            border: '1px solid #d9d9d9',
+          }}
+        />
+      </Dropdown>
+    </div>
   );
 };
+
+export default NavbarSearch;

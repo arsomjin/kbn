@@ -1,6 +1,348 @@
 {
   "indexes": [
     {
+      "collectionGroup": "approvalRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "targetProvince",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "attendances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "attendances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "employeeId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "attendances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "attendances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "employeeId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "attendances",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "employeeId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "customerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
       "collectionGroup": "branches",
       "queryScope": "COLLECTION_GROUP",
       "fields": [
@@ -295,20 +637,6 @@
         {
           "fieldPath": "firstName",
           "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "employees",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "isActive",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
         }
       ]
     },
@@ -629,40 +957,12 @@
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "incomeCategory",
-          "order": "ASCENDING"
-        },
-        {
-          "fieldPath": "date",
-          "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "incomes",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
           "fieldPath": "provinceId",
           "order": "ASCENDING"
         },
         {
           "fieldPath": "date",
           "order": "ASCENDING"
-        }
-      ]
-    },
-    {
-      "collectionGroup": "notifications",
-      "queryScope": "COLLECTION",
-      "fields": [
-        {
-          "fieldPath": "expiresAt",
-          "order": "DESCENDING"
-        },
-        {
-          "fieldPath": "createdAt",
-          "order": "DESCENDING"
         }
       ]
     },
@@ -705,6 +1005,24 @@
         {
           "fieldPath": "name",
           "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "userNotifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "read",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
         }
       ]
     },
@@ -766,6 +1084,3098 @@
         },
         {
           "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "bookings",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "customers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "customers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "customers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "customers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "customers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "phoneNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "customers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "phoneNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "customers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "customers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "customers",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "phoneNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "phoneNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "phoneNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "lastName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "employees",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "phoneNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "expenses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "expenses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "expenses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "expenseType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "expenses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "expenseType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "expenses",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "expenseType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "importParts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "importParts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "importParts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "importParts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "importParts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "incomes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "incomes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "incomeType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "incomes",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "incomeType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "leaves",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "leaves",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "leaves",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "employeeId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "leaves",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "employeeId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "leaves",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "employeeId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "parts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "partCode_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "parts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "partCode_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "parts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "partName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "parts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "partName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "parts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "partCode_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "parts",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "partName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "serviceNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "serviceNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "serviceType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "serviceType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "serviceNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "serviceType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "serviceType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "serviceType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "serviceType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "serviceNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "serviceOrders",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "serviceType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "serviceNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferIn",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferIn",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferIn",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferIn",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferIn",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fromSource",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferIn",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fromSource",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferIn",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferIn",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "fromSource",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "peripheralNo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "completed",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "peripheralNo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "completed",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "exportDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "exportDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "importDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "importDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "exportDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "exportDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "importDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "importDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "exportDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "exportDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "importDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferItems",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "importDate",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "completed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "destination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transferType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "completed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "destination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transferType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "completed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transferType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "completed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transferType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "completed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transferType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "completed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transferType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "destination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transferType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "destination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transferType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transferType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "toDestination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transferType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "destination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "transferOut",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "destination",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "docNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isUsed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isUsed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productCode_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isUsed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isUsed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productCode_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isUsed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productType_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "keywords",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "keywords",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "isUsed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "keywords",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "isUsed",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "keywords",
+          "arrayConfig": "CONTAINS"
+        },
+        {
+          "fieldPath": "productType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "deleted",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "productType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "name_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "productType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productCode_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicleList",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "productType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productType_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "baac",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "kbnLeasing",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "skl",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sold",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "baac",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "kbnLeasing",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "skl",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sold",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "baac",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "shopLeasing",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "skl",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sold",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "baac",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "shopLeasing",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "skl",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sold",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "baac",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reserved",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "shopLeasing",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "skl",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sold",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "baac",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "reserved",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "shopLeasing",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "skl",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sold",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleId",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "`เดือน`",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "`เดือน`",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "customerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ivAdjusted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ivAdjusted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ivAdjusted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ivAdjusted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ivAdjusted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ivAdjusted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sold",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sold",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "customerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "customerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "hasReferrer",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "isFIFO",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productPCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transfer",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "isFIFO",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productPCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "transfer",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "ivAdjusted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ivAdjusted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "peripheralNoFull",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNoFull",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "peripheralNoFull",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNoFull",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "productCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sold",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sold",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "productCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "productCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "referringDetails",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "saleNo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "customerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "brachCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "customerId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "brachCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "saleNo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleType",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "date",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "vehicleNoFull",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "peripheralNoFull",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "provinceId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNoFull",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "peripheralNoFull",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles_test",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ivAdjusted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "firstName_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles_test",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "branchCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "ivAdjusted",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "saleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "vehicles_test",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "productCode",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "vehicleNo_lower",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "approvalRequests",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "status",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "userNotifications",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "createdAt",
+          "order": "DESCENDING"
+        },
+        {
+          "fieldPath": "__name__",
           "order": "ASCENDING"
         }
       ]

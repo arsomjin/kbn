@@ -94,7 +94,7 @@ import Chevrolet from 'Modules/Account/screens/Expense/Components/Chevrolet';
 import ExpenseTransferCycle from 'Modules/Account/screens/ExpenseTransferCycle';
 import TestPrint from 'dev/screens/TestPrint';
 import RBACIntegrationTester from 'dev/screens/RBACIntegrationTester';
-import MigrationTools from 'dev/screens/MigrationTools';
+
 import RBACTester from 'dev/screens/RBACTester';
 import SimpleRBAC from 'dev/simple-rbac';
 import RBACSwitch from 'dev/rbac-switch';
@@ -170,13 +170,15 @@ const BlankIconSidebarLayout = ({ children }) => (
 );
 
 BlankIconSidebarLayout.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };
 
-const FullLayout = ({ children }) => <DefaultLayout noFooter>{children}</DefaultLayout>;
+const FullLayout = ({ children }) => (
+  <DefaultLayout noFooter>{children}</DefaultLayout>
+);
 
 FullLayout.propTypes = {
-  children: PropTypes.node.isRequired
+  children: PropTypes.node.isRequired,
 };
 
 export default [
@@ -184,12 +186,12 @@ export default [
     path: '/',
     exact: true,
     layout: DefaultLayout,
-    component: () => <Redirect to="/overview" />
+    component: () => <Redirect to='/overview' />,
   },
   {
     path: '/overview',
     layout: DefaultLayout,
-    component: Overview
+    component: Overview,
   },
   // {
   //   path: '/account',
@@ -199,153 +201,153 @@ export default [
   {
     path: '/reports/account-overview',
     layout: DefaultLayout,
-    component: AccountOverview
+    component: AccountOverview,
   },
   {
     path: '/account/income-overview',
     layout: DefaultLayout,
-    component: Income
+    component: Income,
   },
   {
     path: '/account/income-input',
     layout: DefaultLayout,
-    component: IncomeOverview
+    component: IncomeOverview,
   },
   {
     path: '/account/income-daily',
     layout: DefaultLayout,
-    component: IncomeDaily
+    component: IncomeDaily,
   },
   {
     path: '/account/income-after-close-account',
     layout: DefaultLayout,
     // component: () => <ComingSoon inProgress />,
-    component: IncomeAfterCloseAccount
+    component: IncomeAfterCloseAccount,
   },
   {
     path: '/account/income-skl',
     layout: DefaultLayout,
-    component: IncomeSKL
+    component: IncomeSKL,
   },
   {
     path: '/account/income-personal-loan',
     layout: DefaultLayout,
-    component: IncomePersonalLoan
+    component: IncomePersonalLoan,
   },
   {
     path: '/account/income-baac',
     layout: DefaultLayout,
-    component: IncomeBAAC
+    component: IncomeBAAC,
   },
   {
     path: '/account/daily-bank-deposit',
     layout: DefaultLayout,
-    component: DailyBankDeposit
+    component: DailyBankDeposit,
   },
   {
     path: '/account/daily-executive-cash-deposit',
     layout: DefaultLayout,
-    component: DailyExecutiveCashDeposit
+    component: DailyExecutiveCashDeposit,
   },
   {
     path: '/account/income-credit-card',
     layout: DefaultLayout,
-    component: IncomeCreditCard
+    component: IncomeCreditCard,
   },
   {
     path: '/account/expense-overview',
     layout: DefaultLayout,
-    component: Expense
+    component: Expense,
   },
   {
     path: '/account/expense-input',
     layout: DefaultLayout,
-    component: Expense
+    component: Expense,
   },
   {
     path: '/account/expense-transfer-cycle',
     layout: DefaultLayout,
-    component: ExpenseTransferCycle
+    component: ExpenseTransferCycle,
   },
   {
     path: '/account/expense-chevrolet',
     layout: DefaultLayout,
-    component: Chevrolet
+    component: Chevrolet,
   },
   {
     path: '/account/expense-referrer',
     layout: DefaultLayout,
-    component: ExpenseReferrer
+    component: ExpenseReferrer,
   },
   {
     path: '/account/price-input',
     layout: DefaultLayout,
-    component: InputPrice
+    component: InputPrice,
   },
   {
     path: '/account/price-input-parts',
     layout: DefaultLayout,
-    component: InputPrice_Parts
+    component: InputPrice_Parts,
   },
   {
     path: '/account/price-input-edit',
     layout: DefaultLayout,
-    component: InputPrice_Edit
+    component: InputPrice_Edit,
   },
   {
     path: '/sale-machines',
     layout: DefaultLayout,
-    component: SaleVehicles
+    component: SaleVehicles,
   },
   {
     path: '/sale-parts',
     layout: DefaultLayout,
-    component: SaleParts
+    component: SaleParts,
   },
   {
     path: '/skc-sale-parts',
     layout: DefaultLayout,
-    component: ImportSaleParts
+    component: ImportSaleParts,
   },
   {
     path: '/sale-marketing',
     layout: DefaultLayout,
-    component: Marketing
+    component: Marketing,
   },
   {
     path: '/sale-booking',
     layout: DefaultLayout,
-    component: Booking
+    component: Booking,
   },
   {
     path: '/sale-reservation-edit',
     layout: DefaultLayout,
-    component: BookingEdit
+    component: BookingEdit,
   },
   {
     path: '/sale-reservation-cancellation',
     layout: DefaultLayout,
-    component: BookingCancel
+    component: BookingCancel,
   },
   {
     path: '/sale-assessment',
     layout: DefaultLayout,
-    component: Assessment
+    component: Assessment,
   },
   {
     path: '/sale-customer-list',
     layout: DefaultLayout,
-    component: () => <CustomerList />
+    component: () => <CustomerList />,
   },
   {
     path: '/edit-sale-order',
     layout: DefaultLayout,
-    component: SaleEdit
+    component: SaleEdit,
   },
   {
     path: '/customer-details',
     layout: DefaultLayout,
-    component: CustomerDetails
+    component: CustomerDetails,
   },
   // {
   //   path: '/referrer-list',
@@ -355,7 +357,7 @@ export default [
   {
     path: '/referrer-details',
     layout: DefaultLayout,
-    component: () => <ReferrerDetails />
+    component: () => <ReferrerDetails />,
   },
   // {
   //   path: '/service-input',
@@ -366,108 +368,108 @@ export default [
     path: '/service-order',
     layout: DefaultLayout,
     // component: () => <ComingSoon inProgress info="แจ้งบริการ/ประเมินราคา" />,
-    component: ServiceOrder
+    component: ServiceOrder,
   },
   {
     path: '/service-close',
     layout: DefaultLayout,
     // component: () => <ComingSoon inProgress info="สรุปปิดงาน" />,
-    component: ServiceClose
+    component: ServiceClose,
   },
   {
     path: '/service-data-skc',
     layout: DefaultLayout,
-    component: ImportServiceData
+    component: ImportServiceData,
   },
   {
     path: '/service-gas',
     layout: DefaultLayout,
-    component: InputServiceData
+    component: InputServiceData,
   },
   {
     path: '/warehouse/vehicles',
     layout: DefaultLayout,
-    component: () => <ComingSoon inProgress info="รถและอุปกรณ์" />
+    component: () => <ComingSoon inProgress info='รถและอุปกรณ์' />,
   },
   {
     path: '/warehouse/purchase-plan',
     layout: DefaultLayout,
-    component: PurchasePlan
+    component: PurchasePlan,
   },
   {
     path: '/warehouse/purchase',
     layout: DefaultLayout,
-    component: () => <ComingSoon info="ซื้อสินค้า" />
+    component: () => <ComingSoon info='ซื้อสินค้า' />,
   },
   {
     path: '/warehouse/import-by-purchase',
     layout: DefaultLayout,
-    component: StockImportByPurchase
+    component: StockImportByPurchase,
   },
   {
     path: '/warehouse/import-by-transfer',
     layout: DefaultLayout,
-    component: TransferIn
+    component: TransferIn,
   },
   {
     path: '/warehouse/other-import',
     layout: DefaultLayout,
-    component: ImportByOther
+    component: ImportByOther,
   },
   {
     path: '/warehouse/export-by-sale',
     layout: DefaultLayout,
-    component: BySale
+    component: BySale,
   },
   {
     path: '/warehouse/export-by-transfer',
     layout: DefaultLayout,
-    component: TransferOut
+    component: TransferOut,
   },
   {
     path: '/warehouse/other-export',
     layout: DefaultLayout,
-    component: ExportByOther
+    component: ExportByOther,
   },
   {
     path: '/warehouse/import-parts',
     layout: DefaultLayout,
-    component: ImportPartsData
+    component: ImportPartsData,
   },
   {
     path: '/warehouse/parts',
     layout: DefaultLayout,
-    component: () => <ComingSoon inProgress info="อะไหล่" />
+    component: () => <ComingSoon inProgress info='อะไหล่' />,
   },
   {
     path: '/warehouse/decal-record',
     layout: DefaultLayout,
-    component: DecalRecord
+    component: DecalRecord,
   },
   {
     path: '/warehouse/decal-withdraw',
     layout: DefaultLayout,
-    component: DecalWithdraw
+    component: DecalWithdraw,
   },
   {
     path: '/warehouse/customer-deliver-plan',
     layout: DefaultLayout,
-    component: CustomerDeliver
+    component: CustomerDeliver,
   },
   {
     path: '/warehouse/branch-deliver-plan',
     layout: DefaultLayout,
-    component: BranchDeliver
+    component: BranchDeliver,
   },
   {
     path: '/warehouse/stock-import',
     layout: DefaultLayout,
-    component: () => <StockImport />
+    component: () => <StockImport />,
   },
   {
     path: '/credit/input-data',
     layout: DefaultLayout,
-    component: InputData
+    component: InputData,
   },
   // {
   //   path: '/credit-skl/input-data',
@@ -492,64 +494,64 @@ export default [
   {
     path: '/users',
     layout: DefaultLayout,
-    component: Users
+    component: Users,
   },
   {
     path: '/employees',
     layout: DefaultLayout,
-    component: Employees
+    component: Employees,
   },
   {
     path: '/hr/leave',
     layout: DefaultLayout,
-    component: Leave
+    component: Leave,
   },
   {
     path: '/hr/attendance',
     layout: DefaultLayout,
-    component: Attendance
+    component: Attendance,
     // component: () => <ComingSoon info="อัปโหลดข้อมูล สแกนลายนิ้วมือ" />,
   },
   {
     path: '/data-import',
     layout: DefaultLayout,
-    component: ImportData
+    component: ImportData,
   },
   {
     path: '/data-managers/export-files',
     layout: DefaultLayout,
     // component: ExportFiles,
-    component: ExcelExport03
+    component: ExcelExport03,
   },
   {
     path: '/setting-branches',
     layout: DefaultLayout,
-    component: Settings
+    component: Settings,
   },
   {
     path: '/setting-users',
     layout: DefaultLayout,
-    component: Settings
+    component: Settings,
   },
   {
     path: '/setting-account',
     layout: DefaultLayout,
-    component: Settings
+    component: Settings,
   },
   {
     path: '/setting-vehicles',
     layout: DefaultLayout,
-    component: VehicleModelList
+    component: VehicleModelList,
   },
   {
     path: '/setting-parts',
     layout: DefaultLayout,
-    component: PartList
+    component: PartList,
   },
   {
     path: '/setting-services',
     layout: DefaultLayout,
-    component: ServiceList
+    component: ServiceList,
   },
   // {
   //   path: '/setting-vehicle-model',
@@ -559,32 +561,32 @@ export default [
   {
     path: '/setting-promotions',
     layout: DefaultLayout,
-    component: Settings
+    component: Settings,
   },
   {
     path: '/setting-expense-category',
     layout: DefaultLayout,
-    component: ExpenseCategoryList
+    component: ExpenseCategoryList,
   },
   {
     path: '/setting-expense-subCategory',
     layout: DefaultLayout,
-    component: ExpenseSubCategoryList
+    component: ExpenseSubCategoryList,
   },
   {
     path: '/setting-expense-name',
     layout: DefaultLayout,
-    component: ExpenseNameList
+    component: ExpenseNameList,
   },
   {
     path: '/user-profile',
     layout: DefaultLayout,
-    component: Profile
+    component: Profile,
   },
   {
     path: '/registration/customer/new-machines',
     layout: DefaultLayout,
-    component: CustomerNewMachines
+    component: CustomerNewMachines,
   },
   // {
   //   path: '/reports',
@@ -594,87 +596,87 @@ export default [
   {
     path: '/reports/income-summary',
     layout: DefaultLayout,
-    component: IncomeSummary
+    component: IncomeSummary,
   },
   {
     path: '/reports/income-parts',
     layout: DefaultLayout,
-    component: IncomeParts
+    component: IncomeParts,
   },
   {
     path: '/reports/daily-money-summary',
     layout: DefaultLayout,
-    component: DailyMoneySummary
+    component: DailyMoneySummary,
   },
   {
     path: '/reports/bank-deposit',
     layout: DefaultLayout,
-    component: BankDeposit
+    component: BankDeposit,
   },
   {
     path: '/reports/income-parts-kbn',
     layout: DefaultLayout,
-    component: AccountIncomePartsKBN
+    component: AccountIncomePartsKBN,
   },
   {
     path: '/reports/income-personal-loan',
     layout: DefaultLayout,
-    component: IncomePersonalLoanReport
+    component: IncomePersonalLoanReport,
   },
   {
     path: '/reports/income-parts-all',
     layout: DefaultLayout,
-    component: AccountIncomeParts
+    component: AccountIncomeParts,
   },
   {
     path: '/reports/money-return',
     layout: DefaultLayout,
-    component: AccountIncomeRepay
+    component: AccountIncomeRepay,
   },
   {
     path: '/reports/income-others',
     layout: DefaultLayout,
-    component: AccountIncomeOther
+    component: AccountIncomeOther,
   },
   {
     path: '/reports/tracktor-revenue',
     layout: DefaultLayout,
-    component: NewTracktorRevenue
+    component: NewTracktorRevenue,
   },
   {
     path: '/reports/expense-summary',
     layout: DefaultLayout,
-    component: ExpenseSummary
+    component: ExpenseSummary,
   },
   {
     path: '/reports/income-expense-summary',
     layout: DefaultLayout,
-    component: IncomeExpenseSummary
+    component: IncomeExpenseSummary,
   },
   {
     path: '/reports/account/tax-invoice-vehicles',
     layout: DefaultLayout,
-    component: TaxInvoiceVehicles
+    component: TaxInvoiceVehicles,
   },
   {
     path: '/reports/account/tax-invoice-parts',
     layout: DefaultLayout,
-    component: TaxInvoiceParts
+    component: TaxInvoiceParts,
   },
   {
     path: '/reports/mkt/customers',
     layout: DefaultLayout,
-    component: CustomersReport
+    component: CustomersReport,
   },
   {
     path: '/reports/mkt/marketing-channels',
     layout: DefaultLayout,
-    component: MktChannels
+    component: MktChannels,
   },
   {
     path: '/reports/sale-channel-details',
     layout: DefaultLayout,
-    component: SaleChannelReportDetails
+    component: SaleChannelReportDetails,
   },
   // {
   //   path: '/reports/customers-list',
@@ -684,437 +686,438 @@ export default [
   {
     path: '/reports/sale-analytics',
     layout: DefaultLayout,
-    component: SaleAnalytics
+    component: SaleAnalytics,
   },
   {
     path: '/reports/sale-summary',
     layout: DefaultLayout,
-    component: SaleSummary
+    component: SaleSummary,
   },
   {
     path: '/reports/sale-summary-details',
     layout: DefaultLayout,
-    component: SaleSummaryDetails
+    component: SaleSummaryDetails,
   },
   {
     path: '/reports/sale-machines',
     layout: DefaultLayout,
-    component: SaleMachineReport
+    component: SaleMachineReport,
   },
   {
     path: '/reports/sale-booking-summary',
     layout: DefaultLayout,
-    component: BookingSummary
+    component: BookingSummary,
   },
   {
     path: '/reports/sale-booking-summary-details',
     layout: DefaultLayout,
-    component: BookingSummaryDetails
+    component: BookingSummaryDetails,
   },
   {
     path: '/reports/sale-booking-analytics',
     layout: DefaultLayout,
-    component: BookingAnalytics
+    component: BookingAnalytics,
   },
   {
     path: '/reports/sale-by-person',
     layout: DefaultLayout,
-    component: SalesByPerson
+    component: SalesByPerson,
   },
   {
     path: '/reports/sale-assessment',
     layout: DefaultLayout,
-    component: SaleAssessmentReport
+    component: SaleAssessmentReport,
   },
   {
     path: '/reports/sale-assessment-details',
     layout: DefaultLayout,
-    component: SaleAssessmentReportDetails
+    component: SaleAssessmentReportDetails,
   },
   {
     path: '/reports/reservation-cancellation',
     layout: DefaultLayout,
-    component: Canceled
+    component: Canceled,
   },
   {
     path: '/reports/reservation-cancellation-details',
     layout: DefaultLayout,
-    component: CanceledDetails
+    component: CanceledDetails,
   },
   {
     path: '/reports/all-reservation',
     layout: DefaultLayout,
-    component: Reservation
+    component: Reservation,
   },
   {
     path: '/reports/all-reservation-details',
     layout: DefaultLayout,
-    component: ReservationDetails
+    component: ReservationDetails,
   },
   {
     path: '/reports/warehouse/vehicles/models',
     layout: DefaultLayout,
-    component: ByModel
+    component: ByModel,
   },
   {
     path: '/reports/warehouse/vehicles/stocks',
     layout: DefaultLayout,
-    component: VehicleStockReport
+    component: VehicleStockReport,
   },
   {
     path: '/reports/warehouse/vehicles/transferIn',
     layout: DefaultLayout,
-    component: VehicleTransferInReport
+    component: VehicleTransferInReport,
   },
   {
     path: '/reports/warehouse/vehicles/transferOut',
     layout: DefaultLayout,
-    component: VehicleTransferOutReport
+    component: VehicleTransferOutReport,
   },
   {
     path: '/reports/warehouse/vehicles/transfer',
     layout: DefaultLayout,
-    component: VehicleTransferReport
+    component: VehicleTransferReport,
   },
   {
     path: '/reports/warehouse/decal',
     layout: DefaultLayout,
-    component: Decal
+    component: Decal,
   },
   {
     path: '/reports/warehouse/vehicles/customerDeliveryPlan',
     layout: DefaultLayout,
-    component: CustomerDeliveryPlan
+    component: CustomerDeliveryPlan,
   },
   {
     path: '/reports/warehouse/vehicles/branchDeliveryPlan',
     layout: DefaultLayout,
-    component: BranchDeliveryPlan
+    component: BranchDeliveryPlan,
   },
   {
     path: '/reports/warehouse/giveaways',
     layout: DefaultLayout,
-    component: Giveaways
+    component: Giveaways,
   },
   {
     path: '/reports/service-daily/list',
     layout: DefaultLayout,
-    component: ServiceDailyList
+    component: ServiceDailyList,
     // component: () => <ComingSoon inProgress info="รายงานการบันทึกประจำวัน" />,
   },
   {
     path: '/reports/service-daily/income',
     layout: DefaultLayout,
-    component: ServiceDailyIncome
+    component: ServiceDailyIncome,
     // component: () => <ComingSoon inProgress info="รายงานสรุปรายรับ" />,
   },
   {
     path: '/reports/service-customer',
     layout: DefaultLayout,
-    component: ServiceCustomers
+    component: ServiceCustomers,
     // component: () => <ComingSoon info="รายงานสรุปจำนวนลูกค้าที่ให้บริการ" />,
   },
   {
     path: '/reports/service-type',
     layout: DefaultLayout,
-    component: ServiceType
+    component: ServiceType,
     // component: () => <ComingSoon info="รายงานสรุปแบ่งตามประเภท" />,
   },
   {
     path: '/reports/service-works',
     layout: DefaultLayout,
-    component: () => <ComingSoon info="รายงานสรุปแบ่งตามงาน" />
+    component: () => <ComingSoon info='รายงานสรุปแบ่งตามงาน' />,
   },
   {
     path: '/reports/service-amount',
     layout: DefaultLayout,
-    component: ServiceAmount
+    component: ServiceAmount,
     // component: () => <ComingSoon info="รายงานสรุปยอด" />,
   },
   {
     path: '/reports/service-mechanic',
     layout: DefaultLayout,
-    component: ServiceMechanic
+    component: ServiceMechanic,
     // component: () => <ComingSoon info="รายงานการจัดอันดับช่าง" />,
   },
   {
     path: '/reports/credit/summary',
     layout: DefaultLayout,
-    component: CreditSummary
+    component: CreditSummary,
     // component: () => <ComingSoon info="ยอดตัดขาย-ส่งสัญญา" />,
   },
   {
     path: '/reports/credit/summary-daily',
     layout: DefaultLayout,
-    component: CreditSummaryDaily
+    component: CreditSummaryDaily,
     // component: () => <ComingSoon info="สรุปยอดประจำวัน" />,
   },
   {
     path: '/reports/hr/attendance',
     layout: DefaultLayout,
-    component: AttendanceReport
+    component: AttendanceReport,
     // component: () => <ComingSoon info="รายงานสถิติการทำงาน" />,
   },
   {
     path: '/reports/hr/leaving',
     layout: DefaultLayout,
-    component: LeavingReport
+    component: LeavingReport,
   },
   {
     path: '/reports/hr/attendance-summary',
     layout: DefaultLayout,
-    component: () => <ComingSoon info="รายงานการลางานประจำปี" />
+    component: () => <ComingSoon info='รายงานการลางานประจำปี' />,
   },
   {
     path: '/user-manual/account',
     layout: FullLayout,
-    component: UserManual
+    component: UserManual,
   },
   {
     path: '/user-manual/sale',
     layout: FullLayout,
-    component: UserManual
+    component: UserManual,
   },
   {
     path: '/user-manual/service',
     layout: FullLayout,
-    component: UserManual
+    component: UserManual,
   },
   {
     path: '/user-manual/warehouse',
     layout: FullLayout,
-    component: UserManual
+    component: UserManual,
   },
   {
     path: '/user-manual/credit',
     layout: FullLayout,
-    component: UserManual
+    component: UserManual,
   },
   {
     path: '/about',
     layout: DefaultLayout,
-    component: About
+    component: About,
   },
   {
     path: '/changelogs',
     layout: DefaultLayout,
-    component: ChangeLogs
+    component: ChangeLogs,
   },
   {
     path: '/forgot-password',
     layout: BlankIconSidebarLayout,
-    component: ForgotPassword
+    component: ForgotPassword,
   },
   {
     path: '/change-password',
     layout: BlankIconSidebarLayout,
-    component: ChangePassword
+    component: ChangePassword,
   },
   {
     path: '/not-found',
     layout: DefaultLayout,
-    component: NotFound
+    component: NotFound,
   },
   {
     path: '/file-manager-list',
     layout: DefaultLayout,
-    component: FileManagerList
+    component: FileManagerList,
   },
   {
     path: '/file-manager-cards',
     layout: DefaultLayout,
-    component: FileManagerCards
+    component: FileManagerCards,
   },
   {
     path: '/transaction-history',
     layout: DefaultLayout,
-    component: TransactionHistory
+    component: TransactionHistory,
   },
   {
     path: '/calendar',
     layout: DefaultLayout,
-    component: Calendar
+    component: Calendar,
   },
   {
     path: '/add-new-post',
     layout: DefaultLayout,
-    component: AddNewPost
+    component: AddNewPost,
   },
   {
     path: '/errors',
     layout: BlankIconSidebarLayout,
-    component: Errors
+    component: Errors,
   },
   {
     path: '/components-overview',
     layout: DefaultLayout,
-    component: ComponentsOverview
+    component: ComponentsOverview,
   },
   {
     path: '/tables',
     layout: DefaultLayout,
-    component: Tables
+    component: Tables,
   },
   {
     path: '/blog-posts',
     layout: DefaultLayout,
-    component: BlogPosts
+    component: BlogPosts,
   },
   {
     path: '/header-navigation',
     layout: HeaderNavigation,
-    component: HeaderNav
+    component: HeaderNav,
   },
   {
     path: '/icon-sidebar-nav',
     layout: IconSidebar,
-    component: IconSidebarView
+    component: IconSidebarView,
   },
   {
     path: '/utils/upload-data-from-excel-file',
     layout: DefaultLayout,
-    component: UploadDataFromExcel
+    component: UploadDataFromExcel,
   },
   {
     path: '/executive/send-notification',
     layout: DefaultLayout,
-    component: ComposeNotification
+    component: ComposeNotification,
   },
   {
     path: '/executive/send-information',
     layout: DefaultLayout,
-    component: () => <ComingSoon info="Publish news and announcements" />
+    component: () => <ComingSoon info='Publish news and announcements' />,
   },
   {
     path: '/developer/test-import',
     layout: DefaultLayout,
-    component: ImportData
+    component: ImportData,
     // component: () => <ComingSoon info="Test Data Import" />,
   },
   {
     path: '/developer/test-general',
     layout: DefaultLayout,
-    component: Test
+    component: Test,
     // component: () => <ComingSoon info="Test Data Import" />,
   },
   {
     path: '/developer/rbac-switch',
     layout: DefaultLayout,
-    component: RBACSwitch
+    component: RBACSwitch,
   },
   {
     path: '/developer/template-page',
     layout: DefaultLayout,
-    component: TestPage
+    component: TestPage,
   },
   {
     path: '/developer/template-page2',
     layout: DefaultLayout,
-    component: TestPage2
+    component: TestPage2,
   },
   {
     path: '/developer/template-pdf-viewer',
     layout: DefaultLayout,
-    component: TestPDF
+    component: TestPDF,
   },
   {
     path: '/developer/format-content',
     layout: DefaultLayout,
-    component: FormatContent
+    component: FormatContent,
   },
   {
     path: '/developer/update-data',
     layout: DefaultLayout,
-    component: CheckData
+    component: CheckData,
   },
   {
     path: '/developer/test-print',
     layout: DefaultLayout,
-    component: TestPrint
+    component: TestPrint,
   },
 
   {
     path: '/dev/rbac-integration-tester',
     layout: DefaultLayout,
-    component: RBACIntegrationTester
+    component: RBACIntegrationTester,
   },
-  {
-    path: '/developer/migration-tools',
-    layout: DefaultLayout,
-    component: MigrationTools
-  },
+
   {
     path: '/dev/rbac-tester',
     layout: DefaultLayout,
-    component: RBACTester
+    component: RBACTester,
   },
   {
     path: '/dev/simple-rbac',
     layout: DefaultLayout,
-    component: SimpleRBAC
+    component: SimpleRBAC,
   },
   {
     path: '/rbac',
     layout: DefaultLayout,
-    component: RBACSwitch
+    component: RBACSwitch,
   },
   // Clean Slate RBAC Demo Routes
   {
     path: '/dev/clean-slate-permissions-demo',
     layout: DefaultLayout,
-    component: CleanSlatePermissionsDemo
+    component: CleanSlatePermissionsDemo,
   },
-
 
   {
     path: '/developer/audit-trail-demo',
     layout: DefaultLayout,
-    component: AuditTrailDemo
+    component: AuditTrailDemo,
   },
 
   // Notifications
   {
     path: '/notifications',
     layout: DefaultLayout,
-    component: React.lazy(() => import('views/Notifications'))
+    component: React.lazy(() => import('views/Notifications')),
   },
   // Admin Management Routes
   {
     path: '/admin/user-approval',
     layout: DefaultLayout,
-    component: React.lazy(() => import('Modules/Admin/UserApproval'))
+    component: React.lazy(() => import('Modules/Admin/UserApproval')),
   },
   {
     path: '/admin/user-management',
-    layout: DefaultLayout, 
-    component: React.lazy(() => import('Modules/Admin/UserManagement'))
+    layout: DefaultLayout,
+    component: React.lazy(() => import('Modules/Admin/UserManagement')),
   },
   {
     path: '/admin/permission-management',
     layout: DefaultLayout,
-    component: React.lazy(() => import('Modules/Admin/PermissionManagement'))
+    component: React.lazy(() => import('Modules/Admin/PermissionManagement')),
   },
-  
+  {
+    path: '/admin/live-deployment',
+    layout: DefaultLayout,
+    component: React.lazy(() => import('Modules/Admin/LiveDeploymentControl')),
+  },
+
   // Executive Management Routes
   {
     path: '/executive/briefing',
     layout: DefaultLayout,
-    component: React.lazy(() => import('Modules/Executive/ExecutiveBriefing'))
+    component: React.lazy(() => import('Modules/Executive/ExecutiveBriefing')),
   },
   {
     path: '/executive/system-configuration',
     layout: DefaultLayout,
-    component: React.lazy(() => import('Modules/Executive/SystemConfiguration'))
+    component: React.lazy(
+      () => import('Modules/Executive/SystemConfiguration')
+    ),
   },
   {
     path: '/developer/nature-theme-demo',
     layout: DefaultLayout,
-    component: NatureThemeDemo
+    component: NatureThemeDemo,
   },
   {
     path: '/developer/glassmorphism-showcase',
     layout: DefaultLayout,
-    component: React.lazy(() => import('views/GlassmorphismShowcase'))
+    component: React.lazy(() => import('views/GlassmorphismShowcase')),
   },
-
 ];

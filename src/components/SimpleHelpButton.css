@@ -2,6 +2,8 @@
 
 .simple-help-button {
   /* Base styles are handled inline for dynamic behavior */
+  /* Fixed z-index to respect navigation hierarchy */
+  z-index: 1010 !important; /* Below mobile navigation (1020) but above sidebar (1000) */
 }
 
 /* Fix Ant Design Drawer Mask Blocking Issue - CRITICAL FIXES */
@@ -51,7 +53,7 @@
     box-shadow: 0 6px 25px rgba(82, 196, 26, 0.5) !important;
     border: 2px solid rgba(255, 255, 255, 0.3) !important;
   }
-  
+
   .simple-help-button:active {
     transform: scale(0.95) !important;
     background-color: rgba(82, 196, 26, 1) !important;
@@ -66,7 +68,8 @@
 
 /* Animation for attention-grabbing */
 @keyframes gentle-pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     box-shadow: 0 4px 20px rgba(82, 196, 26, 0.3);
   }
@@ -87,4 +90,4 @@
     transition: none !important;
     animation: none !important;
   }
-} 
+}

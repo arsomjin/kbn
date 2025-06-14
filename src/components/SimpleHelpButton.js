@@ -1,8 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Tooltip, Drawer, Typography, Steps, Space, Tag, Divider } from 'antd';
-import { 
-  QuestionCircleOutlined, 
+import {
+  Button,
+  Tooltip,
+  Drawer,
+  Typography,
+  Steps,
+  Space,
+  Tag,
+  Divider,
+} from 'antd';
+import {
+  QuestionCircleOutlined,
   BookOutlined,
   UserOutlined,
   FormOutlined,
@@ -10,7 +19,7 @@ import {
   HomeOutlined,
   CheckCircleOutlined,
   MailOutlined,
-  InfoCircleOutlined
+  InfoCircleOutlined,
 } from '@ant-design/icons';
 import './SimpleHelpButton.css';
 
@@ -20,10 +29,7 @@ const { Step } = Steps;
 /**
  * Simple Help Button with Elegant Drawer
  */
-const SimpleHelpButton = ({ 
-  screenType = 'general',
-  autoShow = false 
-}) => {
+const SimpleHelpButton = ({ screenType = 'general', autoShow = false }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isFirstTime, setIsFirstTime] = useState(false);
@@ -32,9 +38,9 @@ const SimpleHelpButton = ({
   useEffect(() => {
     const hasSeenHelp = localStorage.getItem(`help-seen-${screenType}`);
     const isFirstTimeUser = !hasSeenHelp;
-    
+
     setIsFirstTime(isFirstTimeUser);
-    
+
     if (autoShow && isFirstTimeUser) {
       setDrawerVisible(true);
     }
@@ -60,8 +66,8 @@ const SimpleHelpButton = ({
               icon: <UserOutlined />,
               details: [
                 '🟢 พนักงานใหม่: สำหรับคนที่ยังไม่เคยใช้ระบบ KBN',
-                '⚫ พนักงานเดิม: สำหรับคนที่เคยใช้ระบบแล้ว'
-              ]
+                '⚫ พนักงานเดิม: สำหรับคนที่เคยใช้ระบบแล้ว',
+              ],
             },
             {
               title: 'กรอกข้อมูลส่วนตัว',
@@ -70,8 +76,8 @@ const SimpleHelpButton = ({
               details: [
                 '🟢 ใช้อีเมลที่เช็คได้ทุกวัน',
                 '🔐 รหัสผ่านควรมีอย่างน้อย 6 ตัวอักษร',
-                '👤 ใส่ชื่อจริงตามบัตรประชาชน'
-              ]
+                '👤 ใส่ชื่อจริงตามบัตรประชาชน',
+              ],
             },
             {
               title: 'เลือกสาขาและแผนก',
@@ -80,8 +86,8 @@ const SimpleHelpButton = ({
               details: [
                 '🏢 เลือกจังหวัดที่ทำงาน',
                 '🏪 เลือกสาขาที่ทำงาน',
-                '👥 เลือกแผนกที่สังกัด (ขาย, บริการ, บัญชี, ฯลฯ)'
-              ]
+                '👥 เลือกแผนกที่สังกัด (ขาย, บริการ, บัญชี, ฯลฯ)',
+              ],
             },
             {
               title: 'รอการอนุมัติ',
@@ -90,10 +96,10 @@ const SimpleHelpButton = ({
               details: [
                 '⏳ รอประมาณ 1-2 วันทำการ',
                 '📱 จะได้รับแจ้งเตือนทางอีเมลเมื่ออนุมัติแล้ว',
-                '🎉 พอได้รับการอนุมัติ ก็เข้าใช้ระบบได้เลย!'
-              ]
-            }
-          ]
+                '🎉 พอได้รับการอนุมัติ ก็เข้าใช้ระบบได้เลย!',
+              ],
+            },
+          ],
         };
 
       case 'login':
@@ -108,8 +114,8 @@ const SimpleHelpButton = ({
               details: [
                 '📧 ใส่อีเมลที่ใช้สมัครสมาชิก',
                 '🔐 ใส่รหัสผ่านที่ตั้งไว้',
-                '👁️ กดปุ่มตาเพื่อดูรหัสผ่านได้'
-              ]
+                '👁️ กดปุ่มตาเพื่อดูรหัสผ่านได้',
+              ],
             },
             {
               title: 'กดเข้าสู่ระบบ',
@@ -118,10 +124,10 @@ const SimpleHelpButton = ({
               details: [
                 '✅ ถ้าข้อมูลถูกต้อง จะเข้าระบบได้ทันที',
                 '❌ ถ้าผิด ระบบจะแจ้งให้แก้ไข',
-                '🔄 ลืมรหัสผ่าน? กดลิงก์ "ลืมรหัสผ่าน" ได้เลย'
-              ]
-            }
-          ]
+                '🔄 ลืมรหัสผ่าน? กดลิงก์ "ลืมรหัสผ่าน" ได้เลย',
+              ],
+            },
+          ],
         };
 
       case 'forgot-password':
@@ -136,8 +142,8 @@ const SimpleHelpButton = ({
               details: [
                 '📧 ใส่อีเมลที่เคยใช้สมัครสมาชิก',
                 '✅ ตรวจสอบให้แน่ใจว่าสะกดถูกต้อง',
-                '📱 เตรียมเช็คอีเมลหลังกดส่ง'
-              ]
+                '📱 เตรียมเช็คอีเมลหลังกดส่ง',
+              ],
             },
             {
               title: 'เช็คอีเมลรีเซ็ตรหัสผ่าน',
@@ -146,10 +152,10 @@ const SimpleHelpButton = ({
               details: [
                 '📧 เช็คกล่องขาเข้าในอีเมล',
                 '📁 ถ้าไม่เจอ ให้เช็คกล่อง Spam',
-                '🔗 กดลิงก์ในอีเมลเพื่อตั้งรหัสผ่านใหม่'
-              ]
-            }
-          ]
+                '🔗 กดลิงก์ในอีเมลเพื่อตั้งรหัสผ่านใหม่',
+              ],
+            },
+          ],
         };
 
       default:
@@ -164,10 +170,10 @@ const SimpleHelpButton = ({
               details: [
                 '🖱️ กดปุ่มเพื่อทำงาน',
                 '📝 กรอกข้อมูลในช่องที่กำหนด',
-                '💾 กด "บันทึก" เมื่อเสร็จแล้ว'
-              ]
-            }
-          ]
+                '💾 กด "บันทึก" เมื่อเสร็จแล้ว',
+              ],
+            },
+          ],
         };
     }
   };
@@ -177,10 +183,10 @@ const SimpleHelpButton = ({
   return (
     <>
       {/* Elegant Floating Help Button */}
-      <Tooltip title="คู่มือการใช้งาน" placement="left">
+      <Tooltip title='คู่มือการใช้งาน' placement='left'>
         <Button
-          type="primary"
-          shape="circle"
+          type='primary'
+          shape='circle'
           icon={<QuestionCircleOutlined />}
           onClick={() => setDrawerVisible(true)}
           className={`simple-help-button ${isFirstTime ? 'first-time' : ''}`}
@@ -194,7 +200,7 @@ const SimpleHelpButton = ({
             borderColor: 'rgba(82, 196, 26, 0.8)',
             color: 'white',
             fontSize: '22px',
-            zIndex: 999999, // Very high z-index
+            zIndex: 1010, // Fixed z-index to respect navigation hierarchy
             boxShadow: '0 4px 20px rgba(82, 196, 26, 0.3)',
             border: '2px solid rgba(255, 255, 255, 0.2)',
             backdropFilter: 'blur(10px)',
@@ -224,12 +230,12 @@ const SimpleHelpButton = ({
             <span>{helpContent.title}</span>
           </Space>
         }
-        placement="right"
+        placement='right'
         width={window.innerWidth <= 768 ? '100vw' : 480}
         visible={drawerVisible}
         onClose={handleClose}
         extra={
-          <Button type="primary" onClick={handleClose}>
+          <Button type='primary' onClick={handleClose}>
             เข้าใจแล้ว
           </Button>
         }
@@ -241,47 +247,52 @@ const SimpleHelpButton = ({
           header: {
             borderBottom: '1px solid #d9f7be',
             background: 'linear-gradient(135deg, #f6ffed 0%, #fff 50%)',
-          }
+          },
         }}
         mask={false}
         maskClosable={false}
         keyboard={true}
         destroyOnClose={false}
-        zIndex={99999}
+        zIndex={1025}
         maskStyle={{
           backgroundColor: 'transparent',
-          pointerEvents: 'none'  // ✅ CRITICAL: This allows clicking through the mask!
+          pointerEvents: 'none', // ✅ CRITICAL: This allows clicking through the mask!
         }}
         bodyStyle={{
-          pointerEvents: 'auto'  // ✅ But drawer content is still interactive
+          pointerEvents: 'auto', // ✅ But drawer content is still interactive
         }}
       >
-        <Space direction="vertical" size="large" style={{ width: '100%' }}>
+        <Space direction='vertical' size='large' style={{ width: '100%' }}>
           {/* Header */}
-          <div style={{ 
-            padding: '16px 20px', 
-            backgroundColor: '#f6ffed', 
-            border: '1px solid #b7eb8f',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(82, 196, 26, 0.1)'
-          }}>
-            <Text type="secondary" style={{ fontSize: '16px', lineHeight: '1.6' }}>
+          <div
+            style={{
+              padding: '16px 20px',
+              backgroundColor: '#f6ffed',
+              border: '1px solid #b7eb8f',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(82, 196, 26, 0.1)',
+            }}
+          >
+            <Text
+              type='secondary'
+              style={{ fontSize: '16px', lineHeight: '1.6' }}
+            >
               {helpContent.subtitle}
             </Text>
           </div>
 
           {/* Interactive Steps */}
           <Steps
-            direction="vertical"
+            direction='vertical'
             current={currentStep}
             onChange={setCurrentStep}
-            size="small"
+            size='small'
             style={{
               background: '#ffffff',
               padding: '20px',
               borderRadius: '12px',
               border: '1px solid #f0f0f0',
-              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
             }}
           >
             {helpContent.steps.map((step, index) => (
@@ -290,41 +301,51 @@ const SimpleHelpButton = ({
                 title={
                   <Space>
                     {step.icon}
-                    <span style={{ fontSize: '16px', fontWeight: '600' }}>{step.title}</span>
+                    <span style={{ fontSize: '16px', fontWeight: '600' }}>
+                      {step.title}
+                    </span>
                   </Space>
                 }
                 description={
                   <div style={{ marginTop: 12 }}>
-                    <Paragraph style={{ 
-                      marginBottom: 16, 
-                      fontSize: '14px', 
-                      color: '#595959',
-                      lineHeight: '1.6'
-                    }}>
+                    <Paragraph
+                      style={{
+                        marginBottom: 16,
+                        fontSize: '14px',
+                        color: '#595959',
+                        lineHeight: '1.6',
+                      }}
+                    >
                       {step.description}
                     </Paragraph>
-                    
+
                     {/* Detailed Instructions */}
-                    <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                    <Space
+                      direction='vertical'
+                      size='small'
+                      style={{ width: '100%' }}
+                    >
                       {step.details.map((detail, detailIndex) => (
-                        <div key={detailIndex} style={{ 
-                          padding: '12px 16px', 
-                          backgroundColor: '#fafafa',
-                          borderRadius: '8px',
-                          fontSize: '13px',
-                          lineHeight: '1.5',
-                          border: '1px solid #f0f0f0',
-                          transition: 'all 0.2s ease',
-                          cursor: 'default'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.backgroundColor = '#f6ffed';
-                          e.target.style.borderColor = '#d9f7be';
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.backgroundColor = '#fafafa';
-                          e.target.style.borderColor = '#f0f0f0';
-                        }}
+                        <div
+                          key={detailIndex}
+                          style={{
+                            padding: '12px 16px',
+                            backgroundColor: '#fafafa',
+                            borderRadius: '8px',
+                            fontSize: '13px',
+                            lineHeight: '1.5',
+                            border: '1px solid #f0f0f0',
+                            transition: 'all 0.2s ease',
+                            cursor: 'default',
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.backgroundColor = '#f6ffed';
+                            e.target.style.borderColor = '#d9f7be';
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.backgroundColor = '#fafafa';
+                            e.target.style.borderColor = '#f0f0f0';
+                          }}
                         >
                           {detail}
                         </div>
@@ -339,25 +360,34 @@ const SimpleHelpButton = ({
           <Divider style={{ margin: '24px 0' }} />
 
           {/* Pro Tips Section */}
-          <div style={{
-            padding: '20px',
-            backgroundColor: '#f0f8ff',
-            border: '1px solid #91d5ff',
-            borderRadius: '12px',
-            boxShadow: '0 2px 8px rgba(24, 144, 255, 0.1)'
-          }}>
-            <Space direction="vertical" size="medium" style={{ width: '100%' }}>
-              <Text strong style={{ 
-                color: '#1890ff', 
-                fontSize: '16px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px'
-              }}>
+          <div
+            style={{
+              padding: '20px',
+              backgroundColor: '#f0f8ff',
+              border: '1px solid #91d5ff',
+              borderRadius: '12px',
+              boxShadow: '0 2px 8px rgba(24, 144, 255, 0.1)',
+            }}
+          >
+            <Space direction='vertical' size='medium' style={{ width: '100%' }}>
+              <Text
+                strong
+                style={{
+                  color: '#1890ff',
+                  fontSize: '16px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
                 <InfoCircleOutlined /> เคล็ดลับการใช้งาน
               </Text>
-              
-              <Space direction="vertical" size="small" style={{ width: '100%' }}>
+
+              <Space
+                direction='vertical'
+                size='small'
+                style={{ width: '100%' }}
+              >
                 <Text style={{ fontSize: '14px', lineHeight: '1.6' }}>
                   💡 <strong>ติดปัญหา?</strong> กดปุ่มช่วยเหลือ (?) ได้ทุกหน้า
                 </Text>
@@ -373,14 +403,23 @@ const SimpleHelpButton = ({
 
           {/* Status Tags */}
           <div style={{ textAlign: 'center', paddingTop: '12px' }}>
-            <Space wrap size="middle">
-              <Tag color="green" style={{ padding: '4px 12px', borderRadius: '20px' }}>
+            <Space wrap size='middle'>
+              <Tag
+                color='green'
+                style={{ padding: '4px 12px', borderRadius: '20px' }}
+              >
                 ใช้ง่าย
               </Tag>
-              <Tag color="blue" style={{ padding: '4px 12px', borderRadius: '20px' }}>
+              <Tag
+                color='blue'
+                style={{ padding: '4px 12px', borderRadius: '20px' }}
+              >
                 ปลอดภัย
               </Tag>
-              <Tag color="orange" style={{ padding: '4px 12px', borderRadius: '20px' }}>
+              <Tag
+                color='orange'
+                style={{ padding: '4px 12px', borderRadius: '20px' }}
+              >
                 รวดเร็ว
               </Tag>
             </Space>
@@ -392,13 +431,18 @@ const SimpleHelpButton = ({
 };
 
 SimpleHelpButton.propTypes = {
-  screenType: PropTypes.oneOf(['general', 'signup', 'login', 'forgot-password']),
-  autoShow: PropTypes.bool
+  screenType: PropTypes.oneOf([
+    'general',
+    'signup',
+    'login',
+    'forgot-password',
+  ]),
+  autoShow: PropTypes.bool,
 };
 
 SimpleHelpButton.defaultProps = {
   screenType: 'general',
-  autoShow: false
+  autoShow: false,
 };
 
-export default SimpleHelpButton; 
+export default SimpleHelpButton;

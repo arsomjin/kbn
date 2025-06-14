@@ -32,7 +32,7 @@ const MainNavbar = ({ layout, stickyTop }) => {
       isTablet,
       width,
       isMobileDevice,
-      shouldUseFixedNavbar: isMobileDevice
+      shouldUseFixedNavbar: isMobileDevice,
     });
   }, [isMobile, isResponsiveMobile, isTablet, width, isMobileDevice]);
 
@@ -65,11 +65,11 @@ const MainNavbar = ({ layout, stickyTop }) => {
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      
+
       // Set scrolled state for styling
       const isScrolled = currentScrollY > 10;
       setScrolled(isScrolled);
-      
+
       // Hide/show navbar based on scroll direction
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         // Scrolling down & past threshold - hide navbar
@@ -84,7 +84,7 @@ const MainNavbar = ({ layout, stickyTop }) => {
           setHidden(false);
         }
       }
-      
+
       setLastScrollY(currentScrollY);
     };
 
@@ -99,7 +99,7 @@ const MainNavbar = ({ layout, stickyTop }) => {
     };
 
     window.addEventListener('scroll', throttledHandleScroll, { passive: true });
-    
+
     return () => {
       console.log('🧹 Cleaning up scroll listener');
       window.removeEventListener('scroll', throttledHandleScroll);
@@ -110,24 +110,24 @@ const MainNavbar = ({ layout, stickyTop }) => {
   // Dynamic classes for mobile behavior
   const getNavbarClasses = () => {
     const baseClasses = ['main-navbar', 'bg-white'];
-    
+
     if (isMobileDevice) {
       baseClasses.push('mobile-fixed-navbar');
       if (scrolled) baseClasses.push('scrolled');
       if (hidden) baseClasses.push('hidden');
-      
+
       console.log('🎨 Applied mobile navbar classes:', baseClasses);
     } else if (stickyTop) {
       baseClasses.push('sticky-top');
     }
-    
+
     return classNames(baseClasses);
   };
 
   // Dynamic styles for mobile
   const getNavbarStyles = () => {
     if (!isMobileDevice) return {};
-    
+
     const styles = {
       position: 'fixed',
       top: 0,
@@ -138,46 +138,47 @@ const MainNavbar = ({ layout, stickyTop }) => {
       willChange: 'transform',
       backfaceVisibility: 'hidden',
       transform: hidden ? 'translateY(-100%)' : 'translateY(0) translateZ(0)',
-      transition: 'transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease',
+      transition:
+        'transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease',
       transformStyle: 'preserve-3d',
-      boxShadow: scrolled 
-        ? '0 2px 8px rgba(0, 0, 0, 0.1)' 
-        : 'none',
+      boxShadow: scrolled ? '0 2px 8px rgba(0, 0, 0, 0.1)' : 'none',
       backdropFilter: scrolled ? 'blur(10px)' : 'none',
       WebkitBackdropFilter: scrolled ? 'blur(10px)' : 'none',
-      backgroundColor: scrolled 
-        ? 'rgba(255, 255, 255, 0.95)' 
-        : 'rgba(255, 255, 255, 1)'
+      backgroundColor: scrolled
+        ? 'rgba(255, 255, 255, 0.95)'
+        : 'rgba(255, 255, 255, 1)',
     };
-    
+
     console.log('🎨 Applied mobile navbar styles:', {
       hidden,
       scrolled,
-      transform: styles.transform
+      transform: styles.transform,
     });
-    
+
     return styles;
   };
 
   return (
     <div className={getNavbarClasses()} style={getNavbarStyles()}>
-      <Container fluid={!isHeaderNav || null} className="p-0">
-        <Navbar type="light" className="align-items-stretch flex-md-nowrap p-0">
+      <Container fluid={!isHeaderNav || null} className='p-0'>
+        <Navbar type='light' className='align-items-stretch flex-md-nowrap p-0'>
           {isHeaderNav && (
-            <NavbarBrand href="#" style={{ lineHeight: '25px' }}>
-              <div className="d-table m-auto">
+            <NavbarBrand href='#' style={{ lineHeight: '25px' }}>
+              <div className='d-table m-auto'>
                 <img
-                  id="main-logo"
-                  className="d-inline-block align-top mr-1 ml-3"
+                  id='main-logo'
+                  className='d-inline-block align-top mr-1 ml-3'
                   style={{ maxWidth: '25px' }}
                   src={require('../../../images/shards-dashboards-logo.svg')}
-                  alt="Shards Dashboard"
+                  alt='Shards Dashboard'
                 />
-                <span className="d-none d-md-inline ml-1">Shards Dashboard</span>
+                <span className='d-none d-md-inline ml-1'>
+                  Shards Dashboard
+                </span>
               </div>
             </NavbarBrand>
           )}
-          {!isMobile && <NavbarSearch />}
+          {/* {!isMobile && <NavbarSearch />} */}
           <NavbarNav />
           <NavbarToggle />
         </Navbar>
@@ -194,11 +195,11 @@ MainNavbar.propTypes = {
   /**
    * Whether the main navbar is sticky to the top, or not.
    */
-  stickyTop: PropTypes.bool
+  stickyTop: PropTypes.bool,
 };
 
 MainNavbar.defaultProps = {
-  stickyTop: true
+  stickyTop: true,
 };
 
 export default MainNavbar;

@@ -1,70 +1,188 @@
-import { Badge, Collapse } from 'shards-react';
-import React, { forwardRef, memo, useEffect, useState } from 'react';
-import moment from 'moment';
-import { w } from 'api';
-import { isMobile } from 'react-device-detect';
+/**
+ * Modern NotificationIcon Component
+ * Replacement for the old Shards React notification component
+ * Now using Ant Design for consistency
+ */
 
-export default memo(
+import React, { useState, memo, forwardRef } from 'react';
+import { Badge, Dropdown, Menu, Button, Typography, Space, Empty } from 'antd';
+import {
+  BellOutlined,
+  EditOutlined,
+  InfoCircleOutlined,
+} from '@ant-design/icons';
+
+const { Text } = Typography;
+
+const NotificationIcon = memo(
   forwardRef((props, ref) => {
-    const { badgeNumber, theme, icon, data, showAllAction, ...mProps } = props;
+    const {
+      badgeNumber = 0,
+      theme = 'danger',
+      icon = 'notifications',
+      data = [],
+      showAllAction,
+      ...mProps
+    } = props;
+
     const [visible, setVisible] = useState(false);
-    const [mData, setData] = useState(data);
-    // showLog('noti_props', props);
 
-    useEffect(() => {
-      setData(data);
-    }, [data]);
-
-    const _onClick = () => {
-      setVisible(pVisible => !pVisible);
-    };
-
+    // Don't render if no badge number
     if (!badgeNumber) {
       return null;
     }
 
-    return (
-      <div className="dropdown notifications">
-        <div className="nav-link-icon text-center" onClick={_onClick}>
-          <div className="nav-link-icon__wrapper">
-            {icon ? <i className="material-icons">{icon}</i> : <i className="material-icons">&#xE7F4;</i>}
-            <Badge pill theme={theme || 'danger'} {...mProps}>
-              {badgeNumber}
-            </Badge>
-          </div>
-        </div>
-        {mData && (
-          <Collapse
-            open={visible}
-            className="dropdown-menu dropdown-menu-small mt-2"
-            style={{ maxWidth: isMobile ? 380 : w(70) }}
+    // Map old icon names to Ant Design icons
+    const getIcon = (iconName) => {
+      const iconMap = {
+        notifications: <BellOutlined />,
+        edit: <EditOutlined />,
+        info: <InfoCircleOutlined />,
+        '&#xE7F4;': <BellOutlined />, // Material icon fallback
+      };
+      return iconMap[iconName] || <BellOutlined />;
+    };
+
+    // Map old themes to Ant Design colors
+    const getColor = (themeName) => {
+      const colorMap = {
+        danger: '#ff4d4f',
+        warning: '#faad14',
+        success: '#52c41a',
+        info: '#1890ff',
+        primary: '#1890ff',
+      };
+      return colorMap[themeName] || '#ff4d4f';
+    };
+
+    // Create menu items from data
+    const menuItems =
+      data && data.length > 0
+        ? data.map((item, index) => ({
+            key: index,
+            label: (
+              <div style={{ padding: '8px 0', maxWidth: '250px' }}>
+                <Text strong style={{ fontSize: '13px' }}>
+                  {item.title || item.message || 'การแจ้งเตือน'}
+                </Text>
+                {item.description && (
+                  <div>
+                    <Text type='secondary' style={{ fontSize: '12px' }}>
+                      {item.description}
+                    </Text>
+                  </div>
+                )}
+                {item.time && (
+                  <div>
+                    <Text type='secondary' style={{ fontSize: '11px' }}>
+                      {item.time}
+                    </Text>
+                  </div>
+                )}
+              </div>
+            ),
+            onClick: item.onClick || (() => {}),
+          }))
+        : [];
+
+    // Add "View All" option if showAllAction is provided
+    if (showAllAction && menuItems.length > 0) {
+      menuItems.push({
+        type: 'divider',
+      });
+      menuItems.push({
+        key: 'view-all',
+        label: (
+          <Text
+            style={{ textAlign: 'center', display: 'block', color: '#1890ff' }}
           >
-            {mData.map((item, i) => (
-              // data = [{ time, title, detail, onClick }]
-              <div
-                key={i}
-                onClick={item.onClick}
-                className="border-bottom dropdown-item"
-                style={{ minWidth: 320, maxWidth: isMobile ? 360 : w(65) }}
+            ดูทั้งหมด
+          </Text>
+        ),
+        onClick: showAllAction,
+      });
+    }
+
+    const menu = (
+      <Menu
+        items={
+          menuItems.length > 0
+            ? menuItems
+            : [
+                {
+                  key: 'empty',
+                  label: (
+                    <Empty
+                      image={Empty.PRESENTED_IMAGE_SIMPLE}
+                      description='ไม่มีการแจ้งเตือน'
+                      style={{ margin: '16px 0' }}
+                    />
+                  ),
+                  disabled: true,
+                },
+              ]
+        }
+        style={{
+          maxHeight: '300px',
+          overflowY: 'auto',
+          borderRadius: '8px',
+        }}
+      />
+    );
+
+    return (
+      <div className='dropdown notifications' ref={ref} {...mProps}>
+        <Dropdown
+          overlay={menu}
+          trigger={['click']}
+          visible={visible}
+          onVisibleChange={setVisible}
+          placement='bottomRight'
+          overlayStyle={{
+            borderRadius: '8px',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          }}
+        >
+          <div
+            className='nav-link-icon text-center'
+            style={{
+              cursor: 'pointer',
+              padding: '8px',
+              borderRadius: '6px',
+              transition: 'all 0.3s ease',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <div className='nav-link-icon__wrapper'>
+              <Badge
+                count={badgeNumber}
+                size='small'
+                style={{
+                  backgroundColor: getColor(theme),
+                }}
               >
-                <div className="d-flex px-1">
-                  <span>#</span>
-                  <span className="text-semibold text-fiord-blue ml-1">{item.title}</span>
-                  <span className="ml-auto text-right text-semibold text-reagent-gray">
-                    {moment(item.time).format('D MMM YYYY HH:mm')}
-                  </span>
+                <div
+                  style={{
+                    fontSize: '18px',
+                    color: badgeNumber > 0 ? getColor(theme) : '#999',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {getIcon(icon)}
                 </div>
-                <div className="px-1">{typeof item.detail === 'string' ? <p>{item.detail}</p> : item.detail}</div>
-              </div>
-            ))}
-            {showAllAction && (
-              <div onClick={showAllAction} className="notification__all text-center dropdown-item">
-                ดูทั้งหมด
-              </div>
-            )}
-          </Collapse>
-        )}
+              </Badge>
+            </div>
+          </div>
+        </Dropdown>
       </div>
     );
   })
 );
+
+NotificationIcon.displayName = 'NotificationIcon';
+
+export default NotificationIcon;

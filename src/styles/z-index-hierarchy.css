@@ -1,0 +1,232 @@
+/* ================================
+   KBN Z-INDEX HIERARCHY SYSTEM
+   ================================
+   
+   CRITICAL: This file defines the complete z-index hierarchy for KBN
+   to prevent layer conflicts and ensure proper mobile navigation.
+   
+   HIERARCHY (from lowest to highest):
+   
+   1000-1019: Base UI Components
+   1020-1029: Navigation & Core UI
+   1030-1039: Overlays & Drawers
+   1040-1049: Modals & Important Overlays
+   1050-1059: Dropdowns & Tooltips
+   1060-1069: Popconfirms & Critical UI
+   1070-1079: System Messages
+   100000+:   Emergency/System Critical
+   
+   ================================ */
+
+/* ================================
+   BASE UI COMPONENTS (1000-1019)
+   ================================ */
+
+/* Main Sidebar */
+.main-sidebar {
+  z-index: 1000 !important;
+}
+
+/* Mobile Sidebar Overlay */
+.mobile-sidebar-overlay {
+  z-index: 1005 !important; /* Below navigation to prevent blocking */
+}
+
+/* Content Areas */
+.main-content {
+  z-index: 1001 !important;
+}
+
+/* Help Buttons & Floating Actions */
+.digital-manual-float-button,
+.simple-help-button {
+  z-index: 1010 !important; /* Below navigation but visible */
+}
+
+/* ================================
+   NAVIGATION & CORE UI (1020-1029)
+   ================================ */
+
+/* Main Navigation - HIGHEST PRIORITY FOR MOBILE */
+.main-navbar,
+.main-navbar.mobile-fixed-navbar {
+  z-index: 1020 !important; /* CRITICAL: Must be above all floating buttons */
+}
+
+/* Mobile Navigation Specific */
+@media (max-width: 1024px) {
+  .main-navbar,
+  .mobile-fixed-navbar {
+    z-index: 1020 !important; /* Ensure mobile nav is always on top */
+  }
+}
+
+/* ================================
+   OVERLAYS & DRAWERS (1030-1039)
+   ================================ */
+
+/* Ant Design Drawers */
+.ant-drawer {
+  z-index: 1030 !important;
+}
+
+.ant-drawer-mask {
+  z-index: 1030 !important;
+}
+
+/* Digital Manual & Help Drawers */
+.ant-drawer.digital-manual-drawer,
+.ant-drawer.simple-help-drawer {
+  z-index: 1025 !important; /* ABOVE navigation for proper close button access */
+}
+
+.ant-drawer.digital-manual-drawer .ant-drawer-mask,
+.ant-drawer.simple-help-drawer .ant-drawer-mask {
+  z-index: 1025 !important;
+}
+
+.ant-drawer.digital-manual-drawer .ant-drawer-content,
+.ant-drawer.simple-help-drawer .ant-drawer-content {
+  z-index: 1026 !important;
+}
+
+/* ================================
+   MODALS & IMPORTANT OVERLAYS (1040-1049)
+   ================================ */
+
+/* Ant Design Modals */
+.ant-modal-root {
+  z-index: 1040 !important;
+}
+
+.ant-modal-mask {
+  z-index: 1040 !important;
+}
+
+.ant-modal-wrap {
+  z-index: 1040 !important;
+}
+
+/* ================================
+   DROPDOWNS & TOOLTIPS (1050-1059)
+   ================================ */
+
+/* Ant Design Dropdowns */
+.ant-dropdown {
+  z-index: 1050 !important;
+}
+
+.ant-select-dropdown {
+  z-index: 1050 !important;
+}
+
+/* Tooltips */
+.ant-tooltip {
+  z-index: 1070 !important;
+}
+
+/* ================================
+   POPCONFIRMS & CRITICAL UI (1060-1069)
+   ================================ */
+
+/* Popconfirms */
+.ant-popconfirm {
+  z-index: 1060 !important;
+}
+
+/* ================================
+   SYSTEM MESSAGES (1070-1079)
+   ================================ */
+
+/* Messages - Highest Priority for User Feedback */
+.ant-message {
+  z-index: 100010 !important;
+}
+
+.ant-message-notice {
+  z-index: 100011 !important;
+}
+
+.ant-message-notice-content {
+  z-index: 100012 !important;
+}
+
+/* Notifications */
+.ant-notification {
+  z-index: 100000 !important;
+}
+
+.ant-notification-notice {
+  z-index: 100001 !important;
+}
+
+.ant-notification-topRight,
+.ant-notification-topLeft,
+.ant-notification-top,
+.ant-notification-bottomRight,
+.ant-notification-bottomLeft,
+.ant-notification-bottom {
+  z-index: 100000 !important;
+}
+
+/* ================================
+   MOBILE-SPECIFIC FIXES
+   ================================ */
+
+@media (max-width: 768px) {
+  /* Ensure mobile navigation is ALWAYS on top */
+  .main-navbar,
+  .mobile-fixed-navbar {
+    z-index: 1020 !important;
+    position: fixed !important;
+  }
+
+  /* Ensure floating buttons don't block navigation */
+  .digital-manual-float-button,
+  .simple-help-button {
+    z-index: 1010 !important; /* Below navigation */
+  }
+
+  /* Mobile drawer adjustments */
+  .ant-drawer.digital-manual-drawer,
+  .ant-drawer.simple-help-drawer {
+    z-index: 1025 !important; /* ABOVE navigation for proper close button access */
+  }
+}
+
+/* ================================
+   EMERGENCY OVERRIDES
+   ================================ */
+
+/* Only for system-critical components that MUST be above everything */
+.system-critical-overlay {
+  z-index: 999999 !important;
+}
+
+/* Network status and system health indicators */
+.network-status-overlay {
+  z-index: 999999 !important;
+}
+
+/* ================================
+   PERFORMANCE OPTIMIZATIONS
+   ================================ */
+
+/* Force hardware acceleration for high z-index elements */
+.main-navbar,
+.mobile-fixed-navbar,
+.digital-manual-float-button,
+.simple-help-button {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* Prevent flash backgrounds and rendering issues */
+.digital-manual-float-button,
+.simple-help-button,
+.ant-drawer-content {
+  background-clip: padding-box !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}

@@ -1,36 +1,50 @@
-import React, { useCallback, useContext } from 'react';
+import React from 'react';
 import { Form } from 'antd';
-import { FirebaseContext } from '../../../../firebase';
 import { useMergeState } from 'api/CustomHooks';
-import { Container, Col, Row } from 'shards-react';
+import { useCallback, useContext } from 'react';
+import { Col, Container, Row } from 'shards-react';
+import { FirebaseContext } from '../../../../firebase';
 
-import { renderHeader, checkItemsUpdated, RenderSummary, initialValues } from './api';
 import { CheckOutlined } from '@ant-design/icons';
+import PageTitle from 'components/common/PageTitle';
+import { AccountSteps } from 'data/Constant';
+import { Button, Stepper } from 'elements';
+import { checkCollection } from 'firebase/api';
+import {
+  arrayForEach,
+  cleanValuesBeforeSave,
+  firstKey,
+  Numb,
+  showAlert,
+  showConfirm,
+  showSuccess,
+  showWarn,
+  sortArr,
+} from 'functions';
 import moment from 'moment';
 import { useSelector } from 'react-redux';
-import { showWarn, arrayForEach, showConfirm, showSuccess, showAlert, firstKey, sortArr } from 'functions';
-import { Button, Stepper } from 'elements';
-import { AccountSteps } from 'data/Constant';
-import PageTitle from 'components/common/PageTitle';
 import { createNewId } from 'utils';
-import { checkCollection } from 'firebase/api';
 import { removeAllNonAlphaNumericCharacters } from 'utils/RegEx';
+import {
+  checkItemsUpdated,
+  initialValues,
+  renderHeader,
+  RenderSummary,
+} from './api';
 import InputItems from './InputItems';
-import { cleanValuesBeforeSave } from 'functions';
-import { Numb } from 'functions';
 
-export default () => {
+const InputPrice = () => {
   const initMergeState = {
     mReceiveNo: null,
     noItemUpdated: false,
     deductDeposit: null,
     billDiscount: null,
     priceType: null,
-    total: null
+    total: null,
   };
 
   const { firestore, api } = useContext(FirebaseContext);
-  const { user } = useSelector(state => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const [cState, setCState] = useMergeState(initMergeState);
 
   const [form] = Form.useForm();
@@ -44,14 +58,16 @@ export default () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const _onValuesChange = async val => {
+  const _onValuesChange = async (val) => {
     try {
       let changeKey = firstKey(val);
       if (changeKey === 'billNoSKC') {
-        let snap = await checkCollection('sections/stocks/importVehicles', [['billNoSKC', '==', val[changeKey]]]);
+        let snap = await checkCollection('sections/stocks/importVehicles', [
+          ['billNoSKC', '==', val[changeKey]],
+        ]);
         if (snap) {
           let arr = [];
-          snap.forEach(doc => {
+          snap.forEach((doc) => {
             const {
               billNoSKC,
               branch,
@@ -76,7 +92,7 @@ export default () => {
               warehouseCheckedBy,
               warehouseCheckedDate,
               warehouseInputBy,
-              warehouseReceiveDate
+              warehouseReceiveDate,
             } = doc.data();
             let item = {
               billNoSKC,
@@ -105,7 +121,7 @@ export default () => {
               warehouseInputBy,
               warehouseReceiveDate,
               _id: doc.id,
-              qty: doc.data()?.import || 1
+              qty: doc.data()?.import || 1,
             };
             arr.push(item);
           });
@@ -113,13 +129,18 @@ export default () => {
             // showLog('mArr', mArr);
             let mArr = [];
             await arrayForEach(
-              arr.filter(l => !l.deleted),
+              arr.filter((l) => !l.deleted),
               async (it, id) => {
-                let productPCode = removeAllNonAlphaNumericCharacters(it.productCode);
-                let lpSnap = await checkCollection('data/products/vehicleList', [['productPCode', '==', productPCode]]);
+                let productPCode = removeAllNonAlphaNumericCharacters(
+                  it.productCode
+                );
+                let lpSnap = await checkCollection(
+                  'data/products/vehicleList',
+                  [['productPCode', '==', productPCode]]
+                );
                 let lp = null;
                 if (lpSnap) {
-                  lpSnap.forEach(lpDoc => {
+                  lpSnap.forEach((lpDoc) => {
                     lp = { ...lpDoc.data(), _id: lpDoc.id };
                   });
                 }
@@ -130,8 +151,8 @@ export default () => {
                     creditTerm: lp.creditTerm,
                     unitPrice: lp.listPrice,
                     unitPrice_original: lp.listPrice,
-                    total: Numb(lp.listPrice) * Numb(it.qty)
-                  })
+                    total: Numb(lp.listPrice) * Numb(it.qty),
+                  }),
                 });
               }
             );
@@ -139,15 +160,15 @@ export default () => {
             mArr = mArr.map((od, id) => ({
               ...od,
               id,
-              key: id
+              key: id,
             }));
             form.setFieldsValue({
               items: mArr,
               priceType: mArr[0].priceType,
-              creditDays: mArr[0].creditTerm
+              creditDays: mArr[0].creditTerm,
             });
             setCState({
-              total: mArr.reduce((sum, elem) => sum + Numb(elem?.total), 0)
+              total: mArr.reduce((sum, elem) => sum + Numb(elem?.total), 0),
             });
           }
         }
@@ -160,11 +181,11 @@ export default () => {
         }
         if (!!taxInvoiceDate) {
           form.setFieldsValue({
-            dueDate: moment(taxInvoiceDate).add(creditDays, 'days')
+            dueDate: moment(taxInvoiceDate).add(creditDays, 'days'),
           });
         } else {
           form.setFieldsValue({
-            dueDate: moment().add(creditDays, 'days')
+            dueDate: moment().add(creditDays, 'days'),
           });
         }
       }
@@ -173,9 +194,11 @@ export default () => {
     }
   };
 
-  const footer = cState.noItemUpdated ? () => <h6 className="text-danger">กรุณาป้อนราคาสินค้า</h6> : undefined;
+  const footer = cState.noItemUpdated
+    ? () => <h6 className='text-danger'>กรุณาป้อนราคาสินค้า</h6>
+    : undefined;
 
-  const onBillDiscountChange = e => {
+  const onBillDiscountChange = (e) => {
     const billDiscount = Numb(e.target.value);
     if (isNaN(billDiscount)) {
       return;
@@ -184,7 +207,7 @@ export default () => {
     setCState({ billDiscount });
   };
 
-  const onDeductDepositChange = e => {
+  const onDeductDepositChange = (e) => {
     const deductDeposit = Numb(e.target.value);
     if (isNaN(deductDeposit)) {
       return;
@@ -192,15 +215,21 @@ export default () => {
     setCState({ deductDeposit });
   };
 
-  const onPriceTypeChange = priceType => {
+  const onPriceTypeChange = (priceType) => {
     // total, items (unitPrice),
     let items = form.getFieldValue('items');
-    let arr = items.map(it => {
+    let arr = items.map((it) => {
       let unitPrice =
-        priceType === 'separateVat' ? (Numb(it.unitPrice_original) / 1.07).toFixed(3) : it.unitPrice_original;
+        priceType === 'separateVat'
+          ? (Numb(it.unitPrice_original) / 1.07).toFixed(3)
+          : it.unitPrice_original;
       return { ...it, priceType, unitPrice };
     });
-    let total = arr.reduce((sum, elem) => sum + (Numb(elem?.qty) * Numb(elem?.unitPrice) - Numb(elem?.discount)), 0);
+    let total = arr.reduce(
+      (sum, elem) =>
+        sum + (Numb(elem?.qty) * Numb(elem?.unitPrice) - Numb(elem?.discount)),
+      0
+    );
     // showLog({ total });
     total = total.toFixed(4);
     form.setFieldsValue({ priceType, items: arr });
@@ -210,13 +239,22 @@ export default () => {
   const { billDiscount, deductDeposit, priceType, total } = cState;
 
   const afterDiscount = Numb(total) - Numb(billDiscount);
-  const afterDepositDeduct = Numb(total) - Numb(billDiscount) - Numb(deductDeposit);
-  const billVAT = priceType === 'noVat' ? 0 : afterDepositDeduct ? afterDepositDeduct * 0.07 : null;
+  const afterDepositDeduct =
+    Numb(total) - Numb(billDiscount) - Numb(deductDeposit);
+  const billVAT =
+    priceType === 'noVat'
+      ? 0
+      : afterDepositDeduct
+        ? afterDepositDeduct * 0.07
+        : null;
   const billTotal =
-    Numb(total) - Numb(billDiscount) - Numb(deductDeposit) + (priceType === 'includeVat' ? 0 : Numb(billVAT));
+    Numb(total) -
+    Numb(billDiscount) -
+    Numb(deductDeposit) +
+    (priceType === 'includeVat' ? 0 : Numb(billVAT));
 
   const onConfirm = useCallback(
-    async mValues => {
+    async (mValues) => {
       try {
         mValues.dueDate = moment(mValues.dueDate).format('YYYY-MM-DD');
         const { billDiscount, deductDeposit } = cState;
@@ -236,18 +274,23 @@ export default () => {
           date: moment().format('YYYY-MM-DD'),
           time: Date.now(),
           inputBy: user.uid,
-          isPart: false
+          isPart: false,
         };
         let expenseId = createNewId('ACC-EXP');
         let expenseItem = cleanValuesBeforeSave({
           ...expense,
           expenseId,
-          _key: expenseId
+          _key: expenseId,
         });
-        await firestore.collection('sections').doc('account').collection('expenses').doc(expenseId).set(expenseItem);
+        await firestore
+          .collection('sections')
+          .doc('account')
+          .collection('expenses')
+          .doc(expenseId)
+          .set(expenseItem);
         // Update Payment Info
         !!mValues?.items &&
-          (await arrayForEach(mValues.items, async it => {
+          (await arrayForEach(mValues.items, async (it) => {
             !!it?._id &&
               (await api.updateItem(
                 {
@@ -257,7 +300,7 @@ export default () => {
                   unitPrice: it.unitPrice,
                   discount: it.discount,
                   total: it.total,
-                  expenseId
+                  expenseId,
                 },
                 'sections/stocks/importVehicles',
                 it._id
@@ -265,18 +308,29 @@ export default () => {
           }));
         showSuccess(
           () => resetToInitial(),
-          !!mValues.billNoSKC ? `บันทึกราคาสินค้า ใบรับสินค้าเลขที่ ${mValues.billNoSKC} สำเร็จ` : 'บันทึกข้อมูลสำเร็จ',
+          !!mValues.billNoSKC
+            ? `บันทึกราคาสินค้า ใบรับสินค้าเลขที่ ${mValues.billNoSKC} สำเร็จ`
+            : 'บันทึกข้อมูลสำเร็จ',
           true
         );
       } catch (e) {
         showWarn(e);
       }
     },
-    [api, billTotal, billVAT, cState, firestore, resetToInitial, total, user.uid]
+    [
+      api,
+      billTotal,
+      billVAT,
+      cState,
+      firestore,
+      resetToInitial,
+      total,
+      user.uid,
+    ]
   );
 
   const preConfirm = useCallback(
-    async currentValues => {
+    async (currentValues) => {
       const values = await form.validateFields();
       let mValues = { ...currentValues, ...values };
       if (!!mValues?.items && mValues.items.length === 0) {
@@ -288,25 +342,33 @@ export default () => {
         setCState({ noItemUpdated: true });
         return;
       }
-      let mItems = mValues.items.map(it => ({
+      let mItems = mValues.items.map((it) => ({
         ...it,
-        priceType: mValues.priceType || null
+        priceType: mValues.priceType || null,
       }));
       mValues.items = mItems;
-      showConfirm(() => onConfirm(mValues), `การบันทึกรายการ ${mValues?.billNoSKC || ''}`);
+      showConfirm(
+        () => onConfirm(mValues),
+        `การบันทึกรายการ ${mValues?.billNoSKC || ''}`
+      );
     },
     [form, onConfirm, setCState]
   );
 
   return (
     <div>
-      <Container fluid className="main-content-container p-3">
-        <Row noGutters className="page-header px-3 nature-bg-light">
-          <PageTitle sm="4" title="บันทึกราคาสินค้า" subtitle="รถและอุปกรณ์" className="text-sm-left" />
+      <Container fluid className='main-content-container p-3'>
+        <Row noGutters className='page-header px-3 nature-bg-light'>
+          <PageTitle
+            sm='4'
+            title='บันทึกราคาสินค้า'
+            subtitle='รถและอุปกรณ์'
+            className='text-sm-left'
+          />
           {isInput && (
             <Col>
               <Stepper
-                className="nature-stepper nature-steps-compact"
+                className='nature-stepper nature-steps-compact'
                 steps={AccountSteps}
                 activeStep={activeStep}
                 alternativeLabel={false} // In-line labels
@@ -316,27 +378,27 @@ export default () => {
         </Row>
         <Form
           form={form}
-          layout="vertical"
-          className="mt-2"
+          layout='vertical'
+          className='mt-2'
           // onFinish={onFinish}
           initialValues={initialValues}
           onValuesChange={_onValuesChange}
           style={{ alignItems: 'center' }}
-          size="small"
+          size='small'
         >
-          {values => {
+          {(values) => {
             //  showLog({ values });
             return (
               <>
                 {renderHeader({
                   form,
-                  onPriceTypeChange
+                  onPriceTypeChange,
                 })}
                 <InputItems
                   items={values.items}
-                  onChange={dat => {
+                  onChange={(dat) => {
                     form.setFieldsValue({
-                      items: dat
+                      items: dat,
                       // billDiscount: dat.reduce(
                       //   (sum, elem) =>
                       //     sum + Numb(elem?.discount) * Numb(elem?.qty),
@@ -344,7 +406,10 @@ export default () => {
                       // ),
                     });
                     let total = dat.reduce(
-                      (sum, elem) => sum + (Numb(elem?.qty) * Numb(elem?.unitPrice) - Numb(elem?.discount)),
+                      (sum, elem) =>
+                        sum +
+                        (Numb(elem?.qty) * Numb(elem?.unitPrice) -
+                          Numb(elem?.discount)),
                       0
                     );
                     // showLog({ total });
@@ -356,7 +421,7 @@ export default () => {
                       //     sum + Numb(elem?.discount) * Numb(elem?.qty),
                       //   0
                       // ),
-                      ...(cState.noItemUpdated && { noItemUpdated: false })
+                      ...(cState.noItemUpdated && { noItemUpdated: false }),
                     });
                   }}
                   // grant={grant}
@@ -371,15 +436,15 @@ export default () => {
                   billTotal,
                   priceType,
                   onBillDiscountChange,
-                  onDeductDepositChange
+                  onDeductDepositChange,
                 })}
-                <div className="border-bottom bg-white p-3 text-right">
+                <div className='border-bottom bg-white p-3 text-right'>
                   <Button
-                    type="primary"
+                    type='primary'
                     onClick={() => preConfirm(values)}
                     icon={<CheckOutlined />}
-                    className="mr-2 my-2"
-                    size="middle"
+                    className='mr-2 my-2'
+                    size='middle'
                   >
                     บันทึกข้อมูล
                   </Button>
@@ -392,3 +457,5 @@ export default () => {
     </div>
   );
 };
+
+export default InputPrice;

@@ -1,242 +1,211 @@
 /**
- * KBN User Data Backup Utility
- * Creates comprehensive backup before clean slate migration
+ * 💾 USER BACKUP UTILITY
+ *
+ * Creates complete backup of user data for live deployment safety
+ * Part of Live Deployment Control Panel
  */
 
-const fs = require('fs');
-const path = require('path');
-
-// Import Firebase Node.js setup
-const { firestore } = require('./firebase-node');
+import { app } from '../firebase';
 
 /**
- * Create comprehensive backup of user data from Firebase
- * @returns {Promise<string>} Backup file path
+ * Create complete backup of all user data
  */
-const createUserBackup = async () => {
-  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  const backupDir = path.join(__dirname, '../../backups');
-  const backupFile = path.join(backupDir, `user-backup-${timestamp}.json`);
-  
-  console.log('🔄 Creating user data backup from Firebase...');
-  
-  // Ensure backup directory exists
-  if (!fs.existsSync(backupDir)) {
-    fs.mkdirSync(backupDir, { recursive: true });
-  }
-  
+export const createUserBackup = async () => {
+  const firestore = app.firestore();
+  const timestamp = Date.now();
+  const backupId = `user_backup_${timestamp}`;
+
   try {
-    // Fetch real users from Firebase
-    console.log('📡 Connecting to Firebase users collection...');
+    console.log('💾 Starting user data backup...');
+
+    // Get all users
     const usersSnapshot = await firestore.collection('users').get();
-    
-    if (usersSnapshot.empty) {
-      throw new Error('No users found in Firebase collection');
-    }
-    
-    const currentUsers = [];
-    
-    usersSnapshot.forEach(doc => {
-      const userData = doc.data();
-      // Structure the user data as stored in Firebase
-      const user = {
-        uid: doc.id,
-        ...userData.auth, // Firebase auth data
-        ...userData, // Additional user data
-        _key: doc.id
-      };
-      
-      // Remove redundant auth object
-      delete user.auth;
-      
-      currentUsers.push(user);
+    const userData = [];
+
+    usersSnapshot.docs.forEach((doc) => {
+      userData.push({
+        id: doc.id,
+        data: doc.data(),
+      });
     });
-    
-    console.log(`📊 Found ${currentUsers.length} users in Firebase`);
-    
-    // Also backup user groups for complete context
-    console.log('📡 Fetching user groups...');
-    const userGroupsSnapshot = await firestore
-      .collection('data')
-      .doc('company')
-      .collection('userGroups')
-      .get();
-    
-    const userGroups = {};
-    userGroupsSnapshot.forEach(doc => {
-      userGroups[doc.id] = {
-        ...doc.data(),
-        _key: doc.id
-      };
-    });
-    
-    // Also backup permissions for complete context
-    console.log('📡 Fetching permissions...');
-    const permissionsSnapshot = await firestore
-      .collection('data')
-      .doc('company')
-      .collection('permissions')
-      .get();
-    
-    const permissions = {};
-    permissionsSnapshot.forEach(doc => {
-      permissions[doc.id] = {
-        ...doc.data(),
-        _key: doc.id
-      };
-    });
-    
+
+    console.log(`📊 Found ${userData.length} users to backup`);
+
+    // Create backup document
     const backupData = {
-      timestamp: new Date().toISOString(),
-      version: '1.0.0',
-      description: 'Pre-migration user data backup from Firebase',
-      totalUsers: currentUsers.length,
-      activeUsers: currentUsers.filter(u => u.isActive !== false).length,
-      users: currentUsers,
-      userGroups: userGroups,
-      permissions: permissions,
+      backupId,
+      timestamp,
+      type: 'user_backup',
+      totalUsers: userData.length,
+      users: userData,
       metadata: {
-        backupReason: 'Clean slate RBAC migration',
-        systemVersion: '1.4.3',
-        migrationVersion: '1.0.0',
-        firebaseProject: process.env.REACT_APP_FIREBASE_PROJECT_ID || 'unknown'
-      }
+        createdBy: 'live-deployment-system',
+        purpose: 'production-deployment-safety',
+        version: '1.0.0',
+      },
     };
-    
-    // Write backup file
-    fs.writeFileSync(backupFile, JSON.stringify(backupData, null, 2));
-    
-    console.log(`✅ Backup created: ${backupFile}`);
-    console.log(`📊 Backed up ${currentUsers.length} users from Firebase`);
-    console.log(`📋 Included ${Object.keys(userGroups).length} user groups`);
-    console.log(`🔐 Included ${Object.keys(permissions).length} permissions`);
-    
-    return backupFile;
-    
+
+    // Save backup to Firestore
+    await firestore.collection('backups').doc(backupId).set(backupData);
+
+    console.log(`✅ User backup completed: ${backupId}`);
+
+    return {
+      success: true,
+      backupId,
+      timestamp,
+      totalUsers: userData.length,
+      message: 'User backup created successfully',
+    };
   } catch (error) {
-    console.error('❌ Firebase backup failed:', error.message);
+    console.error('❌ User backup failed:', error);
+    throw new Error(`User backup failed: ${error.message}`);
+  }
+};
+
+/**
+ * Restore users from backup
+ */
+export const restoreUserBackup = async (backupId) => {
+  const firestore = app.firestore();
+
+  try {
+    console.log(`🔄 Restoring user backup: ${backupId}`);
+
+    // Get backup data
+    const backupDoc = await firestore.collection('backups').doc(backupId).get();
+
+    if (!backupDoc.exists) {
+      throw new Error(`Backup ${backupId} not found`);
+    }
+
+    const backupData = backupDoc.data();
+    const users = backupData.users || [];
+
+    console.log(`📊 Restoring ${users.length} users...`);
+
+    // Restore users in batches
+    const batchSize = 500;
+    let batch = firestore.batch();
+    let batchCount = 0;
+
+    for (const user of users) {
+      const userRef = firestore.collection('users').doc(user.id);
+      batch.set(userRef, user.data);
+      batchCount++;
+
+      if (batchCount >= batchSize) {
+        await batch.commit();
+        console.log(`✅ Batch restored: ${batchCount} users`);
+        batch = firestore.batch();
+        batchCount = 0;
+      }
+    }
+
+    // Commit remaining batch
+    if (batchCount > 0) {
+      await batch.commit();
+      console.log(`✅ Final batch restored: ${batchCount} users`);
+    }
+
+    console.log(`✅ User restore completed: ${users.length} users restored`);
+
+    return {
+      success: true,
+      restoredUsers: users.length,
+      message: 'User backup restored successfully',
+    };
+  } catch (error) {
+    console.error('❌ User restore failed:', error);
     throw error;
   }
 };
 
 /**
- * Verify backup integrity
- * @param {string} backupFile - Path to backup file
- * @returns {boolean} Backup is valid
+ * List available user backups
  */
-const verifyBackup = (backupFile) => {
+export const listUserBackups = async () => {
+  const firestore = app.firestore();
+
   try {
-    const backup = JSON.parse(fs.readFileSync(backupFile, 'utf8'));
-    
-    const requiredFields = ['timestamp', 'version', 'users', 'totalUsers'];
-    const hasAllFields = requiredFields.every(field => backup[field] !== undefined);
-    
-    const hasUsers = Array.isArray(backup.users) && backup.users.length > 0;
-    const userCountMatches = backup.users.length === backup.totalUsers;
-    const hasUserGroups = backup.userGroups && typeof backup.userGroups === 'object';
-    const hasPermissions = backup.permissions && typeof backup.permissions === 'object';
-    
-    console.log(`🔍 Backup verification:`);
-    console.log(`  - Has required fields: ${hasAllFields}`);
-    console.log(`  - Has users: ${hasUsers}`);
-    console.log(`  - User count matches: ${userCountMatches}`);
-    console.log(`  - Has user groups: ${hasUserGroups}`);
-    console.log(`  - Has permissions: ${hasPermissions}`);
-    
-    return hasAllFields && hasUsers && userCountMatches && hasUserGroups && hasPermissions;
+    const backupsSnapshot = await firestore
+      .collection('backups')
+      .where('type', '==', 'user_backup')
+      .orderBy('timestamp', 'desc')
+      .get();
+
+    const backups = backupsSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    return {
+      success: true,
+      backups,
+      count: backups.length,
+    };
   } catch (error) {
-    console.error('❌ Backup verification failed:', error.message);
-    return false;
+    console.error('❌ Failed to list user backups:', error);
+    throw error;
   }
 };
 
 /**
- * Get user sample for verification
- * @param {string} backupFile - Path to backup file
- * @returns {Object} Sample user data
+ * Verify user backup integrity
  */
-const getBackupSample = (backupFile) => {
+export const verifyUserBackup = async (backupId) => {
+  const firestore = app.firestore();
+
   try {
-    const backup = JSON.parse(fs.readFileSync(backupFile, 'utf8'));
-    
-    if (backup.users && backup.users.length > 0) {
-      const sampleUser = backup.users[0];
-      console.log(`📋 Sample user from backup:`);
-      console.log(`  - UID: ${sampleUser.uid}`);
-      console.log(`  - Email: ${sampleUser.email || 'Not set'}`);
-      console.log(`  - Display Name: ${sampleUser.displayName || 'Not set'}`);
-      console.log(`  - Access Level: ${sampleUser.accessLevel || 'Not set'}`);
-      console.log(`  - Allowed Provinces: ${sampleUser.allowedProvinces?.join(', ') || 'Not set'}`);
-      console.log(`  - Allowed Branches: ${sampleUser.allowedBranches?.join(', ') || 'Not set'}`);
-      console.log(`  - Is Active: ${sampleUser.isActive !== false ? 'Yes' : 'No'}`);
-      
-      return sampleUser;
+    console.log(`🔍 Verifying user backup: ${backupId}`);
+
+    // Get backup data
+    const backupDoc = await firestore.collection('backups').doc(backupId).get();
+
+    if (!backupDoc.exists) {
+      throw new Error(`Backup ${backupId} not found`);
     }
-    
-    return null;
-  } catch (error) {
-    console.error('❌ Could not get backup sample:', error.message);
-    return null;
-  }
-};
 
-/**
- * List available backups
- * @returns {Array} List of backup files
- */
-const listBackups = () => {
-  const backupDir = path.join(__dirname, '../../backups');
-  
-  if (!fs.existsSync(backupDir)) {
-    return [];
-  }
-  
-  return fs.readdirSync(backupDir)
-    .filter(file => file.startsWith('user-backup-') && file.endsWith('.json'))
-    .map(file => ({
-      file,
-      path: path.join(backupDir, file),
-      created: fs.statSync(path.join(backupDir, file)).mtime
-    }))
-    .sort((a, b) => b.created - a.created);
-};
+    const backupData = backupDoc.data();
+    const users = backupData.users || [];
 
-module.exports = {
-  createUserBackup,
-  verifyBackup,
-  getBackupSample,
-  listBackups
-};
+    // Verify backup structure
+    const verification = {
+      backupExists: true,
+      hasUsers: users.length > 0,
+      totalUsers: users.length,
+      hasMetadata: !!backupData.metadata,
+      timestamp: backupData.timestamp,
+      isValid: true,
+    };
 
-// CLI execution
-if (require.main === module) {
-  (async () => {
-    try {
-      console.log('🚀 Starting REAL user data backup from Firebase...');
-      
-      const backupFile = await createUserBackup();
-      const isValid = verifyBackup(backupFile);
-      
-      if (isValid) {
-        console.log('✅ Backup completed successfully!');
-        console.log(`📁 Backup location: ${backupFile}`);
-        
-        // Show sample user
-        const sample = getBackupSample(backupFile);
-        
-        // List all backups
-        const backups = listBackups();
-        console.log(`\n📋 Available backups (${backups.length}):`);
-        backups.forEach((backup, index) => {
-          console.log(`  ${index + 1}. ${backup.file} (${backup.created.toLocaleString()})`);
-        });
+    // Check for required fields in users
+    let validUsers = 0;
+    let invalidUsers = 0;
+
+    users.forEach((user) => {
+      if (user.id && user.data) {
+        validUsers++;
       } else {
-        console.error('❌ Backup verification failed!');
-        process.exit(1);
+        invalidUsers++;
       }
-    } catch (error) {
-      console.error('💥 Backup failed:', error.message);
-      process.exit(1);
-    }
-  })();
-} 
+    });
+
+    verification.validUsers = validUsers;
+    verification.invalidUsers = invalidUsers;
+    verification.isValid = invalidUsers === 0;
+
+    console.log(`✅ Backup verification completed`);
+    console.log(`   Valid users: ${validUsers}`);
+    console.log(`   Invalid users: ${invalidUsers}`);
+
+    return {
+      success: true,
+      verification,
+      message: verification.isValid ? 'Backup is valid' : 'Backup has issues',
+    };
+  } catch (error) {
+    console.error('❌ Backup verification failed:', error);
+    throw error;
+  }
+};

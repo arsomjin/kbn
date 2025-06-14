@@ -11,6 +11,7 @@ import SearchSelect from './SearchSelect';
 import Selector from './Selector';
 import Stepper from './Stepper';
 import NotificationIcon from './NotificationIcon';
+
 import DatePicker from './DatePicker/index';
 import RangePicker from './RangePicker';
 import AlertDialog from './AlertDialog';
@@ -61,5 +62,5 @@ export {
   AddButton,
   UploadImage,
   Checkbox,
-  LabelWithTooltip
+  LabelWithTooltip,
 };

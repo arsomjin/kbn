@@ -7,7 +7,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Spin, Alert, Button } from 'antd';
-import { LockOutlined, ExclamationCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import {
+  LockOutlined,
+  ExclamationCircleOutlined,
+  InfoCircleOutlined,
+} from '@ant-design/icons';
 
 // Use Clean Slate RBAC system as the core
 import { usePermissions } from '../hooks/usePermissions';
@@ -53,7 +57,7 @@ const PermissionGate = ({
   customCheck,
   debug = false,
   className,
-  style
+  style,
 }) => {
   const {
     hasPermission,
@@ -64,41 +68,32 @@ const PermissionGate = ({
     canAccessProvince,
     canAccessBranch,
     isActive,
-    userRBAC
+    userRBAC,
   } = usePermissions();
 
   // Normalize geographic context (support both legacy and new formats)
   const normalizedGeographic = {
     provinceId: geographic.provinceId || province,
     branchCode: geographic.branchCode || branch,
-    ...geographic
+    ...geographic,
   };
 
   // Map legacy role to authority (backward compatibility)
   const normalizedAuthority = authority || role;
 
-  // Debug logging for development
-  if (process.env.NODE_ENV === 'development' && debug) {
-    console.log('🔐 PermissionGate:', { 
-      permission, 
-      authority: normalizedAuthority, 
-      geographic: normalizedGeographic,
-      userAuthority: userRBAC?.authority 
-    });
-  }
-
   // Loading state
   if (loading || showLoading) {
     return (
       <div className={className} style={style}>
-        <Spin size="small" />
+        <Spin size='small' />
       </div>
     );
   }
 
   // DEV USERS BYPASS ALL CHECKS
   if (userRBAC?.isDev) {
-    if (debug) console.log('🔧 DEV USER - Access granted (bypassing all checks)');
+    if (debug)
+      console.log('🔧 DEV USER - Access granted (bypassing all checks)');
     return (
       <div className={className} style={style}>
         {children}
@@ -109,28 +104,30 @@ const PermissionGate = ({
   // Check if user is active
   if (!isActive) {
     if (debug) console.log('🚫 ACCESS DENIED: User not active');
-    return showFallback ? (
-      fallback || (
-        <div style={{ 
-          padding: '20px 24px',
-          borderRadius: '12px',
-          background: 'linear-gradient(135deg, #fff2e8 0%, #fff7e6 100%)',
-          border: '1px solid #ffec99'
-        }}>
-          <Alert 
-            message="Account Not Active" 
-            description="Your account is currently inactive. Please contact your administrator."
-            type="warning" 
-            showIcon 
+    return showFallback
+      ? fallback || (
+          <div
             style={{
-              border: 'none',
-              background: 'transparent',
-              padding: 0
+              padding: '20px 24px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #fff2e8 0%, #fff7e6 100%)',
+              border: '1px solid #ffec99',
             }}
-          />
-        </div>
-      )
-    ) : null;
+          >
+            <Alert
+              message='Account Not Active'
+              description='Your account is currently inactive. Please contact your administrator.'
+              type='warning'
+              showIcon
+              style={{
+                border: 'none',
+                background: 'transparent',
+                padding: 0,
+              }}
+            />
+          </div>
+        )
+      : null;
   }
 
   // Custom check function
@@ -144,33 +141,35 @@ const PermissionGate = ({
       canAccessProvince,
       canAccessBranch,
       userRBAC,
-      geographic: normalizedGeographic
+      geographic: normalizedGeographic,
     });
 
     if (!hasAccess) {
       if (debug) console.log('🚫 ACCESS DENIED: Custom check failed');
-      return showFallback ? (
-        fallback || (
-          <div style={{ 
-            padding: '20px 24px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
-            border: '1px solid #ffccc7'
-          }}>
-            <Alert 
-              message="Access Denied" 
-              description="You don't have permission to view this content."
-              type="error" 
-              icon={<LockOutlined />}
+      return showFallback
+        ? fallback || (
+            <div
               style={{
-                border: 'none',
-                background: 'transparent',
-                padding: 0
+                padding: '20px 24px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+                border: '1px solid #ffccc7',
               }}
-            />
-          </div>
-        )
-      ) : null;
+            >
+              <Alert
+                message='Access Denied'
+                description="You don't have permission to view this content."
+                type='error'
+                icon={<LockOutlined />}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  padding: 0,
+                }}
+              />
+            </div>
+          )
+        : null;
     }
 
     return (
@@ -183,58 +182,68 @@ const PermissionGate = ({
   // Authority level check (including legacy role mapping)
   if (normalizedAuthority) {
     if (!hasAuthorityLevel(normalizedAuthority)) {
-      if (debug) console.log(`🚫 ACCESS DENIED: Authority check failed - required ${normalizedAuthority}, user has ${userRBAC?.authority}`);
-      return showFallback ? (
-        fallback || (
-          <div style={{ 
-            padding: '20px 24px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
-            border: '1px solid #ffccc7'
-          }}>
-            <Alert 
-              message={`${normalizedAuthority} Access Required`} 
-              description={`You need ${normalizedAuthority} level access to view this content.`}
-              type="error" 
-              icon={<LockOutlined />}
+      if (debug)
+        console.log(
+          `🚫 ACCESS DENIED: Authority check failed - required ${normalizedAuthority}, user has ${userRBAC?.authority}`
+        );
+      return showFallback
+        ? fallback || (
+            <div
               style={{
-                border: 'none',
-                background: 'transparent',
-                padding: 0
+                padding: '20px 24px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+                border: '1px solid #ffccc7',
               }}
-            />
-          </div>
-        )
-      ) : null;
+            >
+              <Alert
+                message={`${normalizedAuthority} Access Required`}
+                description={`You need ${normalizedAuthority} level access to view this content.`}
+                type='error'
+                icon={<LockOutlined />}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  padding: 0,
+                }}
+              />
+            </div>
+          )
+        : null;
     }
   }
 
   // Department check
   if (department) {
     if (!worksInDepartment(department)) {
-      if (debug) console.log(`🚫 ACCESS DENIED: Department check failed - required ${department}, user departments: ${userRBAC?.departments}`);
-      return showFallback ? (
-        fallback || (
-          <div style={{ 
-            padding: '20px 24px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
-            border: '1px solid #ffccc7'
-          }}>
-            <Alert 
-              message={`${department} Department Access Required`} 
-              description={`You need access to the ${department} department to view this content.`}
-              type="error" 
-              icon={<LockOutlined />}
+      if (debug)
+        console.log(
+          `🚫 ACCESS DENIED: Department check failed - required ${department}, user departments: ${userRBAC?.departments}`
+        );
+      return showFallback
+        ? fallback || (
+            <div
               style={{
-                border: 'none',
-                background: 'transparent',
-                padding: 0
+                padding: '20px 24px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+                border: '1px solid #ffccc7',
               }}
-            />
-          </div>
-        )
-      ) : null;
+            >
+              <Alert
+                message={`${department} Department Access Required`}
+                description={`You need access to the ${department} department to view this content.`}
+                type='error'
+                icon={<LockOutlined />}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  padding: 0,
+                }}
+              />
+            </div>
+          )
+        : null;
     }
   }
 
@@ -242,28 +251,30 @@ const PermissionGate = ({
   if (allOf && Array.isArray(allOf)) {
     if (!hasAllPermissions(allOf, normalizedGeographic)) {
       if (debug) console.log(`🚫 All permissions check failed:`, allOf);
-      return showFallback ? (
-        fallback || (
-          <div style={{ 
-            padding: '20px 24px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
-            border: '1px solid #ffccc7'
-          }}>
-            <Alert 
-              message="Insufficient Permissions" 
-              description="You don't have all the required permissions to view this content."
-              type="error" 
-              icon={<LockOutlined />}
+      return showFallback
+        ? fallback || (
+            <div
               style={{
-                border: 'none',
-                background: 'transparent',
-                padding: 0
+                padding: '20px 24px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+                border: '1px solid #ffccc7',
               }}
-            />
-          </div>
-        )
-      ) : null;
+            >
+              <Alert
+                message='Insufficient Permissions'
+                description="You don't have all the required permissions to view this content."
+                type='error'
+                icon={<LockOutlined />}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  padding: 0,
+                }}
+              />
+            </div>
+          )
+        : null;
     }
   }
 
@@ -271,91 +282,110 @@ const PermissionGate = ({
   if (anyOf && Array.isArray(anyOf)) {
     if (!hasAnyPermission(anyOf, normalizedGeographic)) {
       if (debug) console.log(`🚫 Any permissions check failed:`, anyOf);
-      return showFallback ? (
-        fallback || (
-          <div style={{ 
-            padding: '20px 24px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
-            border: '1px solid #ffccc7'
-          }}>
-            <Alert 
-              message="Access Denied" 
-              description="You don't have the required permissions to view this content."
-              type="error" 
-              icon={<LockOutlined />}
+      return showFallback
+        ? fallback || (
+            <div
               style={{
-                border: 'none',
-                background: 'transparent',
-                padding: 0
+                padding: '20px 24px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+                border: '1px solid #ffccc7',
               }}
-            />
-          </div>
-        )
-      ) : null;
+            >
+              <Alert
+                message='Access Denied'
+                description="You don't have the required permissions to view this content."
+                type='error'
+                icon={<LockOutlined />}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  padding: 0,
+                }}
+              />
+            </div>
+          )
+        : null;
     }
   }
 
   // Single permission check
   if (permission) {
     if (!hasPermission(permission, normalizedGeographic)) {
-      if (debug) console.log(`🚫 ACCESS DENIED: Permission check failed - ${permission} with context:`, normalizedGeographic);
-      return showFallback ? (
-        fallback || (
-          <div style={{ 
-            padding: '20px 24px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
-            border: '1px solid #ffccc7'
-          }}>
-            <Alert 
-              message={`${permission} Permission Required`} 
-              description={`You need the '${permission}' permission to view this content.`}
-              type="error" 
-              icon={<LockOutlined />}
+      if (debug)
+        console.log(
+          `🚫 ACCESS DENIED: Permission check failed - ${permission} with context:`,
+          normalizedGeographic
+        );
+      return showFallback
+        ? fallback || (
+            <div
               style={{
-                border: 'none',
-                background: 'transparent',
-                padding: 0
+                padding: '20px 24px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+                border: '1px solid #ffccc7',
               }}
-            />
-          </div>
-        )
-      ) : null;
+            >
+              <Alert
+                message={`${permission} Permission Required`}
+                description={`You need the '${permission}' permission to view this content.`}
+                type='error'
+                icon={<LockOutlined />}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  padding: 0,
+                }}
+              />
+            </div>
+          )
+        : null;
     }
   }
 
   // Geographic access check
-  if (requireGeographic || normalizedGeographic.provinceId || normalizedGeographic.branchCode) {
-    const hasGeoAccess = (
-      (!normalizedGeographic.provinceId || canAccessProvince(normalizedGeographic.provinceId)) &&
-      (!normalizedGeographic.branchCode || canAccessBranch(normalizedGeographic.branchCode))
-    );
+  if (
+    requireGeographic ||
+    normalizedGeographic.provinceId ||
+    normalizedGeographic.branchCode
+  ) {
+    const hasGeoAccess =
+      (!normalizedGeographic.provinceId ||
+        canAccessProvince(normalizedGeographic.provinceId)) &&
+      (!normalizedGeographic.branchCode ||
+        canAccessBranch(normalizedGeographic.branchCode));
 
     if (!hasGeoAccess) {
-      if (debug) console.log(`🚫 ACCESS DENIED: Geographic access check failed:`, normalizedGeographic);
-      return showFallback ? (
-        fallback || (
-          <div style={{ 
-            padding: '20px 24px',
-            borderRadius: '12px',
-            background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
-            border: '1px solid #ffccc7'
-          }}>
-            <Alert 
-              message="Geographic Access Denied" 
-              description="You don't have access to the selected geographic location."
-              type="error" 
-              icon={<LockOutlined />}
+      if (debug)
+        console.log(
+          `🚫 ACCESS DENIED: Geographic access check failed:`,
+          normalizedGeographic
+        );
+      return showFallback
+        ? fallback || (
+            <div
               style={{
-                border: 'none',
-                background: 'transparent',
-                padding: 0
+                padding: '20px 24px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #fff1f0 0%, #fff2f0 100%)',
+                border: '1px solid #ffccc7',
               }}
-            />
-          </div>
-        )
-      ) : null;
+            >
+              <Alert
+                message='Geographic Access Denied'
+                description="You don't have access to the selected geographic location."
+                type='error'
+                icon={<LockOutlined />}
+                style={{
+                  border: 'none',
+                  background: 'transparent',
+                  padding: 0,
+                }}
+              />
+            </div>
+          )
+        : null;
     }
   }
 
@@ -378,7 +408,7 @@ PermissionGate.propTypes = {
   branch: PropTypes.string, // Legacy support
   geographic: PropTypes.shape({
     provinceId: PropTypes.string,
-    branchCode: PropTypes.string
+    branchCode: PropTypes.string,
   }),
   children: PropTypes.node.isRequired,
   fallback: PropTypes.node,
@@ -389,7 +419,7 @@ PermissionGate.propTypes = {
   customCheck: PropTypes.func,
   debug: PropTypes.bool,
   className: PropTypes.string,
-  style: PropTypes.object
+  style: PropTypes.object,
 };
 
 /**
@@ -403,7 +433,7 @@ export const withPermission = (permissionConfig) => (WrappedComponent) => {
   );
 
   WithPermissionComponent.displayName = `withPermission(${WrappedComponent.displayName || WrappedComponent.name})`;
-  
+
   return WithPermissionComponent;
 };
 
@@ -420,7 +450,7 @@ export const usePermissionGate = (permissionConfig) => {
     canAccessProvince,
     canAccessBranch,
     isActive,
-    userRBAC
+    userRBAC,
   } = usePermissions();
 
   const {
@@ -434,14 +464,14 @@ export const usePermissionGate = (permissionConfig) => {
     branch,
     geographic = {},
     requireGeographic = false,
-    customCheck
+    customCheck,
   } = permissionConfig;
 
   // Normalize geographic context
   const normalizedGeographic = {
     provinceId: geographic.provinceId || province,
     branchCode: geographic.branchCode || branch,
-    ...geographic
+    ...geographic,
   };
 
   // Map legacy role to authority
@@ -461,31 +491,48 @@ export const usePermissionGate = (permissionConfig) => {
       canAccessProvince,
       canAccessBranch,
       userRBAC,
-      geographic: normalizedGeographic
+      geographic: normalizedGeographic,
     });
   }
 
   // Authority level check
-  if (normalizedAuthority && !hasAuthorityLevel(normalizedAuthority)) return false;
+  if (normalizedAuthority && !hasAuthorityLevel(normalizedAuthority))
+    return false;
 
   // Department check
   if (department && !worksInDepartment(department)) return false;
 
   // Multiple permissions check (all required)
-  if (allOf && Array.isArray(allOf) && !hasAllPermissions(allOf, normalizedGeographic)) return false;
+  if (
+    allOf &&
+    Array.isArray(allOf) &&
+    !hasAllPermissions(allOf, normalizedGeographic)
+  )
+    return false;
 
   // Multiple permissions check (any required)
-  if (anyOf && Array.isArray(anyOf) && !hasAnyPermission(anyOf, normalizedGeographic)) return false;
+  if (
+    anyOf &&
+    Array.isArray(anyOf) &&
+    !hasAnyPermission(anyOf, normalizedGeographic)
+  )
+    return false;
 
   // Single permission check
-  if (permission && !hasPermission(permission, normalizedGeographic)) return false;
+  if (permission && !hasPermission(permission, normalizedGeographic))
+    return false;
 
   // Geographic access check
-  if (requireGeographic || normalizedGeographic.provinceId || normalizedGeographic.branchCode) {
-    const hasGeoAccess = (
-      (!normalizedGeographic.provinceId || canAccessProvince(normalizedGeographic.provinceId)) &&
-      (!normalizedGeographic.branchCode || canAccessBranch(normalizedGeographic.branchCode))
-    );
+  if (
+    requireGeographic ||
+    normalizedGeographic.provinceId ||
+    normalizedGeographic.branchCode
+  ) {
+    const hasGeoAccess =
+      (!normalizedGeographic.provinceId ||
+        canAccessProvince(normalizedGeographic.provinceId)) &&
+      (!normalizedGeographic.branchCode ||
+        canAccessBranch(normalizedGeographic.branchCode));
     if (!hasGeoAccess) return false;
   }
 
@@ -528,27 +575,27 @@ export const AdminGate = ({ children, action = 'view', ...props }) => (
 // Prop types for convenience components
 AccountingGate.propTypes = {
   children: PropTypes.node.isRequired,
-  action: PropTypes.string
+  action: PropTypes.string,
 };
 
 SalesGate.propTypes = {
   children: PropTypes.node.isRequired,
-  action: PropTypes.string
+  action: PropTypes.string,
 };
 
 ServiceGate.propTypes = {
   children: PropTypes.node.isRequired,
-  action: PropTypes.string
+  action: PropTypes.string,
 };
 
 InventoryGate.propTypes = {
   children: PropTypes.node.isRequired,
-  action: PropTypes.string
+  action: PropTypes.string,
 };
 
 AdminGate.propTypes = {
   children: PropTypes.node.isRequired,
-  action: PropTypes.string
+  action: PropTypes.string,
 };
 
-export default PermissionGate; 
+export default PermissionGate;

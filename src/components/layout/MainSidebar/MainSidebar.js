@@ -14,7 +14,7 @@ import 'styles/enhanced-navigation.css';
 const { Sider } = Layout;
 
 const MainSidebar = forwardRef((props, ref) => {
-  const { menuVisible } = useSelector(state => state.unPersisted);
+  const { menuVisible } = useSelector((state) => state.unPersisted);
   const dispatch = useDispatch();
   const { isMobile, isTablet } = useResponsive();
 
@@ -37,34 +37,37 @@ const MainSidebar = forwardRef((props, ref) => {
   };
 
   // Different positioning for mobile vs desktop
-  const siderStyle = (isMobile || isTablet) ? {
-    position: 'fixed',
-    right: menuVisible ? 0 : '100vw', // Slide from right, full screen width
-    top: 0,
-    bottom: 0,
-    width: '100vw', // Full screen width on mobile
-    zIndex: 1050, // Higher z-index for mobile overlay
-    background: '#fff',
-    borderLeft: '1px solid #f0f0f0', // Border on left for right-side panel
-    boxShadow: menuVisible ? '-2px 0 8px rgba(0, 0, 0, 0.15)' : 'none', // Shadow on left
-    transition: 'right 0.3s ease',
-    overflow: 'hidden'
-  } : {
-    position: 'fixed',
-    left: 0,
-    top: 0,
-    bottom: 0,
-    zIndex: 100,
-    background: '#fff',
-    borderRight: '1px solid #f0f0f0',
-    boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)',
-    overflow: 'hidden'
-  };
+  const siderStyle =
+    isMobile || isTablet
+      ? {
+          position: 'fixed',
+          right: menuVisible ? 0 : '100vw', // Slide from right, full screen width
+          top: 0,
+          bottom: 0,
+          width: '100vw', // Full screen width on mobile
+          zIndex: 1005, // Below navigation to prevent blocking
+          background: '#fff',
+          borderLeft: '1px solid #f0f0f0', // Border on left for right-side panel
+          boxShadow: menuVisible ? '-2px 0 8px rgba(0, 0, 0, 0.15)' : 'none', // Shadow on left
+          transition: 'right 0.3s ease',
+          overflow: 'hidden',
+        }
+      : {
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          bottom: 0,
+          zIndex: 100,
+          background: '#fff',
+          borderRight: '1px solid #f0f0f0',
+          boxShadow: '2px 0 8px rgba(0, 0, 0, 0.1)',
+          overflow: 'hidden',
+        };
 
   return (
     <>
       {/* Mobile overlay */}
-      {(isMobile || isTablet) && menuVisible && (
+      {/* {(isMobile || isTablet) && menuVisible && (
         <div
           style={{
             position: 'fixed',
@@ -74,39 +77,44 @@ const MainSidebar = forwardRef((props, ref) => {
             bottom: 0,
             background: 'rgba(0, 0, 0, 0.5)',
             zIndex: 1040,
-            transition: 'opacity 0.3s ease'
+            transition: 'opacity 0.3s ease',
           }}
           onClick={() => dispatch(toggleSidebar(false))}
         />
-      )}
-      
+      )} */}
+
       <Sider
         ref={ref}
         className={classes}
         width={isMobile || isTablet ? '100vw' : 280}
         collapsedWidth={0}
         collapsed={!menuVisible}
-        breakpoint="lg"
+        breakpoint='lg'
         onBreakpoint={handleBreakpoint}
         style={siderStyle}
         trigger={null}
       >
-        <div className="sidebar-content" style={{ 
-          height: '100vh', 
-          display: 'flex', 
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
+        <div
+          className='sidebar-content'
+          style={{
+            height: '100vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden',
+          }}
+        >
           <SidebarMainNavbar hideLogoText={props.hideLogoText} />
           <SidebarSearch />
-          
+
           {/* Enhanced RBAC Navigation - Main Content Area */}
-          <div style={{ 
-            flex: 1, 
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
+          <div
+            style={{
+              flex: 1,
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
             <EnhancedSidebarNavItems />
           </div>
         </div>
@@ -121,11 +129,11 @@ MainSidebar.propTypes = {
   /**
    * Whether to hide the logo text, or not.
    */
-  hideLogoText: PropTypes.bool
+  hideLogoText: PropTypes.bool,
 };
 
 MainSidebar.defaultProps = {
-  hideLogoText: false
+  hideLogoText: false,
 };
 
 export default MainSidebar;
