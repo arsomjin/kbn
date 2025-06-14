@@ -11,7 +11,7 @@
 
 ### **Core Principles**
 
-- **MODERN NICE and CLEAN**
+- **MODERN NICE and CLEAN GLASS MORPHISM DESIGN**
 - **Intuitive Access Control** - RBAC should feel natural, not restrictive
 - **Progressive Disclosure** - Show relevant features based on user role
 - **Geographic Awareness** - Location context clearly visible

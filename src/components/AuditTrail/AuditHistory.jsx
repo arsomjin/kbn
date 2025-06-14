@@ -41,6 +41,7 @@ import {
 } from './utils';
 import { usePermissions } from '../../hooks/usePermissions';
 import PermissionGate from '../PermissionGate';
+import { showPermissionWarning } from '../../utils/permissionWarnings';
 
 // Configure dayjs
 dayjs.extend(relativeTime);
@@ -184,7 +185,18 @@ const AuditHistory = ({
   };
 
   const handleApprove = () => {
-    if (!canApprove || !user) return;
+    if (!canApprove || !user) {
+      if (!user) {
+        showPermissionWarning('USER_NOT_MIGRATED', {
+          context: 'กรุณาเข้าสู่ระบบใหม่อีกครั้ง'
+        });
+      } else if (!canApprove) {
+        showPermissionWarning('CANNOT_APPROVE', {
+          context: 'คุณไม่มีสิทธิ์ในการอนุมัติรายการนี้'
+        });
+      }
+      return;
+    }
     
     const approvalEntry = {
       id: `approval_${Date.now()}`,
@@ -428,7 +440,7 @@ const AuditHistory = ({
         <PermissionGate permission="audit.view">
           <Panel
             header={
-              <Space>
+              <Space className="pt-3 pl-3">
                 <HistoryOutlined />
                 <span>Audit Trail</span>
                 <Tag color="blue">{sortedAuditTrail.length} รายการ</Tag>
@@ -452,9 +464,7 @@ const AuditHistory = ({
           }
           key="status"
         >
-          <Card className={compact ? 'shadow-none border-0' : ''}>
             {renderStatusTimeline()}
-          </Card>
         </Panel>
       </Collapse>
     </div>

@@ -15,31 +15,74 @@ import { isMobile } from 'react-device-detect';
 import 'styles/enhanced-navigation.css';
 
 const MainNavbar = ({ layout, stickyTop }) => {
-  const { isMobile: isResponsiveMobile, isTablet } = useResponsive();
+  const { isMobile: isResponsiveMobile, isTablet, width } = useResponsive();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   const isHeaderNav = layout === LAYOUT_TYPES.HEADER_NAVIGATION;
-  const isMobileDevice = isMobile || isResponsiveMobile || isTablet;
+  // Fix mobile detection to match CSS breakpoints (1024px instead of 480px)
+  const isMobileDevice = isMobile || width < 1024;
+
+  // Debug logging for mobile detection
+  useEffect(() => {
+    console.log('📱 Mobile detection:', {
+      isMobile,
+      isResponsiveMobile,
+      isTablet,
+      width,
+      isMobileDevice,
+      shouldUseFixedNavbar: isMobileDevice
+    });
+  }, [isMobile, isResponsiveMobile, isTablet, width, isMobileDevice]);
+
+  // Manage body padding for fixed navbar
+  useEffect(() => {
+    if (isMobileDevice) {
+      // Add body class for mobile fixed navbar
+      document.body.classList.add('has-mobile-fixed-navbar');
+      console.log('✅ Added mobile fixed navbar class to body');
+    } else {
+      // Remove body class for desktop
+      document.body.classList.remove('has-mobile-fixed-navbar');
+      console.log('✅ Removed mobile fixed navbar class from body');
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('has-mobile-fixed-navbar');
+    };
+  }, [isMobileDevice]);
 
   // Handle scroll behavior for mobile
   useEffect(() => {
-    if (!isMobileDevice) return;
+    if (!isMobileDevice) {
+      console.log('⏭️ Skipping scroll listener - not mobile device');
+      return;
+    }
+
+    console.log('📜 Setting up scroll listener for mobile navbar');
 
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
       
       // Set scrolled state for styling
-      setScrolled(currentScrollY > 10);
+      const isScrolled = currentScrollY > 10;
+      setScrolled(isScrolled);
       
       // Hide/show navbar based on scroll direction
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         // Scrolling down & past threshold - hide navbar
-        setHidden(true);
+        if (!hidden) {
+          console.log('⬇️ Hiding navbar - scrolling down');
+          setHidden(true);
+        }
       } else if (currentScrollY < lastScrollY || currentScrollY <= 50) {
         // Scrolling up or near top - show navbar
-        setHidden(false);
+        if (hidden) {
+          console.log('⬆️ Showing navbar - scrolling up');
+          setHidden(false);
+        }
       }
       
       setLastScrollY(currentScrollY);
@@ -58,10 +101,11 @@ const MainNavbar = ({ layout, stickyTop }) => {
     window.addEventListener('scroll', throttledHandleScroll, { passive: true });
     
     return () => {
+      console.log('🧹 Cleaning up scroll listener');
       window.removeEventListener('scroll', throttledHandleScroll);
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [lastScrollY, isMobileDevice]);
+  }, [lastScrollY, isMobileDevice, hidden]);
 
   // Dynamic classes for mobile behavior
   const getNavbarClasses = () => {
@@ -71,6 +115,8 @@ const MainNavbar = ({ layout, stickyTop }) => {
       baseClasses.push('mobile-fixed-navbar');
       if (scrolled) baseClasses.push('scrolled');
       if (hidden) baseClasses.push('hidden');
+      
+      console.log('🎨 Applied mobile navbar classes:', baseClasses);
     } else if (stickyTop) {
       baseClasses.push('sticky-top');
     }
@@ -82,22 +128,35 @@ const MainNavbar = ({ layout, stickyTop }) => {
   const getNavbarStyles = () => {
     if (!isMobileDevice) return {};
     
-    return {
+    const styles = {
       position: 'fixed',
       top: 0,
       left: 0,
       right: 0,
-      zIndex: 1030,
-      transform: hidden ? 'translateY(-100%)' : 'translateY(0)',
-      transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+      zIndex: 1020, // Consistent with CSS
+      width: '100%',
+      willChange: 'transform',
+      backfaceVisibility: 'hidden',
+      transform: hidden ? 'translateY(-100%)' : 'translateY(0) translateZ(0)',
+      transition: 'transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease',
+      transformStyle: 'preserve-3d',
       boxShadow: scrolled 
         ? '0 2px 8px rgba(0, 0, 0, 0.1)' 
         : 'none',
       backdropFilter: scrolled ? 'blur(10px)' : 'none',
+      WebkitBackdropFilter: scrolled ? 'blur(10px)' : 'none',
       backgroundColor: scrolled 
         ? 'rgba(255, 255, 255, 0.95)' 
         : 'rgba(255, 255, 255, 1)'
     };
+    
+    console.log('🎨 Applied mobile navbar styles:', {
+      hidden,
+      scrolled,
+      transform: styles.transform
+    });
+    
+    return styles;
   };
 
   return (

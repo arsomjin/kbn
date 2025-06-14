@@ -3,6 +3,30 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ====================================================================
+    // HELPER FUNCTIONS FOR DEVELOPMENT (TEMPORARY - VERY PERMISSIVE)
+    // ====================================================================
+    
+    // Get user's data from their user document
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+    
+    // Check if user exists in system
+    function userExists() {
+      return request.auth != null && 
+             exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+    
+    // TEMPORARY: Very permissive admin check for development
+    function isAdmin() {
+      return request.auth != null && 
+             (userExists() == false || // Allow if user doesn't exist yet (for signup)
+              getUserData().isDev == true || 
+              getUserData().access.authority == 'ADMIN' ||
+              true); // TEMPORARY: Allow all authenticated users for development
+    }
+
+    // ====================================================================
     // USERS STRUCTURE DATA
     // ====================================================================
   	match /users/{uid} {

@@ -1,7 +1,7 @@
 /*
  * ========================================
  * NATURE-INSPIRED GLASSMORPHISM LOGIN
- * Modern, Professional, User-Friendly Design
+ * Performance-Optimized, Professional Design
  * ========================================
  */
 
@@ -20,7 +20,7 @@
 }
 
 /* ======================
-   NATURE BACKGROUND
+   PERFORMANCE-OPTIMIZED BACKGROUND
    ====================== */
 
 .nature-login-background {
@@ -29,6 +29,8 @@
   left: 0;
   width: 100%;
   height: 100%;
+  
+  /* Clean gradient background with subtle movement */
   background: linear-gradient(135deg, 
     #1a4e2c 0%,     /* Deep Forest Green */
     #2d5016 15%,    /* Pine Green */
@@ -38,26 +40,34 @@
     #73d13d 100%    /* Leaf Green */
   );
   
-  /* Animated background particles */
+  /* Static subtle texture overlay for depth */
   background-image: 
-    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(139, 69, 19, 0.1) 0%, transparent 50%);
+    radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(139, 69, 19, 0.05) 0%, transparent 50%);
   
-  animation: backgroundShift 20s ease-in-out infinite;
+  /* Smooth bidirectional horizontal panning - like camera movement */
+  animation: gentleBackgroundShift 40s ease-in-out infinite;
 }
 
-@keyframes backgroundShift {
-  0%, 100% { 
-    background-position: 0% 0%, 100% 100%, 50% 50%; 
+/* Smooth bidirectional horizontal panning - like camera movement */
+@keyframes gentleBackgroundShift {
+  0% { 
+    background-position: 0% 50%, 100% 50%, 50% 50%; 
+    transform: translateX(0%);
   }
   50% { 
-    background-position: 100% 100%, 0% 0%, 25% 75%; 
+    background-position: 100% 50%, 0% 50%, 150% 50%; 
+    transform: translateX(-2%);
+  }
+  100% { 
+    background-position: 0% 50%, 100% 50%, 50% 50%; 
+    transform: translateX(0%);
   }
 }
 
 /* ======================
-   GLASSMORPHISM OVERLAY
+   CLEAN GLASSMORPHISM OVERLAY
    ====================== */
 
 .nature-glassmorphism-overlay {
@@ -66,10 +76,24 @@
   left: 0;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(3px);
-  background: rgba(255, 255, 255, 0.05);
   z-index: 1;
+  
+  /* Static glass effect for professional look */
+  background: 
+    /* Subtle glass layers */
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.12) 0%, transparent 60%),
+    radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.10) 0%, transparent 50%),
+    radial-gradient(circle at 20% 60%, rgba(139, 195, 74, 0.06) 0%, transparent 70%),
+    radial-gradient(circle at 80% 30%, rgba(76, 175, 80, 0.04) 0%, transparent 65%),
+    /* Base glass overlay */
+    rgba(255, 255, 255, 0.06);
+  
+  /* Minimal backdrop blur for maximum performance */
+  backdrop-filter: blur(1px) saturate(105%) contrast(101%);
+  -webkit-backdrop-filter: blur(1px) saturate(105%) contrast(101%);
 }
+
+/* Floating particles removed for performance optimization */
 
 /* ======================
    CONTAINER & POSITIONING
@@ -100,66 +124,85 @@
 }
 
 /* ======================
-   GLASSMORPHISM AUTH CARD
+   ENHANCED GLASSMORPHISM AUTH CARD
    ====================== */
 
 .nature-auth-card {
-  /* Glassmorphism Effect */
-  background: rgba(255, 255, 255, 0.35) !important;
-  backdrop-filter: blur(20px) !important;
-  -webkit-backdrop-filter: blur(20px) !important;
+  /* Advanced Multi-Layer Glassmorphism Effect */
+  background: 
+    /* Inner glass layer with warm tint */
+    linear-gradient(135deg, 
+      rgba(255, 255, 255, 0.45) 0%, 
+      rgba(255, 255, 255, 0.35) 50%, 
+      rgba(255, 255, 255, 0.25) 100%),
+    /* Subtle color overlay that complements office background */
+    radial-gradient(circle at 30% 30%, rgba(139, 195, 74, 0.08) 0%, transparent 70%),
+    radial-gradient(circle at 70% 70%, rgba(76, 175, 80, 0.06) 0%, transparent 60%),
+    /* Base glass background */
+    rgba(255, 255, 255, 0.30);
   
-  /* Modern Border & Shadow */
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  border-radius: 24px !important;
-  /* box-shadow: 
-    0 25px 45px rgba(26, 78, 44, 0.2),
-    0 15px 35px rgba(0, 0, 0, 0.1),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important; */
+  /* Reduced backdrop blur for better performance */
+  backdrop-filter: 
+    blur(5px) 
+    saturate(130%) 
+    contrast(105%) 
+    brightness(103%) !important;
+  -webkit-backdrop-filter: 
+    blur(5px) 
+    saturate(130%) 
+    contrast(105%) 
+    brightness(103%) !important;
+  
+  /* Luxurious Border & Shadow System */
+  border: 2px solid transparent !important;
+  background-clip: padding-box !important;
+  border-radius: 28px !important;
+  
+  /* Multi-layer shadow for incredible depth */
+  box-shadow: 
+    /* Primary depth shadow */
+    0 32px 64px rgba(26, 78, 44, 0.25),
+    /* Secondary ambient shadow */
+    0 16px 32px rgba(0, 0, 0, 0.15),
+    /* Close contact shadow */
+    0 8px 16px rgba(0, 0, 0, 0.10),
+    /* Inner glass highlight */
+    inset 0 2px 4px rgba(255, 255, 255, 0.40),
+    /* Inner glass depth */
+    inset 0 -1px 2px rgba(0, 0, 0, 0.08),
+    /* Outer glass rim light */
+    0 0 0 1px rgba(255, 255, 255, 0.30) !important;
   
   /* Sizing & Spacing */
-  padding: 48px 40px !important;
-  min-width: 380px !important;
-  max-width: 520px !important; /* Optimized for forms */
+  padding: 56px 48px !important;
+  min-width: 420px !important;
+  max-width: 580px !important;
   width: calc(100% - 40px) !important;
   min-height: auto !important;
   max-height: 85vh !important;
   overflow-y: auto !important;
   
-  /* Hide scrollbar for auth card */
+  /* Hide scrollbar for glass card */
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* IE and Edge */
   
-  /* Animation */
-  animation: cardAppear 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-  transform: translateY(30px);
-  /* opacity: 0; */
+  /* No animations for performance */
+  transform: translateY(0);
+  opacity: 1;
 }
 
-@keyframes cardAppear {
-  0% {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  100% {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
+/* Card animations removed for performance optimization */
 
+/* Glass card scrollbar styling */
 .nature-auth-card::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
 }
 
+/* Enhanced hover effects for interactive elements inside glass card */
 .nature-auth-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 35px 60px rgba(26, 78, 44, 0.4),
-    0 20px 45px rgba(0, 0, 0, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-    inset 0 -1px 0 rgba(0, 0, 0, 0.1) !important;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Minimal hover effects for performance */
+  backdrop-filter: blur(6px) saturate(135%) contrast(107%) !important;
+  -webkit-backdrop-filter: blur(6px) saturate(135%) contrast(107%) !important;
 }
 
 /* ======================
@@ -486,17 +529,13 @@
 }
 
 .nature-user-type-selector .nature-user-type-card.selected {
-  animation: selectedPulse 2s ease-in-out infinite;
+  animation: none;
+  border-color: #52c41a !important;
+  background: linear-gradient(135deg, rgba(82, 196, 26, 0.15) 0%, rgba(45, 80, 22, 0.15) 100%) !important;
+  box-shadow: 0 8px 25px rgba(82, 196, 26, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
 }
 
-@keyframes selectedPulse {
-  0%, 100% { 
-    box-shadow: 0 8px 25px rgba(82, 196, 26, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  }
-  50% { 
-    box-shadow: 0 12px 35px rgba(82, 196, 26, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  }
-}
+/* Animation removed for performance optimization */
 
 /* Mobile responsive for user type selector */
 @media (max-width: 768px) {
@@ -539,7 +578,7 @@
     max-width: 420px !important;
     padding: 32px 24px !important;
     margin: 0 !important;
-    width: calc(100% - 32px) !important;
+    width: calc(100% - 24px) !important;
   }
   
   .nature-login-title {
@@ -582,7 +621,7 @@
     min-width: 280px !important;
     max-width: calc(100vw - 24px) !important;
     padding: 24px 20px !important;
-    width: calc(100% - 24px) !important;
+    width: calc(100% - 16px) !important;
   }
   
   .nature-login-title {
@@ -609,7 +648,9 @@
   .nature-auth-card,
   .nature-login-button,
   .nature-login-link,
-  .nature-login-background {
+  .nature-login-background,
+  .nature-login-logo,
+  .nature-user-type-selector .nature-user-type-card {
     animation: none !important;
     transition: none !important;
   }
@@ -730,7 +771,7 @@
     overflow-y: auto !important;
     padding: 24px 20px !important;
     min-width: 280px !important;
-    max-width: calc(100vw - 24px) !important;
+    max-width: calc(100vw - 16px) !important;
   }
   
   .nature-login-form .ant-select .ant-select-selector,

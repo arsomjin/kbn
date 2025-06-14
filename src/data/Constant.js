@@ -277,13 +277,28 @@ export const Plants = {
   marigold: 'ดาวเรือง'
 };
 
-export const OrderSteps = ['สร้างรายการ', 'ตรวจสอบ', 'อนุมัติ'];
+export const OrderSteps = [
+  { title: 'สร้างรายการ', description: 'สร้างรายการสั่งซื้อใหม่' },
+  { title: 'ตรวจสอบ', description: 'ตรวจสอบความถูกต้องของข้อมูล' },
+  { title: 'อนุมัติ', description: 'อนุมัติรายการสั่งซื้อ' }
+];
 
-export const AccountSteps = ['บันทึกรายการ', 'ตรวจสอบ', 'อนุมัติ'];
+export const AccountSteps = [
+  { title: 'บันทึกรายการ', description: 'บันทึกรายการบัญชี' },
+  { title: 'ตรวจสอบ', description: 'ตรวจสอบความถูกต้องของข้อมูล' },
+  { title: 'อนุมัติ', description: 'อนุมัติรายการบัญชี' }
+];
 
-export const ReportSteps = ['ตรวจสอบ', 'อนุมัติ'];
+export const ReportSteps = [
+  { title: 'ตรวจสอบ', description: 'ตรวจสอบรายงาน' },
+  { title: 'อนุมัติ', description: 'อนุมัติรายงาน' }
+];
 
-export const CommonSteps = ['บันทึกรายการ', 'ตรวจสอบ', 'อนุมัติ'];
+export const CommonSteps = [
+  { title: 'บันทึกรายการ', description: 'บันทึกข้อมูลรายการ' },
+  { title: 'ตรวจสอบ', description: 'ตรวจสอบความถูกต้องของข้อมูล' },
+  { title: 'อนุมัติ', description: 'อนุมัติรายการ' }
+];
 
 export const VehicleFieldnameMap = {
   รหัสสินค้า: 'productCode',

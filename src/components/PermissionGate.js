@@ -6,11 +6,12 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Spin, Alert } from 'antd';
-import { LockOutlined } from '@ant-design/icons';
+import { Spin, Alert, Button } from 'antd';
+import { LockOutlined, ExclamationCircleOutlined, InfoCircleOutlined } from '@ant-design/icons';
 
 // Use Clean Slate RBAC system as the core
 import { usePermissions } from '../hooks/usePermissions';
+import { showPermissionWarning } from '../utils/permissionWarnings';
 
 /**
  * Unified Permission Gate Component

@@ -1,0 +1,90 @@
+/* Simple Help Button Styles */
+
+.simple-help-button {
+  /* Base styles are handled inline for dynamic behavior */
+}
+
+/* Fix Ant Design Drawer Mask Blocking Issue - CRITICAL FIXES */
+.ant-drawer-mask {
+  background-color: transparent !important;
+  pointer-events: none !important;
+}
+
+/* Ensure drawer content is still interactive */
+.ant-drawer-content {
+  pointer-events: auto !important;
+}
+
+/* Specific override for our help drawer */
+.ant-drawer-right {
+  pointer-events: none !important;
+}
+
+.ant-drawer-right .ant-drawer-content {
+  pointer-events: auto !important;
+}
+
+/* Alternative approach - completely hide mask */
+.ant-drawer-wrapper-body .ant-drawer-mask {
+  display: none !important;
+}
+
+/* Mobile-specific enhancements */
+@media (max-width: 768px) {
+  .simple-help-button {
+    width: 56px !important;
+    height: 56px !important;
+    right: 16px !important;
+    bottom: 16px !important;
+    font-size: 20px !important;
+    /* Make it more visible on mobile by default */
+    background-color: rgba(82, 196, 26, 0.85) !important;
+    box-shadow: 0 6px 25px rgba(82, 196, 26, 0.4) !important;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .simple-help-button {
+    /* Mobile devices - make button more prominent */
+    background-color: rgba(82, 196, 26, 0.9) !important;
+    box-shadow: 0 6px 25px rgba(82, 196, 26, 0.5) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  }
+  
+  .simple-help-button:active {
+    transform: scale(0.95) !important;
+    background-color: rgba(82, 196, 26, 1) !important;
+  }
+}
+
+/* Accessibility improvements */
+.simple-help-button:focus {
+  outline: 3px solid rgba(82, 196, 26, 0.3) !important;
+  outline-offset: 2px !important;
+}
+
+/* Animation for attention-grabbing */
+@keyframes gentle-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 20px rgba(82, 196, 26, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(82, 196, 26, 0.4);
+  }
+}
+
+/* Apply gentle pulse for first-time users */
+.simple-help-button.first-time {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .simple-help-button {
+    transition: none !important;
+    animation: none !important;
+  }
+} 

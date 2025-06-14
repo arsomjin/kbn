@@ -35,7 +35,7 @@ const BranchDateHeader = ({
           {(title || subtitle) && <PageTitle sm="4" title={title} subtitle={subtitle} className="text-sm-left" />}
           <Col>
             <Stepper
-              className="bg-light"
+              className="nature-stepper nature-steps-compact"
               steps={steps}
               activeStep={activeStep}
               alternativeLabel={false} // In-line labels

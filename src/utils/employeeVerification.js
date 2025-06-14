@@ -10,12 +10,12 @@ import { showLog } from '../functions';
  * Employee lookup confidence levels
  */
 export const CONFIDENCE_LEVELS = {
-  EXACT_MATCH: 'exact_match',           // employeeCode + name match
-  CODE_MATCH: 'code_match',             // employeeCode match only
-  NAME_MATCH: 'name_match',             // firstName + lastName match
-  PARTIAL_MATCH: 'partial_match',       // partial name match
+  EXACT_MATCH: 'exact_match', // employeeCode + name match
+  CODE_MATCH: 'code_match', // employeeCode match only
+  NAME_MATCH: 'name_match', // firstName + lastName match
+  PARTIAL_MATCH: 'partial_match', // partial name match
   MULTIPLE_MATCHES: 'multiple_matches', // multiple potential matches
-  NO_MATCH: 'no_match'                  // no matches found
+  NO_MATCH: 'no_match', // no matches found
 };
 
 /**
@@ -27,7 +27,7 @@ export const createVerificationResult = ({
   employee = null,
   employees = [],
   message = '',
-  suggestions = []
+  suggestions = [],
 }) => ({
   success,
   confidence,
@@ -35,7 +35,7 @@ export const createVerificationResult = ({
   employees,
   message,
   suggestions,
-  timestamp: Date.now()
+  timestamp: Date.now(),
 });
 
 /**
@@ -51,14 +51,14 @@ export const verifyEmployee = async ({
   employeeCode,
   firstName,
   lastName,
-  employees = null
+  employees = null,
 }) => {
   try {
     showLog('🔍 Starting employee verification', {
       employeeCode,
       firstName,
       lastName,
-      hasEmployeesData: !!employees
+      hasEmployeesData: !!employees,
     });
 
     // Method 1: Lookup by employeeCode (Primary)
@@ -67,18 +67,18 @@ export const verifyEmployee = async ({
         employeeCode,
         firstName,
         lastName,
-        employees
+        employees,
       });
-      
+
       if (codeResult.success) {
         return codeResult;
       }
-      
+
       // If employeeCode lookup failed, continue to name lookup
       showLog('❌ Employee code lookup failed, trying name lookup', {
         employeeCode,
         firstName,
-        lastName
+        lastName,
       });
     }
 
@@ -88,9 +88,9 @@ export const verifyEmployee = async ({
         firstName,
         lastName,
         employees,
-        providedEmployeeCode: employeeCode // for cross-validation
+        providedEmployeeCode: employeeCode, // for cross-validation
       });
-      
+
       if (nameResult.success) {
         return nameResult;
       }
@@ -104,17 +104,16 @@ export const verifyEmployee = async ({
       suggestions: [
         'ตรวจสอบรหัสพนักงานให้ถูกต้อง',
         'ตรวจสอบชื่อ-นามสกุลให้ถูกต้อง',
-        'ติดต่อฝ่ายบุคคลหากยังไม่สามารถเข้าสู่ระบบได้'
-      ]
+        'ติดต่อฝ่ายบุคคลหากยังไม่สามารถเข้าสู่ระบบได้',
+      ],
     });
-
   } catch (error) {
     console.error('Error in employee verification:', error);
     return createVerificationResult({
       success: false,
       confidence: CONFIDENCE_LEVELS.NO_MATCH,
       message: 'เกิดข้อผิดพลาดในการตรวจสอบข้อมูลพนักงาน',
-      suggestions: ['กรุณาลองใหม่อีกครั้ง หรือติดต่อฝ่ายเทคนิค']
+      suggestions: ['กรุณาลองใหม่อีกครั้ง หรือติดต่อฝ่ายเทคนิค'],
     });
   }
 };
@@ -128,7 +127,7 @@ export const verifyByEmployeeCode = async ({
   employeeCode,
   firstName,
   lastName,
-  employees
+  employees,
 }) => {
   try {
     let employee = null;
@@ -140,9 +139,9 @@ export const verifyByEmployeeCode = async ({
     } else {
       // Firestore lookup
       const employeeDoc = await checkCollection('data/company/employees', [
-        ['employeeCode', '==', employeeCode]
+        ['employeeCode', '==', employeeCode],
       ]);
-      
+
       if (employeeDoc && !employeeDoc.empty) {
         employee = employeeDoc.docs[0].data();
         employee._key = employeeDoc.docs[0].id;
@@ -157,26 +156,41 @@ export const verifyByEmployeeCode = async ({
         message: `ไม่พบพนักงานที่มีรหัส ${employeeCode}`,
         suggestions: [
           'ตรวจสอบรหัสพนักงานให้ถูกต้อง',
-          'ลองใช้ชื่อ-นามสกุลแทนการใส่รหัสพนักงาน'
-        ]
+          'ลองใช้ชื่อ-นามสกุลแทนการใส่รหัสพนักงาน',
+        ],
       });
     }
 
-    // Validate employee status
-    if (employee.status !== 'ปกติ') {
+    // Validate employee status - Allow both 'ปกติ' and 'ลาออก' but flag resigned employees
+    if (employee.status !== 'ปกติ' && employee.status !== 'ลาออก') {
       return createVerificationResult({
         success: false,
         confidence: CONFIDENCE_LEVELS.CODE_MATCH,
         employee,
         message: `พนักงานรหัส ${employeeCode} มีสถานะ: ${employee.status}`,
-        suggestions: ['ติดต่อฝ่ายบุคคลเพื่อตรวจสอบสถานะการทำงาน']
+        suggestions: ['ติดต่อฝ่ายบุคคลเพื่อตรวจสอบสถานะการทำงาน'],
+      });
+    }
+
+    // Special handling for resigned employees
+    if (employee.status === 'ลาออก') {
+      return createVerificationResult({
+        success: true,
+        confidence: CONFIDENCE_LEVELS.CODE_MATCH,
+        employee,
+        isResignedEmployee: true, // Special flag for resigned employees
+        message: `พบพนักงานเดิม (ลาออกแล้ว): ${employee.firstName} ${employee.lastName} (${employeeCode})`,
+        suggestions: [
+          'บัญชีนี้จะต้องได้รับการอนุมัติพิเศษจากผู้จัดการ',
+          'ระบบจะส่งคำขออนุมัติไปยังผู้ดูแลระบบ',
+        ],
       });
     }
 
     // Cross-validate with provided names if available
     if (firstName || lastName) {
       const nameMatch = validateEmployeeName(employee, { firstName, lastName });
-      
+
       if (!nameMatch.isMatch) {
         return createVerificationResult({
           success: false,
@@ -186,8 +200,8 @@ export const verifyByEmployeeCode = async ({
           suggestions: [
             `ชื่อในระบบ: ${employee.firstName} ${employee.lastName}`,
             'ตรวจสอบการสะกดชื่อ-นามสกุล',
-            'ติดต่อฝ่ายบุคคลหากข้อมูลไม่ถูกต้อง'
-          ]
+            'ติดต่อฝ่ายบุคคลหากข้อมูลไม่ถูกต้อง',
+          ],
         });
       }
 
@@ -197,7 +211,7 @@ export const verifyByEmployeeCode = async ({
         confidence: CONFIDENCE_LEVELS.EXACT_MATCH,
         employee,
         message: `ยืนยันตัวตนสำเร็จ: ${employee.firstName} ${employee.lastName} (${employeeCode})`,
-        suggestions: []
+        suggestions: [],
       });
     }
 
@@ -207,9 +221,8 @@ export const verifyByEmployeeCode = async ({
       confidence: CONFIDENCE_LEVELS.CODE_MATCH,
       employee,
       message: `พบพนักงานรหัส ${employeeCode}: ${employee.firstName} ${employee.lastName}`,
-      suggestions: []
+      suggestions: [],
     });
-
   } catch (error) {
     console.error('Error in employeeCode verification:', error);
     throw error;
@@ -225,7 +238,7 @@ export const verifyByName = async ({
   firstName,
   lastName,
   employees,
-  providedEmployeeCode = null
+  providedEmployeeCode = null,
 }) => {
   try {
     let matchingEmployees = [];
@@ -236,44 +249,48 @@ export const verifyByName = async ({
       wheres.push(['lastName', '==', lastName]);
     }
 
-    // Add status filter to only get active employees
-    wheres.push(['status', '==', 'ปกติ']);
+    // Add status filter to get both active and resigned employees
+    // We'll handle resigned employees specially in the auth flow
+    wheres.push(['status', 'in', ['ปกติ', 'ลาออก']]);
 
     // Try offline lookup first if employees data provided
     if (employees) {
-      const employeesList = Object.keys(employees).map(k => ({
+      const employeesList = Object.keys(employees).map((k) => ({
         ...employees[k],
-        _key: k
+        _key: k,
       }));
 
-      matchingEmployees = employeesList.filter(emp => {
+      matchingEmployees = employeesList.filter((emp) => {
         const firstNameMatch = emp.firstName === firstName;
         const lastNameMatch = !lastName || emp.lastName === lastName;
-        const statusMatch = emp.status === 'ปกติ';
-        
+        const statusMatch = emp.status === 'ปกติ' || emp.status === 'ลาออก';
+
         return firstNameMatch && lastNameMatch && statusMatch;
       });
 
       showLog('🔍 Name search in offline data', {
         firstName,
         lastName,
-        foundCount: matchingEmployees.length
+        foundCount: matchingEmployees.length,
       });
     } else {
       // Firestore lookup
-      const employeeDocs = await checkCollection('data/company/employees', wheres);
-      
+      const employeeDocs = await checkCollection(
+        'data/company/employees',
+        wheres
+      );
+
       if (employeeDocs && !employeeDocs.empty) {
-        matchingEmployees = employeeDocs.docs.map(doc => ({
+        matchingEmployees = employeeDocs.docs.map((doc) => ({
           ...doc.data(),
-          _key: doc.id
+          _key: doc.id,
         }));
       }
 
       showLog('🔍 Name search in Firestore', {
         firstName,
         lastName,
-        foundCount: matchingEmployees.length
+        foundCount: matchingEmployees.length,
       });
     }
 
@@ -286,16 +303,19 @@ export const verifyByName = async ({
         suggestions: [
           'ตรวจสอบการสะกดชื่อ-นามสกุล',
           'ลองใส่เฉพาะชื่อจริง (ไม่ต้องใส่นามสกุล)',
-          'ติดต่อฝ่ายบุคคลหากยังไม่สามารถเข้าสู่ระบบได้'
-        ]
+          'ติดต่อฝ่ายบุคคลหากยังไม่สามารถเข้าสู่ระบบได้',
+        ],
       });
     }
 
     if (matchingEmployees.length === 1) {
       const employee = matchingEmployees[0];
-      
+
       // Cross-validate with provided employeeCode if available
-      if (providedEmployeeCode && employee.employeeCode !== providedEmployeeCode) {
+      if (
+        providedEmployeeCode &&
+        employee.employeeCode !== providedEmployeeCode
+      ) {
         return createVerificationResult({
           success: false,
           confidence: CONFIDENCE_LEVELS.NAME_MATCH,
@@ -304,20 +324,39 @@ export const verifyByName = async ({
           suggestions: [
             `รหัสพนักงานในระบบ: ${employee.employeeCode}`,
             `รหัสที่ให้มา: ${providedEmployeeCode}`,
-            'ตรวจสอบรหัสพนักงานให้ถูกต้อง'
-          ]
+            'ตรวจสอบรหัสพนักงานให้ถูกต้อง',
+          ],
         });
       }
 
-      // Single match found
+      // Check if this is a resigned employee
+      if (employee.status === 'ลาออก') {
+        return createVerificationResult({
+          success: true,
+          confidence:
+            providedEmployeeCode === employee.employeeCode
+              ? CONFIDENCE_LEVELS.EXACT_MATCH
+              : CONFIDENCE_LEVELS.NAME_MATCH,
+          employee,
+          isResignedEmployee: true, // Special flag for resigned employees
+          message: `พบพนักงานเดิม (ลาออกแล้ว): ${employee.firstName} ${employee.lastName} (${employee.employeeCode})`,
+          suggestions: [
+            'บัญชีนี้จะต้องได้รับการอนุมัติพิเศษจากผู้จัดการ',
+            'ระบบจะส่งคำขออนุมัติไปยังผู้ดูแลระบบ',
+          ],
+        });
+      }
+
+      // Single match found (active employee)
       return createVerificationResult({
         success: true,
-        confidence: providedEmployeeCode === employee.employeeCode 
-          ? CONFIDENCE_LEVELS.EXACT_MATCH 
-          : CONFIDENCE_LEVELS.NAME_MATCH,
+        confidence:
+          providedEmployeeCode === employee.employeeCode
+            ? CONFIDENCE_LEVELS.EXACT_MATCH
+            : CONFIDENCE_LEVELS.NAME_MATCH,
         employee,
         message: `พบพนักงาน: ${employee.firstName} ${employee.lastName} (${employee.employeeCode})`,
-        suggestions: []
+        suggestions: [],
       });
     }
 
@@ -330,12 +369,12 @@ export const verifyByName = async ({
       suggestions: [
         'กรุณาระบุรหัสพนักงานเพื่อระบุตัวตน',
         'ติดต่อฝ่ายบุคคลเพื่อขอรหัสพนักงาน',
-        ...matchingEmployees.map(emp => 
-          `- ${emp.firstName} ${emp.lastName} (${emp.employeeCode}) - ${emp.position || 'ไม่ระบุตำแหน่ง'}`
-        )
-      ]
+        ...matchingEmployees.map(
+          (emp) =>
+            `- ${emp.firstName} ${emp.lastName} (${emp.employeeCode}) - ${emp.position || 'ไม่ระบุตำแหน่ง'}`
+        ),
+      ],
     });
-
   } catch (error) {
     console.error('Error in name verification:', error);
     throw error;
@@ -360,7 +399,7 @@ export const validateEmployeeName = (employee, { firstName, lastName }) => {
 
   // Check first name (required)
   const firstNameMatch = empFirstName === checkFirstName;
-  
+
   // Check last name (optional)
   let lastNameMatch = true;
   if (lastName && empLastName) {
@@ -373,11 +412,11 @@ export const validateEmployeeName = (employee, { firstName, lastName }) => {
     isMatch,
     firstNameMatch,
     lastNameMatch,
-    reason: !firstNameMatch 
-      ? 'First name mismatch' 
-      : !lastNameMatch 
-        ? 'Last name mismatch' 
-        : 'Names match'
+    reason: !firstNameMatch
+      ? 'First name mismatch'
+      : !lastNameMatch
+        ? 'Last name mismatch'
+        : 'Names match',
   };
 };
 
@@ -391,22 +430,24 @@ export const validateEmployeeName = (employee, { firstName, lastName }) => {
 export const getEmployeeSuggestions = (firstName, lastName, employees) => {
   if (!employees || !firstName) return [];
 
-  const employeesList = Object.keys(employees).map(k => ({
+  const employeesList = Object.keys(employees).map((k) => ({
     ...employees[k],
-    _key: k
+    _key: k,
   }));
 
   const searchName = firstName.toLowerCase();
-  const suggestions = employeesList.filter(emp => {
+  const suggestions = employeesList.filter((emp) => {
     if (emp.status !== 'ปกติ') return false;
-    
+
     const empFirstName = emp.firstName?.toLowerCase() || '';
     const empLastName = emp.lastName?.toLowerCase() || '';
-    
+
     // Check for partial matches or similar names
-    return empFirstName.includes(searchName) || 
-           searchName.includes(empFirstName) ||
-           (lastName && empLastName.includes(lastName.toLowerCase()));
+    return (
+      empFirstName.includes(searchName) ||
+      searchName.includes(empFirstName) ||
+      (lastName && empLastName.includes(lastName.toLowerCase()))
+    );
   });
 
   return suggestions.slice(0, 5); // Limit to 5 suggestions
@@ -423,33 +464,44 @@ export const getEmployeeStatusInfo = (employee) => {
       isActive: false,
       status: 'unknown',
       message: 'ไม่พบข้อมูลพนักงาน',
-      canRegister: false
+      canRegister: false,
     };
   }
 
   const status = employee.status || 'ไม่ระบุ';
   const isActive = status === 'ปกติ';
-  
+  const isResigned = status === 'ลาออก';
+
   const statusInfo = {
     isActive,
+    isResigned,
     status,
-    canRegister: isActive,
-    message: isActive 
-      ? 'พนักงานมีสถานะปกติ' 
-      : `พนักงานมีสถานะ: ${status}`,
+    canRegister: isActive || isResigned, // Allow both active and resigned employees to register
+    requiresSpecialApproval: isResigned, // Resigned employees need special approval
+    message: isActive
+      ? 'พนักงานมีสถานะปกติ'
+      : isResigned
+        ? 'พนักงานเดิม (ลาออกแล้ว) - ต้องการอนุมัติพิเศษ'
+        : `พนักงานมีสถานะ: ${status}`,
     details: {
       startDate: employee.startDate,
       endDate: employee.endDate,
       position: employee.position,
       affiliate: employee.affiliate,
-      provinceId: employee.provinceId
-    }
+      provinceId: employee.provinceId,
+    },
   };
 
-  if (!isActive) {
+  if (isResigned) {
+    statusInfo.suggestions = [
+      'บัญชีนี้จะต้องได้รับการอนุมัติพิเศษจากผู้จัดการ',
+      'ระบบจะส่งคำขออนุมัติไปยังผู้ดูแลระบบ',
+      'กระบวนการอนุมัติอาจใช้เวลานานกว่าปกติ',
+    ];
+  } else if (!isActive) {
     statusInfo.suggestions = [
       'ติดต่อฝ่ายบุคคลเพื่อตรวจสอบสถานะการทำงาน',
-      'อาจจำเป็นต้องได้รับการอนุมัติพิเศษจากผู้จัดการ'
+      'อาจจำเป็นต้องได้รับการอนุมัติพิเศษจากผู้จัดการ',
     ];
   }
 
@@ -467,17 +519,18 @@ export const formatEmployeeInfo = (employee) => {
   return {
     employeeCode: employee.employeeCode,
     fullName: `${employee.firstName} ${employee.lastName || ''}`.trim(),
-    displayName: employee.nickName 
-      ? `${employee.firstName} (${employee.nickName})` 
+    displayName: employee.nickName
+      ? `${employee.firstName} (${employee.nickName})`
       : employee.firstName,
     position: employee.position || 'ไม่ระบุตำแหน่ง',
     branch: employee.affiliate || 'ไม่ระบุสาขา',
     province: employee.provinceId || 'ไม่ระบุจังหวัด',
     status: employee.status || 'ไม่ระบุสถานะ',
-    workSchedule: employee.workBegin && employee.workEnd 
-      ? `${employee.workBegin} - ${employee.workEnd}`
-      : 'ไม่ระบุเวลาทำงาน',
+    workSchedule:
+      employee.workBegin && employee.workEnd
+        ? `${employee.workBegin} - ${employee.workEnd}`
+        : 'ไม่ระบุเวลาทำงาน',
     startDate: employee.startDate,
-    isActive: employee.status === 'ปกติ'
+    isActive: employee.status === 'ปกติ',
   };
-}; 
+};

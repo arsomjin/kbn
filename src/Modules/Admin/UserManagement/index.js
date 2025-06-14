@@ -49,6 +49,7 @@ import { usePermissions } from 'hooks/usePermissions';
 import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
 import ProvinceSelector from 'components/ProvinceSelector';
 import GeographicBranchSelector from 'components/GeographicBranchSelector';
+import ScreenWithManual from 'components/ScreenWithManual';
 import { 
   getProvinceName,
   getBranchName, 
@@ -860,209 +861,213 @@ const UserManagement = () => {
   ];
 
   return (
-    <LayoutWithRBAC 
-      permission="users.view" 
-      title="จัดการผู้ใช้งาน"
-      requireBranchSelection={false}
-      showAuditTrail={false}
-      showStepper={false}
+    <ScreenWithManual 
+      screenType="user-management"
+      showManualOnFirstVisit={true}
     >
-      <Card 
-        title={
-          <Row align="middle" justify="space-between">
-            <Col>
-              <Space>
-                <TeamOutlined />
-                <span>จัดการผู้ใช้งาน</span>
-              </Space>
-            </Col>
-            <Col>
-              <Button 
-                icon={<ReloadOutlined />}
-                onClick={fetchUsers} 
-                loading={loading}
+      <LayoutWithRBAC 
+        permission="users.view" 
+        title="จัดการผู้ใช้งาน"
+        requireBranchSelection={false}
+        showAuditTrail={false}
+        showStepper={false}
+      >
+        <Card 
+          title={
+            <Row align="middle" justify="space-between">
+              <Col>
+                <Space>
+                  <TeamOutlined />
+                  <span>จัดการผู้ใช้งาน</span>
+                </Space>
+              </Col>
+              <Col>
+                <Button 
+                  icon={<ReloadOutlined />}
+                  onClick={fetchUsers} 
+                  loading={loading}
+                  size={isMobile ? 'small' : 'default'}
+                >
+                  {!isMobile && 'รีเฟรช'}
+                </Button>
+              </Col>
+            </Row>
+          }
+          bodyStyle={{ 
+            padding: isMobile ? '12px' : '16px',
+            overflowX: 'hidden'
+          }}
+        >
+          {/* Filters Section with Responsive Grid */}
+          <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Select
+                value={filterRole}
+                onChange={setFilterRole}
+                style={{ width: '100%' }}
+                placeholder="กรองตามบทบาท"
                 size={isMobile ? 'small' : 'default'}
               >
-                {!isMobile && 'รีเฟรช'}
-              </Button>
+                <Option value="all">ทุกบทบาท</Option>
+                {getAllRoles().map(role => (
+                  <Option key={role.value} value={role.value}>{role.label}</Option>
+                ))}
+              </Select>
+            </Col>
+            <Col xs={24} sm={12} md={8} lg={6}>
+              <Select
+                value={filterStatus}
+                onChange={setFilterStatus}
+                style={{ width: '100%' }}
+                placeholder="กรองตามสถานะ"
+                size={isMobile ? 'small' : 'default'}
+              >
+                <Option value="all">ทุกสถานะ</Option>
+                <Option value="active">ใช้งานได้</Option>
+                <Option value="pending">รออนุมัติ</Option>
+                <Option value="rejected">ถูกปฏิเสธ</Option>
+                <Option value="inactive">ไม่ใช้งาน</Option>
+              </Select>
+            </Col>
+            <Col xs={24} sm={24} md={8} lg={12}>
+              <Input.Search
+                placeholder="ค้นหาชื่อหรืออีเมล"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                style={{ width: '100%' }}
+                size={isMobile ? 'small' : 'default'}
+                allowClear
+              />
             </Col>
           </Row>
-        }
-        bodyStyle={{ 
-          padding: isMobile ? '12px' : '16px',
-          overflowX: 'hidden'
-        }}
-      >
-        {/* Filters Section with Responsive Grid */}
-        <Row gutter={[8, 8]} style={{ marginBottom: 16 }}>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Select
-              value={filterRole}
-              onChange={setFilterRole}
-              style={{ width: '100%' }}
-              placeholder="กรองตามบทบาท"
-              size={isMobile ? 'small' : 'default'}
-            >
-              <Option value="all">ทุกบทบาท</Option>
-              {getAllRoles().map(role => (
-                <Option key={role.value} value={role.value}>{role.label}</Option>
-              ))}
-            </Select>
-          </Col>
-          <Col xs={24} sm={12} md={8} lg={6}>
-            <Select
-              value={filterStatus}
-              onChange={setFilterStatus}
-              style={{ width: '100%' }}
-              placeholder="กรองตามสถานะ"
-              size={isMobile ? 'small' : 'default'}
-            >
-              <Option value="all">ทุกสถานะ</Option>
-              <Option value="active">ใช้งานได้</Option>
-              <Option value="pending">รออนุมัติ</Option>
-              <Option value="rejected">ถูกปฏิเสธ</Option>
-              <Option value="inactive">ไม่ใช้งาน</Option>
-            </Select>
-          </Col>
-          <Col xs={24} sm={24} md={8} lg={12}>
-            <Input.Search
-              placeholder="ค้นหาชื่อหรืออีเมล"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              style={{ width: '100%' }}
-              size={isMobile ? 'small' : 'default'}
-              allowClear
-            />
-          </Col>
-        </Row>
 
-        {/* Table Section - Remove extra wrapper and fixed height */}
-        <Table
-          columns={columns}
-          dataSource={filteredUsers}
-          rowKey="uid"
-          loading={loading}
-          scroll={{ 
-            x: isMobile ? 'max-content' : isTablet ? 1000 : 1200
-            // Remove y scroll to prevent double scrollbar
-          }}
-          size={isMobile ? 'small' : 'middle'}
-          pagination={{
-            total: filteredUsers.length,
-            pageSize: isMobile ? 5 : isTablet ? 8 : 10,
-            showSizeChanger: !isMobile,
-            showQuickJumper: !isMobile,
-            showTotal: !isMobile ? (total, range) =>
-              `${range[0]}-${range[1]} จาก ${total} ผู้ใช้` : undefined,
-            simple: isMobile,
-            position: isMobile ? ['bottomCenter'] : ['bottomRight'],
-            size: isMobile ? 'small' : 'default'
-          }}
-        />
-      </Card>
+          {/* Table Section - Remove extra wrapper and fixed height */}
+          <Table
+            columns={columns}
+            dataSource={filteredUsers}
+            rowKey="uid"
+            loading={loading}
+            scroll={{ 
+              x: isMobile ? 'max-content' : isTablet ? 1000 : 1200
+              // Remove y scroll to prevent double scrollbar
+            }}
+            size={isMobile ? 'small' : 'middle'}
+            pagination={{
+              total: filteredUsers.length,
+              pageSize: isMobile ? 5 : isTablet ? 8 : 10,
+              showSizeChanger: !isMobile,
+              showQuickJumper: !isMobile,
+              showTotal: !isMobile ? (total, range) =>
+                `${range[0]}-${range[1]} จาก ${total} ผู้ใช้` : undefined,
+              simple: isMobile,
+              position: isMobile ? ['bottomCenter'] : ['bottomRight'],
+              size: isMobile ? 'small' : 'default'
+            }}
+          />
+        </Card>
 
-      {/* User Details Modal */}
-      <Modal
-        title={<><UserOutlined /> รายละเอียดผู้ใช้</>}
-        visible={modalVisible}
-        onCancel={() => setModalVisible(false)}
-        footer={null}
-        width={800}
-        okText="ตกลง"
-        cancelText="ยกเลิก"
-      >
-        {selectedUser && (
-          <Tabs defaultActiveKey="basic">
-            <TabPane tab="ข้อมูลพื้นฐาน" key="basic">
-              <Descriptions bordered size="small">
-                <Descriptions.Item label="ชื่อ-สกุล" span={2}>
-                  {getUserDisplayName(selectedUser)}
-                </Descriptions.Item>
-                <Descriptions.Item label="อีเมล" span={1}>
-                  {selectedUser.email}
-                </Descriptions.Item>
-                <Descriptions.Item label="บทบาท">
-                  {getRoleTag(selectedUser.accessLevel)}
-                </Descriptions.Item>
-                <Descriptions.Item label="แผนก">
-                  {getDepartmentTag(selectedUser.department)}
-                </Descriptions.Item>
-                <Descriptions.Item label="สถานะ">
-                  {getStatusTag(selectedUser.status)}
-                </Descriptions.Item>
-                <Descriptions.Item label="จังหวัดหลัก">
-                  {getProvinceName(selectedUser.homeProvince) || '-'}
-                </Descriptions.Item>
-                <Descriptions.Item label="สาขาหลัก">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {getBranchName(selectedUser.homeBranch) || '-'}
-                    {selectedUser.homeBranch && (
-                      <Text type="secondary" style={{ fontSize: '12px' }}>
-                        ({selectedUser.homeBranch})
-                      </Text>
-                    )}
-                  </div>
-                </Descriptions.Item>
-                <Descriptions.Item label="การใช้งาน">
-                  <Switch checked={selectedUser.isActive} disabled />
-                </Descriptions.Item>
-              </Descriptions>
-            </TabPane>
-            <TabPane tab="ข้อมูลการอนุมัติ" key="approval">
-              {selectedUser.latestApprovalRequest ? (
+        {/* User Details Modal */}
+        <Modal
+          title={<><UserOutlined /> รายละเอียดผู้ใช้</>}
+          visible={modalVisible}
+          onCancel={() => setModalVisible(false)}
+          footer={null}
+          width={800}
+          okText="ตกลง"
+          cancelText="ยกเลิก"
+        >
+          {selectedUser && (
+            <Tabs defaultActiveKey="basic">
+              <TabPane tab="ข้อมูลพื้นฐาน" key="basic">
                 <Descriptions bordered size="small">
-                  <Descriptions.Item label="สถานะคำขอ" span={2}>
-                    <Tag color={selectedUser.latestApprovalRequest.status === 'approved' ? 'green' :
-                      selectedUser.latestApprovalRequest.status === 'pending' ? 'orange' : 'red'}>
-                      {selectedUser.latestApprovalRequest.status}
-                    </Tag>
+                  <Descriptions.Item label="ชื่อ-สกุล" span={2}>
+                    {getUserDisplayName(selectedUser)}
                   </Descriptions.Item>
-                  <Descriptions.Item label="ประเภทคำขอ" span={1}>
-                    {getRequestTypeTag(selectedUser.latestApprovalRequest.requestType)}
+                  <Descriptions.Item label="อีเมล" span={1}>
+                    {selectedUser.email}
                   </Descriptions.Item>
-                  <Descriptions.Item label="ผู้อนุมัติ" span={2}>
-                    {selectedUser.latestApprovalRequest.approvedBy || 'รอการอนุมัติ'}
+                  <Descriptions.Item label="บทบาท">
+                    {getRoleTag(selectedUser.accessLevel)}
                   </Descriptions.Item>
-                  <Descriptions.Item label="วันที่สร้างคำขอ" span={1}>
-                    {new Date(selectedUser.latestApprovalRequest.createdAt).toLocaleString('th-TH')}
+                  <Descriptions.Item label="แผนก">
+                    {getDepartmentTag(selectedUser.department)}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="สถานะ">
+                    {getStatusTag(selectedUser.status)}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="จังหวัดหลัก">
+                    {getProvinceName(selectedUser.homeProvince) || '-'}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="สาขาหลัก">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {getBranchName(selectedUser.homeBranch) || '-'}
+                      {selectedUser.homeBranch && (
+                        <Text type="secondary" style={{ fontSize: '12px' }}>
+                          ({selectedUser.homeBranch})
+                        </Text>
+                      )}
+                    </div>
+                  </Descriptions.Item>
+                  <Descriptions.Item label="การใช้งาน">
+                    <Switch checked={selectedUser.isActive} disabled />
                   </Descriptions.Item>
                 </Descriptions>
-              ) : (
-                <Alert message="ไม่มีข้อมูลการอนุมัติ" type="info" />
-              )}
-            </TabPane>
-          </Tabs>
-        )}
-      </Modal>
+              </TabPane>
+              <TabPane tab="ข้อมูลการอนุมัติ" key="approval">
+                {selectedUser.latestApprovalRequest ? (
+                  <Descriptions bordered size="small">
+                    <Descriptions.Item label="สถานะคำขอ" span={2}>
+                      <Tag color={selectedUser.latestApprovalRequest.status === 'approved' ? 'green' :
+                        selectedUser.latestApprovalRequest.status === 'pending' ? 'orange' : 'red'}>
+                        {selectedUser.latestApprovalRequest.status}
+                      </Tag>
+                    </Descriptions.Item>
+                    <Descriptions.Item label="ประเภทคำขอ" span={1}>
+                      {getRequestTypeTag(selectedUser.latestApprovalRequest.requestType)}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="ผู้อนุมัติ" span={2}>
+                      {selectedUser.latestApprovalRequest.approvedBy || 'รอการอนุมัติ'}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="วันที่สร้างคำขอ" span={1}>
+                      {new Date(selectedUser.latestApprovalRequest.createdAt).toLocaleString('th-TH')}
+                    </Descriptions.Item>
+                  </Descriptions>
+                ) : (
+                  <Alert message="ไม่มีข้อมูลการอนุมัติ" type="info" />
+                )}
+              </TabPane>
+            </Tabs>
+          )}
+        </Modal>
 
-      {/* Edit User Modal */}
-      <Modal
-        title={<><EditOutlined /> แก้ไขข้อมูลผู้ใช้: {selectedUser ? getUserDisplayName(selectedUser) : ''}</>}
-        visible={editModalVisible}
-        onCancel={() => {
-          setEditModalVisible(false);
-          setSelectedUser(null);
-          form.resetFields();
-        }}
-        onOk={() => form.submit()}
-        confirmLoading={actionLoading}
-        width={isMobile ? '95%' : isTablet ? 600 : 800}
-        destroyOnClose={true}
-        okText="บันทึก"
-        cancelText="ยกเลิก"
-        style={isMobile ? { top: 20 } : {}}
-      >
-        {editModalVisible && selectedUser && (
-        <Form
-            key={selectedUser.uid}
-          form={form}
-          layout="vertical"
-          onFinish={handleUpdateUserRole}
-            preserve={false}
+        {/* Edit User Modal */}
+        <Modal
+          title={<><EditOutlined /> แก้ไขข้อมูลผู้ใช้: {selectedUser ? getUserDisplayName(selectedUser) : ''}</>}
+          visible={editModalVisible}
+          onCancel={() => {
+            setEditModalVisible(false);
+            setSelectedUser(null);
+            form.resetFields();
+          }}
+          onOk={() => form.submit()}
+          confirmLoading={actionLoading}
+          width={isMobile ? '95%' : isTablet ? 600 : 800}
+          destroyOnClose={true}
+          okText="บันทึก"
+          cancelText="ยกเลิก"
+          style={isMobile ? { top: 20 } : {}}
         >
-            <Tabs defaultActiveKey="role">
-              {/* Role & Permissions Tab */}
-              <TabPane tab={<><UserOutlined /> บทบาทและสิทธิ์</>} key="role">
+          {editModalVisible && selectedUser && (
+          <Form
+              key={selectedUser.uid}
+            form={form}
+            layout="vertical"
+            onFinish={handleUpdateUserRole}
+              preserve={false}
+          >
+              <Tabs defaultActiveKey="role">
+                {/* Role & Permissions Tab */}
+                <TabPane tab={<><UserOutlined /> บทบาทและสิทธิ์</>} key="role">
           <Row gutter={isMobile ? 8 : 16}>
             <Col span={isMobile ? 24 : 12}>
               <Form.Item name="accessLevel" label="บทบาท" rules={[{ required: true }]}>
@@ -1317,7 +1322,7 @@ const UserManagement = () => {
                                                         type="text" 
                                                         size="small" 
                                                         danger
-                                                        icon={<MinusOutlined />}
+                                                        icon={<DeleteOutlined />}
                                                         onClick={(e) => {
                                                           e.stopPropagation();
                                                           const currentPerms = getFieldValue('additionalPermissions') || [];
@@ -1664,6 +1669,7 @@ const UserManagement = () => {
         )}
       </Modal>
     </LayoutWithRBAC>
+    </ScreenWithManual>
   );
 };
 

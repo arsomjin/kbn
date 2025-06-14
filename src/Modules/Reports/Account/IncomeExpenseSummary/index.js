@@ -119,10 +119,10 @@ const IncomeExpenseReport = () => {
 
   return (
     <Container fluid className="main-content-container p-3">
-      <Row noGutters className="page-header px-3 bg-light">
+      <Row noGutters className="page-header px-3 nature-bg-light">
         <PageTitle sm="4" title="สรุปรายรับ-รายจ่าย" subtitle="บัญชี" className="text-sm-left" />
         <Col>
-          <Stepper className="bg-light" steps={ReportSteps} activeStep={activeStep} alternativeLabel={false} />
+          <Stepper className="nature-stepper nature-steps-compact" steps={ReportSteps} activeStep={activeStep} alternativeLabel={false} />
         </Col>
       </Row>
       <Form

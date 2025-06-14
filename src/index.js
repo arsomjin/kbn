@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 // import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import { notification } from 'antd';
+import { notification, message } from 'antd';
 
 // Configure antd notifications to appear above navigation
 notification.config({
@@ -12,6 +12,16 @@ notification.config({
   maxCount: 3,
   rtl: false,
   prefixCls: 'ant-notification',
+  getContainer: () => document.body,
+});
+
+// Configure antd message to appear above navigation with proper z-index
+message.config({
+  top: 24,
+  duration: 4.5,
+  maxCount: 3,
+  rtl: false,
+  prefixCls: 'ant-message',
   getContainer: () => document.body,
 });
 

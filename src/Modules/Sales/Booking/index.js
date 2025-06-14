@@ -63,7 +63,6 @@ import { _getPaymentFromAdditionalPurchase } from '../Vehicles/api';
 import { checkPayments } from 'Modules/Utils';
 import BookingLicence from 'components/PrintComponent/BookingLicence';
 // RBAC Integration
-import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
 import { Row, Col, Alert } from 'antd';
 // import { usePermissions } from 'hooks/usePermissions'; // Currently unused
 import PermissionGate from 'components/PermissionGate';
@@ -71,6 +70,8 @@ import PermissionGate from 'components/PermissionGate';
 import { Container } from 'shards-react';
 import PageTitle from 'components/common/PageTitle';
 import PropTypes from 'prop-types';
+// 🚀 Document Approval Flow Integration
+import DocumentWorkflowWrapper from 'components/DocumentApprovalFlow/DocumentWorkflowWrapper';
 
 const { Option } = Select;
 
@@ -1200,15 +1201,19 @@ const BookingComponent = () => {
 
   if (!ready) {
     return (
-      <LayoutWithRBAC
-        title="งานรับจอง"
-        subtitle="รถและอุปกรณ์"
-        permission="sales.view"
-        editPermission="sales.edit"
-        loading={true}
+      <DocumentWorkflowWrapper
+        documentType="sales_booking"
+        documentId={documentId}
+        layoutProps={{
+          title: "งานรับจอง",
+          subtitle: "รถและอุปกรณ์",
+          permission: "sales.view",
+          editPermission: "sales.edit",
+          loading: true
+        }}
       >
         <div />
-      </LayoutWithRBAC>
+      </DocumentWorkflowWrapper>
     );
   }
 
@@ -1222,27 +1227,27 @@ const BookingComponent = () => {
         style={{ margin: '24px' }}
       />
     }>
-      <LayoutWithRBAC
-        title="งานรับจอง"
-        subtitle="รถและอุปกรณ์ - Multi-Province Support"
-        permission="sales.view"
-        editPermission="sales.edit"
-        requireBranchSelection={false}
-        onBranchChange={handleGeographicChange}
+      <DocumentWorkflowWrapper
+        documentType="sales_booking"
         documentId={documentId}
-        documentType="booking"
-        showAuditTrail={true}
-        showStepper={true}
-        steps={BOOKING_STEPS}
         currentStep={mProps.activeStep}
-        autoInjectProvinceId={true}
+        onStepChange={(step) => setProps({ activeStep: step })}
+        layoutProps={{
+          title: "งานรับจอง",
+          subtitle: "รถและอุปกรณ์ - Multi-Province Support",
+          permission: "sales.view",
+          editPermission: "sales.edit",
+          requireBranchSelection: false,
+          onBranchChange: handleGeographicChange,
+          autoInjectProvinceId: true
+        }}
       >
         <BookingContent 
           mProps={mProps}
           setProps={setProps}
           params={params}
         />
-      </LayoutWithRBAC>
+      </DocumentWorkflowWrapper>
     </PermissionGate>
   );
 };

@@ -1,200 +1,208 @@
 /**
- * Debug Utility for Approval Requests
- * Use this to check if approval requests are being created properly
+ * Debug Approval Requests Utility
+ * Helps analyze approval request data structure for troubleshooting
  */
 
 import { app } from '../firebase';
 
 /**
- * Check all approval requests in the database
+ * Debug approval requests collection
  */
 export const debugApprovalRequests = async () => {
+  console.log('🔍 DEBUGGING APPROVAL REQUESTS...');
+  
   try {
-    console.log('🔍 Debugging approval requests...');
-    
     // Get all approval requests
     const snapshot = await app.firestore()
       .collection('approvalRequests')
       .orderBy('createdAt', 'desc')
       .get();
     
+    console.log(`📊 Total approval requests: ${snapshot.docs.length}`);
+    
     if (snapshot.empty) {
-      console.log('❌ No approval requests found in database');
-      return [];
+      console.log('❌ No approval requests found');
+      
+      // Create a sample approval request for testing
+      console.log('🔧 Creating sample approval request for testing...');
+      
+      const sampleRequest = {
+        status: 'pending',
+        requestType: 'new_user',
+        targetProvince: 'nakhon-sawan',
+        targetBranch: 'NSN001',
+        createdAt: Date.now(),
+        userData: {
+          userId: 'sample-user-id',
+          email: 'sales.lead@kbn.com',
+          displayName: 'Sales Lead NSN001',
+          firstName: 'Sales',
+          lastName: 'Lead',
+          department: 'sales',
+          access: {
+            authority: 'LEAD',
+            departments: ['SALES'],
+            geographic: {
+              scope: 'BRANCH',
+              homeProvince: 'nakhon-sawan',
+              homeBranch: 'NSN001'
+            }
+          }
+        }
+      };
+      
+      const docRef = await app.firestore()
+        .collection('approvalRequests')
+        .add(sampleRequest);
+      
+      console.log('✅ Sample approval request created:', docRef.id);
+      return;
     }
     
-    const requests = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: new Date(doc.data().createdAt),
-    }));
+    // Analyze existing requests
+    const requests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     
-    console.log(`✅ Found ${requests.length} approval requests:`);
-    console.table(requests.map(r => ({
-      id: r.id,
-      userId: r.userId,
-      status: r.status,
-      requestType: r.requestType,
-      targetProvince: r.targetProvince,
-      targetBranch: r.targetBranch,
-      createdAt: r.createdAt.toLocaleString(),
-      userData: r.userData ? `${r.userData.firstName} ${r.userData.lastName}` : 'N/A'
+    console.log('📋 APPROVAL REQUESTS ANALYSIS:');
+    console.table(requests.map(req => ({
+      id: req.id,
+      status: req.status,
+      type: req.requestType,
+      userEmail: req.userData?.email,
+      userName: req.userData?.displayName || `${req.userData?.firstName} ${req.userData?.lastName}`,
+      department: req.userData?.department || req.userData?.access?.departments?.[0],
+      targetProvince: req.targetProvince,
+      targetBranch: req.targetBranch,
+      hasCleanSlateAccess: !!req.userData?.access,
+      createdAt: new Date(req.createdAt).toLocaleString('th-TH')
     })));
     
+    // Detailed analysis of first request
+    if (requests.length > 0) {
+      console.log('🔍 DETAILED ANALYSIS OF FIRST REQUEST:');
+      const firstRequest = requests[0];
+      console.log('Full request data:', firstRequest);
+      console.log('UserData structure:', firstRequest.userData);
+      console.log('Access structure:', firstRequest.userData?.access);
+    }
+    
+    // Check for data issues
+    const issuesFound = [];
+    
+    requests.forEach((req, index) => {
+      if (!req.userData) {
+        issuesFound.push(`Request ${index}: Missing userData`);
+      }
+      if (!req.userData?.email) {
+        issuesFound.push(`Request ${index}: Missing email`);
+      }
+      if (!req.userData?.displayName && !req.userData?.firstName) {
+        issuesFound.push(`Request ${index}: Missing name information`);
+      }
+      if (!req.targetProvince) {
+        issuesFound.push(`Request ${index}: Missing targetProvince`);
+      }
+      if (!req.targetBranch) {
+        issuesFound.push(`Request ${index}: Missing targetBranch`);
+      }
+    });
+    
+    if (issuesFound.length > 0) {
+      console.warn('⚠️ DATA ISSUES FOUND:');
+      issuesFound.forEach(issue => console.warn(`  - ${issue}`));
+    } else {
+      console.log('✅ No data issues found');
+    }
+    
     return requests;
+    
   } catch (error) {
     console.error('❌ Error debugging approval requests:', error);
-    return [];
+    throw error;
   }
 };
 
 /**
- * Check approval requests for specific user
+ * Create sample approval request for testing
  */
-export const debugUserApprovalRequests = async (userId) => {
-  try {
-    console.log('🔍 Debugging approval requests for user:', userId);
-    
-    const snapshot = await app.firestore()
-      .collection('approvalRequests')
-      .where('userId', '==', userId)
-      .orderBy('createdAt', 'desc')
-      .get();
-    
-    if (snapshot.empty) {
-      console.log('❌ No approval requests found for user:', userId);
-      return [];
-    }
-    
-    const requests = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      createdAt: new Date(doc.data().createdAt),
-    }));
-    
-    console.log(`✅ Found ${requests.length} approval requests for user ${userId}:`);
-    console.table(requests);
-    
-    return requests;
-  } catch (error) {
-    console.error('❌ Error debugging user approval requests:', error);
-    return [];
-  }
-};
-
-/**
- * Check current user's approval status and requests
- */
-export const debugCurrentUserApproval = async () => {
-  try {
-    const currentUser = app.auth().currentUser;
-    if (!currentUser) {
-      console.log('❌ No user currently signed in');
-      return null;
-    }
-    
-    console.log('🔍 Debugging current user approval status:', currentUser.uid);
-    
-    // Get user document
-    const userDoc = await app.firestore()
-      .collection('users')
-      .doc(currentUser.uid)
-      .get();
-    
-    if (!userDoc.exists) {
-      console.log('❌ User document does not exist');
-      return null;
-    }
-    
-    const userData = userDoc.data();
-    
-    // Get approval requests
-    const approvalRequests = await debugUserApprovalRequests(currentUser.uid);
-    
-    const debugInfo = {
-      user: {
-        uid: currentUser.uid,
-        email: currentUser.email,
-        isApproved: userData.isApproved,
-        isActive: userData.isActive,
-        approvalStatus: userData.approvalStatus,
-        isPendingApproval: userData.isPendingApproval,
-        hasCleanSlateRBAC: !!userData.access?.authority,
-        userType: userData.userType
-      },
-      approvalRequests: approvalRequests.length,
-      latestRequest: approvalRequests[0] || null
-    };
-    
-    console.log('📊 Current user approval debug info:');
-    console.table(debugInfo.user);
-    
-    if (debugInfo.latestRequest) {
-      console.log('📄 Latest approval request:');
-      console.table(debugInfo.latestRequest);
-    }
-    
-    return debugInfo;
-  } catch (error) {
-    console.error('❌ Error debugging current user approval:', error);
-    return null;
-  }
-};
-
-/**
- * Test approval request creation (for debugging)
- */
-export const testCreateApprovalRequest = async (testUserData) => {
-  try {
-    console.log('🧪 Testing approval request creation...');
-    
-    const testRequest = {
-      userId: 'test-user-id',
-      requestType: 'new_employee_registration',
-      userData: testUserData || {
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
-        displayName: 'Test User'
-      },
-      status: 'pending',
-      priority: 'normal',
-      department: 'GENERAL',
-      approvalLevel: 'province_manager',
-      targetProvince: 'นครสวรรค์',
-      targetBranch: 'NSN001',
-      createdAt: new Date().toISOString(),
-      registrationSource: 'web-debug'
-    };
-    
-    const docRef = await app.firestore()
-      .collection('approvalRequests')
-      .add(testRequest);
-    
-    console.log('✅ Test approval request created with ID:', docRef.id);
-    
-    // Clean up test data
-    await docRef.delete();
-    console.log('🧹 Test approval request cleaned up');
-    
-    return docRef.id;
-  } catch (error) {
-    console.error('❌ Error testing approval request creation:', error);
-    return null;
-  }
-};
-
-// Export for browser console usage
-if (typeof window !== 'undefined') {
-  window.debugApproval = {
-    debugApprovalRequests,
-    debugUserApprovalRequests, 
-    debugCurrentUserApproval,
-    testCreateApprovalRequest
-  };
+export const createSampleApprovalRequest = async () => {
+  console.log('🔧 Creating sample approval request...');
   
-  console.log('🔧 Debug utilities available:');
-  console.log('- window.debugApproval.debugApprovalRequests()');
-  console.log('- window.debugApproval.debugCurrentUserApproval()');
-  console.log('- window.debugApproval.testCreateApprovalRequest()');
-} 
+  const sampleRequests = [
+    {
+      status: 'pending',
+      requestType: 'new_user',
+      targetProvince: 'nakhon-sawan',
+      targetBranch: 'NSN001',
+      createdAt: Date.now(),
+      userData: {
+        userId: 'sales-lead-nsn001',
+        email: 'sales.lead@nsn001.kbn.com',
+        displayName: 'ผู้นำทีมขาย NSN001',
+        firstName: 'ผู้นำทีม',
+        lastName: 'ขาย',
+        department: 'sales',
+        access: {
+          authority: 'LEAD',
+          departments: ['SALES'],
+          geographic: {
+            scope: 'BRANCH',
+            homeProvince: 'nakhon-sawan',
+            homeBranch: 'NSN001',
+            allowedProvinces: ['nakhon-sawan'],
+            allowedBranches: ['NSN001']
+          }
+        }
+      }
+    },
+    {
+      status: 'pending',
+      requestType: 'role_change',
+      targetProvince: 'nakhon-sawan',
+      targetBranch: 'NSN002',
+      createdAt: Date.now() - 86400000, // 1 day ago
+      userData: {
+        userId: 'accounting-staff-nsn002',
+        email: 'accounting@nsn002.kbn.com',
+        displayName: 'เจ้าหน้าที่บัญชี NSN002',
+        firstName: 'เจ้าหน้าที่',
+        lastName: 'บัญชี',
+        department: 'accounting',
+        access: {
+          authority: 'STAFF',
+          departments: ['ACCOUNTING'],
+          geographic: {
+            scope: 'BRANCH',
+            homeProvince: 'nakhon-sawan',
+            homeBranch: 'NSN002',
+            allowedProvinces: ['nakhon-sawan'],
+            allowedBranches: ['NSN002']
+          }
+        }
+      }
+    }
+  ];
+  
+  try {
+    const promises = sampleRequests.map(request => 
+      app.firestore().collection('approvalRequests').add(request)
+    );
+    
+    const results = await Promise.all(promises);
+    
+    console.log('✅ Sample approval requests created:');
+    results.forEach((docRef, index) => {
+      console.log(`  - ${docRef.id}: ${sampleRequests[index].userData.email}`);
+    });
+    
+    return results;
+    
+  } catch (error) {
+    console.error('❌ Error creating sample requests:', error);
+    throw error;
+  }
+};
+
+export default {
+  debugApprovalRequests,
+  createSampleApprovalRequest
+}; 

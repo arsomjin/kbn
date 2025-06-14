@@ -37,21 +37,7 @@ const DefaultLayout = ({ children, noNavbar, noFooter }) => {
       <MainSidebar />
       <Layout style={getLayoutStyle()}>
         {!noNavbar && <MainNavbar />}
-        <Content
-          id="main-screen"
-          className="main-content"
-          style={{
-            padding: 0,
-            background: '#f5f5f5',
-            minHeight: 'calc(100vh - 64px)', // Account for navbar height
-            overflow: isMobile || isTablet ? 'hidden' : 'auto',
-            position: 'relative', // Ensure content doesn't overlap mobile sidebar
-            maxWidth: '100vw',
-            width: '100%'
-          }}
-        >
           {children}
-        </Content>
         {!noFooter && <MainFooter />}
       </Layout>
     </Layout>

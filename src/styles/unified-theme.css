@@ -1,0 +1,385 @@
+/*
+ * KBN Unified Theme System
+ * Master stylesheet that controls all component styling
+ * Prevents conflicts between multiple CSS libraries
+ */
+
+/* ======================
+   CSS LOAD ORDER CONTROL
+   ====================== */
+
+/*
+ * Load Order Priority:
+ * 1. CSS Variables (highest priority)
+ * 2. Base Reset Styles  
+ * 3. Ant Design Base Styles
+ * 4. Nature Theme Variables
+ * 5. Component Overrides
+ * 6. Font System
+ * 7. Utility Classes (lowest priority)
+ */
+
+/* ======================
+   NATURE THEME VARIABLES
+   ====================== */
+
+:root {
+  /* Primary Colors */
+  --nature-primary: #2d5016;
+  --nature-primary-light: #3d6b1c;
+  --nature-primary-lighter: #4a7c1f;
+  --nature-primary-dark: #1f3a0f;
+  
+  /* Secondary Colors */
+  --nature-secondary: #8B4513;
+  --nature-secondary-light: #A0522D;
+  
+  /* Status Colors */
+  --nature-success: #16a34a;
+  --nature-warning: #f59e0b;
+  --nature-error: #dc2626;
+  --nature-info: #0ea5e9;
+  
+  /* Neutral Colors */
+  --nature-text-primary: #1f2937;
+  --nature-text-secondary: #6b7280;
+  --nature-text-disabled: #9ca3af;
+  --nature-bg-primary: #ffffff;
+  --nature-bg-secondary: #f9fafb;
+  --nature-bg-tertiary: #f3f4f6;
+  --nature-border: #e5e7eb;
+  --nature-border-light: #f3f4f6;
+  
+  /* Component Spacing */
+  --nature-spacing-xs: 4px;
+  --nature-spacing-sm: 8px;
+  --nature-spacing-md: 16px;
+  --nature-spacing-lg: 24px;
+  --nature-spacing-xl: 32px;
+  
+  /* Typography */
+  --nature-font-family: 'Sarabun', 'Myriad Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --nature-font-size-sm: 12px;
+  --nature-font-size-base: 14px;
+  --nature-font-size-lg: 16px;
+  --nature-font-size-xl: 18px;
+  
+  /* Border Radius */
+  --nature-border-radius-sm: 4px;
+  --nature-border-radius: 8px;
+  --nature-border-radius-lg: 12px;
+  --nature-border-radius-xl: 16px;
+  
+  /* Shadows */
+  --nature-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --nature-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+  --nature-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+/* ======================
+   STEPS COMPONENT STYLING
+   ====================== */
+
+/* Base Steps Container */
+.ant-steps {
+  font-family: var(--nature-font-family) !important;
+  margin: var(--nature-spacing-lg) 0;
+}
+
+/* Step Items */
+.ant-steps-item {
+  font-family: var(--nature-font-family) !important;
+}
+
+/* Step Title */
+.ant-steps-item-title {
+  font-family: var(--nature-font-family) !important;
+  font-weight: 500;
+  color: var(--nature-text-primary) !important;
+  font-size: var(--nature-font-size-base) !important;
+}
+
+/* Step Description */
+.ant-steps-item-description {
+  font-family: var(--nature-font-family) !important;
+  color: var(--nature-text-secondary) !important;
+  font-size: var(--nature-font-size-sm) !important;
+}
+
+/* Step Icons */
+.ant-steps-item-icon {
+  font-family: var(--nature-font-family) !important;
+  border-color: var(--nature-border) !important;
+}
+
+/* Active/Process Step */
+.ant-steps-item-process .ant-steps-item-icon {
+  background-color: var(--nature-primary) !important;
+  border-color: var(--nature-primary) !important;
+}
+
+.ant-steps-item-process .ant-steps-item-title {
+  color: var(--nature-primary) !important;
+  font-weight: 600;
+}
+
+/* Finished Step */
+.ant-steps-item-finish .ant-steps-item-icon {
+  background-color: var(--nature-primary) !important;
+  border-color: var(--nature-primary) !important;
+}
+
+.ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon {
+  color: white !important;
+}
+
+.ant-steps-item-finish .ant-steps-item-title {
+  color: var(--nature-text-primary) !important;
+}
+
+/* Waiting Step */
+.ant-steps-item-wait .ant-steps-item-icon {
+  border-color: var(--nature-border) !important;
+  background-color: var(--nature-bg-primary) !important;
+}
+
+.ant-steps-item-wait .ant-steps-item-title {
+  color: var(--nature-text-secondary) !important;
+}
+
+/* Error Step */
+.ant-steps-item-error .ant-steps-item-icon {
+  background-color: var(--nature-error) !important;
+  border-color: var(--nature-error) !important;
+}
+
+.ant-steps-item-error .ant-steps-item-title {
+  color: var(--nature-error) !important;
+}
+
+/* Step Connection Lines */
+.ant-steps-item-tail::after {
+  background-color: var(--nature-border) !important;
+}
+
+.ant-steps-item-finish .ant-steps-item-tail::after {
+  background-color: var(--nature-primary) !important;
+}
+
+/* Small Size Steps */
+.ant-steps-small .ant-steps-item-icon {
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 22px !important;
+}
+
+.ant-steps-small .ant-steps-item-title {
+  font-size: var(--nature-font-size-sm) !important;
+  line-height: 1.5 !important;
+}
+
+/* Responsive Steps */
+@media (max-width: 768px) {
+  .ant-steps {
+    margin: var(--nature-spacing-md) 0;
+  }
+  
+  .ant-steps-item-title {
+    font-size: var(--nature-font-size-sm) !important;
+  }
+  
+  .ant-steps-item-description {
+    font-size: 11px !important;
+    line-height: 1.4;
+  }
+}
+
+/* ======================
+   CARD COMPONENT HARMONIZATION
+   ====================== */
+
+.ant-card {
+  border-radius: var(--nature-border-radius-lg) !important;
+  border: 1px solid var(--nature-border) !important;
+  box-shadow: var(--nature-shadow) !important;
+  font-family: var(--nature-font-family) !important;
+}
+
+.ant-card-head-title {
+  font-family: var(--nature-font-family) !important;
+  color: var(--nature-text-primary) !important;
+  font-weight: 600;
+}
+
+.ant-card-body {
+  font-family: var(--nature-font-family) !important;
+}
+
+/* ======================
+   PREVENT CSS CONFLICTS
+   ====================== */
+
+/* Override Bootstrap conflicts */
+.container-fluid,
+.container,
+.row,
+.col,
+[class*="col-"] {
+  font-family: var(--nature-font-family) !important;
+}
+
+/* Override Shards UI conflicts */
+.btn,
+.form-control,
+.card {
+  font-family: var(--nature-font-family) !important;
+}
+
+/* Ensure Ant Design components use our theme */
+.ant-btn,
+.ant-input,
+.ant-select,
+.ant-table,
+.ant-menu,
+.ant-layout,
+.ant-breadcrumb,
+.ant-typography {
+  font-family: var(--nature-font-family) !important;
+}
+
+/* ======================
+   LAYOUT INTEGRATION
+   ====================== */
+
+/* Ensure Steps work well in different layouts */
+.layout-content .ant-steps {
+  background: transparent;
+  padding: 0;
+}
+
+/* Steps in cards */
+.ant-card .ant-steps {
+  margin: 0;
+}
+
+.ant-card .ant-steps-item-title {
+  margin-bottom: var(--nature-spacing-xs);
+}
+
+/* Steps in forms */
+.ant-form .ant-steps {
+  margin-bottom: var(--nature-spacing-lg);
+}
+
+/* ======================
+   UTILITY CLASSES
+   ====================== */
+
+.nature-steps-compact {
+  margin: var(--nature-spacing-sm) 0 !important;
+}
+
+.nature-steps-spaced {
+  margin: var(--nature-spacing-xl) 0 !important;
+}
+
+.nature-steps-no-margin {
+  margin: 0 !important;
+}
+
+/* Nature Stepper Component */
+.nature-stepper {
+  font-family: var(--nature-font-family) !important;
+  background: transparent;
+}
+
+.nature-stepper .ant-steps-item-title {
+  font-family: var(--nature-font-family) !important;
+  font-weight: 500;
+}
+
+.nature-stepper .ant-steps-item-description {
+  font-family: var(--nature-font-family) !important;
+  color: var(--nature-text-secondary) !important;
+}
+
+/* Unified Background Classes */
+.nature-bg-light {
+  background-color: var(--nature-background-light) !important;
+  border-bottom: 1px solid var(--nature-border-color);
+}
+
+.nature-bg-white {
+  background-color: var(--nature-background-white) !important;
+}
+
+.nature-page-header {
+  background: linear-gradient(135deg, var(--nature-background-light) 0%, var(--nature-background-white) 100%);
+  border-bottom: 2px solid var(--nature-primary-lighter);
+  padding: var(--nature-spacing-md);
+  margin-bottom: var(--nature-spacing-lg);
+}
+
+/* Permission Warning Notifications */
+.nature-notification-warning {
+  font-family: var(--nature-font-family) !important;
+}
+
+.nature-notification-warning .ant-notification-notice-message {
+  font-family: var(--nature-font-family) !important;
+  font-weight: 600;
+  color: var(--nature-text-primary);
+}
+
+.nature-notification-warning .ant-notification-notice-description {
+  font-family: var(--nature-font-family) !important;
+  color: var(--nature-text-secondary);
+}
+
+/* Permission Button Styling */
+.permission-denied {
+  border-color: var(--nature-border-color) !important;
+  color: var(--nature-text-disabled) !important;
+}
+
+.permission-denied:hover {
+  border-color: var(--nature-border-color) !important;
+  color: var(--nature-text-disabled) !important;
+}
+
+/* Permission Gate Alert Styling */
+.ant-alert.permission-alert {
+  font-family: var(--nature-font-family) !important;
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ant-alert.permission-alert .ant-alert-message {
+  font-family: var(--nature-font-family) !important;
+  font-weight: 600;
+}
+
+.ant-alert.permission-alert .ant-alert-description {
+  font-family: var(--nature-font-family) !important;
+}
+
+/* ======================
+   PRINT STYLES
+   ====================== */
+
+@media print {
+  .ant-steps {
+    color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+  
+  .ant-steps-item-icon {
+    border: 2px solid var(--nature-primary) !important;
+    background-color: white !important;
+  }
+  
+  .ant-steps-item-finish .ant-steps-item-icon {
+    background-color: var(--nature-primary) !important;
+  }
+} 

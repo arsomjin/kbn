@@ -1,0 +1,74 @@
+/* Digital User Manual Floating Button Styles */
+
+.digital-manual-float-button {
+  /* Base styles are handled inline for dynamic behavior */
+  /* This CSS provides additional mobile optimizations */
+}
+
+/* Mobile-specific enhancements */
+@media (max-width: 768px) {
+  .digital-manual-float-button {
+    width: 56px !important;
+    height: 56px !important;
+    right: 16px !important;
+    bottom: 16px !important;
+    font-size: 20px !important;
+    /* Make it more visible on mobile by default */
+    background-color: rgba(82, 196, 26, 0.85) !important;
+    box-shadow: 0 6px 25px rgba(82, 196, 26, 0.4) !important;
+  }
+}
+
+/* Touch device optimizations */
+@media (hover: none) and (pointer: coarse) {
+  .digital-manual-float-button {
+    /* Mobile devices - make button more prominent */
+    background-color: rgba(82, 196, 26, 0.9) !important;
+    box-shadow: 0 6px 25px rgba(82, 196, 26, 0.5) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  }
+  
+  .digital-manual-float-button:active {
+    transform: scale(0.95) !important;
+    background-color: rgba(82, 196, 26, 1) !important;
+  }
+}
+
+/* High DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .digital-manual-float-button {
+    /* Sharper appearance on retina displays */
+    border-width: 1px !important;
+  }
+}
+
+/* Accessibility improvements */
+.digital-manual-float-button:focus {
+  outline: 3px solid rgba(82, 196, 26, 0.3) !important;
+  outline-offset: 2px !important;
+}
+
+/* Animation for attention-grabbing */
+@keyframes gentle-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 20px rgba(82, 196, 26, 0.3);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 6px 25px rgba(82, 196, 26, 0.4);
+  }
+}
+
+/* Apply gentle pulse for first-time users */
+.digital-manual-float-button.first-time {
+  animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .digital-manual-float-button {
+    transition: none !important;
+    animation: none !important;
+  }
+} 

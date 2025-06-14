@@ -23,6 +23,7 @@ import PermissionGate from '../PermissionGate';
 import { getProvinceName, getBranchName } from 'utils/mappings';
 import GeographicBranchSelector from '../GeographicBranchSelector';
 import { AuditHistory, AuditTrailSection, useAuditTrail as useBaseAuditTrail } from 'components/AuditTrail';
+import { Stepper } from 'elements';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -510,7 +511,7 @@ const LayoutWithRBAC = ({
         <Content style={{ 
           maxWidth: '100vw',
           overflow: 'hidden',
-          padding: isMobile ? '12px 16px 16px 16px' : isTablet ? '16px 20px 20px 20px' : '20px 24px 24px 24px'
+          // padding: isMobile ? '12px 16px 16px 16px' : isTablet ? '16px 20px 20px 20px' : '20px 24px 24px 24px'
         }}>
           {/* Breadcrumb */}
           {showBreadcrumb && breadcrumbItems.length > 0 && (
@@ -530,6 +531,7 @@ const LayoutWithRBAC = ({
           <Card 
             style={{ 
               marginBottom: isMobile ? '16px' : isTablet ? '20px' : '24px',
+              marginTop: isMobile ? '16px' : isTablet ? '20px' : '24px',
               borderRadius: isMobile ? '12px' : '16px',
               boxShadow: isMobile 
                 ? '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)' 
@@ -681,6 +683,8 @@ const LayoutWithRBAC = ({
               </Card>
           )}
 
+
+
           {/* Workflow Stepper - Only show if there are actual steps */}
           {showStepper && steps.length > 0 && (
             <Card style={{ 
@@ -693,18 +697,13 @@ const LayoutWithRBAC = ({
             bodyStyle={{
               padding: isMobile ? '18px 20px' : isTablet ? '22px 24px' : '24px 28px'
             }}>
-              <Steps
+              <Stepper 
                 current={currentStep}
                 onChange={onStepClick}
-                items={steps}
                 direction={isMobile ? 'vertical' : 'horizontal'}
                 size={isMobile ? 'small' : 'default'}
-                style={{
-                  '.ant-steps-item-title': {
-                    fontSize: isMobile ? '14px' : '16px',
-                    fontWeight: 500
-                  }
-                }}
+                className="layout-stepper" 
+                steps={steps}
               />
             </Card>
           )}
@@ -779,9 +778,9 @@ const LayoutWithRBAC = ({
             </Card>
           ) : (
             <div style={{
-              display: 'grid',
-              gap: isMobile ? '16px' : isTablet ? '20px' : '24px',
-              gridTemplateColumns: '1fr'
+              // display: 'grid',
+              // gap: isMobile ? '16px' : isTablet ? '20px' : '24px',
+              // gridTemplateColumns: '1fr'
             }}>
               {enhancedChildren}
             </div>

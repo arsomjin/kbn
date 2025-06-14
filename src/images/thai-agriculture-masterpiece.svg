@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800">
+  <defs>
+    <!-- Sky Gradient -->
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e3f2fd;stop-opacity:1" />
+      <stop offset="40%" style="stop-color:#bbdefb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#90caf9;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Rice Field Gradient -->
+    <linearGradient id="fieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8bc34a;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#4caf50;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#388e3c;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Sun Gradient -->
+    <radialGradient id="sunGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#fff9c4;stop-opacity:1" />
+      <stop offset="70%" style="stop-color:#ffeb3b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ffc107;stop-opacity:0.8" />
+    </radialGradient>
+    
+    <!-- Cloud Gradient -->
+    <radialGradient id="cloudGradient" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:0.9" />
+      <stop offset="100%" style="stop-color:#f5f5f5;stop-opacity:0.7" />
+    </radialGradient>
+    
+    <!-- Tractor Gradient -->
+    <linearGradient id="tractorGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff8f00;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#ff6f00;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e65100;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Sky Background -->
+  <rect width="1200" height="320" fill="url(#skyGradient)"/>
+  
+  <!-- Sun -->
+  <circle cx="200" cy="120" r="50" fill="url(#sunGradient)"/>
+  
+  <!-- Clouds -->
+  <ellipse cx="300" cy="80" rx="40" ry="20" fill="url(#cloudGradient)"/>
+  <ellipse cx="320" cy="75" rx="35" ry="18" fill="url(#cloudGradient)"/>
+  <ellipse cx="340" cy="85" rx="30" ry="15" fill="url(#cloudGradient)"/>
+  
+  <ellipse cx="600" cy="100" rx="45" ry="22" fill="url(#cloudGradient)"/>
+  <ellipse cx="620" cy="95" rx="38" ry="20" fill="url(#cloudGradient)"/>
+  <ellipse cx="640" cy="105" rx="32" ry="16" fill="url(#cloudGradient)"/>
+  
+  <ellipse cx="900" cy="70" rx="50" ry="25" fill="url(#cloudGradient)"/>
+  <ellipse cx="925" cy="65" rx="42" ry="22" fill="url(#cloudGradient)"/>
+  <ellipse cx="950" cy="75" rx="35" ry="18" fill="url(#cloudGradient)"/>
+  
+  <!-- Rolling Rice Fields with Natural Curves -->
+  <path d="M0,300 Q200,280 400,300 T800,290 Q1000,285 1200,295 L1200,800 L0,800 Z" fill="url(#fieldGradient)"/>
+  
+  <!-- Rice Field Texture Lines -->
+  <g opacity="0.3">
+    <path d="M0,350 Q300,340 600,350 T1200,345" stroke="#2e7d32" stroke-width="2" fill="none"/>
+    <path d="M0,380 Q350,370 700,380 T1200,375" stroke="#2e7d32" stroke-width="2" fill="none"/>
+    <path d="M0,410 Q250,400 500,410 T1200,405" stroke="#2e7d32" stroke-width="2" fill="none"/>
+    <path d="M0,440 Q400,430 800,440 T1200,435" stroke="#2e7d32" stroke-width="2" fill="none"/>
+    <path d="M0,470 Q300,460 600,470 T1200,465" stroke="#2e7d32" stroke-width="2" fill="none"/>
+    <path d="M0,500 Q450,490 900,500 T1200,495" stroke="#2e7d32" stroke-width="2" fill="none"/>
+  </g>
+  
+  <!-- Kubota Tractors -->
+  <!-- Tractor 1 -->
+  <g transform="translate(150,380) scale(1.2)">
+    <rect x="0" y="20" width="60" height="30" rx="5" fill="url(#tractorGradient)"/>
+    <rect x="10" y="10" width="25" height="20" rx="3" fill="url(#tractorGradient)"/>
+    <circle cx="15" cy="55" r="8" fill="#333"/>
+    <circle cx="45" cy="55" r="8" fill="#333"/>
+    <rect x="35" y="15" width="8" height="15" fill="#666"/>
+  </g>
+  
+  <!-- Tractor 2 -->
+  <g transform="translate(350,420) scale(1.0)">
+    <rect x="0" y="20" width="50" height="25" rx="4" fill="url(#tractorGradient)"/>
+    <rect x="8" y="10" width="20" height="18" rx="2" fill="url(#tractorGradient)"/>
+    <circle cx="12" cy="48" r="7" fill="#333"/>
+    <circle cx="38" cy="48" r="7" fill="#333"/>
+    <rect x="28" y="12" width="6" height="12" fill="#666"/>
+  </g>
+  
+  <!-- Tractor 3 -->
+  <g transform="translate(550,390) scale(1.1)">
+    <rect x="0" y="20" width="55" height="28" rx="4" fill="url(#tractorGradient)"/>
+    <rect x="9" y="8" width="22" height="20" rx="3" fill="url(#tractorGradient)"/>
+    <circle cx="14" cy="52" r="8" fill="#333"/>
+    <circle cx="41" cy="52" r="8" fill="#333"/>
+    <rect x="31" y="13" width="7" height="14" fill="#666"/>
+  </g>
+  
+  <!-- Tractor 4 -->
+  <g transform="translate(750,410) scale(0.9)">
+    <rect x="0" y="20" width="48" height="24" rx="4" fill="url(#tractorGradient)"/>
+    <rect x="7" y="12" width="18" height="16" rx="2" fill="url(#tractorGradient)"/>
+    <circle cx="11" cy="46" r="6" fill="#333"/>
+    <circle cx="36" cy="46" r="6" fill="#333"/>
+    <rect x="25" y="14" width="5" height="10" fill="#666"/>
+  </g>
+  
+  <!-- Tractor 5 -->
+  <g transform="translate(950,400) scale(1.0)">
+    <rect x="0" y="20" width="52" height="26" rx="4" fill="url(#tractorGradient)"/>
+    <rect x="8" y="10" width="21" height="18" rx="3" fill="url(#tractorGradient)"/>
+    <circle cx="13" cy="49" r="7" fill="#333"/>
+    <circle cx="39" cy="49" r="7" fill="#333"/>
+    <rect x="29" y="13" width="6" height="12" fill="#666"/>
+  </g>
+  
+  <!-- Flying Birds for Added Life -->
+  <g opacity="0.6">
+    <path d="M400,150 Q405,145 410,150 Q405,155 400,150" fill="#333"/>
+    <path d="M420,140 Q425,135 430,140 Q425,145 420,140" fill="#333"/>
+    <path d="M440,160 Q445,155 450,160 Q445,165 440,160" fill="#333"/>
+  </g>
+  
+  <!-- Distant Mountains for Depth -->
+  <path d="M0,250 Q300,220 600,240 Q900,210 1200,230 L1200,300 L0,300 Z" fill="#81c784" opacity="0.4"/>
+  
+</svg> 

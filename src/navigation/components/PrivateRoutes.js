@@ -51,7 +51,7 @@ export const PrivateRoutes = props => {
   // 🔧 CHECK: Determine if authentication is complete before initializing data
   const isAuthenticationComplete = user && 
                                    user.uid && 
-                                   (user.access || user.isPendingApproval) &&
+                                   (user.access?.authority || user.isApproved || user.isPendingApproval) &&
                                    !isVerifying;
 
   // Initialize all data synchronization hooks - they will handle auth checks internally
@@ -115,12 +115,25 @@ export const PrivateRoutes = props => {
     api.getVersion();
 
     // 🔧 SAFE PATH VALIDATION: Use route definitions instead of menu items
-    if (props.location?.pathname) {
+    if (props.location?.pathname && routes && routes.length > 0) {
       // Get all valid paths from route definitions (not menu items)
       const validPaths = routes.map(route => route.path).filter(Boolean);
       const currentPath = props.location.pathname;
       
+      console.log('🔍 PrivateRoutes - Route validation:', {
+        currentPath,
+        validPathsCount: validPaths.length,
+        validPaths: validPaths.slice(0, 10), // Show first 10 for debugging
+        hasOverviewRoute: validPaths.includes('/overview'),
+        routesArrayLength: routes.length
+      });
+      
       if (['/login', '/'].includes(currentPath)) {
+        console.log('🔄 Redirecting from root/login to /overview');
+        history.push('/overview');
+      } else if (currentPath === '/not-found') {
+        // 🔧 FIXED: Approved users shouldn't be on /not-found page
+        console.log('🔄 Approved user found on /not-found - redirecting to /overview');
         history.push('/overview');
       } else {
         // Check if the current path matches any defined route
@@ -151,12 +164,22 @@ export const PrivateRoutes = props => {
           '/admin/user-management', '/admin/permission-management', '/admin/user-approval',
           '/dev', '/dev/',
           '/developer', '/developer/',
-          '/reports', '/reports/'
+          '/reports', '/reports/',
+          '/overview' // 🔧 TEMPORARY: Always allow /overview route
         ];
         
         const isCommonValidRoute = commonValidPaths.some(validPath => 
           currentPath === validPath || currentPath.startsWith(validPath + '/')
         );
+
+        console.log('🔍 Route validation result:', {
+          currentPath,
+          isValidRoute,
+          isCommonValidRoute,
+          willRedirectToNotFound: !isValidRoute && !isCommonValidRoute,
+          overviewInValidPaths: validPaths.includes('/overview'),
+          overviewInCommonPaths: commonValidPaths.includes('/overview')
+        });
 
         if (!isValidRoute && !isCommonValidRoute) {
           console.log('🔍 Invalid route - redirecting to not-found:', currentPath);
@@ -165,8 +188,12 @@ export const PrivateRoutes = props => {
           history.push('/not-found');
         } else if (isCommonValidRoute && !isValidRoute) {
           console.log('✅ Allowing common valid route:', currentPath);
+        } else if (isValidRoute) {
+          console.log('✅ Valid route confirmed:', currentPath);
         }
       }
+    } else if (props.location?.pathname) {
+      console.log('⏳ Routes not loaded yet, skipping validation for:', props.location.pathname);
     }
     
     async function registerPush() {

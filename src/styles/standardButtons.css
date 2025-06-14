@@ -1,0 +1,744 @@
+/**
+ * Standard Button Styling
+ * Global CSS for consistent button appearance across KBN application
+ */
+
+/* Primary Button Hover Effects */
+.ant-btn-primary.standard-button:hover {
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Danger Button Hover Effects */
+.ant-btn-dangerous.standard-button:hover {
+  box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Text Button Hover Effects */
+.ant-btn-text.standard-button:hover {
+  background-color: rgba(24, 144, 255, 0.06) !important;
+  border: 1px solid rgba(24, 144, 255, 0.2) !important;
+}
+
+/* Default Button Hover Effects */
+.ant-btn.standard-button:hover {
+  border-color: #40a9ff !important;
+  color: #40a9ff !important;
+}
+
+/* Popconfirm Container Styling - Center align buttons */
+.ant-popover-inner-content {
+  padding: 16px !important;
+}
+
+.ant-popover-buttons {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-top: 12px !important;
+  width: 100% !important;
+}
+
+/* Consistent Button Styling for Ant Design Popconfirm */
+.ant-popover-buttons .ant-btn {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  height: 32px !important;
+  min-width: 72px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s ease !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important; /* Remove default margins since we use gap */
+}
+
+/* Popconfirm Primary Button */
+.ant-popover-buttons .ant-btn-primary {
+  box-shadow: 0 2px 4px rgba(24, 144, 255, 0.2) !important;
+  background-color: #1890ff !important;
+  border-color: #1890ff !important;
+}
+
+.ant-popover-buttons .ant-btn-primary:hover {
+  box-shadow: 0 4px 8px rgba(24, 144, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
+  background-color: #40a9ff !important;
+  border-color: #40a9ff !important;
+}
+
+/* Popconfirm Danger Button */
+.ant-popover-buttons .ant-btn-dangerous {
+  box-shadow: 0 2px 4px rgba(255, 77, 79, 0.2) !important;
+  background-color: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+  color: white !important;
+}
+
+.ant-popover-buttons .ant-btn-dangerous:hover {
+  box-shadow: 0 4px 8px rgba(255, 77, 79, 0.3) !important;
+  transform: translateY(-1px) !important;
+  background-color: #ff7875 !important;
+  border-color: #ff7875 !important;
+}
+
+/* Popconfirm Default/Cancel Button */
+.ant-popover-buttons .ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous) {
+  border: 1px solid #d9d9d9 !important;
+  background-color: white !important;
+  color: rgba(0, 0, 0, 0.85) !important;
+}
+
+.ant-popover-buttons .ant-btn:not(.ant-btn-primary):not(.ant-btn-dangerous):hover {
+  border-color: #40a9ff !important;
+  color: #40a9ff !important;
+  background-color: #f0f8ff !important;
+}
+
+/* Popconfirm Message Styling */
+.ant-popover-message {
+  display: flex !important;
+  align-items: flex-start !important;
+  padding: 0 0 8px 0 !important;
+}
+
+.ant-popover-message-icon {
+  margin-right: 8px !important;
+  margin-top: 2px !important;
+}
+
+.ant-popover-message-title {
+  font-weight: 600 !important;
+  color: rgba(0, 0, 0, 0.88) !important;
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+/* Popconfirm Description */
+.ant-popover-description {
+  color: rgba(0, 0, 0, 0.65) !important;
+  font-size: 13px !important;
+  line-height: 1.4 !important;
+  margin-top: 4px !important;
+}
+
+/* Focus states */
+.ant-btn.standard-button:focus,
+.ant-popover-buttons .ant-btn:focus {
+  outline: 2px solid rgba(24, 144, 255, 0.2) !important;
+  outline-offset: 2px !important;
+}
+
+/* Loading state consistency */
+.ant-btn-loading.standard-button,
+.ant-popover-buttons .ant-btn-loading {
+  pointer-events: none !important;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 576px) {
+  .ant-btn.standard-button-small {
+    height: 28px !important;
+    min-width: 60px !important;
+    font-size: 12px !important;
+    padding: 2px 8px !important;
+  }
+  
+  .ant-popover-buttons .ant-btn {
+    height: 28px !important;
+    min-width: 60px !important;
+    font-size: 12px !important;
+  }
+  
+  .ant-popover-buttons {
+    gap: 6px !important;
+  }
+  
+  .ant-popover-inner-content {
+    padding: 12px !important;
+  }
+}
+
+/* Button spacing in groups */
+.ant-space-item .standard-button + .standard-button {
+  margin-left: 8px;
+}
+
+/* Fix for icon alignment */
+.standard-button .anticon,
+.ant-popover-buttons .ant-btn .anticon {
+  margin-right: 4px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.standard-button .anticon + span,
+.ant-popover-buttons .ant-btn .anticon + span {
+  margin-left: 4px !important;
+}
+
+/* Ensure proper width for popconfirm container */
+.ant-popover.ant-popover-placement-top .ant-popover-content,
+.ant-popover.ant-popover-placement-bottom .ant-popover-content {
+  min-width: 200px !important;
+}
+
+/* Better spacing for popconfirm content */
+.ant-popover-inner {
+  border-radius: 8px !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* Standard Popconfirm specific styling */
+.standard-popconfirm .ant-popover-buttons {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 12px !important;
+  margin-top: 16px !important;
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+.standard-popconfirm .ant-popover-inner-content {
+  text-align: center !important;
+  padding: 16px 20px !important;
+}
+
+.standard-popconfirm .ant-popover-message-title {
+  text-align: center !important;
+  margin-bottom: 8px !important;
+}
+
+.standard-popconfirm .ant-popover-description {
+  text-align: center !important;
+  margin-bottom: 0 !important;
+}
+
+/* Perfect button alignment for standard popconfirm */
+.standard-popconfirm .ant-popover-buttons .ant-btn {
+  flex: 0 0 auto !important;
+  min-width: 80px !important;
+  height: 32px !important;
+}
+
+/* ================================
+   STANDARD BUTTON STYLES
+   ================================ */
+.standard-button {
+  height: 32px;
+  min-width: 72px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid #d9d9d9;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+}
+
+/* Primary Button */
+.standard-button.primary {
+  background: #2d5016;
+  border-color: #2d5016;
+  color: #fff;
+}
+
+.standard-button.primary:hover {
+  background: #4a7c1f;
+  border-color: #4a7c1f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3);
+}
+
+.standard-button.primary:active {
+  background: #1e3a0f;
+  border-color: #1e3a0f;
+  transform: translateY(0);
+}
+
+/* Danger Button */
+.standard-button.danger {
+  background: #ff4d4f;
+  border-color: #ff4d4f;
+  color: #fff;
+}
+
+.standard-button.danger:hover {
+  background: #ff7875;
+  border-color: #ff7875;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3);
+}
+
+.standard-button.danger:active {
+  background: #d9363e;
+  border-color: #d9363e;
+  transform: translateY(0);
+}
+
+/* Text Button */
+.standard-button.text {
+  background: transparent;
+  border-color: transparent;
+  color: #595959;
+}
+
+.standard-button.text:hover {
+  background: #f5f5f5;
+  border-color: #d9d9d9;
+  color: #262626;
+}
+
+/* Link Button */
+.standard-button.link {
+  background: transparent;
+  border-color: transparent;
+  color: #2d5016;
+  text-decoration: none;
+}
+
+.standard-button.link:hover {
+  background: transparent;
+  border-color: transparent;
+  color: #4a7c1f;
+  text-decoration: underline;
+}
+
+/* Default Button */
+.standard-button.default {
+  background: #fff;
+  border-color: #d9d9d9;
+  color: #262626;
+}
+
+.standard-button.default:hover {
+  background: #fff;
+  border-color: #40a9ff;
+  color: #40a9ff;
+}
+
+/* Button Sizes */
+.standard-button.small {
+  height: 24px;
+  min-width: 60px;
+  font-size: 12px;
+  padding: 0 8px;
+}
+
+.standard-button.large {
+  height: 40px;
+  min-width: 80px;
+  font-size: 16px;
+  padding: 0 24px;
+}
+
+/* Disabled State */
+.standard-button:disabled {
+  background: #f5f5f5;
+  border-color: #d9d9d9;
+  color: #bfbfbf;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Focus State */
+.standard-button:focus {
+  outline: 2px solid rgba(45, 80, 22, 0.2);
+  outline-offset: 2px;
+}
+
+/* Loading State */
+.standard-button.loading {
+  pointer-events: none;
+  opacity: 0.65;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .standard-button {
+    height: 36px;
+    min-width: 76px;
+    touch-action: manipulation;
+  }
+  
+  .standard-button.small {
+    height: 28px;
+    min-width: 64px;
+  }
+  
+  .standard-button.large {
+    height: 44px;
+    min-width: 84px;
+  }
+}
+
+/* ================================
+   STANDARD POPCONFIRM STYLES
+   ================================ */
+
+/* Base Popconfirm Styling */
+.ant-popconfirm .ant-popconfirm-buttons {
+  justify-content: center !important;
+  gap: 8px !important;
+  margin-top: 12px !important;
+  text-align: center !important;
+}
+
+/* Standard Popconfirm with more spacing */
+.standard-popconfirm .ant-popconfirm-buttons {
+  justify-content: center !important;
+  gap: 12px !important;
+  margin-top: 16px !important;
+  text-align: center !important;
+}
+
+/* All Popconfirm buttons */
+.ant-popconfirm .ant-btn {
+  height: 32px !important;
+  min-width: 72px !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1) !important;
+}
+
+/* Primary Popconfirm button (OK button) */
+.ant-popconfirm .ant-btn-primary {
+  background: #2d5016 !important;
+  border-color: #2d5016 !important;
+  color: #fff !important;
+}
+
+.ant-popconfirm .ant-btn-primary:hover {
+  background: #4a7c1f !important;
+  border-color: #4a7c1f !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(45, 80, 22, 0.3) !important;
+}
+
+/* Danger Popconfirm button */
+.ant-popconfirm .ant-btn-dangerous {
+  background: #ff4d4f !important;
+  border-color: #ff4d4f !important;
+  color: #fff !important;
+}
+
+.ant-popconfirm .ant-btn-dangerous:hover {
+  background: #ff7875 !important;
+  border-color: #ff7875 !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 4px 12px rgba(255, 77, 79, 0.3) !important;
+}
+
+/* Default Popconfirm button (Cancel button) */
+.ant-popconfirm .ant-btn-default {
+  background: #fff !important;
+  border-color: #d9d9d9 !important;
+  color: #262626 !important;
+}
+
+.ant-popconfirm .ant-btn-default:hover {
+  background: #fff !important;
+  border-color: #40a9ff !important;
+  color: #40a9ff !important;
+}
+
+/* Popconfirm container styling */
+.ant-popconfirm {
+  z-index: 1060 !important;
+}
+
+.ant-popconfirm .ant-popconfirm-inner {
+  border-radius: 8px !important;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  border: 1px solid rgba(45, 80, 22, 0.1) !important;
+}
+
+/* Center text content */
+.ant-popconfirm .ant-popconfirm-message {
+  text-align: center !important;
+  margin-bottom: 8px !important;
+}
+
+.ant-popconfirm .ant-popconfirm-title {
+  text-align: center !important;
+  margin-bottom: 4px !important;
+}
+
+/* Mobile Popconfirm adjustments */
+@media (max-width: 768px) {
+  .ant-popconfirm .ant-btn {
+    height: 36px !important;
+    min-width: 76px !important;
+    font-size: 14px !important;
+    touch-action: manipulation !important;
+  }
+  
+  .ant-popconfirm .ant-popconfirm-buttons {
+    gap: 12px !important;
+    margin-top: 16px !important;
+  }
+  
+  .standard-popconfirm .ant-popconfirm-buttons {
+    gap: 16px !important;
+    margin-top: 20px !important;
+  }
+}
+
+/* ================================
+   Z-INDEX FIXES FOR ANT DESIGN COMPONENTS
+   ================================ */
+
+/* Message Components - Highest Priority */
+.ant-message {
+  z-index: 100010 !important;
+}
+
+.ant-message-notice {
+  z-index: 100011 !important;
+}
+
+.ant-message-notice-content {
+  z-index: 100012 !important;
+}
+
+/* Notification Components */
+.ant-notification {
+  z-index: 100000 !important;
+}
+
+.ant-notification-notice {
+  z-index: 100001 !important;
+}
+
+.ant-notification-topRight,
+.ant-notification-topLeft,
+.ant-notification-top,
+.ant-notification-bottomRight,
+.ant-notification-bottomLeft,
+.ant-notification-bottom {
+  z-index: 100000 !important;
+}
+
+/* Popconfirm and Tooltip Components */
+.ant-popconfirm {
+  z-index: 1060 !important;
+}
+
+.ant-tooltip {
+  z-index: 1070 !important;
+}
+
+/* Dropdown Components */
+.ant-dropdown {
+  z-index: 1050 !important;
+}
+
+.ant-select-dropdown {
+  z-index: 1050 !important;
+}
+
+/* Modal Components */
+.ant-modal-root {
+  z-index: 1040 !important;
+}
+
+.ant-modal-mask {
+  z-index: 1040 !important;
+}
+
+.ant-modal-wrap {
+  z-index: 1040 !important;
+}
+
+/* Drawer Components */
+.ant-drawer {
+  z-index: 1030 !important;
+}
+
+.ant-drawer-mask {
+  z-index: 1030 !important;
+}
+
+/* Main Navigation Z-Index */
+.main-navbar {
+  z-index: 1020 !important;
+}
+
+.main-navbar.mobile-fixed-navbar {
+  z-index: 1020 !important;
+}
+
+/* Sidebar Z-Index */
+.main-sidebar {
+  z-index: 1000 !important;
+}
+
+/* ================================
+   MOBILE NAVBAR AUTO-HIDE FIXES
+   ================================ */
+
+/* Fix CSS conflicts for mobile navbar scroll behavior */
+.mobile-fixed-navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1020 !important;
+  width: 100% !important;
+  will-change: transform !important;
+  backface-visibility: hidden !important;
+  transform: translateZ(0) !important;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background-color 0.3s ease !important;
+}
+
+/* Hidden state - slide up completely with higher specificity */
+.main-navbar.mobile-fixed-navbar.hidden {
+  transform: translateY(-100%) translateZ(0) !important;
+}
+
+/* Visible state - ensure it's shown */
+.main-navbar.mobile-fixed-navbar:not(.hidden) {
+  transform: translateY(0) translateZ(0) !important;
+}
+
+/* Scrolled state with backdrop effect */
+.main-navbar.mobile-fixed-navbar.scrolled {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  -webkit-backdrop-filter: blur(10px) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Ensure body padding for fixed navbar using class instead of :has() */
+/* Updated breakpoint to match JavaScript detection (1024px) */
+@media (max-width: 1024px) {
+  body.has-mobile-fixed-navbar {
+    padding-top: 64px !important;
+  }
+  
+  body.has-mobile-fixed-navbar .main-content {
+    padding-top: 0 !important;
+  }
+  
+  /* Override any conflicting transforms with higher specificity */
+  .main-navbar.mobile-fixed-navbar .navbar {
+    transform: none !important;
+  }
+  
+  /* Ensure smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 64px;
+  }
+}
+
+/* Performance optimizations for mobile navbar */
+.mobile-fixed-navbar * {
+  backface-visibility: hidden;
+}
+
+.mobile-fixed-navbar .navbar {
+  min-height: 64px !important;
+  height: 64px !important;
+  width: 100% !important;
+}
+
+/* Override any conflicting CSS that might interfere */
+.mobile-fixed-navbar {
+  transform-style: preserve-3d !important;
+  will-change: transform, opacity !important;
+}
+
+/* Ensure navbar content doesn't interfere with transform */
+.mobile-fixed-navbar .navbar-nav,
+.mobile-fixed-navbar .navbar-brand {
+  backface-visibility: hidden !important;
+  transform: translateZ(0) !important;
+}
+
+/* Force hardware acceleration for smooth animations */
+.mobile-fixed-navbar,
+.mobile-fixed-navbar * {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Additional CSS specificity fixes */
+.main-content .main-navbar.mobile-fixed-navbar {
+  position: fixed !important;
+}
+
+/* Override any Bootstrap or other CSS that might conflict */
+.main-navbar.mobile-fixed-navbar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100vw !important;
+  z-index: 1020 !important;
+}
+
+/* ================================
+   RESPONSIVE DESIGN UPDATES
+   ================================ */
+
+/* Updated breakpoint - tablet and larger screens (1025px+) - no fixed navbar behavior */
+@media (min-width: 1025px) {
+  .main-navbar:not(.mobile-fixed-navbar) {
+    position: relative !important;
+    transform: none !important;
+  }
+  
+  .main-navbar.sticky-top {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 1020 !important;
+  }
+  
+  body {
+    padding-top: 0 !important;
+  }
+  
+  .main-content {
+    padding-top: 0 !important;
+  }
+}
+
+/* Mobile and tablet devices (1024px and below) */
+@media (max-width: 1024px) {
+  /* Force mobile behavior */
+  .main-navbar {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1020 !important;
+  }
+  
+  /* Ensure mobile fixed navbar class is applied properly */
+  .main-navbar:not(.mobile-fixed-navbar) {
+    /* Fallback for cases where the class isn't applied by JS */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 1020 !important;
+    will-change: transform !important;
+    transition: transform 0.3s ease !important;
+  }
+} 

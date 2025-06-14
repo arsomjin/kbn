@@ -1,0 +1,41 @@
+{
+  "language": {
+    "thai": "ภาษาไทย",
+    "english": "English"
+  },
+  "actions": {
+    "save": "บันทึก",
+    "cancel": "ยกเลิก",
+    "edit": "แก้ไข",
+    "delete": "ลบ",
+    "view": "ดู",
+    "add": "เพิ่ม",
+    "search": "ค้นหา",
+    "filter": "กรอง",
+    "export": "ส่งออก",
+    "import": "นำเข้า",
+    "refresh": "รีเฟรช",
+    "close": "ปิด",
+    "submit": "ส่ง",
+    "reset": "รีเซ็ต",
+    "confirm": "ยืนยัน"
+  },
+  "status": {
+    "active": "ใช้งาน",
+    "inactive": "ไม่ใช้งาน",
+    "pending": "รอดำเนินการ",
+    "approved": "อนุมัติแล้ว",
+    "rejected": "ปฏิเสธ",
+    "completed": "เสร็จสิ้น",
+    "draft": "ร่าง",
+    "review": "รอตรวจสอบ"
+  },
+  "navigation": {
+    "home": "หน้าหลัก",
+    "dashboard": "แดชบอร์ด",
+    "reports": "รายงาน",
+    "settings": "การตั้งค่า",
+    "profile": "โปรไฟล์",
+    "logout": "ออกจากระบบ"
+  }
+} 

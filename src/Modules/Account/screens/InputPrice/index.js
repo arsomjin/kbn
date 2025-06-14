@@ -301,12 +301,12 @@ export default () => {
   return (
     <div>
       <Container fluid className="main-content-container p-3">
-        <Row noGutters className="page-header px-3 bg-light">
+        <Row noGutters className="page-header px-3 nature-bg-light">
           <PageTitle sm="4" title="บันทึกราคาสินค้า" subtitle="รถและอุปกรณ์" className="text-sm-left" />
           {isInput && (
             <Col>
               <Stepper
-                className="bg-light"
+                className="nature-stepper nature-steps-compact"
                 steps={AccountSteps}
                 activeStep={activeStep}
                 alternativeLabel={false} // In-line labels

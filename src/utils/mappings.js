@@ -33,13 +33,166 @@ export const BRANCH_MAPPINGS = {
   '0456': 'สาขาขามสะแกแสง',
   '1004': 'สาขานครราชสีมา คลังสินค้า',
   '0500': 'สาขาฟาร์มหนองบุญมาก',
-  
   // Nakhon Sawan branches
   'NSN001': 'สาขานครสวรรค์',
   'NSN002': 'สาขาตาคลี',
   'NSN003': 'สาขาหนองบัว',
   
 };
+
+// Unified province data structure for forms
+export const STATIC_PROVINCES = {
+  'nakhon-ratchasima': { 
+    name: 'นครราชสีมา', 
+    nameTh: 'นครราชสีมา',
+    nameEn: 'Nakhon Ratchasima',
+    code: 'NMA',
+    isActive: true
+  },
+  'nakhon-sawan': { 
+    name: 'นครสวรรค์', 
+    nameTh: 'นครสวรรค์',
+    nameEn: 'Nakhon Sawan',
+    code: 'NSN',
+    isActive: true
+  }
+};
+
+// Unified branch data structure for forms (organized by province)
+export const DEFAULT_BRANCHES = {
+  'nakhon-ratchasima': [
+    { branchCode: '0450', branchName: 'สาขานครราชสีมา สำนักงานใหญ่', branchNameEn: 'Head Office', provinceId: 'nakhon-ratchasima', isActive: true, isDefault: true },
+    { branchCode: '0451', branchName: 'สาขาบัวใหญ่', branchNameEn: 'Bua Yai Branch', provinceId: 'nakhon-ratchasima', isActive: true },
+    { branchCode: '0452', branchName: 'สาขาจักราช', branchNameEn: 'Chakkarat Branch', provinceId: 'nakhon-ratchasima', isActive: true },
+    { branchCode: '0453', branchName: 'สาขาสีดา', branchNameEn: 'Sida Branch', provinceId: 'nakhon-ratchasima', isActive: true },
+    { branchCode: '0454', branchName: 'สาขาโคกกรวด', branchNameEn: 'Kok Kruat Branch', provinceId: 'nakhon-ratchasima', isActive: true },
+    { branchCode: '0455', branchName: 'สาขาหนองบุญมาก', branchNameEn: 'Nong Bumrung Branch', provinceId: 'nakhon-ratchasima', isActive: true },
+    { branchCode: '0456', branchName: 'สาขาขามสะแกแสง', branchNameEn: 'Kham Sa Kaeo Branch', provinceId: 'nakhon-ratchasima', isActive: true },
+    { branchCode: '0500', branchName: 'สาขาฟาร์มหนองบุญมาก', branchNameEn: 'Farm Nong Bumrung', provinceId: 'nakhon-ratchasima', isActive: true },
+  ],
+  'nakhon-sawan': [
+    { branchCode: 'NSN001', branchName: 'สาขานครสวรรค์', branchNameEn: 'Nakhon Sawan Branch', provinceId: 'nakhon-sawan', isActive: true },
+    { branchCode: 'NSN002', branchName: 'สาขาตาคลี', branchNameEn: 'Takli Branch', provinceId: 'nakhon-sawan', isActive: true },
+    { branchCode: 'NSN003', branchName: 'สาขาหนองบัว', branchNameEn: 'Nong Bua Branch', provinceId: 'nakhon-sawan', isActive: true }
+  ]
+};
+
+// Enhanced branch mappings (unified from BRANCH_MAPPINGS_NEW)
+export const BRANCH_DETAILS = {
+  '0450': {
+    branchCode: '0450',
+    branchName: 'สำนักงานใหญ่',
+    branchNameFull: 'สาขานครราชสีมา สำนักงานใหญ่',
+    branchNameEn: 'Head Office',
+    provinceId: 'nakhon-ratchasima',
+    province: 'นครราชสีมา',
+    provinceName: 'นครราชสีมา',
+    isActive: true,
+    isDefault: true
+  },
+  '0451': {
+    branchCode: '0451',
+    branchName: 'บัวใหญ่',
+    branchNameFull: 'สาขาบัวใหญ่',
+    branchNameEn: 'Bua Yai',
+    provinceId: 'nakhon-ratchasima',
+    province: 'นครราชสีมา',
+    provinceName: 'นครราชสีมา',
+    isActive: true
+  },
+  '0452': {
+    branchCode: '0452',
+    branchName: 'จักราช',
+    branchNameFull: 'สาขาจักราช',
+    branchNameEn: 'Chakkarat',
+    provinceId: 'nakhon-ratchasima',
+    province: 'นครราชสีมา',
+    provinceName: 'นครราชสีมา',
+    isActive: true
+  },
+  '0453': {
+    branchCode: '0453',
+    branchName: 'สีดา',
+    branchNameFull: 'สาขาสีดา',
+    branchNameEn: 'Sida',
+    provinceId: 'nakhon-ratchasima',
+    province: 'นครราชสีมา',
+    provinceName: 'นครราชสีมา',
+    isActive: true
+  },
+  '0454': {
+    branchCode: '0454',
+    branchName: 'โคกกรวด',
+    branchNameFull: 'สาขาโคกกรวด',
+    branchNameEn: 'Kok Kruat',
+    provinceId: 'nakhon-ratchasima',
+    province: 'นครราชสีมา',
+    provinceName: 'นครราชสีมา',
+    isActive: true
+  },
+  '0455': {
+    branchCode: '0455',
+    branchName: 'หนองบุญมาก',
+    branchNameFull: 'สาขาหนองบุญมาก',
+    branchNameEn: 'Nong Bumrung',
+    provinceId: 'nakhon-ratchasima',
+    province: 'นครราชสีมา',
+    provinceName: 'นครราชสีมา',
+    isActive: true
+  },
+  '0456': {
+    branchCode: '0456',
+    branchName: 'ขามสะแกแสง',
+    branchNameFull: 'สาขาขามสะแกแสง',
+    branchNameEn: 'Kham Sa Kaeo',
+    provinceId: 'nakhon-ratchasima',
+    province: 'นครราชสีมา',
+    provinceName: 'นครราชสีมา',
+    isActive: true
+  },
+  '0500': {
+    branchCode: '0500',
+    branchName: 'ฟาร์มหนองบุญมาก',
+    branchNameFull: 'สาขาฟาร์มหนองบุญมาก',
+    branchNameEn: 'Farm Nong Bumrung',
+    provinceId: 'nakhon-ratchasima',
+    province: 'นครราชสีมา',
+    provinceName: 'นครราชสีมา',
+    isActive: true
+  },
+  // Nakhon Sawan branches
+  'NSN001': {
+    branchCode: 'NSN001',
+    branchName: 'นครสวรรค์',
+    branchNameFull: 'สาขานครสวรรค์',
+    branchNameEn: 'Nakhon Sawan',
+    provinceId: 'nakhon-sawan',
+    province: 'นครสวรรค์',
+    provinceName: 'นครสวรรค์',
+    isActive: true
+  },
+  'NSN002': {
+    branchCode: 'NSN002',
+    branchName: 'ตาคลี',
+    branchNameFull: 'สาขาตาคลี',
+    branchNameEn: 'Takli',
+    provinceId: 'nakhon-sawan',
+    province: 'นครสวรรค์',
+    provinceName: 'นครสวรรค์',
+    isActive: true
+  },
+  'NSN003': {
+    branchCode: 'NSN003',
+    branchName: 'หนองบัว',
+    branchNameFull: 'สาขาหนองบัว',
+    branchNameEn: 'Nong Bua',
+    provinceId: 'nakhon-sawan',
+    province: 'นครสวรรค์',
+    provinceName: 'นครสวรรค์',
+    isActive: true
+  }
+}
+  
 
 // User type mappings
 export const USER_TYPE_MAPPINGS = {
@@ -329,4 +482,66 @@ export const getAdditionalPhoneNumbers = (province) => {
   }
   
   return ['081-2897775'];
+};
+
+/**
+ * Get unified province data for forms
+ * @returns {object} Static provinces object
+ */
+export const getStaticProvinces = () => STATIC_PROVINCES;
+
+/**
+ * Get unified branch data for forms
+ * @param {string} provinceKey - Province key (e.g., 'nakhon-ratchasima')
+ * @returns {array} Array of branches for the province
+ */
+export const getDefaultBranches = (provinceKey) => {
+  return provinceKey ? DEFAULT_BRANCHES[provinceKey] || [] : [];
+};
+
+/**
+ * Get all branches as a flat array
+ * @returns {array} All branches from all provinces
+ */
+export const getAllBranches = () => {
+  return Object.values(DEFAULT_BRANCHES).flat();
+};
+
+/**
+ * Get branch details by code
+ * @param {string} branchCode - Branch code
+ * @returns {object|null} Branch details object or null
+ */
+export const getBranchDetails = (branchCode) => {
+  return BRANCH_DETAILS[branchCode] || null;
+};
+
+/**
+ * Normalize province identifier to standard key
+ * @param {string} province - Province identifier (Thai name, English, code, etc.)
+ * @returns {string} Normalized province key
+ */
+export const normalizeProvinceKey = (province) => {
+  if (!province) return 'nakhon-sawan'; // Default
+  
+  // Direct key match
+  if (STATIC_PROVINCES[province]) return province;
+  
+  // Thai name matching
+  if (province === 'นครราชสีมา' || province === 'NMA' || province === 'nma') {
+    return 'nakhon-ratchasima';
+  }
+  if (province === 'นครสวรรค์' || province === 'NSN' || province === 'nsn') {
+    return 'nakhon-sawan';
+  }
+  
+  // English name matching
+  if (province.toLowerCase().includes('ratchasima')) {
+    return 'nakhon-ratchasima';
+  }
+  if (province.toLowerCase().includes('sawan')) {
+    return 'nakhon-sawan';
+  }
+  
+  return 'nakhon-sawan'; // Default fallback
 }; 

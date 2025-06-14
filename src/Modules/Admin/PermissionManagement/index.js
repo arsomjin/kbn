@@ -38,7 +38,8 @@ import {
   UnlockOutlined,
   LockOutlined,
   KeyOutlined,
-  SafetyOutlined
+  SafetyOutlined,
+  SearchOutlined
 } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import { usePermissions } from 'hooks/usePermissions';
@@ -46,6 +47,7 @@ import { useResponsive } from 'hooks/useResponsive';
 import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
 import ProvinceSelector from 'components/ProvinceSelector';
 import GeographicBranchSelector from 'components/GeographicBranchSelector';
+import ScreenWithManual from 'components/ScreenWithManual';
 import { 
   getProvinceName,
   getBranchName, 
@@ -92,6 +94,12 @@ const PermissionManagement = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
+  
+  // Add search and filter states
+  const [searchText, setSearchText] = useState('');
+  const [filterRole, setFilterRole] = useState('all');
+  const [filterDepartment, setFilterDepartment] = useState('all');
+  const [filterStatus, setFilterStatus] = useState('all');
   
   const { hasPermission } = usePermissions();
   const { user: currentUser } = useSelector(state => state.auth);
@@ -444,6 +452,62 @@ const PermissionManagement = () => {
     }));
   };
 
+  // Add filtering logic for users
+  const filteredUsers = users.filter(user => {
+    // Apply search filter
+    if (searchText) {
+      const searchLower = searchText.toLowerCase();
+      const displayName = getUserDisplayName(user).toLowerCase();
+      const email = (user.email || '').toLowerCase();
+      if (!displayName.includes(searchLower) && !email.includes(searchLower)) {
+        return false;
+      }
+    }
+
+    // Apply role filter
+    if (filterRole !== 'all' && user.accessLevel !== filterRole) {
+      return false;
+    }
+
+    // Apply department filter
+    if (filterDepartment !== 'all' && user.department !== filterDepartment) {
+      return false;
+    }
+
+    // Apply status filter
+    if (filterStatus !== 'all') {
+      const userStatus = user.isActive && user.isApproved ? 'active' :
+        user.approvalStatus === 'pending' ? 'pending' :
+          user.approvalStatus === 'rejected' ? 'rejected' : 'inactive';
+      if (userStatus !== filterStatus) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
+  // Helper functions for dropdown options
+  const getAllRoles = () => {
+    return [
+      { value: 'ADMIN', label: 'ผู้ดูแลระบบ' },
+      { value: 'MANAGER', label: 'ผู้จัดการ' },
+      { value: 'LEAD', label: 'หัวหน้าแผนก' },
+      { value: 'STAFF', label: 'เจ้าหน้าที่' }
+    ];
+  };
+
+  const getAllDepartments = () => {
+    return [
+      { value: 'accounting', label: 'บัญชีการเงิน' },
+      { value: 'sales', label: 'ขายและลูกค้า' },
+      { value: 'service', label: 'บริการซ่อม' },
+      { value: 'inventory', label: 'คลังสินค้า' },
+      { value: 'hr', label: 'ทรัพยากรบุคคล' },
+      { value: 'general', label: 'ทั่วไป' }
+    ];
+  };
+
   const columns = [
     {
       title: 'ผู้ใช้',
@@ -601,233 +665,310 @@ const PermissionManagement = () => {
   ];
 
   return (
-    <LayoutWithRBAC permission="admin.view" title="จัดการสิทธิ์การใช้งาน">
-      <Row gutter={isMobile ? [8, 8] : [16, 16]}>
-        <Col span={24}>
-            <Alert
-              message="คำแนะนำ"
-              description={isMobile 
-                ? "จัดการสิทธิ์ผู้ใช้แต่ละคน"
-                : "หน้านี้ใช้สำหรับจัดการสิทธิ์การใช้งานของผู้ใช้แต่ละคน สิทธิ์จะถูกจัดกลุ่มตามแผนกและระดับการใช้งาน"
-              }
-              type="info"
-              showIcon
-              style={{ 
-                marginBottom: isMobile ? 12 : 16,
-                fontSize: isMobile ? '13px' : undefined
-              }}
-            />
-
-            <div className="permission-management-table-wrapper">
-              <Table
-                columns={columns}
-                dataSource={users}
-                rowKey="uid"
-                loading={loading}
-                scroll={{ 
-                  x: isMobile ? 'max-content' : isTablet ? 800 : 1000
-                }}
-                size={isMobile ? 'small' : 'middle'}
-                pagination={{
-                  pageSize: isMobile ? 5 : isTablet ? 8 : 10,
-                  showSizeChanger: !isMobile,
-                  showQuickJumper: !isMobile,
-                  showTotal: !isMobile ? (total, range) => 
-                    `${range[0]}-${range[1]} จาก ${total} ผู้ใช้` : undefined,
-                  simple: isMobile,
-                  position: isMobile ? ['bottomCenter'] : ['bottomRight'],
-                  size: isMobile ? 'small' : 'default'
+    <ScreenWithManual 
+      screenType="permission-management"
+      showManualOnFirstVisit={true}
+    >
+      <LayoutWithRBAC permission="admin.view" title="จัดการสิทธิ์การใช้งาน">
+        <Row gutter={isMobile ? [8, 8] : [16, 16]}>
+          <Col span={24}>
+              <Alert
+                message="คำแนะนำ"
+                description={isMobile 
+                  ? "จัดการสิทธิ์ผู้ใช้แต่ละคน"
+                  : "หน้านี้ใช้สำหรับจัดการสิทธิ์การใช้งานของผู้ใช้แต่ละคน สิทธิ์จะถูกจัดกลุ่มตามแผนกและระดับการใช้งาน"
+                }
+                type="info"
+                showIcon
+                style={{ 
+                  marginBottom: isMobile ? 12 : 16,
+                  fontSize: isMobile ? '13px' : undefined
                 }}
               />
-            </div>
-        </Col>
-        
-        <Col span={24}>
-          <Card title={<><SafetyOutlined /> สิทธิ์ที่มีในระบบ</>}>
-            <Row gutter={isMobile ? 8 : 16}>
-              {Object.entries(permissionCategories).map(([key, category]) => (
-                <Col 
-                  span={isMobile ? 24 : isTablet ? 12 : 12} 
-                  key={key} 
-                  style={{ marginBottom: 16 }}
-                >
-                  <Card 
-                    size="small" 
-                    title={
-                      <Space>
-                        <Tag color={category.color}>{category.name}</Tag>
-                        <Text type="secondary">({category.permissions.length} สิทธิ์)</Text>
-                      </Space>
-                    }
-                  >
-                    <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                      {category.permissions.map(perm => (
-                        <div key={perm.key}>
-                          <Text 
-                            strong 
-                            style={{ fontSize: isMobile ? '13px' : '14px' }}
-                          >
-                            {perm.name}
-                          </Text>
-                          <br />
-                          <Text 
-                            type="secondary" 
-                            style={{ fontSize: isMobile ? '11px' : '12px' }}
-                          >
-                            {isMobile && perm.description.length > 50
-                              ? `${perm.description.substring(0, 50)}...`
-                              : perm.description
-                            }
-                          </Text>
-                        </div>
+
+              {/* Search and Filter Section */}
+              <Card 
+                size="small" 
+                style={{ marginBottom: isMobile ? 12 : 16 }}
+                title={
+                  <Space>
+                    <SearchOutlined />
+                    <span>ค้นหาและกรองข้อมูล</span>
+                  </Space>
+                }
+              >
+                <Row gutter={[8, 8]}>
+                  <Col xs={24} sm={12} md={6}>
+                    <Input.Search
+                      placeholder="ค้นหาชื่อหรืออีเมล"
+                      value={searchText}
+                      onChange={(e) => setSearchText(e.target.value)}
+                      style={{ width: '100%' }}
+                      size={isMobile ? 'small' : 'default'}
+                      allowClear
+                    />
+                  </Col>
+                  <Col xs={24} sm={12} md={6}>
+                    <Select
+                      value={filterRole}
+                      onChange={setFilterRole}
+                      style={{ width: '100%' }}
+                      placeholder="กรองตามบทบาท"
+                      size={isMobile ? 'small' : 'default'}
+                    >
+                      <Option value="all">ทุกบทบาท</Option>
+                      {getAllRoles().map(role => (
+                        <Option key={role.value} value={role.value}>{role.label}</Option>
                       ))}
-                    </Space>
-                  </Card>
-                </Col>
-              ))}
-            </Row>
-          </Card>
-        </Col>
-      </Row>
-
-      {/* Permission Management Modal */}
-      {selectedUser && (
-        <Modal
-          title={
-            <Space>
-              <SettingOutlined />
-              <span>จัดการสิทธิ์: {getUserDisplayName(selectedUser)}</span>
-            </Space>
-          }
-          visible={modalVisible}
-          onCancel={() => {
-            setModalVisible(false);
-            setSelectedUser(null);
-            form.resetFields();
-          }}
-          onOk={() => form.submit()}
-          confirmLoading={actionLoading}
-          width={isMobile ? '95%' : isTablet ? 600 : 800}
-          style={isMobile ? { top: 20 } : {}}
-          className="permission-management-modal"
-          okText="บันทึก"
-          cancelText="ยกเลิก"
-        >
-          <Form
-            form={form}
-            layout="vertical"
-            onFinish={handleUpdateUserRole}
-          >
-            <Alert
-              message={`กำหนดสิทธิ์สำหรับ: ${getUserDisplayName(selectedUser)}`}
-              description={`บทบาท: ${getAccessLevelName(selectedUser.accessLevel)} | แผนก: ${getDepartmentName(selectedUser.department) || 'ไม่ระบุ'}`}
-              type="info"
-              style={{ marginBottom: 16 }}
-            />
-
-            <Form.Item
-              name="permissions"
-              label="สิทธิ์การใช้งาน"
-              rules={[{ required: true, message: 'กรุณาเลือกสิทธิ์อย่างน้อย 1 รายการ' }]}
-            >
-              <Checkbox.Group style={{ width: '100%' }}>
-                <Row gutter={16}>
-                  {Object.entries(permissionCategories).map(([categoryKey, category]) => (
-                    <Col span={24} key={categoryKey} style={{ marginBottom: 16 }}>
-                      <Card 
-                        size="small"
-                        title={
-                          <Space>
-                            <Tag color={category.color}>{category.name}</Tag>
-                            <Button
-                              size="small"
-                              type="link"
-                              onClick={() => {
-                                const currentPerms = form.getFieldValue('permissions') || [];
-                                const categoryPerms = category.permissions.map(p => p.key);
-                                const hasAll = categoryPerms.every(p => currentPerms.includes(p));
-                                
-                                if (hasAll) {
-                                  // Remove all from this category
-                                  const newPerms = currentPerms.filter(p => !categoryPerms.includes(p));
-                                  form.setFieldValue('permissions', newPerms);
-                                } else {
-                                  // Add all from this category
-                                  const newPerms = [...new Set([...currentPerms, ...categoryPerms])];
-                                  form.setFieldValue('permissions', newPerms);
-                                }
-                              }}
-                            >
-                              เลือกทั้งหมด
-                            </Button>
-                          </Space>
-                        }
-                      >
-                        <Row gutter={isMobile ? 4 : 8}>
-                          {category.permissions.map(perm => (
-                            <Col 
-                              span={isMobile ? 24 : isTablet ? 12 : 24} 
-                              key={perm.key} 
-                              style={{ marginBottom: isMobile ? 4 : 8 }}
-                            >
-                              <Checkbox value={perm.key}>
-                                <div>
-                                  <Text 
-                                    strong 
-                                    style={{ fontSize: isMobile ? '13px' : '14px' }}
-                                  >
-                                    {perm.name}
-                                  </Text>
-                                  <br />
-                                  <Text 
-                                    type="secondary" 
-                                    style={{ fontSize: isMobile ? '11px' : '12px' }}
-                                  >
-                                    {isMobile && perm.description.length > 40
-                                      ? `${perm.description.substring(0, 40)}...`
-                                      : perm.description
-                                    }
-                                  </Text>
-                                </div>
-                              </Checkbox>
-                            </Col>
-                          ))}
-                        </Row>
-                      </Card>
-                    </Col>
-                  ))}
+                    </Select>
+                  </Col>
+                  <Col xs={24} sm={12} md={6}>
+                    <Select
+                      value={filterDepartment}
+                      onChange={setFilterDepartment}
+                      style={{ width: '100%' }}
+                      placeholder="กรองตามแผนก"
+                      size={isMobile ? 'small' : 'default'}
+                    >
+                      <Option value="all">ทุกแผนก</Option>
+                      {getAllDepartments().map(dept => (
+                        <Option key={dept.value} value={dept.value}>{dept.label}</Option>
+                      ))}
+                    </Select>
+                  </Col>
+                  <Col xs={24} sm={12} md={6}>
+                    <Select
+                      value={filterStatus}
+                      onChange={setFilterStatus}
+                      style={{ width: '100%' }}
+                      placeholder="กรองตามสถานะ"
+                      size={isMobile ? 'small' : 'default'}
+                    >
+                      <Option value="all">ทุกสถานะ</Option>
+                      <Option value="active">ใช้งานได้</Option>
+                      <Option value="pending">รออนุมัติ</Option>
+                      <Option value="rejected">ถูกปฏิเสธ</Option>
+                      <Option value="inactive">ไม่ใช้งาน</Option>
+                    </Select>
+                  </Col>
                 </Row>
-              </Checkbox.Group>
-            </Form.Item>
+              </Card>
 
-            <Row gutter={isMobile ? 8 : 16}>
-              <Col span={isMobile ? 24 : 12} style={{ marginBottom: isMobile ? 8 : 0 }}>
-                <Button
-                  block
-                  size={isMobile ? 'small' : 'middle'}
-                  onClick={() => {
-                    form.setFieldValue('permissions', getAllPermissions());
-                  }}
-                >
-                  <UnlockOutlined /> {isMobile ? 'เลือกทั้งหมด' : 'เลือกทั้งหมด'}
-                </Button>
-              </Col>
-              <Col span={isMobile ? 24 : 12}>
-                <Button
-                  block
-                  size={isMobile ? 'small' : 'middle'}
-                  onClick={() => {
-                    form.setFieldValue('permissions', []);
-                  }}
-                >
-                  <LockOutlined /> {isMobile ? 'ยกเลิกทั้งหมด' : 'ยกเลิกทั้งหมด'}
-                </Button>
-              </Col>
-            </Row>
-          </Form>
-        </Modal>
-      )}
-    </LayoutWithRBAC>
+              {/* Filter Summary */}
+              <div style={{ marginTop: 8, fontSize: '12px', color: '#666' }}>
+                แสดง {filteredUsers.length} จาก {users.length} ผู้ใช้
+                {searchText && (
+                  <Tag size="small" style={{ marginLeft: 8 }}>
+                    ค้นหา: {searchText}
+                  </Tag>
+                )}
+                {filterRole !== 'all' && (
+                  <Tag size="small" color="blue">
+                    บทบาท: {getAllRoles().find(r => r.value === filterRole)?.label}
+                  </Tag>
+                )}
+                {filterDepartment !== 'all' && (
+                  <Tag size="small" color="green">
+                    แผนก: {getAllDepartments().find(d => d.value === filterDepartment)?.label}
+                  </Tag>
+                )}
+                {filterStatus !== 'all' && (
+                  <Tag size="small" color="orange">
+                    สถานะ: {filterStatus === 'active' ? 'ใช้งานได้' : 
+                            filterStatus === 'pending' ? 'รออนุมัติ' :
+                            filterStatus === 'rejected' ? 'ถูกปฏิเสธ' : 'ไม่ใช้งาน'}
+                  </Tag>
+                )}
+              </div>
+          </Col>
+          
+          <Col span={24}>
+            <Card title={<><SafetyOutlined /> สิทธิ์ที่มีในระบบ</>}>
+              <Row gutter={isMobile ? 8 : 16}>
+                {Object.entries(permissionCategories).map(([key, category]) => (
+                  <Col 
+                    span={isMobile ? 24 : isTablet ? 12 : 12} 
+                    key={key} 
+                    style={{ marginBottom: 16 }}
+                  >
+                    <Card 
+                      size="small" 
+                      title={
+                        <Space>
+                          <Tag color={category.color}>{category.name}</Tag>
+                          <Text type="secondary">({category.permissions.length} สิทธิ์)</Text>
+                        </Space>
+                      }
+                    >
+                      <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                        {category.permissions.map(perm => (
+                          <div key={perm.key}>
+                            <Text 
+                              strong 
+                              style={{ fontSize: isMobile ? '13px' : '14px' }}
+                            >
+                              {perm.name}
+                            </Text>
+                            <br />
+                            <Text 
+                              type="secondary" 
+                              style={{ fontSize: isMobile ? '11px' : '12px' }}
+                            >
+                              {isMobile && perm.description.length > 50
+                                ? `${perm.description.substring(0, 50)}...`
+                                : perm.description
+                              }
+                            </Text>
+                          </div>
+                        ))}
+                      </Space>
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Permission Management Modal */}
+        {selectedUser && (
+          <Modal
+            title={
+              <Space>
+                <SettingOutlined />
+                <span>จัดการสิทธิ์: {getUserDisplayName(selectedUser)}</span>
+              </Space>
+            }
+            visible={modalVisible}
+            onCancel={() => {
+              setModalVisible(false);
+              setSelectedUser(null);
+              form.resetFields();
+            }}
+            onOk={() => form.submit()}
+            confirmLoading={actionLoading}
+            width={isMobile ? '95%' : isTablet ? 600 : 800}
+            style={isMobile ? { top: 20 } : {}}
+            className="permission-management-modal"
+            okText="บันทึก"
+            cancelText="ยกเลิก"
+          >
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleUpdateUserRole}
+            >
+              <Alert
+                message={`กำหนดสิทธิ์สำหรับ: ${getUserDisplayName(selectedUser)}`}
+                description={`บทบาท: ${getAccessLevelName(selectedUser.accessLevel)} | แผนก: ${getDepartmentName(selectedUser.department) || 'ไม่ระบุ'}`}
+                type="info"
+                style={{ marginBottom: 16 }}
+              />
+
+              <Form.Item
+                name="permissions"
+                label="สิทธิ์การใช้งาน"
+                rules={[{ required: true, message: 'กรุณาเลือกสิทธิ์อย่างน้อย 1 รายการ' }]}
+              >
+                <Checkbox.Group style={{ width: '100%' }}>
+                  <Row gutter={16}>
+                    {Object.entries(permissionCategories).map(([categoryKey, category]) => (
+                      <Col span={24} key={categoryKey} style={{ marginBottom: 16 }}>
+                        <Card 
+                          size="small"
+                          title={
+                            <Space>
+                              <Tag color={category.color}>{category.name}</Tag>
+                              <Button
+                                size="small"
+                                type="link"
+                                onClick={() => {
+                                  const currentPerms = form.getFieldValue('permissions') || [];
+                                  const categoryPerms = category.permissions.map(p => p.key);
+                                  const hasAll = categoryPerms.every(p => currentPerms.includes(p));
+                                  
+                                  if (hasAll) {
+                                    // Remove all from this category
+                                    const newPerms = currentPerms.filter(p => !categoryPerms.includes(p));
+                                    form.setFieldValue('permissions', newPerms);
+                                  } else {
+                                    // Add all from this category
+                                    const newPerms = [...new Set([...currentPerms, ...categoryPerms])];
+                                    form.setFieldValue('permissions', newPerms);
+                                  }
+                                }}
+                              >
+                                เลือกทั้งหมด
+                              </Button>
+                            </Space>
+                          }
+                        >
+                          <Row gutter={isMobile ? 4 : 8}>
+                            {category.permissions.map(perm => (
+                              <Col 
+                                span={isMobile ? 24 : isTablet ? 12 : 24} 
+                                key={perm.key} 
+                                style={{ marginBottom: isMobile ? 4 : 8 }}
+                              >
+                                <Checkbox value={perm.key}>
+                                  <div>
+                                    <Text 
+                                      strong 
+                                      style={{ fontSize: isMobile ? '13px' : '14px' }}
+                                    >
+                                      {perm.name}
+                                    </Text>
+                                    <br />
+                                    <Text 
+                                      type="secondary" 
+                                      style={{ fontSize: isMobile ? '11px' : '12px' }}
+                                    >
+                                      {isMobile && perm.description.length > 40
+                                        ? `${perm.description.substring(0, 40)}...`
+                                        : perm.description
+                                      }
+                                    </Text>
+                                  </div>
+                                </Checkbox>
+                              </Col>
+                            ))}
+                          </Row>
+                        </Card>
+                      </Col>
+                    ))}
+                  </Row>
+                </Checkbox.Group>
+              </Form.Item>
+
+              <Row gutter={isMobile ? 8 : 16}>
+                <Col span={isMobile ? 24 : 12} style={{ marginBottom: isMobile ? 8 : 0 }}>
+                  <Button
+                    block
+                    size={isMobile ? 'small' : 'middle'}
+                    onClick={() => {
+                      form.setFieldValue('permissions', getAllPermissions());
+                    }}
+                  >
+                    <UnlockOutlined /> {isMobile ? 'เลือกทั้งหมด' : 'เลือกทั้งหมด'}
+                  </Button>
+                </Col>
+                <Col span={isMobile ? 24 : 12}>
+                  <Button
+                    block
+                    size={isMobile ? 'small' : 'middle'}
+                    onClick={() => {
+                      form.setFieldValue('permissions', []);
+                    }}
+                  >
+                    <LockOutlined /> {isMobile ? 'ยกเลิกทั้งหมด' : 'ยกเลิกทั้งหมด'}
+                  </Button>
+                </Col>
+              </Row>
+            </Form>
+          </Modal>
+        )}
+      </LayoutWithRBAC>
+    </ScreenWithManual>
   );
 };
 

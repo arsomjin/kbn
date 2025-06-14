@@ -85,7 +85,9 @@
     "test:dev": "env-cmd -f .env.test cross-env NODE_OPTIONS=--openssl-legacy-provider PORT=3030 react-scripts start",
     "eject": "react-scripts eject",
     "postinstall": "patch-package",
-    "lint:fix": "eslint src --ext .js,.jsx --fix"
+    "lint:fix": "eslint src --ext .js,.jsx --fix",
+    "format": "prettier --write src/**/*.{js,jsx,ts,tsx,json,css,scss,md}",
+    "format:check": "prettier --check src/**/*.{js,jsx,ts,tsx,json,css,scss,md}"
   },
   "browserslist": {
     "production": [
@@ -130,6 +132,7 @@
     "env-cmd": "^10.1.0",
     "eslint-plugin-react": "^7.37.4",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-unused-imports": "^4.1.4"
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "prettier": "^3.5.3"
   }
 }

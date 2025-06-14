@@ -71,6 +71,15 @@ const GeographicBranchSelector = ({
   const availableBranches = useMemo(() => {
     let branchList = [];
 
+    // Debug logging
+    console.log('🔍 GeographicBranchSelector Debug:', {
+      respectRBAC,
+      isSuperAdmin,
+      province,
+      branchesFromState: branches,
+      accessibleBranches: respectRBAC ? accessibleBranches : 'Not using RBAC'
+    });
+
     if (respectRBAC && !isSuperAdmin) {
       // Use RBAC-filtered branches
       branchList = accessibleBranches.map(branch => ({
@@ -78,21 +87,33 @@ const GeographicBranchSelector = ({
         branchCode: branch.branchCode || branch.key
       }));
     } else {
-      // Use all branches
-      branchList = Object.keys(branches || {}).map(key => ({
-        key,
-        branchCode: key,
-        ...branches[key]
-      }));
+      // Use all branches - ensure we have data
+      if (branches && typeof branches === 'object') {
+        branchList = Object.keys(branches).map(key => ({
+          key,
+          branchCode: key,
+          ...branches[key]
+        }));
+      } else {
+        console.warn('⚠️ No branches data available in state.data.branches');
+        branchList = [];
+      }
     }
 
     // Filter by province if specified
     if (province && province !== 'all') {
-      branchList = branchList.filter(branch => 
-        branch.provinceId === province || 
-        branch.province === province ||
-        branch.provinceCode === province
-      );
+      branchList = branchList.filter(branch => {
+        // Check multiple possible province field names
+        return (
+          branch.provinceId === province || 
+          branch.province === province ||
+          branch.provinceCode === province ||
+          branch.provinceName === province ||
+          // Also check if branch code starts with province-specific prefixes
+          (province === 'นครสวรรค์' && (branch.branchCode?.startsWith('NSN') || branch.key?.startsWith('NSN'))) ||
+          (province === 'นครราชสีมา' && (branch.branchCode?.startsWith('NMA') || branch.branchCode?.startsWith('045') || branch.branchCode?.startsWith('500') || branch.key?.startsWith('NMA') || branch.key?.startsWith('045') || branch.key?.startsWith('500')))
+        );
+      });
     }
 
     // Filter by active status
@@ -101,11 +122,24 @@ const GeographicBranchSelector = ({
     }
 
     // Sort by name
-    return branchList.sort((a, b) => {
+    const sortedBranches = branchList.sort((a, b) => {
       const nameA = a.branchName || a.name || a.branchCode || a.key;
       const nameB = b.branchName || b.name || b.branchCode || b.key;
       return nameA?.localeCompare(nameB, 'th');
     });
+
+    console.log('🔍 Final filtered branches:', {
+      province,
+      totalBranches: Object.keys(branches || {}).length,
+      filteredCount: sortedBranches.length,
+      branches: sortedBranches.map(b => ({
+        code: b.branchCode || b.key,
+        name: b.branchName || b.name,
+        province: b.provinceId || b.province
+      }))
+    });
+
+    return sortedBranches;
   }, [branches, respectRBAC, isSuperAdmin, accessibleBranches, province, includeInactive]);
 
   // Group branches by province for display

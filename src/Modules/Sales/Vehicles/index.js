@@ -73,8 +73,9 @@ import { uniq } from 'lodash';
 import { arrayForEach } from 'functions';
 import { checkPayments } from 'Modules/Utils';
 // RBAC Testing: Adding LayoutWithRBAC wrapper for comparison
-import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
 import PropTypes from 'prop-types';
+// 🚀 Document Approval Flow Integration
+import DocumentWorkflowWrapper from 'components/DocumentApprovalFlow/DocumentWorkflowWrapper';
 const { Option } = Select;
 
 const initProps = {
@@ -1360,18 +1361,22 @@ SaleMachinesContent.propTypes = {
   auditTrail: PropTypes.object
 };
 
-// Main component wrapped with LayoutWithRBAC for testing
+// Main component wrapped with DocumentWorkflowWrapper for document approval flow
 const SaleMachinesComponent = () => {
   return (
-    <LayoutWithRBAC
-      title="งานขาย"
-      subtitle="รถและอุปกรณ์"
-      permission="sales.view"
-      editPermission="sales.edit"
-      loading={false}
+    <DocumentWorkflowWrapper
+      documentType="sales_vehicle"
+      documentId={null} // Will be set when document is created
+      layoutProps={{
+        title: "งานขาย",
+        subtitle: "รถและอุปกรณ์",
+        permission: "sales.view",
+        editPermission: "sales.edit",
+        loading: false
+      }}
     >
       <SaleMachinesContent />
-    </LayoutWithRBAC>
+    </DocumentWorkflowWrapper>
   );
 };
 

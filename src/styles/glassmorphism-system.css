@@ -1,0 +1,1159 @@
+/**
+ * KBN Glassmorphism Design System v2.1 - Kubota Thailand Edition
+ * Inspired by Apple's Liquid Glass design language with authentic Thai agricultural backgrounds
+ * Features: Dark mode support, accessibility, performance optimization, Kubota Thailand theming
+ * 
+ * Usage: Apply these classes to any component for instant glass effects
+ */
+
+/* ========================================
+   KUBOTA THAILAND BACKGROUND SYSTEM
+======================================== */
+
+/* Beautiful Thai agricultural landscape backgrounds */
+:root {
+  /* Kubota Thailand Background Images */
+  --kubota-rice-fields: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(139, 195, 74, 0.1) 100%), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%23e3f2fd;stop-opacity:1" /><stop offset="100%" style="stop-color:%23bbdefb;stop-opacity:1" /></linearGradient><linearGradient id="field" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%238bc34a;stop-opacity:1" /><stop offset="50%" style="stop-color:%234caf50;stop-opacity:1" /><stop offset="100%" style="stop-color:%23388e3c;stop-opacity:1" /></linearGradient></defs><rect width="1200" height="400" fill="url(%23sky)"/><path d="M0,300 Q300,280 600,300 T1200,300 L1200,800 L0,800 Z" fill="url(%23field)"/><g opacity="0.6"><rect x="100" y="350" width="80" height="120" rx="5" fill="%23ff6f00"/><rect x="300" y="340" width="60" height="100" rx="3" fill="%23ff6f00"/><rect x="500" y="360" width="70" height="110" rx="4" fill="%23ff6f00"/><rect x="700" y="345" width="65" height="105" rx="3" fill="%23ff6f00"/><rect x="900" y="355" width="75" height="115" rx="4" fill="%23ff6f00"/></g><g opacity="0.4"><circle cx="200" cy="150" r="80" fill="%23fff9c4"/><path d="M180,130 Q200,110 220,130 Q200,150 180,130" fill="%23fff"/></g></svg>');
+  
+  --kubota-sunset-farm: linear-gradient(135deg, rgba(255, 152, 0, 0.1) 0%, rgba(255, 193, 7, 0.1) 100%), 
+                         url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="sunset" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%23ff9800;stop-opacity:1" /><stop offset="50%" style="stop-color:%23ffc107;stop-opacity:1" /><stop offset="100%" style="stop-color:%23ffeb3b;stop-opacity:1" /></linearGradient><linearGradient id="farmland" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%23689f38;stop-opacity:1" /><stop offset="100%" style="stop-color:%23558b2f;stop-opacity:1" /></linearGradient></defs><rect width="1200" height="500" fill="url(%23sunset)"/><path d="M0,400 Q200,380 400,400 Q600,420 800,400 Q1000,380 1200,400 L1200,800 L0,800 Z" fill="url(%23farmland)"/><circle cx="900" cy="200" r="60" fill="%23ffeb3b" opacity="0.8"/><g opacity="0.7"><rect x="150" y="450" width="100" height="150" rx="5" fill="%23d84315"/><rect x="400" y="440" width="80" height="130" rx="4" fill="%23d84315"/><rect x="650" y="460" width="90" height="140" rx="5" fill="%23d84315"/><rect x="850" y="445" width="85" height="135" rx="4" fill="%23d84315"/></g></svg>');
+  
+  --kubota-modern-farm: linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(76, 175, 80, 0.1) 100%), 
+                         url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><linearGradient id="modernsky" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" style="stop-color:%232196f3;stop-opacity:1" /><stop offset="100%" style="stop-color:%2364b5f6;stop-opacity:1" /></linearGradient><linearGradient id="tech" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:%234caf50;stop-opacity:1" /><stop offset="100%" style="stop-color:%238bc34a;stop-opacity:1" /></linearGradient></defs><rect width="1200" height="350" fill="url(%23modernsky)"/><rect y="350" width="1200" height="450" fill="url(%23tech)"/><g opacity="0.8"><rect x="200" y="400" width="120" height="180" rx="8" fill="%23ff5722"/><rect x="500" y="390" width="100" height="160" rx="6" fill="%23ff5722"/><rect x="800" y="410" width="110" height="170" rx="7" fill="%23ff5722"/></g><g opacity="0.3"><rect x="0" y="350" width="1200" height="2" fill="%23fff"/><rect x="0" y="400" width="1200" height="1" fill="%23fff"/><rect x="0" y="450" width="1200" height="1" fill="%23fff"/></g></svg>');
+
+  /* Light Mode Glass Colors */
+  --glass-bg-light: rgba(255, 255, 255, 0.25);
+  --glass-bg-light-hover: rgba(255, 255, 255, 0.35);
+  --glass-bg-light-active: rgba(255, 255, 255, 0.45);
+  
+  /* Dark Mode Glass Colors */
+  --glass-bg-dark: rgba(255, 255, 255, 0.1);
+  --glass-bg-dark-hover: rgba(255, 255, 255, 0.15);
+  --glass-bg-dark-active: rgba(255, 255, 255, 0.2);
+  
+  /* Glass Effects */
+  --glass-blur: 16px;
+  --glass-blur-subtle: 8px;
+  --glass-blur-medium: 16px;
+  --glass-blur-strong: 24px;
+  --glass-blur-extreme: 40px;
+  
+  /* Glass Borders */
+  --glass-border: 1px solid rgba(255, 255, 255, 0.2);
+  --glass-border-strong: 1px solid rgba(255, 255, 255, 0.3);
+  
+  /* Glass Shadows */
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.15);
+  --glass-shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.2);
+  
+  /* Transitions */
+  --glass-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --glass-transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* Status Colors */
+  --glass-success: rgba(76, 175, 80, 0.2);
+  --glass-warning: rgba(255, 152, 0, 0.2);
+  --glass-error: rgba(244, 67, 54, 0.2);
+  --glass-info: rgba(33, 150, 243, 0.2);
+  
+  /* Kubota Brand Colors */
+  --kubota-orange: #ff6f00;
+  --kubota-green: #4caf50;
+  --kubota-blue: #2196f3;
+}
+
+/* Dark mode variables */
+[data-theme="dark"], 
+.dark-mode,
+html[data-theme="dark"] {
+  --glass-bg-light: rgba(255, 255, 255, 0.1);
+  --glass-bg-light-hover: rgba(255, 255, 255, 0.15);
+  --glass-bg-light-active: rgba(255, 255, 255, 0.2);
+  
+  --glass-border: 1px solid rgba(255, 255, 255, 0.1);
+  --glass-border-strong: 1px solid rgba(255, 255, 255, 0.2);
+  
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --glass-shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.4);
+  --glass-shadow-strong: 0 16px 48px rgba(0, 0, 0, 0.5);
+}
+
+/* ========================================
+   KUBOTA BACKGROUND APPLICATIONS
+======================================== */
+
+/* Main application background */
+body {
+  background: var(--kubota-rice-fields);
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  transition: var(--glass-transition);
+}
+
+/* IMMEDIATE GLASSMORPHISM FIX - Force transparent backgrounds for glass effect */
+.ant-layout,
+.ant-layout-content,
+#root,
+.main-content-wrapper,
+.ant-layout-has-sider {
+  background: transparent !important;
+}
+
+/* Enhanced glass visibility - Force stronger effects for immediate visibility */
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+}
+
+/* Glass card variants */
+.glass-card.glass-primary {
+  background: rgba(24, 144, 255, 0.15);
+  border: 1px solid rgba(24, 144, 255, 0.3);
+}
+
+.glass-card.glass-success {
+  background: rgba(82, 196, 26, 0.15);
+  border: 1px solid rgba(82, 196, 26, 0.3);
+}
+
+.glass-card.glass-warning {
+  background: rgba(250, 173, 20, 0.15);
+  border: 1px solid rgba(250, 173, 20, 0.3);
+}
+
+.glass-card.glass-error {
+  background: rgba(255, 77, 79, 0.15);
+  border: 1px solid rgba(255, 77, 79, 0.3);
+}
+
+.glass-card.glass-info {
+  background: rgba(24, 144, 255, 0.1);
+  border: 1px solid rgba(24, 144, 255, 0.2);
+}
+
+/* Glass buttons */
+.glass-button {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px 24px;
+  color: #2d5016;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  user-select: none;
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(31, 38, 135, 0.1);
+  color: #2d5016;
+}
+
+.glass-button.glass-primary {
+  background: rgba(24, 144, 255, 0.2);
+  border: 1px solid rgba(24, 144, 255, 0.4);
+  color: #1890ff;
+}
+
+.glass-button.glass-primary:hover {
+  background: rgba(24, 144, 255, 0.3);
+  color: #1890ff;
+}
+
+.glass-button.glass-warning {
+  background: rgba(250, 173, 20, 0.2);
+  border: 1px solid rgba(250, 173, 20, 0.4);
+  color: #fa8c16;
+}
+
+.glass-button.glass-warning:hover {
+  background: rgba(250, 173, 20, 0.3);
+  color: #fa8c16;
+}
+
+/* Floating animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.glass-floating-element {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Alternative backgrounds for different sections */
+.kubota-sunset-bg {
+  background: var(--kubota-sunset-farm) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+}
+
+.kubota-modern-bg {
+  background: var(--kubota-modern-farm) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-attachment: fixed !important;
+}
+
+/* Dynamic background changer */
+.kubota-bg-rotator {
+  animation: kubotaBackgroundRotation 30s infinite;
+}
+
+@keyframes kubotaBackgroundRotation {
+  0%, 33% { background-image: var(--kubota-rice-fields); }
+  34%, 66% { background-image: var(--kubota-sunset-farm); }
+  67%, 100% { background-image: var(--kubota-modern-farm); }
+}
+
+/* ========================================
+   CORE GLASSMORPHISM COMPONENTS
+======================================== */
+
+/* Glass navigation */
+.glass-navbar {
+  background: var(--glass-bg-light) !important;
+  backdrop-filter: blur(var(--glass-blur-strong)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong)) !important;
+  border-bottom: var(--glass-border) !important;
+  box-shadow: var(--glass-shadow) !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+}
+
+/* Glass sidebar */
+.glass-sidebar {
+  background: var(--glass-bg-light) !important;
+  backdrop-filter: blur(var(--glass-blur-strong)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong)) !important;
+  border-right: var(--glass-border) !important;
+  box-shadow: var(--glass-shadow-strong) !important;
+  height: 100vh !important;
+  position: fixed !important;
+  left: 0 !important;
+  top: 0 !important;
+  z-index: 999 !important;
+}
+
+/* Glass modals */
+.glass-modal {
+  background: var(--glass-bg-light) !important;
+  backdrop-filter: blur(var(--glass-blur-strong)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong)) !important;
+  border: var(--glass-border-strong) !important;
+  border-radius: 20px !important;
+  box-shadow: var(--glass-shadow-strong) !important;
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1050 !important;
+  max-width: 90vw !important;
+  max-height: 90vh !important;
+  overflow: auto !important;
+}
+
+/* Glass tables */
+.glass-table {
+  background: var(--glass-bg-light) !important;
+  backdrop-filter: blur(var(--glass-blur)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur)) !important;
+  border: var(--glass-border) !important;
+  border-radius: 16px !important;
+  box-shadow: var(--glass-shadow) !important;
+  overflow: hidden !important;
+}
+
+.glass-table th {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(var(--glass-blur-subtle)) !important;
+  border-bottom: var(--glass-border) !important;
+  padding: 16px !important;
+  font-weight: 600 !important;
+}
+
+.glass-table td {
+  padding: 12px 16px !important;
+  border-bottom: rgba(255, 255, 255, 0.1) 1px solid !important;
+}
+
+.glass-table tr:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ========================================
+   STATUS VARIANTS
+======================================== */
+
+.glass-success {
+  background: var(--glass-success) !important;
+  border-color: rgba(76, 175, 80, 0.3) !important;
+}
+
+.glass-warning {
+  background: var(--glass-warning) !important;
+  border-color: rgba(255, 152, 0, 0.3) !important;
+}
+
+.glass-error {
+  background: var(--glass-error) !important;
+  border-color: rgba(244, 67, 54, 0.3) !important;
+}
+
+.glass-info {
+  background: var(--glass-info) !important;
+  border-color: rgba(33, 150, 243, 0.3) !important;
+}
+
+/* Kubota brand variants */
+.glass-kubota-orange {
+  background: rgba(255, 111, 0, 0.2) !important;
+  border-color: rgba(255, 111, 0, 0.3) !important;
+}
+
+.glass-kubota-green {
+  background: rgba(76, 175, 80, 0.2) !important;
+  border-color: rgba(76, 175, 80, 0.3) !important;
+}
+
+.glass-kubota-blue {
+  background: rgba(33, 150, 243, 0.2) !important;
+  border-color: rgba(33, 150, 243, 0.3) !important;
+}
+
+/* ========================================
+   FLOATING GLASS ELEMENTS
+======================================== */
+
+.glass-floating-element {
+  position: absolute !important;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 70%, transparent 100%) !important;
+  backdrop-filter: blur(var(--glass-blur-subtle)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur-subtle)) !important;
+  border-radius: 50% !important;
+  animation: float 6s ease-in-out infinite !important;
+  pointer-events: none !important;
+  z-index: -1 !important;
+}
+
+.glass-floating-element:nth-child(1) {
+  width: 200px !important;
+  height: 200px !important;
+  top: 10% !important;
+  left: 10% !important;
+  animation-delay: 0s !important;
+}
+
+.glass-floating-element:nth-child(2) {
+  width: 150px !important;
+  height: 150px !important;
+  top: 60% !important;
+  right: 15% !important;
+  animation-delay: 2s !important;
+}
+
+.glass-floating-element:nth-child(3) {
+  width: 100px !important;
+  height: 100px !important;
+  bottom: 20% !important;
+  left: 20% !important;
+  animation-delay: 4s !important;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-20px) rotate(120deg); }
+  66% { transform: translateY(10px) rotate(240deg); }
+}
+
+/* ========================================
+   GLASS ANIMATIONS
+======================================== */
+
+.glass-shimmer {
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.glass-shimmer::after {
+  content: '' !important;
+  position: absolute !important;
+  top: 0 !important;
+  left: -100% !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent) !important;
+  animation: glassShimmer 2s infinite !important;
+  z-index: 1 !important;
+}
+
+@keyframes glassShimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* ========================================
+   BLUR VARIATIONS
+======================================== */
+
+.glass-blur-subtle {
+  backdrop-filter: blur(var(--glass-blur-subtle)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur-subtle)) !important;
+}
+
+.glass-blur-medium {
+  backdrop-filter: blur(var(--glass-blur-medium)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur-medium)) !important;
+}
+
+.glass-blur-strong {
+  backdrop-filter: blur(var(--glass-blur-strong)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong)) !important;
+}
+
+.glass-blur-extreme {
+  backdrop-filter: blur(var(--glass-blur-extreme)) !important;
+  -webkit-backdrop-filter: blur(var(--glass-blur-extreme)) !important;
+}
+
+/* ========================================
+   UTILITY CLASSES
+======================================== */
+
+.glass-rounded-small { border-radius: 8px !important; }
+.glass-rounded-medium { border-radius: 12px !important; }
+.glass-rounded-large { border-radius: 16px !important; }
+.glass-rounded-xl { border-radius: 20px !important; }
+.glass-rounded-full { border-radius: 50% !important; }
+
+.glass-compact { padding: 8px 12px !important; }
+.glass-comfortable { padding: 12px 16px !important; }
+.glass-spacious { padding: 16px 24px !important; }
+
+/* ========================================
+   RESPONSIVE DESIGN
+======================================== */
+
+@media (max-width: 768px) {
+  .glass-card {
+    border-radius: 16px;
+    margin: 10px;
+    padding: 20px;
+  }
+  
+  .glass-modal {
+    border-radius: 16px !important;
+    margin: 16px !important;
+    max-width: calc(100vw - 32px) !important;
+  }
+  
+  .glass-floating-element {
+    display: none !important;
+  }
+  
+  body {
+    background-attachment: scroll !important;
+  }
+}
+
+/* ========================================
+   ACCESSIBILITY
+======================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-floating-element {
+    animation: none !important;
+    transition: none !important;
+  }
+  
+  .glass-shimmer::after {
+    animation: none !important;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .glass-card,
+  .glass-button,
+  .glass-input {
+    border-width: 2px !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
+  }
+}
+
+/* ========================================
+   PERFORMANCE OPTIMIZATIONS
+======================================== */
+
+.glass-card,
+.glass-button,
+.glass-input,
+.glass-navbar,
+.glass-sidebar,
+.glass-modal,
+.glass-table {
+  will-change: transform, opacity !important;
+  transform: translateZ(0) !important;
+  backface-visibility: hidden !important;
+}
+
+/* ========================================
+   BROWSER COMPATIBILITY
+======================================== */
+
+/* Safari fallbacks */
+@supports not (backdrop-filter: blur(1px)) {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-navbar,
+  .glass-sidebar,
+  .glass-modal,
+  .glass-table {
+    background: rgba(255, 255, 255, 0.9) !important;
+  }
+  
+  [data-theme="dark"] .glass-card,
+  [data-theme="dark"] .glass-button,
+  [data-theme="dark"] .glass-input,
+  [data-theme="dark"] .glass-navbar,
+  [data-theme="dark"] .glass-sidebar,
+  [data-theme="dark"] .glass-modal,
+  [data-theme="dark"] .glass-table {
+    background: rgba(0, 0, 0, 0.8) !important;
+  }
+}
+
+/* Firefox optimizations */
+@-moz-document url-prefix() {
+  .glass-card,
+  .glass-button,
+  .glass-input {
+    background: rgba(255, 255, 255, 0.85) !important;
+  }
+}
+
+/* ========================================
+   INTEGRATION HELPERS
+======================================== */
+
+/* Ant Design integration */
+.ant-card.glass-card .ant-card-body {
+  background: transparent !important;
+}
+
+.ant-btn.glass-button {
+  border: var(--glass-border) !important;
+  background: var(--glass-bg-light) !important;
+}
+
+.ant-input.glass-input {
+  background: var(--glass-bg-light) !important;
+  border: var(--glass-border) !important;
+}
+
+.ant-table.glass-table .ant-table-container {
+  background: transparent !important;
+}
+
+/* Bootstrap integration */
+.card.glass-card {
+  background: var(--glass-bg-light) !important;
+  border: var(--glass-border) !important;
+}
+
+.btn.glass-button {
+  background: var(--glass-bg-light) !important;
+  border: var(--glass-border) !important;
+}
+
+.form-control.glass-input {
+  background: var(--glass-bg-light) !important;
+  border: var(--glass-border) !important;
+}
+
+/* ========================================
+   KUBOTA THAILAND SPECIAL EFFECTS
+======================================== */
+
+/* Tractor animation for special occasions */
+.kubota-tractor-animation {
+  position: fixed;
+  bottom: -100px;
+  left: -200px;
+  width: 150px;
+  height: 100px;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 100"><rect x="20" y="40" width="80" height="30" rx="5" fill="%23ff6f00"/><circle cx="30" cy="80" r="15" fill="%23333"/><circle cx="90" cy="80" r="20" fill="%23333"/><rect x="25" y="20" width="30" height="20" rx="3" fill="%23ff8f00"/></svg>') no-repeat center;
+  background-size: contain;
+  animation: tractorDrive 20s linear infinite;
+  pointer-events: none;
+  z-index: -1;
+  opacity: 0.3;
+}
+
+@keyframes tractorDrive {
+  0% { 
+    left: -200px; 
+    bottom: -100px; 
+  }
+  25% { 
+    left: calc(50vw - 75px); 
+    bottom: 20px; 
+  }
+  50% { 
+    left: calc(100vw + 200px); 
+    bottom: -100px; 
+  }
+  51% { 
+    left: calc(100vw + 200px); 
+    bottom: -100px; 
+    transform: scaleX(-1); 
+  }
+  75% { 
+    left: calc(50vw - 75px); 
+    bottom: 20px; 
+    transform: scaleX(-1); 
+  }
+  100% { 
+    left: -200px; 
+    bottom: -100px; 
+    transform: scaleX(-1); 
+  }
+}
+
+/* Rice field wave effect */
+.kubota-rice-wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(0deg, rgba(76, 175, 80, 0.1) 0%, transparent 100%);
+  animation: riceWave 4s ease-in-out infinite;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@keyframes riceWave {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+/* ========================================
+   PRINT STYLES
+======================================== */
+
+@media print {
+  .glass-card,
+  .glass-button,
+  .glass-input,
+  .glass-navbar,
+  .glass-sidebar,
+  .glass-modal,
+  .glass-table {
+    background: white !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    border: 1px solid #ccc !important;
+  }
+  
+  .glass-floating-element,
+  .kubota-tractor-animation,
+  .kubota-rice-wave {
+    display: none !important;
+  }
+}
+
+/* Glassmorphism System Styles */
+
+/* Glassmorphism System Styles */
+
+/* Base glassmorphism card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.2);
+}
+
+/* Glass card variants */
+.glass-card.glass-primary {
+  background: rgba(24, 144, 255, 0.15);
+  border: 1px solid rgba(24, 144, 255, 0.3);
+}
+
+.glass-card.glass-success {
+  background: rgba(82, 196, 26, 0.15);
+  border: 1px solid rgba(82, 196, 26, 0.3);
+}
+
+.glass-card.glass-warning {
+  background: rgba(250, 173, 20, 0.15);
+  border: 1px solid rgba(250, 173, 20, 0.3);
+}
+
+.glass-card.glass-error {
+  background: rgba(255, 77, 79, 0.15);
+  border: 1px solid rgba(255, 77, 79, 0.3);
+}
+
+.glass-card.glass-info {
+  background: rgba(24, 144, 255, 0.1);
+  border: 1px solid rgba(24, 144, 255, 0.2);
+}
+
+/* Glass buttons */
+.glass-button {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 12px 24px;
+  color: #2d5016;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  user-select: none;
+}
+
+.glass-button:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(31, 38, 135, 0.1);
+  color: #2d5016;
+}
+
+.glass-button.glass-primary {
+  background: rgba(24, 144, 255, 0.2);
+  border: 1px solid rgba(24, 144, 255, 0.4);
+  color: #1890ff;
+}
+
+.glass-button.glass-primary:hover {
+  background: rgba(24, 144, 255, 0.3);
+  color: #1890ff;
+}
+
+.glass-button.glass-warning {
+  background: rgba(250, 173, 20, 0.2);
+  border: 1px solid rgba(250, 173, 20, 0.4);
+  color: #fa8c16;
+}
+
+.glass-button.glass-warning:hover {
+  background: rgba(250, 173, 20, 0.3);
+  color: #fa8c16;
+}
+
+/* Floating animations */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.glass-floating-element {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* Nature login page specific styles */
+.nature-login-page {
+  min-height: 100vh;
+  position: relative;
+}
+
+.nature-login-background {
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.nature-login-button {
+  background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+  transition: all 0.3s ease;
+}
+
+.nature-login-button:hover,
+.nature-login-button:focus {
+  background: linear-gradient(135deg, #45a049 0%, #4CAF50 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+}
+
+/* Enhanced form styles */
+.ant-form-item-label > label {
+  font-weight: 600;
+  color: #2d5016;
+}
+
+.ant-input,
+.ant-select-selector {
+  border-radius: 8px;
+  border: 1px solid #d9d9d9;
+  transition: all 0.3s ease;
+}
+
+.ant-input:focus,
+.ant-input:hover,
+.ant-select-selector:focus,
+.ant-select-selector:hover {
+  border-color: #4CAF50;
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.1);
+}
+
+/* Highlight field styles for rejection improvements */
+.highlight-field {
+  border: 2px solid #faad14 !important;
+  background: rgba(250, 173, 20, 0.05) !important;
+  box-shadow: 0 0 0 2px rgba(250, 173, 20, 0.1) !important;
+  animation: highlightPulse 2s ease-in-out infinite;
+}
+
+.highlight-field:focus {
+  border-color: #fa8c16 !important;
+  box-shadow: 0 0 0 2px rgba(250, 140, 22, 0.2) !important;
+}
+
+@keyframes highlightPulse {
+  0% {
+    box-shadow: 0 0 0 2px rgba(250, 173, 20, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(250, 173, 20, 0.2);
+  }
+  100% {
+    box-shadow: 0 0 0 2px rgba(250, 173, 20, 0.1);
+  }
+}
+
+/* Re-application form specific styles */
+.reapplication-form {
+  position: relative;
+}
+
+.reapplication-form .ant-steps {
+  margin-bottom: 32px;
+}
+
+.reapplication-form .ant-steps-item-title {
+  font-weight: 600;
+  color: #2d5016;
+}
+
+.reapplication-form .ant-alert {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.reapplication-form .improvement-guidelines {
+  background: rgba(24, 144, 255, 0.05);
+  border: 1px solid rgba(24, 144, 255, 0.2);
+  border-radius: 12px;
+}
+
+.reapplication-form .improvement-guidelines .ant-card-head {
+  background: rgba(24, 144, 255, 0.1);
+  border-bottom: 1px solid rgba(24, 144, 255, 0.2);
+}
+
+/* Responsive design for glass effects */
+@media (max-width: 768px) {
+  .glass-card {
+    border-radius: 16px;
+    margin: 10px;
+    padding: 20px;
+  }
+  
+  .glass-button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+  
+  .nature-login-background {
+    background-attachment: scroll;
+    padding: 40px 15px;
+  }
+}
+
+/* Custom scrollbar for glass elements */
+.glass-card::-webkit-scrollbar {
+  width: 6px;
+}
+
+.glass-card::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.glass-card::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.glass-card::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Loading states for glass elements */
+.glass-loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Status indicators */
+.status-indicator {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-indicator.pending {
+  background: rgba(250, 173, 20, 0.15);
+  color: #fa8c16;
+  border: 1px solid rgba(250, 173, 20, 0.3);
+}
+
+.status-indicator.approved {
+  background: rgba(82, 196, 26, 0.15);
+  color: #52c41a;
+  border: 1px solid rgba(82, 196, 26, 0.3);
+}
+
+.status-indicator.rejected {
+  background: rgba(255, 77, 79, 0.15);
+  color: #ff4d4f;
+  border: 1px solid rgba(255, 77, 79, 0.3);
+}
+
+.status-indicator.reapplied {
+  background: rgba(24, 144, 255, 0.15);
+  color: #1890ff;
+  border: 1px solid rgba(24, 144, 255, 0.3);
+}
+
+/* Enhanced typography */
+.glass-title {
+  color: #2d5016;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.glass-subtitle {
+  color: #8c8c8c;
+  font-size: 16px;
+  margin-bottom: 24px;
+}
+
+.glass-text {
+  color: #595959;
+  line-height: 1.6;
+}
+
+/* Form enhancements */
+.ant-form-item-required::before {
+  color: #ff4d4f;
+}
+
+.ant-form-item-explain-error {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Modal glass effects */
+.ant-modal-content {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 16px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15) !important;
+}
+
+.ant-modal-header {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 16px 16px 0 0 !important;
+}
+
+.ant-modal-footer {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 0 0 16px 16px !important;
+}
+
+/* Notification enhancements */
+.ant-message {
+  z-index: 9999;
+}
+
+.ant-message-notice {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 12px !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Success animations */
+@keyframes successPulse {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.success-animation {
+  animation: successPulse 0.6s ease-in-out;
+}
+
+/* Error animations */
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.error-animation {
+  animation: errorShake 0.5s ease-in-out;
+}
+
+/* Accessibility improvements */
+.glass-card:focus,
+.glass-button:focus {
+  outline: 2px solid #4CAF50;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .glass-card {
+    background: white !important;
+    border: 1px solid #ddd !important;
+    box-shadow: none !important;
+  }
+  
+  .glass-button {
+    background: white !important;
+    border: 1px solid #ddd !important;
+    color: black !important;
+  }
+}

@@ -23,12 +23,13 @@ import { load } from 'functions';
 import { showSuccess } from 'functions';
 import { updateNewOrderCustomer } from 'Modules/Utils';
 import { errorHandler } from 'functions';
-import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
 import PropTypes from 'prop-types';
 import { useResponsive } from 'hooks/useResponsive';
 // 🚀 RBAC Integration Imports
 import { usePermissions } from 'hooks/usePermissions';
 import PermissionGate from 'components/PermissionGate';
+// 🚀 Document Approval Flow Integration
+import DocumentWorkflowWrapper from 'components/DocumentApprovalFlow/DocumentWorkflowWrapper';
 
 const { Option } = Select;
 
@@ -361,43 +362,47 @@ const IncomeDaily = () => {
 
   if (!ready) {
     return (
-      <LayoutWithRBAC
-        title="รับเงินประจำวัน"
-        subtitle="Management"
-        permission="accounting.view"
-        editPermission="accounting.edit"
-        loading={true}
+      <DocumentWorkflowWrapper
+        documentType="income_daily"
+        documentId={documentId}
+        layoutProps={{
+          title: "รับเงินประจำวัน",
+          subtitle: "Management",
+          permission: "accounting.view",
+          editPermission: "accounting.edit",
+          loading: true
+        }}
       >
         <div />
-      </LayoutWithRBAC>
+      </DocumentWorkflowWrapper>
     );
   }
 
   return (
-    <LayoutWithRBAC
-      title="รับเงินประจำวัน"
-      subtitle="Accounting Management - Multi-Province Support"
-      permission="accounting.view"
-      editPermission="accounting.edit"
-      requireBranchSelection={false}
-      onBranchChange={handleGeographicChange}
-      documentId={documentId}
+    <DocumentWorkflowWrapper
       documentType="income_daily"
-      showAuditTrail={true}
-      showStepper={true}
-      steps={INCOME_DAILY_STEPS}
+      documentId={documentId}
       currentStep={mProps.activeStep}
-      autoInjectProvinceId={true}
+      onStepChange={(step) => setProps({ activeStep: step })}
+      layoutProps={{
+        title: "รับเงินประจำวัน",
+        subtitle: "Accounting Management - Multi-Province Support",
+        permission: "accounting.view",
+        editPermission: "accounting.edit",
+        requireBranchSelection: false,
+        onBranchChange: handleGeographicChange,
+        autoInjectProvinceId: true
+      }}
     >
-        <IncomeDailyContent 
-          category={category}
-          _changeCategory={_changeCategory}
-          currentView={currentView}
-          mProps={mProps}
-          geographic={geographic}
-        />
-      </LayoutWithRBAC>
-    );
+      <IncomeDailyContent 
+        category={category}
+        _changeCategory={_changeCategory}
+        currentView={currentView}
+        mProps={mProps}
+        geographic={geographic}
+      />
+    </DocumentWorkflowWrapper>
+  );
 };
 
 export default IncomeDaily;

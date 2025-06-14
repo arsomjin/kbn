@@ -1,0 +1,470 @@
+{
+  "executive": {
+    "title": "Executive",
+    "subtitle": "Executive-level management system"
+  },
+  "systemConfiguration": {
+    "title": "System Configuration",
+    "subtitle": "Manage system settings and province-branch data",
+    "description": "Enterprise-level system configuration management for provinces and branches",
+    "executiveDescription": "Executive-level system configuration for provinces, branches, and strategic settings",
+    
+    "systemOverview": {
+      "title": "System Overview",
+      "totalProvinces": "Total Provinces",
+      "totalBranches": "Total Branches",
+      "activeUsers": "Active Users",
+      "systemHealth": "System Health"
+    },
+    
+    "provinces": {
+      "title": "Province Management",
+      "tabTitle": "Provinces",
+      "addButton": "Add Province",
+      "editButton": "Edit",
+      "alert": {
+        "title": "Province Configuration",
+        "description": "Manage provinces for multi-location operations. Each province can contain multiple branches."
+      },
+      "columns": {
+        "provinceName": "Province Name",
+        "region": "Region",
+        "branches": "Branches",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "form": {
+        "nameLabel": "Province Name (Thai)",
+        "namePlaceholder": "e.g., นครราชสีมา",
+        "nameEnLabel": "Province Name (English)",
+        "nameEnPlaceholder": "e.g., Nakhon Ratchasima",
+        "codeLabel": "Province Code",
+        "codePlaceholder": "e.g., NMA",
+        "regionLabel": "Region",
+        "regionPlaceholder": "Select region",
+        "statusLabel": "Status"
+      },
+      "regions": {
+        "central": "Central",
+        "northeast": "Northeast",
+        "north": "North",
+        "south": "South"
+      }
+    },
+    
+    "branches": {
+      "title": "Branch Management",
+      "tabTitle": "Branches",
+      "addButton": "Add Branch",
+      "editButton": "Edit",
+      "alert": {
+        "title": "Branch Configuration",
+        "description": "Manage branches within each province. Each branch represents a physical location with its own staff and operations."
+      },
+      "columns": {
+        "branchName": "Branch Name",
+        "province": "Province",
+        "contact": "Contact",
+        "users": "Users",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "form": {
+        "nameLabel": "Branch Name (Thai)",
+        "namePlaceholder": "e.g., สาขาหลัก นครราชสีมา",
+        "nameEnLabel": "Branch Name (English)",
+        "nameEnPlaceholder": "e.g., Main Branch Nakhon Ratchasima",
+        "codeLabel": "Branch Code",
+        "codePlaceholder": "e.g., 0450",
+        "provinceLabel": "Province",
+        "provincePlaceholder": "Select province",
+        "addressLabel": "Address",
+        "addressPlaceholder": "Branch address",
+        "phoneLabel": "Phone",
+        "phonePlaceholder": "e.g., 044-123-456",
+        "statusLabel": "Status"
+      }
+    },
+    
+    "modal": {
+      "addProvince": "Add Province",
+      "editProvince": "Edit Province",
+      "addBranch": "Add Branch",
+      "editBranch": "Edit Branch",
+      "saveButton": "Save",
+      "cancelButton": "Cancel"
+    },
+    
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    
+    "messages": {
+      "provinceSaved": "Province saved successfully",
+      "branchSaved": "Branch saved successfully",
+      "fetchProvincesError": "Failed to fetch provinces",
+      "fetchBranchesError": "Failed to fetch branches",
+      "saveProvinceError": "Failed to save province",
+      "saveBranchError": "Failed to save branch"
+    },
+    
+    "stats": {
+      "branchesCount": "branches",
+      "usersCount": "users"
+    }
+  },
+  "tag": "Competitive Advantage Engine",
+  "description": "Strategic overview of organizational capabilities, competitive advantages, and transformation roadmap for executive decision-making",
+  "briefing": {
+    "title": "Executive Briefing",
+    "subtitle": "Strategic overview and key insights for executives",
+    "description": "Strategic overview of organizational capabilities, competitive advantages, and transformation roadmap for executive decision-making",
+    "tag": "Competitive Advantage Engine",
+    "overview": {
+      "alert": {
+        "message": "🏆 Strategic Success: Industry-Leading Enterprise Platform",
+        "description": "KBN has transformed from a functional business management platform into a competitive advantage engine that provides capabilities your competitors cannot match"
+      }
+    }
+  },
+  "overview": {
+    "title": "Strategic Overview",
+    "subtitle": "Competitive advantages and strategic metrics",
+    "alert": {
+      "message": "🏆 Strategic Success: Industry-Leading Enterprise Platform",
+      "description": "KBN has transformed from a functional business management platform into a competitive advantage engine that provides capabilities your competitors cannot match"
+    },
+    "securityLevel": {
+      "title": "Security Level",
+      "description": "Enterprise-grade security architecture"
+    },
+    "scalabilityScore": {
+      "title": "Scalability Score",
+      "description": "Multi-province scalability readiness"
+    },
+    "competitiveAdvantage": {
+      "title": "Competitive Advantage",
+      "description": "Industry-leading capabilities"
+    },
+    "competitiveAdvantages": [
+      {
+        "title": "Multi-Province RBAC Architecture",
+        "description": "Enterprise-level permission system that scales across unlimited provinces and branches",
+        "impact": "High",
+        "uniqueness": "Industry Leading"
+      },
+      {
+        "title": "Clean Slate Security Model",
+        "description": "Zero-trust architecture with orthogonal permission matrices",
+        "impact": "Critical",
+        "uniqueness": "Proprietary"
+      },
+      {
+        "title": "Complexity Mastery Design",
+        "description": "Complex enterprise systems that feel effortlessly simple to users",
+        "impact": "High",
+        "uniqueness": "Competitive Edge"
+      },
+      {
+        "title": "Real-time Business Intelligence",
+        "description": "Live dashboards with predictive analytics and cross-province insights",
+        "impact": "Medium",
+        "uniqueness": "Advanced"
+      },
+      {
+        "title": "Automated Workflow Engine",
+        "description": "Document approval flows with intelligent routing and audit trails",
+        "impact": "High",
+        "uniqueness": "Sophisticated"
+      }
+    ],
+    "competitiveAdvantagesTitle": "Competitive Advantages",
+    "strategicValueProposition": {
+      "title": "Strategic Value Proposition",
+      "businessProtection": {
+        "title": "Business Protection"
+      },
+      "enterpriseSecurity": {
+        "title": "Enterprise Security",
+        "description": "Zero-trust security architecture preventing unauthorized data access"
+      },
+      "regulatoryCompliance": {
+        "title": "Regulatory Compliance",
+        "description": "Complete audit and reporting system for legal and regulatory compliance"
+      },
+      "dataProtection": {
+        "title": "Data Protection",
+        "description": "Geographic data isolation and role-based access control"
+      },
+      "riskMitigation": {
+        "title": "Risk Mitigation",
+        "description": "Business risk prevention and data breach protection systems"
+      },
+      "growthEnablement": {
+        "title": "Growth Enablement"
+      },
+      "unlimitedExpansion": {
+        "title": "Unlimited Expansion",
+        "description": "Architecture supporting unlimited province and branch expansion"
+      },
+      "operationalEfficiency": {
+        "title": "Operational Efficiency",
+        "description": "Automated systems reducing workflow steps and increasing accuracy"
+      },
+      "decisionIntelligence": {
+        "title": "Decision Intelligence",
+        "description": "Real-time insights for strategic decision making"
+      },
+      "marketLeadership": {
+        "title": "Market Leadership",
+        "description": "Industry-unmatched capabilities providing competitive advantage"
+      }
+    }
+  },
+  "capabilities": {
+    "title": "System Capabilities",
+    "subtitle": "Core capabilities and technical strengths",
+    "alert": {
+      "message": "🎯 Strategic Roadmap: Transformation to Market Leadership",
+      "description": "KBN's transformation journey from business management system to competitive advantage engine that provides capabilities your competitors cannot match"
+    },
+    "systemCapabilities": [
+      {
+        "category": "Security & Compliance",
+        "capabilities": [
+          "Enterprise-grade RBAC with 7-level hierarchy",
+          "Zero-trust security architecture",
+          "Complete audit trail for regulatory compliance",
+          "Geographic data isolation and protection",
+          "Role-based data access control"
+        ]
+      },
+      {
+        "category": "Scalability & Performance",
+        "capabilities": [
+          "Unlimited province and branch expansion",
+          "Real-time data synchronization",
+          "Mobile-responsive design",
+          "High-performance caching system",
+          "Load-balanced architecture"
+        ]
+      },
+      {
+        "category": "Business Intelligence",
+        "capabilities": [
+          "Real-time cross-province analytics",
+          "Predictive business insights",
+          "Automated reporting system",
+          "Performance benchmarking",
+          "Strategic decision support"
+        ]
+      },
+      {
+        "category": "User Experience",
+        "capabilities": [
+          "Complexity mastery - simple interfaces for complex operations",
+          "Role-based personalized dashboards",
+          "Intelligent workflow automation",
+          "Self-service digital manuals",
+          "Glassmorphism modern design"
+        ]
+      }
+    ]
+  },
+  "roadmap": {
+    "title": "Transformation Roadmap",
+    "subtitle": "Path to market leadership",
+    "alert": {
+      "message": "🚀 Strategic Roadmap: From Business Management to Competitive Advantage Engine",
+      "description": "KBN's transformation from a functional business management platform into a competitive advantage engine that provides capabilities your competitors cannot match"
+    },
+    "roadmapPhases": [
+      {
+        "phase": "Phase 1: Foundation Excellence",
+        "status": "completed",
+        "description": "Multi-Province RBAC + Clean Slate Architecture",
+        "achievements": [
+          "Enterprise-level security implementation",
+          "Multi-province scalability achieved",
+          "Zero-trust permission model deployed",
+          "Complete audit trail system"
+        ],
+        "businessValue": "₿ Foundation for unlimited growth"
+      },
+      {
+        "phase": "Phase 2: Business Intelligence",
+        "status": "in-progress",
+        "description": "Advanced Analytics + Predictive Insights",
+        "achievements": [
+          "Real-time dashboard system",
+          "Cross-province performance analytics",
+          "Automated business intelligence",
+          "Mobile-first operations"
+        ],
+        "businessValue": "₿ Data-driven competitive advantage"
+      },
+      {
+        "phase": "Phase 3: Market Leadership",
+        "status": "planned",
+        "description": "AI-Powered Operations + Industry Standards",
+        "achievements": [
+          "AI business recommendations",
+          "Predictive market analysis",
+          "Customer portal integration",
+          "Industry benchmark setting"
+        ],
+        "businessValue": "₿ Market leadership position"
+      }
+    ]
+  },
+  "roi": {
+    "title": "ROI Analysis",
+    "subtitle": "Business impact and strategic value",
+    "alert": {
+      "message": "💰 Business Impact: Measurable ROI and Competitive Advantage",
+      "description": "Investment in KBN transformation delivers measurable returns in operational efficiency, customer satisfaction, and competitive positioning"
+    },
+    "operationalEfficiencyGain": {
+      "title": "Operational Efficiency Gains",
+      "description": "50% reduction in time spent searching for information, 30% faster approval processes, and 25% improvement in data accuracy",
+      "metrics": [
+        "50% reduction in time spent searching for information",
+        "30% faster approval processes through automated workflows",
+        "25% improvement in data accuracy through enhanced validation",
+        "40% increase in mobile productivity for field staff"
+      ]
+    },
+    "businessIntelligenceValue": {
+      "title": "Business Intelligence Value",
+      "description": "Real-time visibility into all business operations, predictive insights, and data-driven decision making",
+      "benefits": [
+        "Real-time visibility into all business operations",
+        "Predictive insights for inventory, sales, and service planning",
+        "Automated alerts for critical business events",
+        "Advanced analytics for strategic decision making"
+      ]
+    },
+    "competitiveAdvantageMetrics": {
+      "title": "Competitive Advantage Metrics",
+      "description": "Faster response to customer inquiries, better decision making, and higher customer satisfaction",
+      "advantages": [
+        "Faster response to customer inquiries and service requests",
+        "Better decision making through data-driven insights",
+        "Higher customer satisfaction through improved service delivery",
+        "Market leadership through operational excellence"
+      ]
+    }
+  },
+  "systemConfiguration": {
+    "title": "System Configuration",
+    "subtitle": "Manage system settings and province-branch data",
+    "description": "Enterprise-level system configuration management for provinces and branches",
+    "executiveDescription": "Executive-level system configuration for provinces, branches, and strategic settings",
+    
+    "systemOverview": {
+      "title": "System Overview",
+      "totalProvinces": "Total Provinces",
+      "totalBranches": "Total Branches",
+      "activeUsers": "Active Users",
+      "systemHealth": "System Health"
+    },
+    
+    "provinces": {
+      "title": "Province Management",
+      "tabTitle": "Provinces",
+      "addButton": "Add Province",
+      "editButton": "Edit",
+      "alert": {
+        "title": "Province Configuration",
+        "description": "Manage provinces for multi-location operations. Each province can contain multiple branches."
+      },
+      "columns": {
+        "provinceName": "Province Name",
+        "region": "Region",
+        "branches": "Branches",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "form": {
+        "nameLabel": "Province Name (Thai)",
+        "namePlaceholder": "e.g., นครราชสีมา",
+        "nameEnLabel": "Province Name (English)",
+        "nameEnPlaceholder": "e.g., Nakhon Ratchasima",
+        "codeLabel": "Province Code",
+        "codePlaceholder": "e.g., NMA",
+        "regionLabel": "Region",
+        "regionPlaceholder": "Select region",
+        "statusLabel": "Status"
+      },
+      "regions": {
+        "central": "Central",
+        "northeast": "Northeast",
+        "north": "North",
+        "south": "South"
+      }
+    },
+    
+    "branches": {
+      "title": "Branch Management",
+      "tabTitle": "Branches",
+      "addButton": "Add Branch",
+      "editButton": "Edit",
+      "alert": {
+        "title": "Branch Configuration",
+        "description": "Manage branches within each province. Each branch represents a physical location with its own staff and operations."
+      },
+      "columns": {
+        "branchName": "Branch Name",
+        "province": "Province",
+        "contact": "Contact",
+        "users": "Users",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "form": {
+        "nameLabel": "Branch Name (Thai)",
+        "namePlaceholder": "e.g., สาขาหลัก นครราชสีมา",
+        "nameEnLabel": "Branch Name (English)",
+        "nameEnPlaceholder": "e.g., Main Branch Nakhon Ratchasima",
+        "codeLabel": "Branch Code",
+        "codePlaceholder": "e.g., 0450",
+        "provinceLabel": "Province",
+        "provincePlaceholder": "Select province",
+        "addressLabel": "Address",
+        "addressPlaceholder": "Branch address",
+        "phoneLabel": "Phone",
+        "phonePlaceholder": "e.g., 044-123-456",
+        "statusLabel": "Status"
+      }
+    },
+    
+    "modal": {
+      "addProvince": "Add Province",
+      "editProvince": "Edit Province",
+      "addBranch": "Add Branch",
+      "editBranch": "Edit Branch",
+      "saveButton": "Save",
+      "cancelButton": "Cancel"
+    },
+    
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    
+    "messages": {
+      "provinceSaved": "Province saved successfully",
+      "branchSaved": "Branch saved successfully",
+      "fetchProvincesError": "Failed to fetch provinces",
+      "fetchBranchesError": "Failed to fetch branches",
+      "saveProvinceError": "Failed to save province",
+      "saveBranchError": "Failed to save branch"
+    },
+    
+    "stats": {
+      "branchesCount": "branches",
+      "usersCount": "users"
+    }
+  }
+} 

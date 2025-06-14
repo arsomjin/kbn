@@ -206,10 +206,12 @@ const UserContext = () => {
   const branchName = getBranchDisplay();
   const accessLevelInfo = getAccessLevelInfo();
   
-  // Get user name from Clean Slate or legacy format
-  const userName = userRBAC?.uid 
-    ? (userRBAC.name || userRBAC.displayName || user?.displayName || user?.email || 'ผู้ใช้งาน')
-    : (user?.displayName || user?.email || 'ผู้ใช้งาน');
+  // Get user name from Clean Slate or legacy format - FIXED: Always prioritize current user data
+  const userName = user?.displayName || 
+                   user?.email || 
+                   userRBAC?.displayName || 
+                   userRBAC?.name || 
+                   'ผู้ใช้งาน';
 
   // Simplified version for production
   const isProduction = process.env.NODE_ENV === 'production';

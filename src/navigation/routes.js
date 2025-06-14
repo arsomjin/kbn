@@ -1072,6 +1072,12 @@ export default [
     component: AuditTrailDemo
   },
 
+  // Notifications
+  {
+    path: '/notifications',
+    layout: DefaultLayout,
+    component: React.lazy(() => import('views/Notifications'))
+  },
   // Admin Management Routes
   {
     path: '/admin/user-approval',
@@ -1088,10 +1094,27 @@ export default [
     layout: DefaultLayout,
     component: React.lazy(() => import('Modules/Admin/PermissionManagement'))
   },
+  
+  // Executive Management Routes
+  {
+    path: '/executive/briefing',
+    layout: DefaultLayout,
+    component: React.lazy(() => import('Modules/Executive/ExecutiveBriefing'))
+  },
+  {
+    path: '/executive/system-configuration',
+    layout: DefaultLayout,
+    component: React.lazy(() => import('Modules/Executive/SystemConfiguration'))
+  },
   {
     path: '/developer/nature-theme-demo',
     layout: DefaultLayout,
     component: NatureThemeDemo
+  },
+  {
+    path: '/developer/glassmorphism-showcase',
+    layout: DefaultLayout,
+    component: React.lazy(() => import('views/GlassmorphismShowcase'))
   },
 
 ];

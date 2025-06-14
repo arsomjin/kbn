@@ -1,15 +1,21 @@
 // Enhanced Navigation configuration with RBAC integration
 export const NAVIGATION_CONFIG = {
   dashboard: {
-    title: 'Dashboard',
+    title: 'ภาพรวม',
     icon: 'dashboard',
-    permission: null, // Always visible
-    to: '/overview',
-    description: 'ภาพรวมระบบและสถิติสำคัญ'
+    permission: null, // Everyone can access dashboard
+    items: [
+      {
+        key: 'overview',
+        title: 'หน้าแรก',
+        to: '/overview',
+        description: 'ภาพรวมการทำงานของระบบ'
+      }
+    ]
   },
 
   accounting: {
-    title: 'บัญชีและการเงิน',
+    title: 'บัญชี',
     icon: 'calculator',
     permission: 'accounting.view',
     items: [
@@ -24,37 +30,35 @@ export const NAVIGATION_CONFIG = {
             title: 'รับเงินประจำวัน',
             to: '/account/income-daily',
             permission: 'accounting.edit',
-            description: 'บันทึกรายรับประจำวัน',
-            frequency: 'daily',
-            priority: 'high'
+            description: 'บันทึกรายรับประจำวัน'
           },
           {
             key: 'income-after-close',
             title: 'รับเงินหลังปิดบัญชีประจำวัน',
             to: '/account/income-after-close-account',
             permission: 'accounting.edit',
-            description: 'รับเงินหลังปิดบัญชีประจำวัน'
+            description: 'บันทึกรายรับหลังปิดบัญชี'
           },
           {
             key: 'income-skl',
             title: 'รับเงิน - SKL',
             to: '/account/income-skl',
             permission: 'accounting.edit',
-            description: 'บันทึกรับเงินค่าขายสินค้า SKL'
+            description: 'บันทึกรายรับจากสินเชื่อ SKL'
           },
           {
             key: 'income-personal-loan',
             title: 'รับเงิน - สินเชื่อส่วนบุคคล',
             to: '/account/income-personal-loan',
             permission: 'accounting.edit',
-            description: 'บันทึกรับเงินสินเชื่อส่วนบุคคล'
+            description: 'บันทึกรายรับจากสินเชื่อส่วนบุคคล'
           },
           {
             key: 'income-baac',
             title: 'รับเงิน - ธกส.',
             to: '/account/income-baac',
             permission: 'accounting.edit',
-            description: 'บันทึกรับเงินผ่าน ธกส.'
+            description: 'บันทึกรายรับจากธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร'
           },
           {
             key: 'daily-bank-deposit',
@@ -62,13 +66,6 @@ export const NAVIGATION_CONFIG = {
             to: '/account/daily-bank-deposit',
             permission: 'accounting.edit',
             description: 'บันทึกการฝากเงินธนาคารประจำวัน'
-          },
-          {
-            key: 'executive-cash-deposit',
-            title: 'ฝากส่งเงินสด ผู้บริหาร - ประจำวัน',
-            to: '/account/daily-executive-cash-deposit',
-            permission: 'accounting.edit',
-            description: 'บันทึกฝากส่งเงินสดผู้บริหารประจำวัน'
           }
         ]
       },
@@ -79,55 +76,69 @@ export const NAVIGATION_CONFIG = {
         permission: 'accounting.view',
         items: [
           {
-            key: 'expense-input',
-            title: 'บันทึกรายจ่าย',
-            to: '/account/expense-input',
+            key: 'expense-daily',
+            title: 'จ่ายเงินประจำวัน',
+            to: '/account/expense-daily',
             permission: 'accounting.edit',
-            description: 'บันทึกรายจ่ายทั่วไป',
-            frequency: 'daily'
+            description: 'บันทึกรายจ่ายประจำวัน'
           },
           {
-            key: 'expense-transfer-cycle',
-            title: 'บันทึกรอบการโอนเงิน',
-            to: '/account/expense-transfer-cycle',
+            key: 'expense-after-close',
+            title: 'จ่ายเงินหลังปิดบัญชีประจำวัน',
+            to: '/account/expense-after-close-account',
             permission: 'accounting.edit',
-            description: 'บันทึกรอบการโอนเงิน'
+            description: 'บันทึกรายจ่ายหลังปิดบัญชี'
           },
           {
-            key: 'expense-referrer',
-            title: 'ตรวจสอบค่าแนะนำ',
-            to: '/account/expense-referrer',
-            permission: 'accounting.view',
-            description: 'ตรวจสอบค่าคอมมิชชั่นผู้แนะนำ'
+            key: 'expense-skl',
+            title: 'จ่ายเงิน - SKL',
+            to: '/account/expense-skl',
+            permission: 'accounting.edit',
+            description: 'บันทึกรายจ่ายสินเชื่อ SKL'
+          },
+          {
+            key: 'expense-baac',
+            title: 'จ่ายเงิน - ธกส.',
+            to: '/account/expense-baac',
+            permission: 'accounting.edit',
+            description: 'บันทึกรายจ่ายธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร'
           }
         ]
       },
       {
-        key: 'price-group',
-        title: 'บันทึกราคาสินค้า',
+        key: 'transfer-group',
+        title: 'โอนเงิน',
         type: 'group',
-        permission: 'accounting.edit',
+        permission: 'accounting.view',
         items: [
           {
-            key: 'price-vehicles',
-            title: 'รถและอุปกรณ์',
-            to: '/account/price-input',
+            key: 'transfer-daily',
+            title: 'โอนเงินประจำวัน',
+            to: '/account/transfer-daily',
             permission: 'accounting.edit',
-            description: 'บันทึกราคาสินค้ารถและอุปกรณ์'
+            description: 'บันทึกการโอนเงินประจำวัน'
           },
           {
-            key: 'price-parts',
-            title: 'อะไหล่',
-            to: '/account/price-input-parts',
+            key: 'transfer-after-close',
+            title: 'โอนเงินหลังปิดบัญชีประจำวัน',
+            to: '/account/transfer-after-close-account',
             permission: 'accounting.edit',
-            description: 'บันทึกราคาอะไหล่'
-          },
+            description: 'บันทึกการโอนเงินหลังปิดบัญชี'
+          }
+        ]
+      },
+      {
+        key: 'close-group',
+        title: 'ปิดบัญชี',
+        type: 'group',
+        permission: 'accounting.view',
+        items: [
           {
-            key: 'price-input-edit',
-            title: 'แก้ไขบันทึก',
-            to: '/account/price-input-edit',
-            permission: 'accounting.edit',
-            description: 'แก้ไขบันทึกราคาสินค้า'
+            key: 'close-daily',
+            title: 'ปิดบัญชีประจำวัน',
+            to: '/account/close-daily',
+            permission: 'accounting.close',
+            description: 'ปิดบัญชีประจำวัน'
           }
         ]
       }
@@ -135,7 +146,7 @@ export const NAVIGATION_CONFIG = {
   },
 
   sales: {
-    title: 'งานขาย',
+    title: 'การขาย',
     icon: 'shopping-cart',
     permission: 'sales.view',
     items: [
@@ -146,33 +157,24 @@ export const NAVIGATION_CONFIG = {
         permission: 'sales.view',
         items: [
           {
-            key: 'booking-create',
-            title: 'บันทึกใบจอง',
+            key: 'booking-vehicles',
+            title: 'รับจองรถและอุปกรณ์',
             to: '/sale-booking',
             permission: 'sales.edit',
-            description: 'สร้างใบจองใหม่',
-            priority: 'high',
-            frequency: 'daily'
-          },
-          {
-            key: 'booking-assessment',
-            title: 'ผลการประเมิน',
-            to: '/sale-assessment',
-            permission: 'sales.view',
-            description: 'ดูผลการประเมินลูกค้า'
+            description: 'รับจองการขายรถและอุปกรณ์'
           },
           {
             key: 'booking-edit',
             title: 'แก้ไขใบจอง',
-            to: '/sale-reservation-edit',
+            to: '/sale-booking-edit',
             permission: 'sales.edit',
             description: 'แก้ไขข้อมูลใบจอง'
           },
           {
             key: 'booking-cancel',
             title: 'ยกเลิกใบจอง',
-            to: '/sale-reservation-cancellation',
-            permission: 'sales.review',
+            to: '/sale-booking-cancel',
+            permission: 'sales.edit',
             description: 'ยกเลิกใบจอง'
           }
         ]
@@ -230,188 +232,140 @@ export const NAVIGATION_CONFIG = {
     permission: 'service.view',
     items: [
       {
-        key: 'service-order',
-        title: 'แจ้งบริการ/ประเมินราคา',
-        to: '/service-order',
-        permission: 'service.edit',
-        description: 'แจ้งบริการและประเมินราคา',
-        frequency: 'daily',
-        priority: 'high'
-      },
-      {
-        key: 'service-close',
-        title: 'สรุปปิดงาน',
-        to: '/service-close',
-        permission: 'service.edit',
-        description: 'สรุปและปิดงานบริการ'
-      },
-      {
-        key: 'service-data-skc',
-        title: 'จากระบบ SKC',
-        to: '/service-data-skc',
+        key: 'service-input-group',
+        title: 'บันทึกงานบริการ',
+        type: 'group',
         permission: 'service.view',
-        description: 'ข้อมูลบริการจากระบบ SKC'
+        items: [
+          {
+            key: 'service-input',
+            title: 'นอกพื้นที่',
+            to: '/service-input',
+            permission: 'service.edit',
+            description: 'บันทึกงานบริการนอกพื้นที่'
+          },
+          {
+            key: 'service-skc',
+            title: 'ในศูนย์',
+            to: '/service-data-skc',
+            permission: 'service.edit',
+            description: 'บันทึกงานบริการในศูนย์'
+          }
+        ]
       },
       {
-        key: 'service-gas',
-        title: 'บันทึกค่าน้ำมัน',
-        to: '/service-gas',
-        permission: 'service.edit',
-        description: 'บันทึกค่าน้ำมันงานบริการ'
+        key: 'service-close-group',
+        title: 'ปิดงานบริการ',
+        type: 'group',
+        permission: 'service.view',
+        items: [
+          {
+            key: 'service-close',
+            title: 'ปิดงานบริการ',
+            to: '/service-close',
+            permission: 'service.close',
+            description: 'ปิดงานบริการที่เสร็จสิ้น'
+          }
+        ]
       }
     ]
   },
 
-  inventory: {
+  warehouse: {
     title: 'คลังสินค้า',
     icon: 'database',
     permission: 'inventory.view',
     items: [
       {
-        key: 'vehicles-equipment-group',
+        key: 'vehicles-group',
         title: 'รถและอุปกรณ์',
         type: 'group',
         permission: 'inventory.view',
         items: [
           {
             key: 'purchase-planning',
-            title: 'การสั่งซื้อ',
-            type: 'subMenu',
+            title: 'วางแผนการสั่งซื้อ',
+            to: '/warehouse/purchase-plan',
             permission: 'inventory.edit',
-            items: [
-              {
-                key: 'purchase-plan',
-                title: 'วางแผน',
-                to: '/warehouse/purchase-plan',
-                permission: 'inventory.edit',
-                description: 'วางแผนการสั่งซื้อ'
-              }
-            ]
+            description: 'วางแผนการสั่งซื้อรถและอุปกรณ์'
           },
           {
-            key: 'goods-receiving',
-            title: 'การรับสินค้า',
-            type: 'subMenu',
+            key: 'import-by-purchase',
+            title: 'รับสินค้าจากการซื้อ',
+            to: '/warehouse/import-by-purchase',
             permission: 'inventory.edit',
-            items: [
-              {
-                key: 'import-by-purchase',
-                title: 'จากการซื้อสินค้า',
-                to: '/warehouse/import-by-purchase',
-                permission: 'inventory.edit',
-                description: 'รับสินค้าจากการซื้อ'
-              },
-              {
-                key: 'import-by-transfer',
-                title: 'รับโอนสินค้า',
-                to: '/warehouse/import-by-transfer',
-                permission: 'inventory.edit',
-                description: 'รับโอนสินค้าจากสาขาอื่น'
-              },
-              {
-                key: 'other-import',
-                title: 'รับจากอื่นๆ',
-                to: '/warehouse/other-import',
-                permission: 'inventory.edit',
-                description: 'รับสินค้าจากแหล่งอื่น'
-              }
-            ]
+            description: 'บันทึกการรับสินค้าจากการซื้อ'
           },
           {
-            key: 'goods-dispatching',
-            title: 'การจ่ายสินค้า',
-            type: 'subMenu',
+            key: 'import-by-transfer',
+            title: 'รับโอนสินค้า',
+            to: '/warehouse/import-by-transfer',
             permission: 'inventory.edit',
-            items: [
-              {
-                key: 'export-by-sale',
-                title: 'จากการขายสินค้า',
-                to: '/warehouse/export-by-sale',
-                permission: 'inventory.edit',
-                description: 'จ่ายสินค้าจากการขาย'
-              },
-              {
-                key: 'export-by-transfer',
-                title: 'โอนสินค้าออก',
-                to: '/warehouse/export-by-transfer',
-                permission: 'inventory.edit',
-                description: 'โอนสินค้าออกไปสาขาอื่น'
-              },
-              {
-                key: 'other-export',
-                title: 'อื่นๆ',
-                to: '/warehouse/other-export',
-                permission: 'inventory.edit',
-                description: 'จ่ายสินค้าอื่นๆ'
-              }
-            ]
+            description: 'บันทึกการรับโอนสินค้า'
+          },
+          {
+            key: 'other-import',
+            title: 'รับจากอื่นๆ',
+            to: '/warehouse/other-import',
+            permission: 'inventory.edit',
+            description: 'บันทึกการรับสินค้าจากแหล่งอื่น'
+          },
+          {
+            key: 'transfer-out',
+            title: 'โอนย้ายสินค้า',
+            to: '/warehouse/transfer-out',
+            permission: 'inventory.edit',
+            description: 'บันทึกการโอนย้ายสินค้า'
+          },
+          {
+            key: 'other-export',
+            title: 'ส่งออกอื่นๆ',
+            to: '/warehouse/other-export',
+            permission: 'inventory.edit',
+            description: 'บันทึกการส่งออกสินค้าอื่นๆ'
           }
         ]
       },
       {
-        key: 'parts-oil-group',
-        title: 'อะไหล่ น้ำมัน',
+        key: 'parts-group',
+        title: 'อะไหล่',
         type: 'group',
         permission: 'inventory.view',
         items: [
           {
-            key: 'parts-receiving',
-            title: 'การรับสินค้า',
-            type: 'subMenu',
+            key: 'parts-import-purchase',
+            title: 'รับสินค้าจากการซื้อ',
+            to: '/warehouse/parts/import-by-purchase',
             permission: 'inventory.edit',
-            items: [
-              {
-                key: 'import-parts',
-                title: 'จากการซื้อสินค้า',
-                to: '/warehouse/import-parts',
-                permission: 'inventory.edit',
-                description: 'รับอะไหล่จากการซื้อ'
-              }
-            ]
-          }
-        ]
-      },
-      {
-        key: 'other-warehouse-group',
-        title: 'อื่นๆ',
-        type: 'group',
-        permission: 'inventory.view',
-        items: [
-          {
-            key: 'decal-record',
-            title: 'บันทึกลอกลายรถ',
-            to: '/warehouse/decal-record',
-            permission: 'inventory.edit',
-            description: 'บันทึกข้อมูลลอกลายรถ'
+            description: 'บันทึกการรับอะไหล่จากการซื้อ'
           },
           {
-            key: 'decal-withdraw',
-            title: 'เบิกลอกลายรถ',
-            to: '/warehouse/decal-withdraw',
+            key: 'parts-import-transfer',
+            title: 'รับโอนสินค้า',
+            to: '/warehouse/parts/import-by-transfer',
             permission: 'inventory.edit',
-            description: 'เบิกลอกลายรถ'
+            description: 'บันทึกการรับโอนอะไหล่'
           },
           {
-            key: 'delivery-plan',
-            title: 'แผนการส่งรถ',
-            type: 'subMenu',
-            permission: 'inventory.view',
-            items: [
-              {
-                key: 'customer-delivery-plan',
-                title: 'ส่งลูกค้า',
-                to: '/warehouse/customer-deliver-plan',
-                permission: 'inventory.view',
-                description: 'แผนการส่งรถให้ลูกค้า'
-              },
-              {
-                key: 'branch-delivery-plan',
-                title: 'ส่งสาขา',
-                to: '/warehouse/branch-deliver-plan',
-                permission: 'inventory.view',
-                description: 'แผนการส่งรถไปสาขา'
-              }
-            ]
+            key: 'parts-other-import',
+            title: 'รับจากอื่นๆ',
+            to: '/warehouse/parts/other-import',
+            permission: 'inventory.edit',
+            description: 'บันทึกการรับอะไหล่จากแหล่งอื่น'
+          },
+          {
+            key: 'parts-transfer-out',
+            title: 'โอนย้ายสินค้า',
+            to: '/warehouse/parts/transfer-out',
+            permission: 'inventory.edit',
+            description: 'บันทึกการโอนย้ายอะไหล่'
+          },
+          {
+            key: 'parts-other-export',
+            title: 'ส่งออกอื่นๆ',
+            to: '/warehouse/parts/other-export',
+            permission: 'inventory.edit',
+            description: 'บันทึกการส่งออกอะไหล่อื่นๆ'
           }
         ]
       }
@@ -424,19 +378,47 @@ export const NAVIGATION_CONFIG = {
     permission: 'credit.view',
     items: [
       {
-        key: 'credit-input-data',
-        title: 'บันทึกข้อมูล',
-        to: '/credit/input-data',
+        key: 'credit-skl',
+        title: 'สินเชื่อ SKL',
+        to: '/credit-skl',
         permission: 'credit.edit',
-        description: 'บันทึกข้อมูลสินเชื่อ',
-        frequency: 'daily'
+        description: 'จัดการสินเชื่อ SKL'
       },
       {
-        key: 'edit-sale-order',
-        title: 'แก้ไขใบสั่งขาย',
-        to: '/edit-sale-order',
+        key: 'credit-kbn',
+        title: 'สินเชื่อโครงการร้าน',
+        to: '/credit-kbn',
         permission: 'credit.edit',
-        description: 'แก้ไขข้อมูลใบสั่งขาย'
+        description: 'จัดการสินเชื่อโครงการร้าน'
+      },
+      {
+        key: 'credit-baac',
+        title: 'สินเชื่อ ธกส',
+        to: '/credit-baa',
+        permission: 'credit.edit',
+        description: 'จัดการสินเชื่อธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร'
+      }
+    ]
+  },
+
+  hr: {
+    title: 'บุคลากร',
+    icon: 'team',
+    permission: 'hr.view',
+    items: [
+      {
+        key: 'attendance',
+        title: 'การเข้างาน',
+        to: '/hr/attendance',
+        permission: 'hr.view',
+        description: 'บันทึกและติดตามการเข้างาน'
+      },
+      {
+        key: 'leave-management',
+        title: 'การลางาน',
+        to: '/hr/leave',
+        permission: 'hr.edit',
+        description: 'จัดการการลางานของพนักงาน'
       }
     ]
   },
@@ -447,221 +429,183 @@ export const NAVIGATION_CONFIG = {
     permission: 'reports.view',
     items: [
       {
-        key: 'accounting-reports',
-        title: 'บัญชี',
-        type: 'group',
-        permission: 'accounting.view',
+        key: 'income-reports',
+        title: 'รายรับ',
+        permission: 'reports.view',
         items: [
           {
-            key: 'income-expense-summary',
-            title: 'สรุปรายรับ-รายจ่าย',
-            to: '/reports/income-expense-summary',
-            permission: 'accounting.view',
-            description: 'รายงานสรุปรายรับและรายจ่าย'
+            key: 'income-summary',
+            title: 'สรุปรายรับ',
+            to: '/reports/income-summary',
+            permission: 'reports.view',
+            description: 'รายงานสรุปรายรับ'
           },
           {
-            key: 'income-reports',
-            title: 'รายรับ',
-            permission: 'accounting.view',
-            items: [
-              {
-                key: 'income-summary',
-                title: 'สรุปรายรับ',
-                to: '/reports/income-summary',
-                permission: 'accounting.view',
-                description: 'รายงานสรุปรายรับรายวัน/รายเดือน'
-              },
-              {
-                key: 'daily-money-summary',
-                title: 'สรุปส่งเงินประจำวัน',
-                to: '/reports/daily-money-summary',
-                permission: 'accounting.view',
-                description: 'สรุปการส่งเงินประจำวัน'
-              },
-              {
-                key: 'bank-deposit',
-                title: 'เงินฝากธนาคาร',
-                to: '/reports/bank-deposit',
-                permission: 'accounting.view',
-                description: 'รายงานการฝากเงินธนาคาร'
-              },
-              {
-                key: 'income-parts-kbn',
-                title: 'แยกขายอะไหล่ KBN',
-                to: '/reports/income-parts-kbn',
-                permission: 'accounting.view',
-                description: 'รายงานรายรับจากการขายอะไหล่ KBN'
-              },
-              {
-                key: 'income-personal-loan-report',
-                title: 'รายรับ - สินเชื่อส่วนบุคคล',
-                to: '/reports/income-personal-loan',
-                permission: 'accounting.view',
-                description: 'รายงานรายรับจากสินเชื่อส่วนบุคคล'
-              },
-              {
-                key: 'income-parts-all',
-                title: 'รายรับขายอะไหล่รวม',
-                to: '/reports/income-parts-all',
-                permission: 'accounting.view',
-                description: 'รายงานรายรับจากการขายอะไหล่รวม'
-              },
-              {
-                key: 'money-return',
-                title: 'รับเงินคืน',
-                to: '/reports/money-return',
-                permission: 'accounting.view',
-                description: 'รายงานการรับเงินคืน'
-              },
-              {
-                key: 'income-others',
-                title: 'รายรับอื่นๆ',
-                to: '/reports/income-others',
-                permission: 'accounting.view',
-                description: 'รายงานรายรับอื่นๆ'
-              },
-              {
-                key: 'tracktor-revenue',
-                title: 'สรุปรายรับแทรกเตอร์ใหม่',
-                to: '/reports/tracktor-revenue',
-                permission: 'accounting.view',
-                description: 'รายงานรายรับจากแทรกเตอร์ใหม่'
-              }
-            ]
+            key: 'daily-money-summary',
+            title: 'สรุปส่งเงินประจำวัน',
+            to: '/reports/daily-money-summary',
+            permission: 'reports.view',
+            description: 'รายงานสรุปการส่งเงินประจำวัน'
           },
           {
-            key: 'expense-reports',
-            title: 'รายจ่าย',
-            permission: 'accounting.view',
-            items: [
-              {
-                key: 'expense-summary',
-                title: 'สรุปรายจ่าย',
-                to: '/reports/expense-summary',
-                permission: 'accounting.view',
-                description: 'รายงานสรุปรายจ่าย'
-              }
-            ]
+            key: 'bank-deposit',
+            title: 'เงินฝากธนาคาร',
+            to: '/reports/bank-deposit',
+            permission: 'reports.view',
+            description: 'รายงานเงินฝากธนาคาร'
           },
           {
-            key: 'tax-reports',
-            title: 'ภาษี',
-            permission: 'accounting.view',
-            items: [
-              {
-                key: 'tax-invoice-vehicles',
-                title: 'ใบกำกับภาษีซื้อรถและอุปกรณ์ สำนักงานใหญ่',
-                to: '/reports/account/tax-invoice-vehicles',
-                permission: 'accounting.view',
-                description: 'รายงานใบกำกับภาษีซื้อรถและอุปกรณ์'
-              },
-              {
-                key: 'tax-invoice-parts',
-                title: 'ใบกำกับภาษีซื้ออะไหล่ สำนักงานใหญ่',
-                to: '/reports/account/tax-invoice-parts',
-                permission: 'accounting.view',
-                description: 'รายงานใบกำกับภาษีซื้ออะไหล่'
-              }
-            ]
+            key: 'income-parts-kbn',
+            title: 'แยกขายอะไหล่ KBN',
+            to: '/reports/income-parts-kbn',
+            permission: 'reports.view',
+            description: 'รายงานรายรับจากการขายอะไหล่ KBN'
+          },
+          {
+            key: 'income-personal-loan',
+            title: 'รายรับ - สินเชื่อส่วนบุคคล',
+            to: '/reports/income-personal-loan',
+            permission: 'reports.view',
+            description: 'รายงานรายรับจากสินเชื่อส่วนบุคคล'
+          },
+          {
+            key: 'income-parts-all',
+            title: 'รายรับขายอะไหล่รวม',
+            to: '/reports/income-parts-all',
+            permission: 'reports.view',
+            description: 'รายงานรายรับจากการขายอะไหล่ทั้งหมด'
+          },
+          {
+            key: 'money-return',
+            title: 'รับเงินคืน',
+            to: '/reports/money-return',
+            permission: 'reports.view',
+            description: 'รายงานการรับเงินคืน'
+          },
+          {
+            key: 'income-others',
+            title: 'รายรับอื่นๆ',
+            to: '/reports/income-others',
+            permission: 'reports.view',
+            description: 'รายงานรายรับอื่นๆ'
           }
         ]
       },
       {
-        key: 'sales-reports',
-        title: 'งานขาย',
-        type: 'group',
+        key: 'expense-reports',
+        title: 'รายจ่าย',
+        permission: 'reports.view',
+        items: [
+          {
+            key: 'expense-summary',
+            title: 'สรุปรายจ่าย',
+            to: '/reports/expense-summary',
+            permission: 'reports.view',
+            description: 'รายงานสรุปรายจ่าย'
+          },
+          {
+            key: 'expense-category',
+            title: 'แยกตามหมวด',
+            to: '/reports/expense-category',
+            permission: 'reports.view',
+            description: 'รายงานรายจ่ายแยกตามหมวด'
+          },
+          {
+            key: 'expense-others',
+            title: 'รายจ่ายอื่นๆ',
+            to: '/reports/expense-others',
+            permission: 'reports.view',
+            description: 'รายงานรายจ่ายอื่นๆ'
+          }
+        ]
+      },
+      {
+        key: 'booking-reports',
+        title: 'งานรับจอง',
         permission: 'sales.view',
         items: [
           {
-            key: 'booking-reports',
-            title: 'งานรับจอง',
+            key: 'booking-analytics',
+            title: 'ภาพรวมงานรับจอง',
+            to: '/reports/sale-booking-analytics',
             permission: 'sales.view',
-            items: [
-              {
-                key: 'sale-booking-analytics',
-                title: 'ภาพรวมงานรับจอง',
-                to: '/reports/sale-booking-analytics',
-                permission: 'sales.view',
-                description: 'ภาพรวมและวิเคราะห์งานรับจอง'
-              },
-              {
-                key: 'sale-booking-summary',
-                title: 'สรุปงานรับจอง',
-                to: '/reports/sale-booking-summary',
-                permission: 'sales.view',
-                description: 'สรุปผลงานรับจอง'
-              },
-              {
-                key: 'sale-assessment',
-                title: 'ผลการประเมิน',
-                to: '/reports/sale-assessment',
-                permission: 'sales.view',
-                description: 'รายงานผลการประเมิน'
-              },
-              {
-                key: 'reservation-cancellation',
-                title: 'ยกเลิกใบจอง',
-                to: '/reports/reservation-cancellation',
-                permission: 'sales.view',
-                description: 'รายงานการยกเลิกใบจอง'
-              },
-              {
-                key: 'all-reservation',
-                title: 'ยอดจองคงเหลือ',
-                to: '/reports/all-reservation',
-                permission: 'sales.view',
-                description: 'รายงานยอดจองคงเหลือ'
-              }
-            ]
+            description: 'ภาพรวมและวิเคราะห์งานรับจอง'
           },
           {
-            key: 'sales-work-reports',
-            title: 'งานขาย',
+            key: 'booking-summary',
+            title: 'สรุปงานรับจอง',
+            to: '/reports/sale-booking-summary',
             permission: 'sales.view',
-            items: [
-              {
-                key: 'sale-analytics',
-                title: 'ภาพรวมงานขาย',
-                to: '/reports/sale-analytics',
-                permission: 'sales.view',
-                description: 'ภาพรวมและวิเคราะห์งานขาย'
-              },
-              {
-                key: 'sale-summary',
-                title: 'สรุปงานขาย',
-                to: '/reports/sale-summary',
-                permission: 'sales.view',
-                description: 'สรุปผลงานขาย'
-              }
-            ]
+            description: 'สรุปผลงานรับจอง'
           },
           {
-            key: 'marketing-reports',
-            title: 'การตลาด',
+            key: 'sale-assessment',
+            title: 'ผลการประเมิน',
+            to: '/reports/sale-assessment',
             permission: 'sales.view',
-            items: [
-              {
-                key: 'mkt-customers',
-                title: 'ลูกค้า',
-                to: '/reports/mkt/customers',
-                permission: 'sales.view',
-                description: 'รายงานข้อมูลลูกค้า'
-              },
-              {
-                key: 'marketing-channels',
-                title: 'แหล่งที่มา',
-                to: '/reports/mkt/marketing-channels',
-                permission: 'sales.view',
-                description: 'รายงานแหล่งที่มาของลูกค้า'
-              }
-            ]
+            description: 'รายงานผลการประเมิน'
+          },
+          {
+            key: 'reservation-cancellation',
+            title: 'ยกเลิกใบจอง',
+            to: '/reports/reservation-cancellation',
+            permission: 'sales.view',
+            description: 'รายงานการยกเลิกใบจอง'
+          },
+          {
+            key: 'all-reservation',
+            title: 'ยอดจองคงเหลือ',
+            to: '/reports/all-reservation',
+            permission: 'sales.view',
+            description: 'รายงานยอดจองคงเหลือ'
+          }
+        ]
+      },
+      {
+        key: 'sales-work-reports',
+        title: 'งานขาย',
+        permission: 'sales.view',
+        items: [
+          {
+            key: 'sale-analytics',
+            title: 'ภาพรวมงานขาย',
+            to: '/reports/sale-analytics',
+            permission: 'sales.view',
+            description: 'ภาพรวมและวิเคราะห์งานขาย'
+          },
+          {
+            key: 'sale-summary',
+            title: 'สรุปงานขาย',
+            to: '/reports/sale-summary',
+            permission: 'sales.view',
+            description: 'สรุปผลงานขาย'
+          }
+        ]
+      },
+      {
+        key: 'marketing-reports',
+        title: 'การตลาด',
+        permission: 'sales.view',
+        items: [
+          {
+            key: 'mkt-customers',
+            title: 'ลูกค้า',
+            to: '/reports/mkt/customers',
+            permission: 'sales.view',
+            description: 'รายงานข้อมูลลูกค้า'
+          },
+          {
+            key: 'marketing-channels',
+            title: 'แหล่งที่มา',
+            to: '/reports/mkt/marketing-channels',
+            permission: 'sales.view',
+            description: 'รายงานแหล่งที่มาของลูกค้า'
           }
         ]
       },
       {
         key: 'service-reports',
         title: 'งานบริการ',
-        type: 'group',
         permission: 'service.view',
         items: [
           {
@@ -681,7 +625,7 @@ export const NAVIGATION_CONFIG = {
                 title: 'สรุปรายรับ',
                 to: '/reports/service-daily/income',
                 permission: 'service.view',
-                description: 'รายงานสรุปรายรับจากงานบริการ'
+                description: 'รายงานสรุปรายรับจากงานบริการประจำวัน'
               }
             ]
           },
@@ -697,88 +641,87 @@ export const NAVIGATION_CONFIG = {
             title: 'สรุปประเภท',
             to: '/reports/service-type',
             permission: 'service.view',
-            description: 'รายงานสรุปประเภทการบริการ'
+            description: 'รายงานสรุปประเภทงานบริการ'
           },
           {
             key: 'service-amount',
             title: 'สรุปยอด',
             to: '/reports/service-amount',
             permission: 'service.view',
-            description: 'รายงานสรุปยอดการบริการ'
+            description: 'รายงานสรุปยอดงานบริการ'
           },
           {
             key: 'service-mechanic',
             title: 'จัดอันดับช่าง',
             to: '/reports/service-mechanic',
             permission: 'service.view',
-            description: 'รายงานจัดอันดับช่างซ่อม'
+            description: 'รายงานการจัดอันดับช่าง'
           }
         ]
       },
       {
         key: 'warehouse-reports',
         title: 'คลังสินค้า',
-        type: 'group',
         permission: 'inventory.view',
         items: [
           {
-            key: 'warehouse-vehicles-reports',
+            key: 'vehicles-reports',
             title: 'รถและอุปกรณ์',
             permission: 'inventory.view',
             items: [
               {
-                key: 'warehouse-vehicle-models',
+                key: 'vehicle-models',
                 title: 'รายการสินค้า',
                 to: '/reports/warehouse/vehicles/models',
                 permission: 'inventory.view',
                 description: 'รายงานรายการรถและอุปกรณ์'
               },
               {
-                key: 'warehouse-vehicle-stocks',
+                key: 'vehicle-stocks',
                 title: 'คลังสินค้า',
                 to: '/reports/warehouse/vehicles/stocks',
                 permission: 'inventory.view',
-                description: 'รายงานสต็อกคลังสินค้า'
+                description: 'รายงานสต็อกรถและอุปกรณ์'
               },
               {
-                key: 'warehouse-transfer-out',
+                key: 'transfer-out',
                 title: 'โอนย้าย(ออก)',
                 to: '/reports/warehouse/vehicles/transferOut',
                 permission: 'inventory.view',
-                description: 'รายงานการโอนสินค้าออก'
+                description: 'รายงานการโอนย้ายสินค้าออก'
               },
               {
-                key: 'warehouse-transfer-in',
+                key: 'transfer-in',
                 title: 'รับโอน(เข้า)',
                 to: '/reports/warehouse/vehicles/transferIn',
                 permission: 'inventory.view',
                 description: 'รายงานการรับโอนสินค้าเข้า'
               },
               {
-                key: 'warehouse-decal',
+                key: 'decal-registry',
                 title: 'ทะเบียนคุมลอกลายรถ',
                 to: '/reports/warehouse/decal',
                 permission: 'inventory.view',
                 description: 'รายงานทะเบียนคุมลอกลายรถ'
               },
               {
-                key: 'customer-delivery-plan-report',
+                key: 'customer-delivery-plan',
                 title: 'แผนการส่งรถลูกค้า',
                 to: '/reports/warehouse/vehicles/customerDeliveryPlan',
                 permission: 'inventory.view',
                 description: 'รายงานแผนการส่งรถให้ลูกค้า'
               },
               {
-                key: 'branch-delivery-plan-report', 
+                key: 'branch-delivery-plan',
                 title: 'แผนการส่งรถสาขา',
                 to: '/reports/warehouse/vehicles/branchDeliveryPlan',
                 permission: 'inventory.view',
-                description: 'รายงานแผนการส่งรถไปสาขา'
+                description: 'รายงานแผนการส่งรถให้สาขา'
               }
             ]
           },
           {
-            key: 'warehouse-giveaways',
+            key: 'giveaways',
             title: 'ของแถม',
             to: '/reports/warehouse/giveaways',
             permission: 'inventory.view',
@@ -789,7 +732,6 @@ export const NAVIGATION_CONFIG = {
       {
         key: 'credit-reports',
         title: 'สินเชื่อ',
-        type: 'group',
         permission: 'credit.view',
         items: [
           {
@@ -811,7 +753,6 @@ export const NAVIGATION_CONFIG = {
       {
         key: 'hr-reports',
         title: 'บุคคล',
-        type: 'group',
         permission: 'hr.view',
         items: [
           {
@@ -819,68 +760,134 @@ export const NAVIGATION_CONFIG = {
             title: 'สถิติการทำงาน',
             to: '/reports/hr/attendance',
             permission: 'hr.view',
-            description: 'รายงานสถิติการทำงานของพนักงาน'
+            description: 'รายงานสถิติการทำงาน'
           },
           {
             key: 'hr-leaving',
             title: 'การลางาน',
             to: '/reports/hr/leaving',
             permission: 'hr.view',
-            description: 'รายงานการลางานของพนักงาน'
+            description: 'รายงานการลางาน'
           },
           {
             key: 'hr-attendance-summary',
             title: 'การลางานประจำปี',
             to: '/reports/hr/attendance-summary',
             permission: 'hr.view',
-            description: 'รายงานสรุปการลางานประจำปี'
+            description: 'รายงานการลางานประจำปี'
           }
         ]
       }
     ]
   },
 
-  hr: {
-    title: 'บุคคล',
-    icon: 'team',
-    permission: 'hr.view',
+  settings: {
+    title: 'ตั้งค่า',
+    icon: 'setting',
+    permission: 'settings.view',
     items: [
       {
-        key: 'work-recording',
-        title: 'บันทึกการทำงาน',
+        key: 'general-settings',
+        title: 'ทั่วไป',
         type: 'group',
-        permission: 'hr.view',
+        permission: 'settings.view',
         items: [
           {
-            key: 'leave-record',
-            title: 'การลางาน',
-            to: '/hr/leave',
-            permission: 'hr.edit',
-            description: 'บันทึกการลางาน'
+            key: 'branches',
+            title: 'สาขา',
+            to: '/setting-branches',
+            permission: 'settings.edit',
+            description: 'จัดการข้อมูลสาขา'
           },
           {
-            key: 'attendance',
-            title: 'เวลาเข้างาน',
-            to: '/hr/attendance',
-            permission: 'hr.view',
-            description: 'บันทึกเวลาเข้างาน'
+            key: 'users',
+            title: 'กลุ่มผู้ใช้งาน',
+            to: '/setting-users',
+            permission: 'settings.edit',
+            description: 'จัดการกลุ่มผู้ใช้งาน'
+          },
+          {
+            key: 'vehicles',
+            title: 'เกี่ยวกับรถและอุปกรณ์',
+            to: '/setting-vehicles',
+            permission: 'settings.edit',
+            description: 'จัดการข้อมูลรถและอุปกรณ์'
+          },
+          {
+            key: 'promotions',
+            title: 'โปรโมชั่น',
+            to: '/setting-promotions',
+            permission: 'settings.edit',
+            description: 'จัดการโปรโมชั่น'
           }
         ]
       },
       {
-        key: 'employee-list',
-        title: 'รายชื่อพนักงาน',
-        to: '/employees',
-        permission: 'hr.view',
-        description: 'รายชื่อพนักงานทั้งหมด'
+        key: 'accounting-settings',
+        title: 'บัญชี',
+        type: 'group',
+        permission: 'settings.view',
+        items: [
+          {
+            key: 'expense-category',
+            title: 'หมวดรายจ่าย',
+            to: '/setting-expense-category',
+            permission: 'settings.edit',
+            description: 'จัดการหมวดรายจ่าย'
+          },
+          {
+            key: 'expense-subcategory',
+            title: 'หมวดย่อย',
+            to: '/setting-expense-subCategory',
+            permission: 'settings.edit',
+            description: 'จัดการหมวดย่อยรายจ่าย'
+          },
+          {
+            key: 'expense-name',
+            title: 'ชื่อบัญชี',
+            to: '/setting-expense-name',
+            permission: 'settings.edit',
+            description: 'จัดการชื่อบัญชี'
+          }
+        ]
+      }
+    ]
+  },
+
+  manual: {
+    title: 'คู่มือการใช้งาน',
+    icon: 'home',
+    permission: null, // Everyone can access
+    items: [
+      {
+        key: 'manual-accounting',
+        title: 'บัญชี',
+        to: '/user-manual/account',
+        description: 'คู่มือการใช้งานระบบบัญชี'
       },
       {
-        key: 'user-list',
-        title: 'รายชื่อผู้ใช้งาน',
-        to: '/users',
-        permission: 'hr.view',
-        description: 'รายชื่อผู้ใช้งานระบบ',
-        priority: 'medium'
+        key: 'manual-sales',
+        title: 'งานขาย',
+        to: '/user-manual/sale',
+        description: 'คู่มือการใช้งานระบบขาย'
+      },
+      {
+        key: 'manual-service',
+        title: 'งานบริการ',
+        to: '/user-manual/service',
+        description: 'คู่มือการใช้งานระบบบริการ'
+      },
+      {
+        key: 'manual-warehouse',
+        title: 'คลังสินค้า',
+        to: '/user-manual/warehouse',
+        description: 'คู่มือการใช้งานระบบคลังสินค้า'
+      },
+      {
+        key: 'manual-credit',
+        title: 'สินเชื่อ',
+        to: '/user-manual/credit',
+        description: 'คู่มือการใช้งานระบบสินเชื่อ'
       }
     ]
   },
@@ -914,167 +921,26 @@ export const NAVIGATION_CONFIG = {
     ]
   },
 
-  settings: {
-    title: 'ตั้งค่าระบบ',
-    icon: 'setting',
-    permission: 'admin.view',
-    items: [
-      {
-        key: 'general-settings',
-        title: 'ทั่วไป',
-        type: 'group',
-        permission: 'admin.view',
-        items: [
-          {
-            key: 'setting-branches',
-            title: 'สาขา',
-            to: '/setting-branches',
-            permission: 'admin.edit',
-            description: 'จัดการข้อมูลสาขา'
-          },
-          {
-            key: 'setting-users',
-            title: 'กลุ่มผู้ใช้งาน',
-            to: '/setting-users',
-            permission: 'admin.edit',
-            description: 'จัดการกลุ่มผู้ใช้งาน'
-          }
-        ]
-      },
-      {
-        key: 'warehouse-settings',
-        title: 'คลังสินค้า',
-        type: 'group',
-        permission: 'admin.edit',
-        items: [
-          {
-            key: 'setting-vehicles',
-            title: 'รายการรถและอุปกรณ์',
-            to: '/setting-vehicles',
-            permission: 'admin.edit',
-            description: 'จัดการรายการรถและอุปกรณ์'
-          },
-          {
-            key: 'setting-parts',
-            title: 'รายการอะไหล่',
-            to: '/setting-parts',
-            permission: 'admin.edit',
-            description: 'จัดการรายการอะไหล่'
-          }
-        ]
-      },
-      {
-        key: 'service-settings',
-        title: 'การบริการ',
-        type: 'group',
-        permission: 'admin.edit',
-        items: [
-          {
-            key: 'setting-services',
-            title: 'รหัสบริการ',
-            to: '/setting-services',
-            permission: 'admin.edit',
-            description: 'จัดการรหัสบริการ'
-          }
-        ]
-      },
-      {
-        key: 'sales-settings',
-        title: 'การขาย',
-        type: 'group',
-        permission: 'admin.edit',
-        items: [
-          {
-            key: 'setting-promotions',
-            title: 'โปรโมชั่น',
-            to: '/setting-promotions',
-            permission: 'admin.edit',
-            description: 'จัดการโปรโมชั่น'
-          }
-        ]
-      },
-      {
-        key: 'accounting-settings',
-        title: 'บัญชี',
-        type: 'group',
-        permission: 'admin.edit',
-        items: [
-          {
-            key: 'setting-expense-category',
-            title: 'หมวดรายจ่าย',
-            to: '/setting-expense-category',
-            permission: 'admin.edit',
-            description: 'จัดการหมวดรายจ่าย'
-          },
-          {
-            key: 'setting-expense-subCategory',
-            title: 'หมวดย่อย',
-            to: '/setting-expense-subCategory',
-            permission: 'admin.edit',
-            description: 'จัดการหมวดย่อยรายจ่าย'
-          },
-          {
-            key: 'setting-expense-name',
-            title: 'ชื่อบัญชี',
-            to: '/setting-expense-name',
-            permission: 'admin.edit',
-            description: 'จัดการชื่อบัญชีรายจ่าย'
-          }
-        ]
-      }
-    ]
-  },
-
-  // manual: {
-  //   title: 'คู่มือการใช้งาน',
-  //   icon: 'database',
-  //   permission: null, // Everyone can access
-  //   items: [
-  //     {
-  //       key: 'manual-account',
-  //       title: 'บัญชี',
-  //       to: '/user-manual/account',
-  //       description: 'คู่มือการใช้งานระบบบัญชี'
-  //     },
-  //     {
-  //       key: 'manual-sale',
-  //       title: 'งานขาย',
-  //       to: '/user-manual/sale',
-  //       description: 'คู่มือการใช้งานระบบขาย'
-  //     },
-  //     {
-  //       key: 'manual-service',
-  //       title: 'งานบริการ',
-  //       to: '/user-manual/service',
-  //       description: 'คู่มือการใช้งานระบบบริการ'
-  //     },
-  //     {
-  //       key: 'manual-warehouse',
-  //       title: 'คลังสินค้า',
-  //       to: '/user-manual/warehouse',
-  //       description: 'คู่มือการใช้งานระบบคลังสินค้า'
-  //     },
-  //     {
-  //       key: 'manual-credit',
-  //       title: 'สินเชื่อ',
-  //       to: '/user-manual/credit',
-  //       description: 'คู่มือการใช้งานระบบสินเชื่อ'
-  //     }
-  //   ]
-  // },
-
   executive: {
-    title: 'เผยแพร่',
-    icon: 'notification',
-    permission: 'notifications.edit', // Permission for sending notifications - can be assigned to any user
+    title: 'ผู้บริหาร',
+    icon: 'crown',
+    permission: 'admin.executive',
     items: [
       {
-        key: 'notifications',
-        title: 'การแจ้งเตือน',
-        to: '/executive/send-notification',
-        description: 'ส่งการแจ้งเตือนไปยังผู้ใช้งาน',
-        permission: 'notifications.edit',
-        priority: 'high'
+        key: 'executive-briefing',
+        title: 'การบรรยายสรุปสำหรับผู้บริหาร',
+        to: '/executive/briefing',
+        permission: 'admin.executive',
+        description: 'ภาพรวมเชิงกลยุทธ์และข้อได้เปรียบในการแข่งขันของระบบ KBN',
+        badge: 'STRATEGIC'
+      },
+      {
+        key: 'system-configuration',
+        title: 'การตั้งค่าระบบ',
+        to: '/executive/system-configuration',
+        permission: 'admin.system',
+        description: 'การจัดการระบบระดับผู้บริหารสำหรับจังหวัด สาขา และการตั้งค่าเชิงกลยุทธ์',
+        badge: 'ENTERPRISE'
       }
     ]
   },
@@ -1116,6 +982,21 @@ export const NAVIGATION_CONFIG = {
             to: '/dev/clean-slate-permissions-demo',
             description: 'ทดสอบระบบ Permission แบบ department.action',
             priority: 'high'
+          }
+        ]
+      },
+      {
+        key: 'ui-design-group',
+        title: 'UI/UX Design',
+        type: 'group',
+        items: [
+          {
+            key: 'glassmorphism-showcase',
+            title: '🎨 Glassmorphism Showcase',
+            to: '/developer/glassmorphism-showcase',
+            description: 'Apple Liquid Glass design system demo with dark mode support',
+            priority: 'high',
+            badge: 'NEW'
           }
         ]
       },

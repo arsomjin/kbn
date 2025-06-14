@@ -548,5 +548,49 @@
   "บัญชี": "บัญชี",
   "รายรับ": "รายรับ",
   "รายจ่าย": "รายจ่าย",
-  "ไม่มีสัญญาณอินเตอร์เน็ต": "ไม่มีสัญญาณอินเตอร์เน็ต"
+  "ไม่มีสัญญาณอินเตอร์เน็ต": "ไม่มีสัญญาณอินเตอร์เน็ต",
+  
+  "executive.title": "ผู้บริหาร",
+  "executive.briefing": "รายงานผู้บริหาร",
+  "executive.briefing.description": "ภาพรวมเชิงกลยุทธ์และข้อมูลสำคัญสำหรับผู้บริหาร",
+  "executive.systemConfiguration": "การกำหนดค่าระบบ",
+  "executive.systemConfiguration.description": "จัดการการตั้งค่าระบบและข้อมูลจังหวัด-สาขา",
+  
+  "briefing.overview": "ภาพรวม",
+  "briefing.capabilities": "ความสามารถ",
+  "briefing.roadmap": "แผนงาน",
+  "briefing.roi": "ผลตอบแทนการลงทุน",
+  
+  "briefing.overview.title": "ภาพรวมเชิงกลยุทธ์",
+  "briefing.overview.subtitle": "จุดแข็งทางการแข่งขันและตัวชี้วัดเชิงกลยุทธ์",
+  
+  "briefing.capabilities.title": "ความสามารถของระบบ",
+  "briefing.capabilities.subtitle": "การวิเคราะห์ความสามารถระดับองค์กรและผลกระทบทางธุรกิจ",
+  
+  "briefing.roadmap.title": "แผนงานการเปลี่ยนแปลง",
+  "briefing.roadmap.subtitle": "การเดินทางสู่การเป็นเครื่องมือสร้างความได้เปรียบทางการแข่งขัน",
+  
+  "briefing.roi.title": "การวิเคราะห์ผลตอบแทนการลงทุน",
+  "briefing.roi.subtitle": "ผลประโยชน์ทางธุรกิจและการประหยัดต้นทุนที่วัดผลได้",
+  
+  "competitive.advantages": "จุดแข็งทางการแข่งขัน",
+  "strategic.metrics": "ตัวชี้วัดเชิงกลยุทธ์",
+  "security.excellence": "ความเป็นเลิศด้านความปลอดภัย",
+  "scalability.power": "พลังการขยายตัว",
+  "competitive.edge": "ความได้เปรียบทางการแข่งขัน",
+  
+  "system.overview": "ภาพรวมระบบ",
+  "province.management": "การจัดการจังหวัด",
+  "branch.management": "การจัดการสาขา",
+  "system.settings": "การตั้งค่าระบบ",
+  
+  "language.switch": "เปลี่ยนภาษา",
+  "language.thai": "ไทย",
+  "language.english": "อังกฤษ",
+  
+  "executiveBriefing.title": "รายงานผู้บริหาร KBN",
+  "executiveBriefing.tag": "เครื่องมือสร้างความได้เปรียบทางการแข่งขัน",
+  "executiveBriefing.description": "ภาพรวมเชิงกลยุทธ์ของความสามารถระดับองค์กร จุดแข็งทางการแข่งขัน และแผนงานการเปลี่ยนแปลงสำหรับการตัดสินใจของผู้บริหาร",
+  
+  "language.english": "อังกฤษ"
 }

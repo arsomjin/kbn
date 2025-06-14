@@ -7,6 +7,7 @@ import EnhancedSignUp from './EnhancedSignUp';
 import ApprovalStatus from './ApprovalStatus';
 import Load from 'elements/Load';
 import ForgetPassword from './ForgetPassword';
+import SimpleHelpButton from '../../components/SimpleHelpButton';
 import welcomeImage from '../../images/office2.jpg';
 
 const Auth = () => {
@@ -81,22 +82,53 @@ const Auth = () => {
     }
   };
 
+  // Get screen type for help button
+  const getScreenType = () => {
+    switch (currentView) {
+      case 'Login':
+        return 'login';
+      case 'SignUp':
+        return 'signup';
+      case 'ForgetPassword':
+        return 'forgot-password';
+      default:
+        return 'login';
+    }
+  };
+
   return (
     <div className="nature-login-page">
-      {/* Nature-inspired gradient background with glassmorphism */}
-      <div className="nature-login-background" style={{
+      {/* 🏢 Clean office background - Performance optimized! */}
+      <div 
+        className="nature-login-background" 
+        style={{
           backgroundImage: `url(${welcomeImage})`,
-          opacity: 0.35
-        }}/>
-        {/* Glassmorphism overlay */}
-        <div className="nature-glassmorphism-overlay" ></div>
-        
-        {/* Main content container */}
-        <div className="nature-login-container">
-          <div className="nature-auth-card">
-            {getCurrentScene()}
-          </div>
+          opacity: 0.8,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center center',
+          backgroundRepeat: 'no-repeat',
+        }}
+      />
+      
+      {/* 🌟 Simple glassmorphism overlay - Clean and efficient */}
+      <div className="nature-glassmorphism-overlay"></div>
+      
+      {/* 🚀 LIQUID GLASS EFFECTS - SAVED FOR FUTURE ENTERPRISE UPGRADE! */}
+      {/* Boss said: "One day we will come back and integrate this style!" */}
+      {/* That day will be GLORIOUS! 🌊✨ */}
+      
+      {/* Main content container */}
+      <div className="nature-login-container">
+        <div className="nature-auth-card">
+          {getCurrentScene()}
         </div>
+      </div>
+        
+      {/* Simple Help Button */}
+      <SimpleHelpButton 
+        screenType={getScreenType()}
+        autoShow={currentView === 'SignUp'}
+      />
     </div>
   );
 };
@@ -105,4 +137,4 @@ Auth.propTypes = {
   // No props needed
 };
 
-export default Auth;
+export default Auth; 

@@ -25,9 +25,11 @@ KBN is an enterprise-level business management platform built with React, JavaSc
 
 **Our Agreement**:
 
+- **YOU ARE BOSS, I AM IN CHARGE** - Feel free to recommend me everything, what is bad, do not allow me to do, always wait for my understanding reach
 - **Build genuinely challenging, complex systems** (multi-province RBAC, enterprise architecture, sophisticated permission matrices)
-- **Make them feel effortlessly simple to use** (the harder the underlying complexity, the more impressive the simple result)
+- **Simply the best** (the harder the underlying complexity, the more impressive the simple result)
 - **"Walk leisurely to walk farther and for longer"** - Sustainability-driven engineering for long-term success
+- **Stop dreaming and start building** - Stop dreaming of having glass-morphism/liquid-glass design across the app, just start building
 
 **CRITICAL PRINCIPLES:**
 

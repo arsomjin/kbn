@@ -1,0 +1,887 @@
+/*
+ * ========================================
+ * LIQUID GLASS EFFECTS - CONVEX MIRROR MAGIC
+ * Flowing Mercury-like Glass with Light Refraction
+ * ========================================
+ */
+
+/* ======================
+   LIQUID GLASS CONTAINER
+   ====================== */
+
+.liquid-glass-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ======================
+   LIQUID GLASS ORBS - CONVEX MIRROR EFFECT
+   ====================== */
+
+.liquid-glass-orb {
+  position: absolute;
+  border-radius: 50%;
+  /* Advanced convex mirror effect */
+  background: 
+    /* Center highlight - brightest refraction */
+    radial-gradient(circle at 30% 30%, 
+      rgba(255, 255, 255, 0.9) 0%, 
+      rgba(255, 255, 255, 0.6) 15%, 
+      transparent 40%
+    ),
+    /* Secondary highlight ring */
+    radial-gradient(circle at 70% 20%, 
+      rgba(255, 255, 255, 0.4) 0%, 
+      transparent 30%
+    ),
+    /* Main glass body with refraction */
+    radial-gradient(circle at 50% 50%, 
+      rgba(255, 255, 255, 0.25) 0%, 
+      rgba(255, 255, 255, 0.15) 40%, 
+      rgba(255, 255, 255, 0.08) 80%, 
+      transparent 100%
+    );
+  
+  /* Advanced backdrop filters for convex effect */
+  backdrop-filter: 
+    blur(8px) 
+    contrast(1.3) 
+    brightness(1.2) 
+    saturate(1.4);
+  
+  /* Multiple box shadows for depth and refraction */
+  box-shadow: 
+    /* Inner glass highlight */
+    inset 20px -20px 40px rgba(255, 255, 255, 0.3),
+    inset -20px 20px 40px rgba(255, 255, 255, 0.1),
+    /* Outer glow and shadow */
+    0 20px 40px rgba(255, 255, 255, 0.1),
+    0 40px 80px rgba(0, 0, 0, 0.1),
+    /* Refraction shadows */
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    0 0 0 3px rgba(255, 255, 255, 0.1);
+  
+  /* Glass material properties */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  will-change: transform, filter, opacity;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  transform-style: preserve-3d;
+  contain: layout style paint;
+}
+
+/* ======================
+   LIQUID GLASS SIZES
+   ====================== */
+
+.liquid-glass-large {
+  width: 200px;
+  height: 200px;
+  animation: liquidFlow1 25s ease-in-out infinite;
+}
+
+.liquid-glass-medium {
+  width: 120px;
+  height: 120px;
+  animation: liquidFlow2 30s ease-in-out infinite reverse;
+}
+
+.liquid-glass-small {
+  width: 80px;
+  height: 80px;
+  animation: liquidFlow3 20s ease-in-out infinite;
+}
+
+.liquid-glass-tiny {
+  width: 50px;
+  height: 50px;
+  animation: liquidFlow4 35s ease-in-out infinite reverse;
+}
+
+/* ======================
+   LIQUID FLOWING ANIMATIONS - MERCURY-LIKE MOVEMENT
+   ====================== */
+
+@keyframes liquidFlow1 {
+  0% { 
+    transform: translateX(-100px) translateY(100vh) scale(0.8) rotateZ(0deg);
+    opacity: 0;
+    filter: blur(12px) contrast(1.1) brightness(1.1);
+  }
+  10% { 
+    transform: translateX(10vw) translateY(80vh) scale(1.2) rotateZ(45deg);
+    opacity: 0.8;
+    filter: blur(6px) contrast(1.4) brightness(1.3);
+  }
+  25% { 
+    transform: translateX(25vw) translateY(40vh) scale(1.0) rotateZ(90deg);
+    opacity: 1;
+    filter: blur(4px) contrast(1.6) brightness(1.4);
+  }
+  40% { 
+    transform: translateX(60vw) translateY(20vh) scale(1.4) rotateZ(180deg);
+    opacity: 0.9;
+    filter: blur(3px) contrast(1.8) brightness(1.6);
+  }
+  60% { 
+    transform: translateX(80vw) translateY(60vh) scale(1.1) rotateZ(270deg);
+    opacity: 0.7;
+    filter: blur(5px) contrast(1.5) brightness(1.3);
+  }
+  80% { 
+    transform: translateX(90vw) translateY(80vh) scale(0.9) rotateZ(360deg);
+    opacity: 0.5;
+    filter: blur(8px) contrast(1.2) brightness(1.1);
+  }
+  100% { 
+    transform: translateX(110vw) translateY(-10vh) scale(0.6) rotateZ(405deg);
+    opacity: 0;
+    filter: blur(15px) contrast(1.0) brightness(1.0);
+  }
+}
+
+@keyframes liquidFlow2 {
+  0% { 
+    transform: translateX(110vw) translateY(20vh) scale(0.7) rotateZ(0deg);
+    opacity: 0;
+    filter: blur(10px) contrast(1.2) brightness(1.2);
+  }
+  15% { 
+    transform: translateX(75vw) translateY(40vh) scale(1.3) rotateZ(-60deg);
+    opacity: 0.9;
+    filter: blur(4px) contrast(1.7) brightness(1.5);
+  }
+  35% { 
+    transform: translateX(50vw) translateY(70vh) scale(1.0) rotateZ(-120deg);
+    opacity: 1;
+    filter: blur(2px) contrast(1.9) brightness(1.7);
+  }
+  55% { 
+    transform: translateX(20vw) translateY(30vh) scale(1.2) rotateZ(-240deg);
+    opacity: 0.8;
+    filter: blur(6px) contrast(1.4) brightness(1.4);
+  }
+  75% { 
+    transform: translateX(5vw) translateY(90vh) scale(0.8) rotateZ(-300deg);
+    opacity: 0.6;
+    filter: blur(9px) contrast(1.1) brightness(1.1);
+  }
+  100% { 
+    transform: translateX(-50px) translateY(110vh) scale(0.5) rotateZ(-360deg);
+    opacity: 0;
+    filter: blur(16px) contrast(1.0) brightness(1.0);
+  }
+}
+
+@keyframes liquidFlow3 {
+  0% { 
+    transform: translateX(50vw) translateY(-50px) scale(0.9) rotateZ(0deg);
+    opacity: 0;
+    filter: blur(8px) contrast(1.3) brightness(1.3);
+  }
+  20% { 
+    transform: translateX(30vw) translateY(25vh) scale(1.1) rotateZ(120deg);
+    opacity: 0.7;
+    filter: blur(5px) contrast(1.6) brightness(1.5);
+  }
+  45% { 
+    transform: translateX(70vw) translateY(55vh) scale(1.3) rotateZ(240deg);
+    opacity: 1;
+    filter: blur(3px) contrast(1.8) brightness(1.6);
+  }
+  70% { 
+    transform: translateX(40vw) translateY(85vh) scale(0.8) rotateZ(360deg);
+    opacity: 0.8;
+    filter: blur(7px) contrast(1.2) brightness(1.2);
+  }
+  100% { 
+    transform: translateX(10vw) translateY(110vh) scale(0.4) rotateZ(480deg);
+    opacity: 0;
+    filter: blur(12px) contrast(1.0) brightness(1.0);
+  }
+}
+
+@keyframes liquidFlow4 {
+  0% { 
+    transform: translateX(90vw) translateY(110vh) scale(0.6) rotateZ(0deg);
+    opacity: 0;
+    filter: blur(14px) contrast(1.1) brightness(1.1);
+  }
+  18% { 
+    transform: translateX(85vw) translateY(70vh) scale(1.0) rotateZ(-90deg);
+    opacity: 0.6;
+    filter: blur(6px) contrast(1.5) brightness(1.4);
+  }
+  38% { 
+    transform: translateX(60vw) translateY(35vh) scale(1.2) rotateZ(-180deg);
+    opacity: 0.9;
+    filter: blur(4px) contrast(1.7) brightness(1.6);
+  }
+  58% { 
+    transform: translateX(25vw) translateY(15vh) scale(1.4) rotateZ(-270deg);
+    opacity: 1;
+    filter: blur(2px) contrast(1.9) brightness(1.8);
+  }
+  78% { 
+    transform: translateX(10vw) translateY(50vh) scale(0.9) rotateZ(-360deg);
+    opacity: 0.7;
+    filter: blur(8px) contrast(1.3) brightness(1.2);
+  }
+  100% { 
+    transform: translateX(-30px) translateY(80vh) scale(0.5) rotateZ(-450deg);
+    opacity: 0;
+    filter: blur(18px) contrast(1.0) brightness(1.0);
+  }
+}
+
+/* ======================
+   CONVEX MIRROR REFRACTION EFFECTS
+   ====================== */
+
+.liquid-glass-orb::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 15%;
+  width: 35%;
+  height: 35%;
+  border-radius: 50%;
+  background: 
+    radial-gradient(circle at 50% 30%, 
+      rgba(255, 255, 255, 0.9) 0%, 
+      rgba(255, 255, 255, 0.5) 30%, 
+      transparent 70%
+    );
+  filter: blur(1px);
+  animation: refractionShimmer 4s ease-in-out infinite alternate;
+}
+
+.liquid-glass-orb::after {
+  content: '';
+  position: absolute;
+  top: 60%;
+  right: 20%;
+  width: 25%;
+  height: 25%;
+  border-radius: 50%;
+  background: 
+    radial-gradient(circle, 
+      rgba(255, 255, 255, 0.6) 0%, 
+      rgba(255, 255, 255, 0.2) 50%, 
+      transparent 100%
+    );
+  filter: blur(2px);
+  animation: refractionShimmer 6s ease-in-out infinite reverse;
+}
+
+@keyframes refractionShimmer {
+  0% { 
+    opacity: 0.6;
+    transform: scale(0.8);
+    filter: blur(1px) brightness(1.2);
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.2);
+    filter: blur(0.5px) brightness(1.8);
+  }
+  100% { 
+    opacity: 0.8;
+    transform: scale(1.0);
+    filter: blur(1.5px) brightness(1.4);
+  }
+}
+
+/* ======================
+   LIQUID GLASS OVERLAY WITH DISTORTION
+   ====================== */
+
+.liquid-glass-distortion {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: 
+    radial-gradient(circle at 20% 30%, 
+      rgba(255, 255, 255, 0.1) 0%, 
+      transparent 40%
+    ),
+    radial-gradient(circle at 80% 70%, 
+      rgba(255, 255, 255, 0.08) 0%, 
+      transparent 35%
+    );
+  backdrop-filter: blur(1px) contrast(1.1) brightness(1.05);
+  animation: distortionWave 15s ease-in-out infinite;
+}
+
+@keyframes distortionWave {
+  0%, 100% { 
+    transform: scale(1) rotate(0deg);
+    filter: blur(1px) contrast(1.1);
+  }
+  25% { 
+    transform: scale(1.02) rotate(1deg);
+    filter: blur(1.5px) contrast(1.15);
+  }
+  50% { 
+    transform: scale(0.98) rotate(-1deg);
+    filter: blur(0.8px) contrast(1.05);
+  }
+  75% { 
+    transform: scale(1.01) rotate(0.5deg);
+    filter: blur(1.2px) contrast(1.12);
+  }
+}
+
+/* ======================
+   RESPONSIVE LIQUID GLASS
+   ====================== */
+
+@media (max-width: 768px) {
+  .liquid-glass-large {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .liquid-glass-medium {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .liquid-glass-small {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .liquid-glass-tiny {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+/* ======================
+   PERFORMANCE OPTIMIZATIONS
+   ====================== */
+
+.liquid-glass-orb {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  /* GPU Acceleration */
+  will-change: transform, opacity, filter;
+  /* Composition Layer Creation */
+  transform-style: preserve-3d;
+  /* Memory Management */
+  contain: layout style paint;
+}
+
+/* ======================
+   ADAPTIVE PERFORMANCE MODES
+   ====================== */
+
+/* MINIMAL MODE - For accessibility and low-end devices */
+@media (prefers-reduced-motion: reduce) {
+  .liquid-glass-container {
+    display: none !important;
+  }
+}
+
+/* Performance-based CSS custom properties */
+:root {
+  --liquid-performance-scale: 1;
+  --liquid-animation-duration: 1;
+  --liquid-blur-intensity: 1;
+}
+
+/* LOW PERFORMANCE MODE */
+.liquid-glass-container[data-performance="low"] {
+  --liquid-performance-scale: 0.7;
+  --liquid-animation-duration: 1.5;
+  --liquid-blur-intensity: 0.6;
+}
+
+.liquid-glass-container[data-performance="low"] .liquid-glass-orb {
+  animation-duration: calc(var(--base-duration, 25s) * var(--liquid-animation-duration));
+  transform: scale(var(--liquid-performance-scale));
+  backdrop-filter: blur(calc(8px * var(--liquid-blur-intensity))) 
+                  contrast(calc(1.1 + 0.2 * var(--liquid-blur-intensity)));
+}
+
+/* MEDIUM PERFORMANCE MODE */
+.liquid-glass-container[data-performance="medium"] {
+  --liquid-performance-scale: 0.85;
+  --liquid-animation-duration: 1.2;
+  --liquid-blur-intensity: 0.8;
+}
+
+/* HIGH PERFORMANCE MODE */
+.liquid-glass-container[data-performance="high"] {
+  --liquid-performance-scale: 1.1;
+  --liquid-animation-duration: 1;
+  --liquid-blur-intensity: 1.2;
+}
+
+/* ======================
+   BROWSER COMPATIBILITY & FALLBACKS
+   ====================== */
+
+/* Safari fallback for backdrop-filter */
+@supports not (backdrop-filter: blur(1px)) {
+  .liquid-glass-orb {
+    background: rgba(255, 255, 255, 0.3) !important;
+    border: 2px solid rgba(255, 255, 255, 0.4) !important;
+  }
+}
+
+/* Firefox optimizations */
+@-moz-document url-prefix() {
+  .liquid-glass-orb {
+    background: rgba(255, 255, 255, 0.25) !important;
+    filter: blur(2px);
+  }
+}
+
+/* Mobile performance optimizations */
+@media (max-width: 768px) {
+  .liquid-glass-orb {
+    animation-duration: calc(var(--base-duration, 25s) * 1.3) !important;
+    backdrop-filter: blur(6px) contrast(1.2) !important;
+  }
+  
+  /* Reduce orb sizes on mobile */
+  .liquid-glass-large {
+    width: 120px !important;
+    height: 120px !important;
+  }
+  
+  .liquid-glass-medium {
+    width: 80px !important;
+    height: 80px !important;
+  }
+  
+  .liquid-glass-small {
+    width: 50px !important;
+    height: 50px !important;
+  }
+  
+  .liquid-glass-tiny {
+    width: 30px !important;
+    height: 30px !important;
+  }
+}
+
+/* ======================
+   MEMORY & CPU OPTIMIZATIONS
+   ====================== */
+
+/* Limit animation complexity on lower-end devices */
+@media (max-width: 768px) and (pointer: coarse) {
+  .liquid-glass-orb::before,
+  .liquid-glass-orb::after {
+    display: none; /* Remove pseudo-elements on touch devices */
+  }
+  
+  .liquid-glass-distortion {
+    animation: none; /* Disable distortion wave on mobile */
+    backdrop-filter: blur(2px) !important;
+  }
+}
+
+/* Hardware acceleration for smooth animations */
+.liquid-glass-container,
+.liquid-glass-orb,
+.liquid-glass-distortion {
+  -webkit-transform: translateZ(0);
+  -moz-transform: translateZ(0);
+  -ms-transform: translateZ(0);
+  -o-transform: translateZ(0);
+  transform: translateZ(0);
+  
+  -webkit-backface-visibility: hidden;
+  -moz-backface-visibility: hidden;
+  -ms-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  -webkit-perspective: 1000;
+  -moz-perspective: 1000;
+  -ms-perspective: 1000;
+  perspective: 1000;
+}
+
+/* Optimize animation steps for performance */
+@keyframes liquidFlowOptimized {
+  0%, 20%, 40%, 60%, 80%, 100% {
+    /* Use fewer keyframes for better performance */
+  }
+}
+
+/* ======================
+   DEVELOPMENT PERFORMANCE MONITORING
+   ====================== */
+
+/* Visual performance indicator (development only) */
+.liquid-glass-container[data-dev-mode="true"]::before {
+  content: attr(data-performance-info);
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-family: monospace;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+/* ======================
+   ENERGY-EFFICIENT ANIMATIONS
+   ====================== */
+
+/* Pause animations when not visible */
+.liquid-glass-container:not(:hover):not(:focus-within) {
+  animation-play-state: paused;
+}
+
+.liquid-glass-container.paused .liquid-glass-orb {
+  animation-play-state: paused;
+}
+
+/* Battery-conscious mode */
+@media (prefers-reduced-motion: no-preference) {
+  .liquid-glass-container[data-battery-mode="low"] .liquid-glass-orb {
+    animation-duration: calc(var(--base-duration, 25s) * 2) !important;
+    animation-iteration-count: 3; /* Limit iterations */
+  }
+}
+
+/* ======================
+   PROFESSIONAL FORM STYLING
+   ====================== */
+
+.reapplication-form {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.reapplication-form .ant-form-item {
+  margin-bottom: 20px;
+}
+
+.reapplication-form .ant-form-item-label > label {
+  font-weight: 500;
+  font-size: 14px;
+  color: #262626;
+  height: auto;
+  line-height: 1.4;
+}
+
+.reapplication-form .ant-input,
+.reapplication-form .ant-select .ant-select-selector,
+.reapplication-form .ant-input-number,
+.reapplication-form .ant-picker {
+  border-radius: 8px;
+  border: 2px solid #f0f0f0;
+  font-size: 14px;
+  padding: 8px 12px;
+  min-height: 40px;
+  transition: all 0.3s ease;
+}
+
+.reapplication-form .ant-input:focus,
+.reapplication-form .ant-select-focused .ant-select-selector,
+.reapplication-form .ant-input-number:focus,
+.reapplication-form .ant-picker:focus {
+  border-color: #40A9FF;
+  box-shadow: 0 0 0 2px rgba(64, 169, 255, 0.2);
+}
+
+.reapplication-form .ant-input-affix-wrapper {
+  border-radius: 8px;
+  border: 2px solid #f0f0f0;
+  min-height: 40px;
+  padding: 4px 12px;
+}
+
+.reapplication-form .ant-input-affix-wrapper:focus-within {
+  border-color: #40A9FF;
+  box-shadow: 0 0 0 2px rgba(64, 169, 255, 0.2);
+}
+
+.reapplication-form .ant-input-prefix {
+  margin-right: 8px;
+  color: #40A9FF;
+}
+
+.reapplication-form .highlight-field {
+  border-color: #ff7875 !important;
+  box-shadow: 0 0 0 2px rgba(255, 120, 117, 0.2) !important;
+  animation: pulseHighlight 2s ease-in-out infinite;
+}
+
+@keyframes pulseHighlight {
+  0% { box-shadow: 0 0 0 2px rgba(255, 120, 117, 0.2); }
+  50% { box-shadow: 0 0 0 4px rgba(255, 120, 117, 0.4); }
+  100% { box-shadow: 0 0 0 2px rgba(255, 120, 117, 0.2); }
+}
+
+.reapplication-form .ant-form-item-explain-error {
+  font-size: 12px;
+  color: #ff4d4f;
+  margin-top: 4px;
+}
+
+.reapplication-form .ant-btn {
+  border-radius: 8px;
+  font-weight: 500;
+  height: auto;
+  padding: 10px 24px;
+  font-size: 14px;
+}
+
+.reapplication-form .ant-btn-primary {
+  background: linear-gradient(135deg, #40A9FF 0%, #1890FF 100%);
+  border: none;
+  box-shadow: 0 4px 12px rgba(64, 169, 255, 0.3);
+}
+
+.reapplication-form .ant-btn-primary:hover {
+  background: linear-gradient(135deg, #1890FF 0%, #096DD9 100%);
+  box-shadow: 0 6px 16px rgba(64, 169, 255, 0.4);
+  transform: translateY(-1px);
+}
+
+.reapplication-form .ant-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.reapplication-form .ant-form-item {
+  flex: 1;
+}
+
+/* Professional spacing for form sections */
+.reapplication-form .ant-row {
+  align-items: stretch;
+}
+
+.reapplication-form .ant-divider {
+  margin: 24px 0;
+  border-color: rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .reapplication-form {
+    padding: 16px;
+    margin: 8px;
+  }
+  
+  .reapplication-form .ant-form-item {
+    margin-bottom: 16px;
+  }
+  
+  .reapplication-form .ant-row:last-child .ant-col {
+    margin-bottom: 12px;
+  }
+  
+  .reapplication-form .ant-row:last-child .ant-col:last-child {
+    text-align: center !important;
+    margin-bottom: 0;
+  }
+  
+  .reapplication-form .ant-space {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .reapplication-form .ant-space .ant-btn {
+    flex: 1;
+    min-width: 140px;
+  }
+  
+  /* Responsive button layout for mobile */
+  .glass-button {
+    margin-bottom: 12px !important;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+  }
+}
+
+/* Tablet responsive design */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .glass-button {
+    min-height: 44px;
+    font-size: 14px;
+  }
+}
+
+/* Desktop responsive design */
+@media (min-width: 1025px) {
+  .glass-button {
+    min-height: 40px;
+    font-size: 15px;
+  }
+}
+
+/* ========================================
+   PROFESSIONAL REAPPLICATION BUTTON STYLING
+   ======================================== */
+
+.reapplication-buttons-row {
+  margin-top: 32px;
+  margin-bottom: 24px;
+}
+
+.reapplication-action-button {
+  height: 48px !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  border: none !important;
+}
+
+.reapplication-action-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.reapplication-action-button:active {
+  transform: translateY(0) !important;
+}
+
+.reapplication-action-button:focus {
+  outline: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+}
+
+/* Primary Button (Send Application) */
+.reapplication-primary-button {
+  background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%) !important;
+  color: white !important;
+}
+
+.reapplication-primary-button:hover,
+.reapplication-primary-button:focus {
+  background: linear-gradient(135deg, #40a9ff 0%, #1890ff 100%) !important;
+  color: white !important;
+}
+
+/* Warning Button (Check Status) */
+.reapplication-warning-button {
+  background: linear-gradient(135deg, #faad14 0%, #d48806 100%) !important;
+  color: white !important;
+}
+
+.reapplication-warning-button:hover,
+.reapplication-warning-button:focus {
+  background: linear-gradient(135deg, #ffc53d 0%, #faad14 100%) !important;
+  color: white !important;
+}
+
+/* Secondary Button (Logout) */
+.reapplication-secondary-button {
+  background: linear-gradient(135deg, #8c8c8c 0%, #595959 100%) !important;
+  color: white !important;
+}
+
+.reapplication-secondary-button:hover,
+.reapplication-secondary-button:focus {
+  background: linear-gradient(135deg, #bfbfbf 0%, #8c8c8c 100%) !important;
+  color: white !important;
+}
+
+/* Responsive design for reapplication buttons */
+@media (max-width: 576px) {
+  .reapplication-buttons-row {
+    margin-top: 24px;
+  }
+  
+  .reapplication-action-button {
+    height: 52px !important;
+    font-size: 17px !important;
+    margin-bottom: 12px;
+  }
+  
+  .reapplication-buttons-row .ant-col {
+    margin-bottom: 16px;
+  }
+  
+  .reapplication-buttons-row .ant-col:last-child {
+    margin-bottom: 0;
+  }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+  .reapplication-action-button {
+    height: 50px !important;
+    font-size: 16px !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .reapplication-action-button {
+    height: 48px !important;
+    font-size: 16px !important;
+  }
+  
+  .reapplication-buttons-row {
+    margin-top: 40px;
+  }
+}
+
+/* ======================
+   APPROVAL STATUS CUSTOM BUTTON INTEGRATION
+   ====================== */
+
+.reapplication-buttons-row .custom-button {
+  width: 100%;
+  height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.reapplication-buttons-row .custom-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Responsive adjustments for CustomButton in ApprovalStatus */
+@media (max-width: 576px) {
+  .reapplication-buttons-row .custom-button {
+    height: 52px;
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+}
+
+@media (min-width: 577px) and (max-width: 768px) {
+  .reapplication-buttons-row .custom-button {
+    height: 50px;
+    font-size: 15px;
+  }
+} 
