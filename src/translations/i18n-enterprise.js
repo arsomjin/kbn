@@ -17,16 +17,16 @@ const enterpriseI18nConfig = {
     th: {
       // Namespace-based translations - FIXED: Use direct import
       executive: executiveTH,
-      
+
       // Legacy translations (for backward compatibility)
       translations: legacyTH,
-      
+
       // Common translations
       common: {
         language: {
           switch: 'เปลี่ยนภาษา',
           thai: 'ไทย',
-          english: 'อังกฤษ'
+          english: 'อังกฤษ',
         },
         actions: {
           save: 'บันทึก',
@@ -37,7 +37,7 @@ const enterpriseI18nConfig = {
           search: 'ค้นหา',
           filter: 'กรอง',
           export: 'ส่งออก',
-          import: 'นำเข้า'
+          import: 'นำเข้า',
         },
         status: {
           active: 'ใช้งาน',
@@ -46,23 +46,23 @@ const enterpriseI18nConfig = {
           approved: 'อนุมัติ',
           rejected: 'ปฏิเสธ',
           draft: 'ร่าง',
-          completed: 'เสร็จสิ้น'
-        }
-      }
+          completed: 'เสร็จสิ้น',
+        },
+      },
     },
     en: {
       // Namespace-based translations - FIXED: Use direct import
       executive: executiveEN,
-      
+
       // Legacy translations (for backward compatibility)
       translations: legacyEN,
-      
+
       // Common translations
       common: {
         language: {
           switch: 'Switch Language',
           thai: 'Thai',
-          english: 'English'
+          english: 'English',
         },
         actions: {
           save: 'Save',
@@ -73,7 +73,7 @@ const enterpriseI18nConfig = {
           search: 'Search',
           filter: 'Filter',
           export: 'Export',
-          import: 'Import'
+          import: 'Import',
         },
         status: {
           active: 'Active',
@@ -82,61 +82,59 @@ const enterpriseI18nConfig = {
           approved: 'Approved',
           rejected: 'Rejected',
           draft: 'Draft',
-          completed: 'Completed'
-        }
-      }
-    }
+          completed: 'Completed',
+        },
+      },
+    },
   },
-  
+
   // Default language (Thai as requested)
   lng: 'th',
   fallbackLng: 'th',
-  
+
   // Debug mode for development
   debug: process.env.NODE_ENV === 'development',
-  
+
   // Namespace configuration
   ns: ['executive', 'common', 'translations'],
   defaultNS: 'translations', // For backward compatibility
-  
+
   // Key separator for nested translations
   keySeparator: '.',
   nsSeparator: ':',
-  
+
   // Interpolation settings
   interpolation: {
     escapeValue: false,
-    formatSeparator: ','
+    formatSeparator: ',',
   },
-  
+
   // React-specific settings
   react: {
     wait: true,
     bindI18n: 'languageChanged loaded',
     bindStore: 'added removed',
     nsMode: 'default',
-    useSuspense: false
+    useSuspense: false,
   },
-  
+
   // Language detection settings
   detection: {
     order: ['localStorage', 'navigator', 'htmlTag'],
     lookupLocalStorage: 'kbn-language',
     caches: ['localStorage'],
-    excludeCacheFor: ['cimode']
-  }
+    excludeCacheFor: ['cimode'],
+  },
 };
 
 // Initialize i18n with enterprise configuration
-i18n
-  .use(LanguageDetector)
-  .use(initReactI18next)
-  .init(enterpriseI18nConfig);
+i18n.use(LanguageDetector).use(initReactI18next).init(enterpriseI18nConfig);
 
 // Enterprise translation utilities
 export const useNamespacedTranslation = (namespace = 'translations') => {
-  const { t, i18n: i18nInstance } = require('react-i18next').useTranslation(namespace);
-  
+  const { t, i18n: i18nInstance } =
+    require('react-i18next').useTranslation(namespace);
+
   return {
     t,
     i18n: i18nInstance,
@@ -145,7 +143,8 @@ export const useNamespacedTranslation = (namespace = 'translations') => {
     // Utility to check if translation exists
     exists: (key, ns = namespace) => i18nInstance.exists(key, { ns }),
     // Utility to get all translations for a namespace
-    getNamespaceTranslations: (ns = namespace) => i18nInstance.getResourceBundle(i18nInstance.language, ns)
+    getNamespaceTranslations: (ns = namespace) =>
+      i18nInstance.getResourceBundle(i18nInstance.language, ns),
   };
 };
 
@@ -155,7 +154,11 @@ export const addNamespaceTranslations = (namespace, language, translations) => {
 };
 
 // Utility to get translation with fallback
-export const getTranslationWithFallback = (key, namespace = 'translations', fallback = key) => {
+export const getTranslationWithFallback = (
+  key,
+  namespace = 'translations',
+  fallback = key
+) => {
   const translation = i18n.t(key, { ns: namespace });
   return translation === key ? fallback : translation;
 };
@@ -169,7 +172,10 @@ export const et = (key, namespace = 'translations', options = {}) => {
 export const tran = (key) => i18n.t(key);
 
 console.log('🌍 Enterprise i18n system initialized with namespace support');
-console.log('📋 Available namespaces:', Object.keys(enterpriseI18nConfig.resources.th));
+console.log(
+  '📋 Available namespaces:',
+  Object.keys(enterpriseI18nConfig.resources.th)
+);
 console.log('🎯 Executive translations loaded:', Object.keys(executiveTH));
 
-export default i18n; 
+export default i18n;

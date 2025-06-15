@@ -11,7 +11,7 @@ import {
   getProvinceName,
   getBranchName,
   PROVINCE_MAPPINGS,
-  BRANCH_MAPPINGS
+  BRANCH_MAPPINGS,
 } from 'utils/mappings';
 import {
   Card,
@@ -32,7 +32,7 @@ import {
   Tag,
   Tabs,
   Statistic,
-  Progress
+  Progress,
 } from 'antd';
 import {
   GlobalOutlined,
@@ -46,7 +46,7 @@ import {
   EnvironmentOutlined,
   TeamOutlined,
   ShieldOutlined,
-  ThunderboltOutlined
+  ThunderboltOutlined,
 } from '@ant-design/icons';
 import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
 import ScreenWithManual from 'components/ScreenWithManual';
@@ -75,7 +75,7 @@ const SystemConfiguration = () => {
     totalProvinces: 2,
     totalBranches: 6,
     activeUsers: 45,
-    systemHealth: 98
+    systemHealth: 98,
   });
 
   useEffect(() => {
@@ -96,7 +96,7 @@ const SystemConfiguration = () => {
           region: 'Northeast',
           isActive: true,
           branchCount: 3,
-          createdAt: '2024-01-01'
+          createdAt: '2024-01-01',
         },
         {
           id: 'nakhon-sawan',
@@ -106,8 +106,8 @@ const SystemConfiguration = () => {
           region: 'Central',
           isActive: true,
           branchCount: 3,
-          createdAt: '2024-06-01'
-        }
+          createdAt: '2024-06-01',
+        },
       ];
       setProvinces(sampleProvinces);
     } catch (error) {
@@ -130,7 +130,7 @@ const SystemConfiguration = () => {
           address: '123 ถนนมิตรภาพ นครราชสีมา',
           phone: '044-123-456',
           isActive: true,
-          userCount: 15
+          userCount: 15,
         },
         {
           id: 'NMA002',
@@ -141,7 +141,7 @@ const SystemConfiguration = () => {
           address: '456 ถนนเทศบาล ปากช่อง',
           phone: '044-789-012',
           isActive: true,
-          userCount: 8
+          userCount: 8,
         },
         {
           id: 'NSN001',
@@ -152,8 +152,8 @@ const SystemConfiguration = () => {
           address: '789 ถนนเอเชีย นครสวรรค์',
           phone: '056-123-456',
           isActive: true,
-          userCount: 12
-        }
+          userCount: 12,
+        },
       ];
       setBranches(sampleBranches);
     } catch (error) {
@@ -197,19 +197,23 @@ const SystemConfiguration = () => {
       dataIndex: 'name',
       key: 'name',
       render: (text, record) => (
-        <Space direction="vertical" size="small">
+        <Space direction='vertical' size='small'>
           <Text strong>{text}</Text>
-          <Text type="secondary" style={{ fontSize: '12px' }}>
+          <Text type='secondary' style={{ fontSize: '12px' }}>
             {record.nameEn} ({record.code})
           </Text>
         </Space>
-      )
+      ),
     },
     {
       title: t('systemConfiguration.provinces.columns.region'),
       dataIndex: 'region',
       key: 'region',
-      render: (text) => <Tag color="blue">{t(`systemConfiguration.provinces.regions.${text.toLowerCase()}`)}</Tag>
+      render: (text) => (
+        <Tag color='blue'>
+          {t(`systemConfiguration.provinces.regions.${text.toLowerCase()}`)}
+        </Tag>
+      ),
     },
     {
       title: t('systemConfiguration.provinces.columns.branches'),
@@ -218,9 +222,11 @@ const SystemConfiguration = () => {
       render: (count) => (
         <Space>
           <BankOutlined />
-          <Text>{count} {t('systemConfiguration.stats.branchesCount')}</Text>
+          <Text>
+            {count} {t('systemConfiguration.stats.branchesCount')}
+          </Text>
         </Space>
-      )
+      ),
     },
     {
       title: t('systemConfiguration.provinces.columns.status'),
@@ -228,18 +234,20 @@ const SystemConfiguration = () => {
       key: 'isActive',
       render: (isActive) => (
         <Tag color={isActive ? 'success' : 'default'}>
-          {isActive ? t('systemConfiguration.status.active') : t('systemConfiguration.status.inactive')}
+          {isActive
+            ? t('systemConfiguration.status.active')
+            : t('systemConfiguration.status.inactive')}
         </Tag>
-      )
+      ),
     },
     {
       title: t('systemConfiguration.provinces.columns.actions'),
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <Button 
-            icon={<EditOutlined />} 
-            size="small"
+          <Button
+            icon={<EditOutlined />}
+            size='small'
             onClick={() => {
               setEditingItem(record);
               setModalVisible(true);
@@ -248,8 +256,8 @@ const SystemConfiguration = () => {
             {t('systemConfiguration.provinces.editButton')}
           </Button>
         </Space>
-      )
-    }
+      ),
+    },
   ];
 
   const branchColumns = [
@@ -258,35 +266,39 @@ const SystemConfiguration = () => {
       dataIndex: 'name',
       key: 'name',
       render: (text, record) => (
-        <Space direction="vertical" size="small">
+        <Space direction='vertical' size='small'>
           <Text strong>{text}</Text>
-          <Text type="secondary" style={{ fontSize: '12px' }}>
+          <Text type='secondary' style={{ fontSize: '12px' }}>
             {record.nameEn} ({record.code})
           </Text>
         </Space>
-      )
+      ),
     },
     {
       title: t('systemConfiguration.branches.columns.province'),
       dataIndex: 'provinceId',
       key: 'provinceId',
       render: (provinceId) => {
-        const province = provinces.find(p => p.id === provinceId);
-        return province ? <Tag color="blue">{province.name}</Tag> : getProvinceName(provinceId);
-      }
+        const province = provinces.find((p) => p.id === provinceId);
+        return province ? (
+          <Tag color='blue'>{province.name}</Tag>
+        ) : (
+          getProvinceName(provinceId)
+        );
+      },
     },
     {
       title: t('systemConfiguration.branches.columns.contact'),
       dataIndex: 'phone',
       key: 'phone',
       render: (phone, record) => (
-        <Space direction="vertical" size="small">
+        <Space direction='vertical' size='small'>
           <Text>{phone}</Text>
-          <Text type="secondary" style={{ fontSize: '11px' }}>
+          <Text type='secondary' style={{ fontSize: '11px' }}>
             {record.address}
           </Text>
         </Space>
-      )
+      ),
     },
     {
       title: t('systemConfiguration.branches.columns.users'),
@@ -295,9 +307,11 @@ const SystemConfiguration = () => {
       render: (count) => (
         <Space>
           <TeamOutlined />
-          <Text>{count} {t('systemConfiguration.stats.usersCount')}</Text>
+          <Text>
+            {count} {t('systemConfiguration.stats.usersCount')}
+          </Text>
         </Space>
-      )
+      ),
     },
     {
       title: t('systemConfiguration.branches.columns.status'),
@@ -305,18 +319,20 @@ const SystemConfiguration = () => {
       key: 'isActive',
       render: (isActive) => (
         <Tag color={isActive ? 'success' : 'default'}>
-          {isActive ? t('systemConfiguration.status.active') : t('systemConfiguration.status.inactive')}
+          {isActive
+            ? t('systemConfiguration.status.active')
+            : t('systemConfiguration.status.inactive')}
         </Tag>
-      )
+      ),
     },
     {
       title: t('systemConfiguration.branches.columns.actions'),
       key: 'actions',
       render: (_, record) => (
         <Space>
-          <Button 
-            icon={<EditOutlined />} 
-            size="small"
+          <Button
+            icon={<EditOutlined />}
+            size='small'
             onClick={() => {
               setEditingItem(record);
               setModalVisible(true);
@@ -325,8 +341,8 @@ const SystemConfiguration = () => {
             {t('systemConfiguration.branches.editButton')}
           </Button>
         </Space>
-      )
-    }
+      ),
+    },
   ];
 
   const renderSystemOverview = () => (
@@ -366,15 +382,15 @@ const SystemConfiguration = () => {
           <Statistic
             title={t('systemConfiguration.systemOverview.systemHealth')}
             value={systemMetrics.systemHealth}
-            suffix="%"
+            suffix='%'
             prefix={<ThunderboltOutlined />}
             valueStyle={{ color: '#52c41a' }}
           />
-          <Progress 
-            percent={systemMetrics.systemHealth} 
-            showInfo={false} 
-            strokeColor="#52c41a"
-            size="small"
+          <Progress
+            percent={systemMetrics.systemHealth}
+            showInfo={false}
+            strokeColor='#52c41a'
+            size='small'
           />
         </Card>
       </Col>
@@ -383,7 +399,7 @@ const SystemConfiguration = () => {
 
   const renderProvincesTab = () => (
     <div>
-      <Card 
+      <Card
         title={
           <Space>
             <GlobalOutlined />
@@ -391,8 +407,8 @@ const SystemConfiguration = () => {
           </Space>
         }
         extra={
-          <Button 
-            type="primary" 
+          <Button
+            type='primary'
             icon={<PlusOutlined />}
             onClick={() => {
               setEditingItem(null);
@@ -407,15 +423,15 @@ const SystemConfiguration = () => {
         <Alert
           message={t('systemConfiguration.provinces.alert.title')}
           description={t('systemConfiguration.provinces.alert.description')}
-          type="info"
+          type='info'
           showIcon
           style={{ marginBottom: 16 }}
         />
-        
+
         <Table
           columns={provinceColumns}
           dataSource={provinces}
-          rowKey="id"
+          rowKey='id'
           loading={loading}
           pagination={false}
           size={isMobile ? 'small' : 'default'}
@@ -426,7 +442,7 @@ const SystemConfiguration = () => {
 
   const renderBranchesTab = () => (
     <div>
-      <Card 
+      <Card
         title={
           <Space>
             <BankOutlined />
@@ -434,8 +450,8 @@ const SystemConfiguration = () => {
           </Space>
         }
         extra={
-          <Button 
-            type="primary" 
+          <Button
+            type='primary'
             icon={<PlusOutlined />}
             onClick={() => {
               setEditingItem(null);
@@ -450,15 +466,15 @@ const SystemConfiguration = () => {
         <Alert
           message={t('systemConfiguration.branches.alert.title')}
           description={t('systemConfiguration.branches.alert.description')}
-          type="info"
+          type='info'
           showIcon
           style={{ marginBottom: 16 }}
         />
-        
+
         <Table
           columns={branchColumns}
           dataSource={branches}
-          rowKey="id"
+          rowKey='id'
           loading={loading}
           pagination={{ pageSize: 10 }}
           size={isMobile ? 'small' : 'default'}
@@ -468,22 +484,24 @@ const SystemConfiguration = () => {
   );
 
   return (
-    <ScreenWithManual 
-      screenType="system-configuration"
-      showManualOnFirstVisit={true}
+    <ScreenWithManual
+      screenType='system-configuration'
+      showManualOnFirstVisit={false}
     >
-      <LayoutWithRBAC 
-        permission="admin.system" 
+      <LayoutWithRBAC
+        permission='admin.system'
         title={t('systemConfiguration.title')}
         requireBranchSelection={false}
         showAuditTrail={true}
         showStepper={false}
       >
         <div style={{ padding: isMobile ? '16px' : '24px' }}>
-          <Card 
+          <Card
             title={
               <Space>
-                <SettingOutlined style={{ color: '#1890ff', fontSize: '24px' }} />
+                <SettingOutlined
+                  style={{ color: '#1890ff', fontSize: '24px' }}
+                />
                 <Title level={2} style={{ margin: 0 }}>
                   {t('systemConfiguration.title')}
                 </Title>
@@ -498,40 +516,40 @@ const SystemConfiguration = () => {
           </Card>
 
           {/* System Overview */}
-          <Card 
-            title={t('systemConfiguration.systemOverview.title')} 
+          <Card
+            title={t('systemConfiguration.systemOverview.title')}
             style={{ marginBottom: 24 }}
-            size="small"
+            size='small'
           >
             {renderSystemOverview()}
           </Card>
 
           {/* Configuration Tabs */}
-          <Tabs 
-            activeKey={activeTab} 
+          <Tabs
+            activeKey={activeTab}
             onChange={setActiveTab}
             size={isMobile ? 'small' : 'default'}
           >
-            <TabPane 
+            <TabPane
               tab={
                 <Space>
                   <GlobalOutlined />
                   <span>{t('systemConfiguration.provinces.tabTitle')}</span>
                 </Space>
-              } 
-              key="provinces"
+              }
+              key='provinces'
             >
               {renderProvincesTab()}
             </TabPane>
 
-            <TabPane 
+            <TabPane
               tab={
                 <Space>
                   <BankOutlined />
                   <span>{t('systemConfiguration.branches.tabTitle')}</span>
                 </Space>
-              } 
-              key="branches"
+              }
+              key='branches'
             >
               {renderBranchesTab()}
             </TabPane>
@@ -547,69 +565,168 @@ const SystemConfiguration = () => {
           >
             <Form
               form={form}
-              layout="vertical"
-              onFinish={activeTab === 'provinces' ? handleSaveProvince : handleSaveBranch}
+              layout='vertical'
+              onFinish={
+                activeTab === 'provinces'
+                  ? handleSaveProvince
+                  : handleSaveBranch
+              }
               initialValues={editingItem}
             >
               {activeTab === 'provinces' ? (
                 <>
-                  <Form.Item name="name" label={t('systemConfiguration.provinces.form.nameLabel')} rules={[{ required: true }]}>
-                    <Input placeholder={t('systemConfiguration.provinces.form.namePlaceholder')} />
+                  <Form.Item
+                    name='name'
+                    label={t('systemConfiguration.provinces.form.nameLabel')}
+                    rules={[{ required: true }]}
+                  >
+                    <Input
+                      placeholder={t(
+                        'systemConfiguration.provinces.form.namePlaceholder'
+                      )}
+                    />
                   </Form.Item>
-                  <Form.Item name="nameEn" label={t('systemConfiguration.provinces.form.nameEnLabel')} rules={[{ required: true }]}>
-                    <Input placeholder={t('systemConfiguration.provinces.form.nameEnPlaceholder')} />
+                  <Form.Item
+                    name='nameEn'
+                    label={t('systemConfiguration.provinces.form.nameEnLabel')}
+                    rules={[{ required: true }]}
+                  >
+                    <Input
+                      placeholder={t(
+                        'systemConfiguration.provinces.form.nameEnPlaceholder'
+                      )}
+                    />
                   </Form.Item>
-                  <Form.Item name="code" label={t('systemConfiguration.provinces.form.codeLabel')} rules={[{ required: true }]}>
-                    <Input placeholder={t('systemConfiguration.provinces.form.codePlaceholder')} />
+                  <Form.Item
+                    name='code'
+                    label={t('systemConfiguration.provinces.form.codeLabel')}
+                    rules={[{ required: true }]}
+                  >
+                    <Input
+                      placeholder={t(
+                        'systemConfiguration.provinces.form.codePlaceholder'
+                      )}
+                    />
                   </Form.Item>
-                  <Form.Item name="region" label={t('systemConfiguration.provinces.form.regionLabel')} rules={[{ required: true }]}>
-                    <Select placeholder={t('systemConfiguration.provinces.form.regionPlaceholder')}>
-                      <Option value="Central">{t('systemConfiguration.provinces.regions.central')}</Option>
-                      <Option value="Northeast">{t('systemConfiguration.provinces.regions.northeast')}</Option>
-                      <Option value="North">{t('systemConfiguration.provinces.regions.north')}</Option>
-                      <Option value="South">{t('systemConfiguration.provinces.regions.south')}</Option>
+                  <Form.Item
+                    name='region'
+                    label={t('systemConfiguration.provinces.form.regionLabel')}
+                    rules={[{ required: true }]}
+                  >
+                    <Select
+                      placeholder={t(
+                        'systemConfiguration.provinces.form.regionPlaceholder'
+                      )}
+                    >
+                      <Option value='Central'>
+                        {t('systemConfiguration.provinces.regions.central')}
+                      </Option>
+                      <Option value='Northeast'>
+                        {t('systemConfiguration.provinces.regions.northeast')}
+                      </Option>
+                      <Option value='North'>
+                        {t('systemConfiguration.provinces.regions.north')}
+                      </Option>
+                      <Option value='South'>
+                        {t('systemConfiguration.provinces.regions.south')}
+                      </Option>
                     </Select>
                   </Form.Item>
                 </>
               ) : (
                 <>
-                  <Form.Item name="name" label={t('systemConfiguration.branches.form.nameLabel')} rules={[{ required: true }]}>
-                    <Input placeholder={t('systemConfiguration.branches.form.namePlaceholder')} />
+                  <Form.Item
+                    name='name'
+                    label={t('systemConfiguration.branches.form.nameLabel')}
+                    rules={[{ required: true }]}
+                  >
+                    <Input
+                      placeholder={t(
+                        'systemConfiguration.branches.form.namePlaceholder'
+                      )}
+                    />
                   </Form.Item>
-                  <Form.Item name="nameEn" label={t('systemConfiguration.branches.form.nameEnLabel')} rules={[{ required: true }]}>
-                    <Input placeholder={t('systemConfiguration.branches.form.nameEnPlaceholder')} />
+                  <Form.Item
+                    name='nameEn'
+                    label={t('systemConfiguration.branches.form.nameEnLabel')}
+                    rules={[{ required: true }]}
+                  >
+                    <Input
+                      placeholder={t(
+                        'systemConfiguration.branches.form.nameEnPlaceholder'
+                      )}
+                    />
                   </Form.Item>
-                  <Form.Item name="code" label={t('systemConfiguration.branches.form.codeLabel')} rules={[{ required: true }]}>
-                    <Input placeholder={t('systemConfiguration.branches.form.codePlaceholder')} />
+                  <Form.Item
+                    name='code'
+                    label={t('systemConfiguration.branches.form.codeLabel')}
+                    rules={[{ required: true }]}
+                  >
+                    <Input
+                      placeholder={t(
+                        'systemConfiguration.branches.form.codePlaceholder'
+                      )}
+                    />
                   </Form.Item>
-                  <Form.Item name="provinceId" label={t('systemConfiguration.branches.form.provinceLabel')} rules={[{ required: true }]}>
-                    <Select placeholder={t('systemConfiguration.branches.form.provincePlaceholder')}>
-                      {provinces.map(province => (
+                  <Form.Item
+                    name='provinceId'
+                    label={t('systemConfiguration.branches.form.provinceLabel')}
+                    rules={[{ required: true }]}
+                  >
+                    <Select
+                      placeholder={t(
+                        'systemConfiguration.branches.form.provincePlaceholder'
+                      )}
+                    >
+                      {provinces.map((province) => (
                         <Option key={province.id} value={province.id}>
                           {province.name}
                         </Option>
                       ))}
                     </Select>
                   </Form.Item>
-                  <Form.Item name="address" label={t('systemConfiguration.branches.form.addressLabel')}>
-                    <Input.TextArea placeholder={t('systemConfiguration.branches.form.addressPlaceholder')} />
+                  <Form.Item
+                    name='address'
+                    label={t('systemConfiguration.branches.form.addressLabel')}
+                  >
+                    <Input.TextArea
+                      placeholder={t(
+                        'systemConfiguration.branches.form.addressPlaceholder'
+                      )}
+                    />
                   </Form.Item>
-                  <Form.Item name="phone" label={t('systemConfiguration.branches.form.phoneLabel')}>
-                    <Input placeholder={t('systemConfiguration.branches.form.phonePlaceholder')} />
+                  <Form.Item
+                    name='phone'
+                    label={t('systemConfiguration.branches.form.phoneLabel')}
+                  >
+                    <Input
+                      placeholder={t(
+                        'systemConfiguration.branches.form.phonePlaceholder'
+                      )}
+                    />
                   </Form.Item>
                 </>
               )}
-              
-              <Form.Item name="isActive" label={t('systemConfiguration.provinces.form.statusLabel')} valuePropName="checked">
-                <Switch 
-                  checkedChildren={t('systemConfiguration.status.active')} 
-                  unCheckedChildren={t('systemConfiguration.status.inactive')} 
+
+              <Form.Item
+                name='isActive'
+                label={t('systemConfiguration.provinces.form.statusLabel')}
+                valuePropName='checked'
+              >
+                <Switch
+                  checkedChildren={t('systemConfiguration.status.active')}
+                  unCheckedChildren={t('systemConfiguration.status.inactive')}
                 />
               </Form.Item>
 
               <Form.Item>
                 <Space>
-                  <Button type="primary" htmlType="submit" loading={loading} icon={<SaveOutlined />}>
+                  <Button
+                    type='primary'
+                    htmlType='submit'
+                    loading={loading}
+                    icon={<SaveOutlined />}
+                  >
                     {t('systemConfiguration.modal.saveButton')}
                   </Button>
                   <Button onClick={() => setModalVisible(false)}>
@@ -625,4 +742,4 @@ const SystemConfiguration = () => {
   );
 };
 
-export default SystemConfiguration; 
+export default SystemConfiguration;

@@ -20,7 +20,7 @@ import {
   Tag,
   Badge,
   List,
-  Avatar
+  Avatar,
 } from 'antd';
 import {
   TrophyOutlined,
@@ -34,7 +34,7 @@ import {
   CrownOutlined,
   StarOutlined,
   FireOutlined,
-  BulbOutlined
+  BulbOutlined,
 } from '@ant-design/icons';
 import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
 import ScreenWithManual from 'components/ScreenWithManual';
@@ -48,12 +48,15 @@ const ExecutiveBriefing = () => {
   const { isMobile } = useResponsive();
   const { hasPermission } = usePermissions();
   const [activeTab, setActiveTab] = useState('overview');
-  const { t } = useNamespacedTranslation('executive');
+  const { t, i18n } = useNamespacedTranslation('executive');
 
   // Get translated data from translation files
-  const competitiveAdvantages = t('overview.competitiveAdvantages', { returnObjects: true }) || [];
-  const roadmapPhases = t('roadmap.roadmapPhases', { returnObjects: true }) || [];
-  const systemCapabilities = t('capabilities.systemCapabilities', { returnObjects: true }) || [];
+  const competitiveAdvantages =
+    t('overview.competitiveAdvantages', { returnObjects: true }) || [];
+  const roadmapPhases =
+    t('roadmap.roadmapPhases', { returnObjects: true }) || [];
+  const systemCapabilities =
+    t('capabilities.systemCapabilities', { returnObjects: true }) || [];
 
   // Helper function to add icons and colors to competitive advantages
   const getCompetitiveAdvantagesWithIcons = () => {
@@ -62,13 +65,13 @@ const ExecutiveBriefing = () => {
       { icon: <SecurityScanOutlined />, color: '#1890ff' },
       { icon: <CrownOutlined />, color: '#722ed1' },
       { icon: <BarChartOutlined />, color: '#fa8c16' },
-      { icon: <ThunderboltOutlined />, color: '#eb2f96' }
+      { icon: <ThunderboltOutlined />, color: '#eb2f96' },
     ];
-    
+
     return competitiveAdvantages.map((advantage, index) => ({
       ...advantage,
       icon: iconMap[index]?.icon || <StarOutlined />,
-      color: iconMap[index]?.color || '#1890ff'
+      color: iconMap[index]?.color || '#1890ff',
     }));
   };
 
@@ -78,13 +81,13 @@ const ExecutiveBriefing = () => {
       { icon: <SafetyCertificateOutlined />, color: '#52c41a' },
       { icon: <RocketOutlined />, color: '#1890ff' },
       { icon: <BarChartOutlined />, color: '#fa8c16' },
-      { icon: <StarOutlined />, color: '#722ed1' }
+      { icon: <StarOutlined />, color: '#722ed1' },
     ];
-    
+
     return systemCapabilities.map((capability, index) => ({
       ...capability,
       icon: iconMap[index]?.icon || <StarOutlined />,
-      color: iconMap[index]?.color || '#1890ff'
+      color: iconMap[index]?.color || '#1890ff',
     }));
   };
 
@@ -94,13 +97,13 @@ const ExecutiveBriefing = () => {
     scalabilityScore: 95,
     competitiveAdvantage: 92,
     businessValue: 89,
-    futureReadiness: 96
+    futureReadiness: 96,
   };
 
   const renderOverviewTab = () => (
     <div>
       {/* Executive Summary */}
-      <Card 
+      <Card
         title={
           <Space>
             <CrownOutlined style={{ color: '#faad14' }} />
@@ -112,17 +115,17 @@ const ExecutiveBriefing = () => {
         <Alert
           message={t('briefing.overview.alert.message')}
           description={t('briefing.overview.alert.description')}
-          type="success"
+          type='success'
           showIcon
           style={{ marginBottom: 16 }}
         />
-        
+
         <Row gutter={[16, 16]}>
           <Col xs={24} sm={12} md={8}>
             <Statistic
               title={t('overview.securityLevel.title')}
               value={strategicMetrics.securityLevel}
-              suffix="%"
+              suffix='%'
               valueStyle={{ color: '#52c41a' }}
               prefix={<SecurityScanOutlined />}
             />
@@ -131,7 +134,7 @@ const ExecutiveBriefing = () => {
             <Statistic
               title={t('overview.scalabilityScore.title')}
               value={strategicMetrics.scalabilityScore}
-              suffix="%"
+              suffix='%'
               valueStyle={{ color: '#1890ff' }}
               prefix={<GlobalOutlined />}
             />
@@ -140,7 +143,7 @@ const ExecutiveBriefing = () => {
             <Statistic
               title={t('overview.competitiveAdvantage.title')}
               value={strategicMetrics.competitiveAdvantage}
-              suffix="%"
+              suffix='%'
               valueStyle={{ color: '#722ed1' }}
               prefix={<TrophyOutlined />}
             />
@@ -149,7 +152,7 @@ const ExecutiveBriefing = () => {
       </Card>
 
       {/* Competitive Advantages */}
-      <Card 
+      <Card
         title={
           <Space>
             <CrownOutlined style={{ color: '#722ed1' }} />
@@ -164,18 +167,28 @@ const ExecutiveBriefing = () => {
             <List.Item>
               <List.Item.Meta
                 avatar={
-                  <Avatar 
-                    icon={item.icon} 
+                  <Avatar
+                    icon={item.icon}
                     style={{ backgroundColor: item.color }}
                   />
                 }
                 title={
                   <Space>
                     <span>{item.title}</span>
-                    <Tag color={item.impact === 'Critical' ? 'red' : item.impact === 'High' ? 'orange' : 'blue'}>
-                      {item.impact} Impact
+                    <Tag
+                      color={
+                        item.impact === 'Critical'
+                          ? 'red'
+                          : item.impact === 'High'
+                            ? 'orange'
+                            : 'blue'
+                      }
+                    >
+                      {i18n.language === 'th'
+                        ? `มีผล${item.impact}`
+                        : `${item.impact} Impact`}
                     </Tag>
-                    <Tag color="purple">{item.uniqueness}</Tag>
+                    <Tag color='purple'>{item.uniqueness}</Tag>
                   </Space>
                 }
                 description={item.description}
@@ -186,7 +199,7 @@ const ExecutiveBriefing = () => {
       </Card>
 
       {/* Strategic Value Proposition */}
-      <Card 
+      <Card
         title={
           <Space>
             <BulbOutlined style={{ color: '#faad14' }} />
@@ -196,22 +209,112 @@ const ExecutiveBriefing = () => {
       >
         <Row gutter={[24, 24]}>
           <Col xs={24} md={12}>
-            <Card size="small" title={t('overview.strategicValueProposition.businessProtection.title')}>
+            <Card
+              size='small'
+              title={t(
+                'overview.strategicValueProposition.businessProtection.title'
+              )}
+            >
               <ul>
-                <li><strong>{t('overview.strategicValueProposition.enterpriseSecurity.title')}:</strong> {t('overview.strategicValueProposition.enterpriseSecurity.description')}</li>
-                <li><strong>{t('overview.strategicValueProposition.regulatoryCompliance.title')}:</strong> {t('overview.strategicValueProposition.regulatoryCompliance.description')}</li>
-                <li><strong>{t('overview.strategicValueProposition.dataProtection.title')}:</strong> {t('overview.strategicValueProposition.dataProtection.description')}</li>
-                <li><strong>{t('overview.strategicValueProposition.riskMitigation.title')}:</strong> {t('overview.strategicValueProposition.riskMitigation.description')}</li>
+                <li>
+                  <strong>
+                    {t(
+                      'overview.strategicValueProposition.enterpriseSecurity.title'
+                    )}
+                    :
+                  </strong>{' '}
+                  {t(
+                    'overview.strategicValueProposition.enterpriseSecurity.description'
+                  )}
+                </li>
+                <li>
+                  <strong>
+                    {t(
+                      'overview.strategicValueProposition.regulatoryCompliance.title'
+                    )}
+                    :
+                  </strong>{' '}
+                  {t(
+                    'overview.strategicValueProposition.regulatoryCompliance.description'
+                  )}
+                </li>
+                <li>
+                  <strong>
+                    {t(
+                      'overview.strategicValueProposition.dataProtection.title'
+                    )}
+                    :
+                  </strong>{' '}
+                  {t(
+                    'overview.strategicValueProposition.dataProtection.description'
+                  )}
+                </li>
+                <li>
+                  <strong>
+                    {t(
+                      'overview.strategicValueProposition.riskMitigation.title'
+                    )}
+                    :
+                  </strong>{' '}
+                  {t(
+                    'overview.strategicValueProposition.riskMitigation.description'
+                  )}
+                </li>
               </ul>
             </Card>
           </Col>
           <Col xs={24} md={12}>
-            <Card size="small" title={t('overview.strategicValueProposition.growthEnablement.title')}>
+            <Card
+              size='small'
+              title={t(
+                'overview.strategicValueProposition.growthEnablement.title'
+              )}
+            >
               <ul>
-                <li><strong>{t('overview.strategicValueProposition.unlimitedExpansion.title')}:</strong> {t('overview.strategicValueProposition.unlimitedExpansion.description')}</li>
-                <li><strong>{t('overview.strategicValueProposition.operationalEfficiency.title')}:</strong> {t('overview.strategicValueProposition.operationalEfficiency.description')}</li>
-                <li><strong>{t('overview.strategicValueProposition.decisionIntelligence.title')}:</strong> {t('overview.strategicValueProposition.decisionIntelligence.description')}</li>
-                <li><strong>{t('overview.strategicValueProposition.marketLeadership.title')}:</strong> {t('overview.strategicValueProposition.marketLeadership.description')}</li>
+                <li>
+                  <strong>
+                    {t(
+                      'overview.strategicValueProposition.unlimitedExpansion.title'
+                    )}
+                    :
+                  </strong>{' '}
+                  {t(
+                    'overview.strategicValueProposition.unlimitedExpansion.description'
+                  )}
+                </li>
+                <li>
+                  <strong>
+                    {t(
+                      'overview.strategicValueProposition.operationalEfficiency.title'
+                    )}
+                    :
+                  </strong>{' '}
+                  {t(
+                    'overview.strategicValueProposition.operationalEfficiency.description'
+                  )}
+                </li>
+                <li>
+                  <strong>
+                    {t(
+                      'overview.strategicValueProposition.decisionIntelligence.title'
+                    )}
+                    :
+                  </strong>{' '}
+                  {t(
+                    'overview.strategicValueProposition.decisionIntelligence.description'
+                  )}
+                </li>
+                <li>
+                  <strong>
+                    {t(
+                      'overview.strategicValueProposition.marketLeadership.title'
+                    )}
+                    :
+                  </strong>{' '}
+                  {t(
+                    'overview.strategicValueProposition.marketLeadership.description'
+                  )}
+                </li>
               </ul>
             </Card>
           </Col>
@@ -225,7 +328,7 @@ const ExecutiveBriefing = () => {
       <Alert
         message={t('capabilities.alert.message')}
         description={t('capabilities.alert.description')}
-        type="info"
+        type='info'
         showIcon
         style={{ marginBottom: 24 }}
       />
@@ -236,19 +339,21 @@ const ExecutiveBriefing = () => {
             <Card
               title={
                 <Space>
-                  {React.cloneElement(category.icon, { style: { color: category.color } })}
+                  {React.cloneElement(category.icon, {
+                    style: { color: category.color },
+                  })}
                   <span>{category.category}</span>
                 </Space>
               }
               style={{ height: '100%' }}
             >
               <List
-                size="small"
+                size='small'
                 dataSource={category.capabilities}
                 renderItem={(item) => (
                   <List.Item>
                     <Space>
-                      <Badge status="success" />
+                      <Badge status='success' />
                       <Text>{item}</Text>
                     </Space>
                   </List.Item>
@@ -266,41 +371,68 @@ const ExecutiveBriefing = () => {
       <Alert
         message={t('roadmap.alert.message')}
         description={t('roadmap.alert.description')}
-        type="success"
+        type='success'
         showIcon
         style={{ marginBottom: 24 }}
       />
 
-      <Timeline mode="left">
+      <Timeline mode='left'>
         {roadmapPhases.map((phase, index) => (
           <Timeline.Item
             key={index}
-            color={phase.status === 'completed' ? 'green' : phase.status === 'in-progress' ? 'blue' : 'gray'}
+            color={
+              phase.status === 'completed'
+                ? 'green'
+                : phase.status === 'in-progress'
+                  ? 'blue'
+                  : 'gray'
+            }
             dot={
-              phase.status === 'completed' ? <TrophyOutlined /> :
-              phase.status === 'in-progress' ? <RocketOutlined /> : <StarOutlined />
+              phase.status === 'completed' ? (
+                <TrophyOutlined />
+              ) : phase.status === 'in-progress' ? (
+                <RocketOutlined />
+              ) : (
+                <StarOutlined />
+              )
             }
           >
-            <Card size="small">
-              <Space direction="vertical" style={{ width: '100%' }}>
+            <Card size='small'>
+              <Space direction='vertical' style={{ width: '100%' }}>
                 <Space>
-                  <Title level={4} style={{ margin: 0 }}>{phase.phase}</Title>
-                  <Tag color={
-                    phase.status === 'completed' ? 'success' :
-                    phase.status === 'in-progress' ? 'processing' : 'default'
-                  }>
-                    {phase.status === 'completed' ? '✅ Completed' :
-                     phase.status === 'in-progress' ? '🔄 In Progress' : '📋 Planned'}
+                  <Title level={4} style={{ margin: 0 }}>
+                    {phase.phase}
+                  </Title>
+                  <Tag
+                    color={
+                      phase.status === 'completed'
+                        ? 'success'
+                        : phase.status === 'in-progress'
+                          ? 'processing'
+                          : 'default'
+                    }
+                  >
+                    {phase.status === 'completed'
+                      ? '✅ Completed'
+                      : phase.status === 'in-progress'
+                        ? '🔄 In Progress'
+                        : '📋 Planned'}
                   </Tag>
                 </Space>
-                <Text type="secondary">{phase.description}</Text>
+                <Text type='secondary'>{phase.description}</Text>
                 <List
-                  size="small"
+                  size='small'
                   dataSource={phase.achievements}
                   renderItem={(item) => (
                     <List.Item>
                       <Space>
-                        <Badge status={phase.status === 'completed' ? 'success' : 'processing'} />
+                        <Badge
+                          status={
+                            phase.status === 'completed'
+                              ? 'success'
+                              : 'processing'
+                          }
+                        />
                         <Text>{item}</Text>
                       </Space>
                     </List.Item>
@@ -310,7 +442,7 @@ const ExecutiveBriefing = () => {
                   message={phase.businessValue}
                   type={phase.status === 'completed' ? 'success' : 'info'}
                   showIcon
-                  size="small"
+                  size='small'
                 />
               </Space>
             </Card>
@@ -325,7 +457,7 @@ const ExecutiveBriefing = () => {
       <Alert
         message={t('roi.alert.message')}
         description={t('roi.alert.description')}
-        type="success"
+        type='success'
         showIcon
         style={{ marginBottom: 24 }}
       />
@@ -336,11 +468,13 @@ const ExecutiveBriefing = () => {
             <Statistic
               title={t('roi.operationalEfficiencyGain.title')}
               value={50}
-              suffix="%"
+              suffix='%'
               valueStyle={{ color: '#52c41a' }}
               prefix={<ThunderboltOutlined />}
             />
-            <Text type="secondary">{t('roi.operationalEfficiencyGain.description')}</Text>
+            <Text type='secondary'>
+              {t('roi.operationalEfficiencyGain.description')}
+            </Text>
           </Card>
         </Col>
         <Col xs={24} md={8}>
@@ -348,11 +482,13 @@ const ExecutiveBriefing = () => {
             <Statistic
               title={t('roi.securityRiskReduction.title')}
               value={85}
-              suffix="%"
+              suffix='%'
               valueStyle={{ color: '#1890ff' }}
               prefix={<SecurityScanOutlined />}
             />
-            <Text type="secondary">{t('roi.securityRiskReduction.description')}</Text>
+            <Text type='secondary'>
+              {t('roi.securityRiskReduction.description')}
+            </Text>
           </Card>
         </Col>
         <Col xs={24} md={8}>
@@ -360,33 +496,72 @@ const ExecutiveBriefing = () => {
             <Statistic
               title={t('roi.expansionCostSavings.title')}
               value={70}
-              suffix="%"
+              suffix='%'
               valueStyle={{ color: '#722ed1' }}
               prefix={<GlobalOutlined />}
             />
-            <Text type="secondary">{t('roi.expansionCostSavings.description')}</Text>
+            <Text type='secondary'>
+              {t('roi.expansionCostSavings.description')}
+            </Text>
           </Card>
         </Col>
       </Row>
 
-      <Card title={t('roi.businessImpactMetrics.title')} style={{ marginTop: 24 }}>
+      <Card
+        title={t('roi.businessImpactMetrics.title')}
+        style={{ marginTop: 24 }}
+      >
         <Row gutter={[24, 24]}>
           <Col xs={24} md={12}>
             <Title level={5}>{t('roi.operationalBenefits.title')}</Title>
             <ul>
-              <li><strong>{t('roi.operationalBenefits.reduction.title')}:</strong> {t('roi.operationalBenefits.reduction.description')}</li>
-              <li><strong>{t('roi.operationalBenefits.faster.title')}:</strong> {t('roi.operationalBenefits.faster.description')}</li>
-              <li><strong>{t('roi.operationalBenefits.improvement.title')}:</strong> {t('roi.operationalBenefits.improvement.description')}</li>
-              <li><strong>{t('roi.operationalBenefits.increase.title')}:</strong> {t('roi.operationalBenefits.increase.description')}</li>
+              <li>
+                <strong>{t('roi.operationalBenefits.reduction.title')}:</strong>{' '}
+                {t('roi.operationalBenefits.reduction.description')}
+              </li>
+              <li>
+                <strong>{t('roi.operationalBenefits.faster.title')}:</strong>{' '}
+                {t('roi.operationalBenefits.faster.description')}
+              </li>
+              <li>
+                <strong>
+                  {t('roi.operationalBenefits.improvement.title')}:
+                </strong>{' '}
+                {t('roi.operationalBenefits.improvement.description')}
+              </li>
+              <li>
+                <strong>{t('roi.operationalBenefits.increase.title')}:</strong>{' '}
+                {t('roi.operationalBenefits.increase.description')}
+              </li>
             </ul>
           </Col>
           <Col xs={24} md={12}>
             <Title level={5}>{t('roi.riskMitigation.title')}</Title>
             <ul>
-              <li><strong>{t('roi.riskMitigation.unauthorizedAccess.title')}:</strong> {t('roi.riskMitigation.unauthorizedAccess.description')}</li>
-              <li><strong>{t('roi.riskMitigation.auditCompliance.title')}:</strong> {t('roi.riskMitigation.auditCompliance.description')}</li>
-              <li><strong>{t('roi.riskMitigation.securityUpdates.title')}:</strong> {t('roi.riskMitigation.securityUpdates.description')}</li>
-              <li><strong>{t('roi.riskMitigation.regulatoryCompliance.title')}:</strong> {t('roi.riskMitigation.regulatoryCompliance.description')}</li>
+              <li>
+                <strong>
+                  {t('roi.riskMitigation.unauthorizedAccess.title')}:
+                </strong>{' '}
+                {t('roi.riskMitigation.unauthorizedAccess.description')}
+              </li>
+              <li>
+                <strong>
+                  {t('roi.riskMitigation.auditCompliance.title')}:
+                </strong>{' '}
+                {t('roi.riskMitigation.auditCompliance.description')}
+              </li>
+              <li>
+                <strong>
+                  {t('roi.riskMitigation.securityUpdates.title')}:
+                </strong>{' '}
+                {t('roi.riskMitigation.securityUpdates.description')}
+              </li>
+              <li>
+                <strong>
+                  {t('roi.riskMitigation.regulatoryCompliance.title')}:
+                </strong>{' '}
+                {t('roi.riskMitigation.regulatoryCompliance.description')}
+              </li>
             </ul>
           </Col>
         </Row>
@@ -395,31 +570,34 @@ const ExecutiveBriefing = () => {
   );
 
   return (
-    <ScreenWithManual 
-      screenType="executive-briefing"
-      showManualOnFirstVisit={true}
+    <ScreenWithManual
+      screenType='executive-briefing'
+      showManualOnFirstVisit={false}
     >
-      <LayoutWithRBAC 
-        permission="admin.executive" 
-        title="Executive Briefing"
+      <LayoutWithRBAC
+        permission='admin.executive'
+        title='Executive Briefing'
         requireBranchSelection={false}
         showAuditTrail={false}
         showStepper={false}
       >
         <div style={{ padding: isMobile ? '16px' : '24px' }}>
-          <Card 
+          <Card
             title={
               <Space>
                 <CrownOutlined style={{ color: '#faad14', fontSize: '24px' }} />
                 <Title level={2} style={{ margin: 0, color: '#1890ff' }}>
-                                     {t('briefing.title')}
+                  {t('briefing.title')}
                 </Title>
               </Space>
             }
             extra={
               <Space>
-                <LanguageSwitcher size="small" />
-                <Tag color="gold" style={{ fontSize: '14px', padding: '4px 12px' }}>
+                <LanguageSwitcher size='small' />
+                <Tag
+                  color='gold'
+                  style={{ fontSize: '14px', padding: '4px 12px' }}
+                >
                   <FireOutlined /> {t('tag')}
                 </Tag>
               </Space>
@@ -431,56 +609,56 @@ const ExecutiveBriefing = () => {
             </Paragraph>
           </Card>
 
-          <Tabs 
-            activeKey={activeTab} 
+          <Tabs
+            activeKey={activeTab}
             onChange={setActiveTab}
             size={isMobile ? 'small' : 'default'}
             tabPosition={isMobile ? 'top' : 'top'}
           >
-            <TabPane 
+            <TabPane
               tab={
                 <Space>
                   <TrophyOutlined />
                   <span>{t('overview.title')}</span>
                 </Space>
-              } 
-              key="overview"
+              }
+              key='overview'
             >
               {renderOverviewTab()}
             </TabPane>
 
-            <TabPane 
+            <TabPane
               tab={
                 <Space>
                   <RocketOutlined />
                   <span>{t('capabilities.title')}</span>
                 </Space>
-              } 
-              key="capabilities"
+              }
+              key='capabilities'
             >
               {renderCapabilitiesTab()}
             </TabPane>
 
-            <TabPane 
+            <TabPane
               tab={
                 <Space>
                   <GlobalOutlined />
                   <span>{t('roadmap.title')}</span>
                 </Space>
-              } 
-              key="roadmap"
+              }
+              key='roadmap'
             >
               {renderRoadmapTab()}
             </TabPane>
 
-            <TabPane 
+            <TabPane
               tab={
                 <Space>
                   <DollarOutlined />
                   <span>{t('roi.title')}</span>
                 </Space>
-              } 
-              key="roi"
+              }
+              key='roi'
             >
               {renderROITab()}
             </TabPane>
@@ -491,4 +669,4 @@ const ExecutiveBriefing = () => {
   );
 };
 
-export default ExecutiveBriefing; 
+export default ExecutiveBriefing;

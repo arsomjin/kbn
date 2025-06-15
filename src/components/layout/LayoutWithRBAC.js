@@ -57,6 +57,8 @@ const { Option } = Select;
  * @param {Array} props.allOf - Required permissions (user needs all)
  * @param {string} props.authority - Required authority level
  * @param {string} props.department - Required department access
+ * @param {Function} props.customCheck - Custom permission check function
+ * @param {string} props.fallbackPermission - Fallback permission if main check fails
  * @param {boolean} props.requireBranchSelection - Whether branch selection is required
  * @param {boolean} props.requireProvinceSelection - Whether province selection is required
  * @param {boolean} props.autoInjectProvinceId - Auto-inject provinceId to children
@@ -88,6 +90,8 @@ const LayoutWithRBAC = ({
   allOf,
   authority,
   department,
+  customCheck = null,
+  fallbackPermission = null,
   title = 'การจัดการข้อมูล',
   subtitle = 'Management',
 
@@ -106,6 +110,7 @@ const LayoutWithRBAC = ({
   headerExtra,
   className,
   style,
+  debug = false,
 
   // Audit Trail & Document Workflow Props
   documentId = null,
@@ -618,6 +623,9 @@ const LayoutWithRBAC = ({
       allOf={allOf}
       authority={authority}
       department={department}
+      customCheck={customCheck}
+      fallbackPermission={fallbackPermission}
+      debug={debug}
       geographic={
         selectedProvince || selectedBranch
           ? { provinceId: selectedProvince, branchCode: selectedBranch }
@@ -1043,6 +1051,8 @@ LayoutWithRBAC.propTypes = {
   allOf: PropTypes.arrayOf(PropTypes.string),
   authority: PropTypes.string,
   department: PropTypes.string,
+  customCheck: PropTypes.func,
+  fallbackPermission: PropTypes.string,
   title: PropTypes.string,
   subtitle: PropTypes.string,
 

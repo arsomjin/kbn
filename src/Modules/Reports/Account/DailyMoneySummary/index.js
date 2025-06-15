@@ -24,16 +24,19 @@ const initSnap = {
   executive_cash_deposit_array: [],
   total_chompoo: null,
   total: null,
-  total_transfer: null
+  total_transfer: null,
 };
 
-const initRange = [moment().subtract(7, 'day').format('YYYY-MM-DD'), moment().format('YYYY-MM-DD')];
+const initRange = [
+  moment().subtract(7, 'day').format('YYYY-MM-DD'),
+  moment().format('YYYY-MM-DD'),
+];
 
 const DailyMoneySummary = () => {
   // Extract user info from redux state
-  const { user } = useSelector(state => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const { getDefaultBranch } = useGeographicData();
-  const { executives } = useSelector(state => state.data);
+  const { executives } = useSelector((state) => state.data);
 
   const [form] = Form.useForm();
   const [data, setData] = useState([]);
@@ -42,15 +45,20 @@ const DailyMoneySummary = () => {
 
   // Store search parameters in a ref to avoid unnecessary re-renders
   const searchValues = useRef({
-    branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
-    date: initRange
+    branchCode:
+      user?.branch ||
+      getDefaultBranch() ||
+      user?.homeBranch ||
+      user?.allowedBranches?.[0] ||
+      '0450',
+    date: initRange,
   });
 
   /**
    * Handle changes in form values.
    */
   const handleValuesChange = useCallback(
-    changedValues => {
+    (changedValues) => {
       searchValues.current = { ...searchValues.current, ...changedValues };
       setData([]);
       setSummary(initSnap);
@@ -70,28 +78,40 @@ const DailyMoneySummary = () => {
       showLog({ fetchedData });
 
       // Calculate totals from the fetched data
-      const total_cash = fetchedData.reduce((sum, item) => sum + Numb(item?.total_cash || 0), 0);
-      const net_total = fetchedData.reduce((sum, item) => sum + Numb(item?.netTotal || 0), 0);
+      const total_cash = fetchedData.reduce(
+        (sum, item) => sum + Numb(item?.total_cash || 0),
+        0
+      );
+      const net_total = fetchedData.reduce(
+        (sum, item) => sum + Numb(item?.netTotal || 0),
+        0
+      );
       const executive_cash_deposit = fetchedData.reduce(
         (sum, item) => sum + Numb(item?.executive_cash_deposit || 0),
         0
       );
-      const total_chompoo = fetchedData.reduce((sum, item) => sum + Numb(item?.send_money_chompoo || 0), 0);
-      const total_transfer = fetchedData.reduce((sum, item) => sum + Numb(item?.total_transfer || 0), 0);
+      const total_chompoo = fetchedData.reduce(
+        (sum, item) => sum + Numb(item?.send_money_chompoo || 0),
+        0
+      );
+      const total_transfer = fetchedData.reduce(
+        (sum, item) => sum + Numb(item?.total_transfer || 0),
+        0
+      );
 
       let exec_array = [];
-      fetchedData.forEach(it => {
+      fetchedData.forEach((it) => {
         // Safely merge executiveCashDeposit array if present
         exec_array = exec_array.concat(it.executiveCashDeposit || []);
       });
-      exec_array = exec_array.filter(l => !l.deleted);
+      exec_array = exec_array.filter((l) => !l.deleted);
       exec_array = distinctArr(exec_array, ['executiveId'], ['total']);
-      const executive_cash_deposit_array = exec_array.map(it => {
+      const executive_cash_deposit_array = exec_array.map((it) => {
         // Fallback to empty object if no matching executive found
         const exec = executives[it.executiveId] || {};
         return {
           item: `ส่งเงินสด คุณ${exec.firstName || ''} ${exec.lastName || ''}`,
-          value: it.total
+          value: it.total,
         };
       });
 
@@ -103,7 +123,7 @@ const DailyMoneySummary = () => {
         executive_cash_deposit_array,
         total_chompoo,
         total: total_cash + executive_cash_deposit + total_chompoo,
-        total_transfer
+        total_transfer,
       });
     } catch (error) {
       showWarn(error);
@@ -116,11 +136,14 @@ const DailyMoneySummary = () => {
    * Prepare export data for ExcelExport.
    */
   const exportData = useMemo(() => {
-    const formattedData = data.map(item =>
-      eColumns.map(column => {
+    const formattedData = data.map((item) =>
+      eColumns.map((column) => {
         const value =
           column.dataIndex === 'date'
-            ? moment(item[column.dataIndex], 'YYYY-MM-D').add(543, 'year').locale('th').format('D MMM YY')
+            ? moment(item[column.dataIndex], 'YYYY-MM-D')
+                .add(543, 'year')
+                .locale('th')
+                .format('D MMM YY')
             : item[column.dataIndex] || 0;
         return { value };
       })
@@ -132,22 +155,22 @@ const DailyMoneySummary = () => {
         data: [
           [
             {
-              value: `${dateToThai(searchValues.current.date[0])} - ${dateToThai(searchValues.current.date[1])}`
+              value: `${dateToThai(searchValues.current.date[0])} - ${dateToThai(searchValues.current.date[1])}`,
             },
             {
-              value: getBranchName(searchValues.current.branchCode, true)
+              value: getBranchName(searchValues.current.branchCode, true),
             },
             {
-              value: `${dateToThai(moment().format('YYYY-MM-DD'))} เวลา ${moment().format('HH:mm')}`
-            }
-          ]
-        ]
+              value: `${dateToThai(moment().format('YYYY-MM-DD'))} เวลา ${moment().format('HH:mm')}`,
+            },
+          ],
+        ],
       },
       {
         ySteps: 1,
         columns: eColumns,
-        data: formattedData
-      }
+        data: formattedData,
+      },
     ];
   }, [data]);
 
@@ -155,35 +178,42 @@ const DailyMoneySummary = () => {
     summary.executive_cash_deposit_array.length === 0
       ? [
           { item: 'ส่งเงินสดประจำวัน', value: summary.total_cash },
-          { item: 'ส่งเงินพี่ชมพู่', value: summary.total_chompoo }
+          { item: 'ส่งเงินพี่ชมพู่', value: summary.total_chompoo },
         ].concat([
           // { item: 'ส่งเงินสดผู้บริหาร', value: summary.executive_cash_deposit },
           { item: 'รวมส่งเงินสด', value: summary.total, text: 'primary' },
-          { item: 'สรุปเงินโอน', value: summary.total_transfer }
+          { item: 'สรุปเงินโอน', value: summary.total_transfer },
         ])
-      : [{ item: 'ส่งเงินสดประจำวัน', value: summary.total_cash }].concat(summary.executive_cash_deposit_array).concat([
-          { item: 'ส่งเงินพี่ชมพู่', value: summary.total_chompoo },
-          { item: 'รวมส่งเงินสด', value: summary.total, text: 'primary' },
-          { item: 'สรุปเงินโอน', value: summary.total_transfer }
-        ]);
+      : [{ item: 'ส่งเงินสดประจำวัน', value: summary.total_cash }]
+          .concat(summary.executive_cash_deposit_array)
+          .concat([
+            { item: 'ส่งเงินพี่ชมพู่', value: summary.total_chompoo },
+            { item: 'รวมส่งเงินสด', value: summary.total, text: 'primary' },
+            { item: 'สรุปเงินโอน', value: summary.total_transfer },
+          ]);
 
   return (
-    <Container fluid className="main-content-container p-3">
+    <Container fluid className='main-content-container p-3'>
       <Form
         form={form}
         initialValues={{
-          branchCode: user?.branch || getDefaultBranch() || user?.homeBranch || (user?.allowedBranches?.[0]) || '0450',
+          branchCode:
+            user?.branch ||
+            getDefaultBranch() ||
+            user?.homeBranch ||
+            user?.allowedBranches?.[0] ||
+            '0450',
           isRange: true,
-          date: initRange
+          date: initRange,
         }}
-        layout="vertical"
-        size="small"
+        layout='vertical'
+        size='small'
         onValuesChange={handleValuesChange}
       >
-        <div className="px-3 bg-white border-bottom">
+        <div className='px-3 bg-white border-bottom'>
           <BranchDateHeader
-            title="สรุปส่งเงินประจำวัน"
-            subtitle="รายงาน - บัญชี - รายรับ"
+            title='สรุปส่งเงินประจำวัน'
+            subtitle='รายงาน - บัญชี - รายรับ'
             activeStep={0}
             isRange
             onlyUserBranch={user.branch}
@@ -192,19 +222,19 @@ const DailyMoneySummary = () => {
                 <Button
                   onClick={handleUpdate}
                   disabled={loading}
-                  type="primary"
+                  type='primary'
                   icon={<Check />}
                   loading={loading}
-                  size="middle"
+                  size='middle'
                   style={{ width: 130 }}
-                  className="mr-2"
+                  className='mr-2'
                 >
                   {loading ? 'กำลังคำนวณ...' : 'ตกลง'}
                 </Button>
                 <ExcelExport
                   dataSet={exportData}
-                  buttonText="Export ข้อมูล"
-                  sheetName="สรุปส่งเงินประจำวัน"
+                  buttonText='Export ข้อมูล'
+                  sheetName='สรุปส่งเงินประจำวัน'
                   fileName={`daily-money-summary-${Date.now()}`}
                   disabled={data.length === 0}
                   style={{ width: 130 }}
@@ -217,8 +247,8 @@ const DailyMoneySummary = () => {
       </Form>
 
       {loading && (
-        <div className="d-flex align-items-center justify-content-center mt-3">
-          <span className="text-primary">กำลังคำนวณ...</span>
+        <div className='d-flex align-items-center justify-content-center mt-3'>
+          <span className='text-primary'>กำลังคำนวณ...</span>
         </div>
       )}
 
@@ -228,8 +258,13 @@ const DailyMoneySummary = () => {
         loading={loading}
         pagination={{ pageSize: 100, hideOnSinglePage: true }}
         scroll={{ y: h(80) }}
-        summary={pageData => (
-          <TableSummary pageData={pageData} dataLength={data.length} startAt={0} sumKeys={Object.keys(mSnap)} />
+        summary={(pageData) => (
+          <TableSummary
+            pageData={pageData}
+            dataLength={data.length}
+            startAt={0}
+            sumKeys={Object.keys(mSnap)}
+          />
         )}
       />
 

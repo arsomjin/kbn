@@ -6,7 +6,7 @@ const { Title, Paragraph } = Typography;
 
 /**
  * Example: How to add Digital User Manual to any screen
- * 
+ *
  * SUPER EASY TO USE:
  * 1. Wrap your screen with <ScreenWithManual>
  * 2. Set screenType prop
@@ -16,13 +16,11 @@ const { Title, Paragraph } = Typography;
 // Example 1: Signup Screen with Manual
 const SignupScreenExample = () => {
   return (
-    <ScreenWithManual screenType="signup" showManualOnFirstVisit={true}>
+    <ScreenWithManual screenType='signup' showManualOnFirstVisit={false}>
       {/* Your original signup form here */}
       <Card style={{ maxWidth: 400, margin: '50px auto' }}>
         <Title level={3}>สมัครสมาชิก</Title>
-        <Paragraph>
-          ฟอร์มสมัครสมาชิกของคุณ...
-        </Paragraph>
+        <Paragraph>ฟอร์มสมัครสมาชิกของคุณ...</Paragraph>
         {/* Manual will appear as floating button automatically */}
       </Card>
     </ScreenWithManual>
@@ -32,11 +30,11 @@ const SignupScreenExample = () => {
 // Example 2: Sales Screen with Manual
 const SalesScreenExample = () => {
   return (
-    <ScreenWithManual screenType="sales">
+    <ScreenWithManual screenType='sales'>
       <div style={{ padding: 24 }}>
         <Title level={2}>🚗 ระบบขายรถ</Title>
-        <Space direction="vertical" size="large">
-          <Button type="primary">เพิ่มลูกค้าใหม่</Button>
+        <Space direction='vertical' size='large'>
+          <Button type='primary'>เพิ่มลูกค้าใหม่</Button>
           <Button>ค้นหาลูกค้า</Button>
           <Button>ดูใบจอง</Button>
         </Space>
@@ -49,11 +47,11 @@ const SalesScreenExample = () => {
 // Example 3: Service Screen with Manual
 const ServiceScreenExample = () => {
   return (
-    <ScreenWithManual screenType="service">
+    <ScreenWithManual screenType='service'>
       <div style={{ padding: 24 }}>
         <Title level={2}>🔧 ระบบบริการ</Title>
-        <Space direction="vertical" size="large">
-          <Button type="primary">รับงานซ่อมใหม่</Button>
+        <Space direction='vertical' size='large'>
+          <Button type='primary'>รับงานซ่อมใหม่</Button>
           <Button>ดูงานที่รอ</Button>
           <Button>ติดตามงาน</Button>
         </Space>
@@ -66,7 +64,7 @@ const ServiceScreenExample = () => {
 // Example 4: Any existing screen - just wrap it!
 const ExistingScreenExample = ({ children }) => {
   return (
-    <ScreenWithManual screenType="dashboard">
+    <ScreenWithManual screenType='dashboard'>
       {/* Your existing screen content - NO CHANGES NEEDED! */}
       {children}
     </ScreenWithManual>
@@ -75,22 +73,22 @@ const ExistingScreenExample = ({ children }) => {
 
 /**
  * HOW TO USE IN YOUR SCREENS:
- * 
+ *
  * 1. WRAP YOUR SCREEN:
  *    <ScreenWithManual screenType="signup">
  *      <YourExistingComponent />
  *    </ScreenWithManual>
- * 
+ *
  * 2. AVAILABLE SCREEN TYPES:
  *    - "signup" - Registration process
- *    - "login" - Login process  
+ *    - "login" - Login process
  *    - "dashboard" - Main dashboard
  *    - "sales" - Sales module
  *    - "service" - Service module
  *    - "parts" - Parts/inventory
  *    - "accounting" - Accounting module
  *    - "userManagement" - User management
- * 
+ *
  * 3. FEATURES:
  *    - Floating help button (green ? icon)
  *    - Auto-show on first visit
@@ -98,7 +96,7 @@ const ExistingScreenExample = ({ children }) => {
  *    - Easy Thai language
  *    - No technical terms
  *    - Remember user preferences
- * 
+ *
  * 4. CUSTOMIZATION:
  *    - showManualOnFirstVisit={true/false}
  *    - Different content per screen type
@@ -107,7 +105,7 @@ const ExistingScreenExample = ({ children }) => {
 
 export {
   SignupScreenExample,
-  SalesScreenExample, 
+  SalesScreenExample,
   ServiceScreenExample,
-  ExistingScreenExample
-}; 
+  ExistingScreenExample,
+};

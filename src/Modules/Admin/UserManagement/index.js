@@ -19,7 +19,7 @@ import {
   Popconfirm,
   Badge,
 } from 'antd';
-import { Button } from 'elements';
+import { Button, SearchInput } from 'elements';
 import {
   UserOutlined,
   EyeOutlined,
@@ -45,8 +45,9 @@ import {
   deleteUserCleanSlate,
   getUserDisplayInfo,
   handleUserManagementError,
+  refreshCurrentUserData,
 } from 'utils/user-management-shared';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { app } from '../../../firebase';
 import { usePermissions } from 'hooks/usePermissions';
 import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
@@ -95,6 +96,7 @@ const UserManagement = () => {
   const { hasPermission } = usePermissions();
   const { user: currentUser } = useSelector((state) => state.auth);
   const { isMobile, isTablet, isDesktop } = useResponsive();
+  const dispatch = useDispatch();
   const [form] = Form.useForm();
 
   useEffect(() => {
@@ -321,16 +323,6 @@ const UserManagement = () => {
 
   // Helper function to get user display name with fallbacks
   const getUserDisplayName = (userData) => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[UserManagement] getUserDisplayName input:', {
-        displayName: userData.displayName,
-        firstName: userData.firstName,
-        lastName: userData.lastName,
-        email: userData.email,
-        fullData: userData,
-      });
-    }
-
     // Check displayName first (if valid)
     if (userData.displayName && userData.displayName !== 'ไม่ระบุชื่อ') {
       return userData.displayName;
@@ -667,6 +659,21 @@ const UserManagement = () => {
       }
 
       message.success('อัปเดตข้อมูลผู้ใช้ เรียบร้อยแล้ว');
+
+      // Check if we updated the current user's role/permissions
+      if (selectedUser.uid === currentUser.uid) {
+        console.log(
+          '🔄 Updated current user role - refreshing user context...'
+        );
+        try {
+          await refreshCurrentUserData({ currentUser, dispatch });
+          message.info('ข้อมูลและเมนูของคุณได้รับการอัปเดตแล้ว', 3);
+        } catch (refreshError) {
+          console.error('❌ Error refreshing current user data:', refreshError);
+          message.warning('กรุณารีเฟรชหน้าเว็บเพื่อดูการเปลี่ยนแปลง', 5);
+        }
+      }
+
       setEditModalVisible(false);
       fetchUsers();
     } catch (error) {
@@ -1061,15 +1068,44 @@ const UserManagement = () => {
   return (
     <ScreenWithManual
       screenType='user-management'
-      showManualOnFirstVisit={true}
+      showManualOnFirstVisit={false}
     >
       <LayoutWithRBAC
-        permission={['users.view', 'users.manage', 'team.manage']} // Allow multiple permissions
+        customCheck={({ userRBAC }) => {
+          // Allow Level 2 (LEAD), Level 3 (MANAGER), Level 4 (ADMIN) to access user management
+          const authority =
+            userRBAC?.authority || // Clean Slate authority
+            userRBAC?.access?.authority || // Nested authority
+            userRBAC?.accessLevel; // Legacy fallback
+          const allowedAuthorities = ['ADMIN', 'MANAGER', 'LEAD']; // Level 4, 3, 2
+
+          const hasAccess = allowedAuthorities.includes(authority);
+
+          console.log('🔐 UserManagement Access Check:', {
+            authority,
+            allowedAuthorities,
+            hasAccess,
+            userRBAC: userRBAC,
+            accessStructure: {
+              cleanSlate: userRBAC?.access,
+              directAuthority: userRBAC?.authority,
+              nestedAuthority: userRBAC?.access?.authority,
+              legacy: {
+                accessLevel: userRBAC?.accessLevel,
+                authAccessLevel: userRBAC?.auth?.accessLevel,
+              },
+            },
+          });
+
+          return hasAccess;
+        }}
+        debug={true}
+        permission='users.manage'
+        fallbackPermission='team.manage'
         title='จัดการผู้ใช้งาน'
         requireBranchSelection={false}
         showAuditTrail={false}
         showStepper={false}
-        fallbackPermission='users.view' // Fallback for basic viewing
       >
         <Card
           title={
@@ -1165,13 +1201,13 @@ const UserManagement = () => {
               </Select>
             </Col>
             <Col xs={24} sm={24} md={8} lg={12}>
-              <Input.Search
+              <SearchInput
                 placeholder='ค้นหาชื่อหรืออีเมล'
                 value={searchText}
                 onChange={(e) => setSearchText(e.target.value)}
-                style={{ width: '100%' }}
                 size={isMobile ? 'small' : 'default'}
                 allowClear
+                variant='outlined'
               />
             </Col>
           </Row>

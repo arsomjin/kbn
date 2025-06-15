@@ -36,6 +36,7 @@ import { showPermissionWarning } from '../utils/permissionWarnings';
  * @param {boolean} props.loading - Show loading state (alias)
  * @param {boolean} props.requireGeographic - Require geographic context
  * @param {Function} props.customCheck - Custom permission check function
+ * @param {string} props.fallbackPermission - Fallback permission if main check fails
  * @param {boolean} props.debug - Enable debug logging
  */
 const PermissionGate = ({
@@ -55,6 +56,7 @@ const PermissionGate = ({
   loading = false,
   requireGeographic = false,
   customCheck,
+  fallbackPermission,
   debug = false,
   className,
   style,
@@ -145,7 +147,27 @@ const PermissionGate = ({
     });
 
     if (!hasAccess) {
-      if (debug) console.log('🚫 ACCESS DENIED: Custom check failed');
+      // Try fallback permission if custom check fails
+      if (
+        fallbackPermission &&
+        hasPermission(fallbackPermission, normalizedGeographic)
+      ) {
+        if (debug)
+          console.log(
+            '✅ ACCESS GRANTED: Fallback permission succeeded',
+            fallbackPermission
+          );
+        return (
+          <div className={className} style={style}>
+            {children}
+          </div>
+        );
+      }
+
+      if (debug)
+        console.log(
+          '🚫 ACCESS DENIED: Custom check failed, no fallback permission'
+        );
       return showFallback
         ? fallback || (
             <div
@@ -417,6 +439,7 @@ PermissionGate.propTypes = {
   loading: PropTypes.bool,
   requireGeographic: PropTypes.bool,
   customCheck: PropTypes.func,
+  fallbackPermission: PropTypes.string,
   debug: PropTypes.bool,
   className: PropTypes.string,
   style: PropTypes.object,

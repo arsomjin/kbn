@@ -1,6 +1,6 @@
 /**
  * Document Workflow Wrapper
- * 
+ *
  * A high-level wrapper that integrates DocumentApprovalFlow with LayoutWithRBAC
  * to provide a complete document workflow solution. This component handles:
  * - Document state management
@@ -10,12 +10,20 @@
  * - Status synchronization
  */
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import PropTypes from 'prop-types';
 import { message } from 'antd';
 
 import LayoutWithRBAC from '../layout/LayoutWithRBAC';
-import DocumentApprovalFlow, { DOCUMENT_APPROVAL_CONFIGS } from './DocumentApprovalFlow';
+import DocumentApprovalFlow, {
+  DOCUMENT_APPROVAL_CONFIGS,
+} from './DocumentApprovalFlow';
 import { useAuditTrail } from '../../hooks/useAuditTrail';
 import { usePermissions } from '../../hooks/usePermissions';
 
@@ -59,7 +67,9 @@ const DocumentWorkflowWrapper = ({
   ...otherProps
 }) => {
   // State management
-  const [currentStatus, setCurrentStatus] = useState(documentData.status || 'draft');
+  const [currentStatus, setCurrentStatus] = useState(
+    documentData.status || 'draft'
+  );
   const [currentStep, setCurrentStep] = useState(documentData.currentStep || 0);
   const [isLoading, setIsLoading] = useState(false);
   const [documentState, setDocumentState] = useState(documentData);
@@ -70,12 +80,16 @@ const DocumentWorkflowWrapper = ({
     documentType,
     documentId,
     collection: `${documentType}s`,
-    enabled: !!documentId
+    enabled: !!documentId,
   });
 
   // Get approval configuration
   const approvalConfig = useMemo(() => {
-    return customApprovalConfig || DOCUMENT_APPROVAL_CONFIGS[documentType] || DOCUMENT_APPROVAL_CONFIGS.generic;
+    return (
+      customApprovalConfig ||
+      DOCUMENT_APPROVAL_CONFIGS[documentType] ||
+      DOCUMENT_APPROVAL_CONFIGS.generic
+    );
   }, [documentType, customApprovalConfig]);
 
   // Auto-detect permission if not provided
@@ -91,22 +105,28 @@ const DocumentWorkflowWrapper = ({
 
   // Generate steps for stepper
   const steps = useMemo(() => {
-    return approvalConfig.steps.map(step => ({
+    return approvalConfig.steps.map((step) => ({
       title: step.title,
-      description: approvalConfig.statusLabels[step.status] || step.status
+      description: approvalConfig.statusLabels[step.status] || step.status,
     }));
   }, [approvalConfig]);
 
-  // Sync document data changes
+  // Sync document data changes - SIMPLIFIED to prevent infinite loops
   useEffect(() => {
-    if (documentData.status !== currentStatus) {
-      setCurrentStatus(documentData.status || 'draft');
-    }
-    if (documentData.currentStep !== currentStep) {
-      setCurrentStep(documentData.currentStep || 0);
-    }
+    // Simple sync without complex comparisons
     setDocumentState(documentData);
-  }, [documentData, currentStatus, currentStep]);
+
+    if (documentData.status && documentData.status !== currentStatus) {
+      setCurrentStatus(documentData.status);
+    }
+
+    if (
+      documentData.currentStep !== undefined &&
+      documentData.currentStep !== currentStep
+    ) {
+      setCurrentStep(documentData.currentStep);
+    }
+  }, [documentData.status, documentData.currentStep]); // Only depend on the specific fields we care about
 
   // Load document on mount
   useEffect(() => {
@@ -131,123 +151,155 @@ const DocumentWorkflowWrapper = ({
   }, [documentId, onDocumentLoad]);
 
   // Handle status changes
-  const handleStatusChange = useCallback(async (newStatus, additionalData = {}) => {
-    setIsLoading(true);
-    try {
-      const updatedData = {
-        ...documentState,
-        status: newStatus,
-        lastModifiedAt: Date.now(),
-        ...additionalData
-      };
+  const handleStatusChange = useCallback(
+    async (newStatus, additionalData = {}) => {
+      setIsLoading(true);
+      try {
+        const updatedData = {
+          ...documentState,
+          status: newStatus,
+          lastModifiedAt: Date.now(),
+          ...additionalData,
+        };
 
-      // Save document with new status
-      if (onDocumentSave) {
-        await onDocumentSave(updatedData);
+        // Save document with new status
+        if (onDocumentSave) {
+          await onDocumentSave(updatedData);
+        }
+
+        // Update local state
+        setCurrentStatus(newStatus);
+        setDocumentState(updatedData);
+
+        // Call parent callback
+        if (onStatusChange) {
+          await onStatusChange(newStatus, updatedData);
+        }
+
+        message.success('อัปเดตสถานะเรียบร้อย');
+      } catch (error) {
+        console.error('Status change failed:', error);
+        message.error('ไม่สามารถอัปเดตสถานะได้');
+        throw error;
+      } finally {
+        setIsLoading(false);
       }
-
-      // Update local state
-      setCurrentStatus(newStatus);
-      setDocumentState(updatedData);
-
-      // Call parent callback
-      if (onStatusChange) {
-        await onStatusChange(newStatus, updatedData);
-      }
-
-      message.success('อัปเดตสถานะเรียบร้อย');
-      
-    } catch (error) {
-      console.error('Status change failed:', error);
-      message.error('ไม่สามารถอัปเดตสถานะได้');
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [documentState, onDocumentSave, onStatusChange]);
+    },
+    [documentState, onDocumentSave, onStatusChange]
+  );
 
   // Handle step changes
-  const handleStepChange = useCallback(async (newStep, additionalData = {}) => {
-    setIsLoading(true);
-    try {
-      const updatedData = {
-        ...documentState,
-        currentStep: newStep,
-        lastModifiedAt: Date.now(),
-        ...additionalData
-      };
+  const handleStepChange = useCallback(
+    async (newStep, additionalData = {}) => {
+      setIsLoading(true);
+      try {
+        const updatedData = {
+          ...documentState,
+          currentStep: newStep,
+          lastModifiedAt: Date.now(),
+          ...additionalData,
+        };
 
-      // Save document with new step
-      if (onDocumentSave) {
-        await onDocumentSave(updatedData);
+        // Save document with new step
+        if (onDocumentSave) {
+          await onDocumentSave(updatedData);
+        }
+
+        // Update local state
+        setCurrentStep(newStep);
+        setDocumentState(updatedData);
+
+        // Call parent callback
+        if (onStepChange) {
+          await onStepChange(newStep, updatedData);
+        }
+
+        message.success('ไปยังขั้นตอนถัดไปเรียบร้อย');
+      } catch (error) {
+        console.error('Step change failed:', error);
+        message.error('ไม่สามารถเปลี่ยนขั้นตอนได้');
+        throw error;
+      } finally {
+        setIsLoading(false);
       }
-
-      // Update local state
-      setCurrentStep(newStep);
-      setDocumentState(updatedData);
-
-      // Call parent callback
-      if (onStepChange) {
-        await onStepChange(newStep, updatedData);
-      }
-
-      message.success('ไปยังขั้นตอนถัดไปเรียบร้อย');
-      
-    } catch (error) {
-      console.error('Step change failed:', error);
-      message.error('ไม่สามารถเปลี่ยนขั้นตอนได้');
-      throw error;
-    } finally {
-      setIsLoading(false);
-    }
-  }, [documentState, onDocumentSave, onStepChange]);
+    },
+    [documentState, onDocumentSave, onStepChange]
+  );
 
   // Handle approval
-  const handleApprove = useCallback(async (approvalData) => {
-    try {
-      await handleStatusChange(approvalData.status, approvalData);
-      if (approvalData.step !== undefined) {
-        await handleStepChange(approvalData.step, approvalData);
+  const handleApprove = useCallback(
+    async (approvalData) => {
+      try {
+        await handleStatusChange(approvalData.status, approvalData);
+        if (approvalData.step !== undefined) {
+          await handleStepChange(approvalData.step, approvalData);
+        }
+        message.success('อนุมัติเอกสารเรียบร้อย');
+      } catch (error) {
+        console.error('Approval failed:', error);
+        message.error('ไม่สามารถอนุมัติเอกสารได้');
       }
-      message.success('อนุมัติเอกสารเรียบร้อย');
-    } catch (error) {
-      console.error('Approval failed:', error);
-      message.error('ไม่สามารถอนุมัติเอกสารได้');
-    }
-  }, [handleStatusChange, handleStepChange]);
+    },
+    [handleStatusChange, handleStepChange]
+  );
 
   // Handle rejection
-  const handleReject = useCallback(async (rejectionData) => {
-    try {
-      await handleStatusChange('rejected', rejectionData);
-      message.success('ปฏิเสธเอกสารเรียบร้อย');
-    } catch (error) {
-      console.error('Rejection failed:', error);
-      message.error('ไม่สามารถปฏิเสธเอกสารได้');
-    }
-  }, [handleStatusChange]);
+  const handleReject = useCallback(
+    async (rejectionData) => {
+      try {
+        await handleStatusChange('rejected', rejectionData);
+        message.success('ปฏิเสธเอกสารเรียบร้อย');
+      } catch (error) {
+        console.error('Rejection failed:', error);
+        message.error('ไม่สามารถปฏิเสธเอกสารได้');
+      }
+    },
+    [handleStatusChange]
+  );
 
   // Handle submit for review
-  const handleSubmit = useCallback(async (submitData) => {
-    try {
-      await handleStatusChange(submitData.status, submitData);
-      if (submitData.step !== undefined) {
-        await handleStepChange(submitData.step, submitData);
+  const handleSubmit = useCallback(
+    async (submitData) => {
+      try {
+        await handleStatusChange(submitData.status, submitData);
+        if (submitData.step !== undefined) {
+          await handleStepChange(submitData.step, submitData);
+        }
+        message.success('ส่งเอกสารเพื่อตรวจสอบเรียบร้อย');
+      } catch (error) {
+        console.error('Submit failed:', error);
+        message.error('ไม่สามารถส่งเอกสารได้');
       }
-      message.success('ส่งเอกสารเพื่อตรวจสอบเรียบร้อย');
-    } catch (error) {
-      console.error('Submit failed:', error);
-      message.error('ไม่สามารถส่งเอกสารได้');
-    }
-  }, [handleStatusChange, handleStepChange]);
+    },
+    [handleStatusChange, handleStepChange]
+  );
 
   // Handle step click in stepper
-  const handleStepClick = useCallback((stepIndex) => {
-    // Only allow going to previous steps or current step
-    if (stepIndex <= currentStep) {
-      handleStepChange(stepIndex);
-    }
-  }, [currentStep, handleStepChange]);
+  const handleStepClick = useCallback(
+    (stepIndex) => {
+      // Only allow going to previous steps or current step
+      if (stepIndex <= currentStep) {
+        handleStepChange(stepIndex);
+      }
+    },
+    [currentStep, handleStepChange]
+  );
+
+  // Memoize permission checks to prevent infinite re-renders
+  const permissions = useMemo(
+    () => ({
+      canView: hasPermission(effectivePermission),
+      canEdit: hasPermission(editPermission),
+      canApprove: hasPermission(`${approvalConfig.department}.approve`),
+      canReview: hasPermission(`${approvalConfig.department}.review`),
+    }),
+    [
+      hasPermission,
+      effectivePermission,
+      editPermission,
+      approvalConfig.department,
+    ]
+  );
 
   // Enhanced children with document workflow context
   const enhancedChildren = useMemo(() => {
@@ -261,7 +313,7 @@ const DocumentWorkflowWrapper = ({
       documentData: documentState,
       currentStatus,
       currentStep,
-      
+
       // Workflow functions
       onSave: onDocumentSave,
       onStatusChange: handleStatusChange,
@@ -269,23 +321,18 @@ const DocumentWorkflowWrapper = ({
       onApprove: handleApprove,
       onReject: handleReject,
       onSubmit: handleSubmit,
-      
+
       // Audit trail integration
       auditTrail,
-      
-      // Permission helpers
-      permissions: {
-        canView: hasPermission(effectivePermission),
-        canEdit: hasPermission(editPermission),
-        canApprove: hasPermission(`${approvalConfig.department}.approve`),
-        canReview: hasPermission(`${approvalConfig.department}.review`)
-      },
-      
+
+      // Permission helpers (memoized)
+      permissions,
+
       // Configuration
       approvalConfig,
-      
+
       // State
-      isLoading
+      isLoading,
     });
   }, [
     children,
@@ -301,41 +348,39 @@ const DocumentWorkflowWrapper = ({
     handleReject,
     handleSubmit,
     auditTrail,
-    hasPermission,
-    effectivePermission,
-    editPermission,
+    permissions,
     approvalConfig,
-    isLoading
+    isLoading,
   ]);
 
   return (
     <LayoutWithRBAC
-      title={title || `จัดการ${approvalConfig.statusLabels[currentStatus] || 'เอกสาร'}`}
+      title={
+        title ||
+        `จัดการ${approvalConfig.statusLabels[currentStatus] || 'เอกสาร'}`
+      }
       subtitle={subtitle || documentType}
       permission={effectivePermission}
       editPermission={editPermission}
       loading={isLoading}
-      
       // Document workflow integration
       documentId={documentId}
       documentType={documentType}
       showAuditTrail={showAuditTrail}
       showAuditSection={showApprovalFlow}
       onAuditApprove={handleApprove}
-      
       // Stepper integration
       showStepper={showStepper}
       steps={steps}
       currentStep={currentStep}
       onStepClick={handleStepClick}
-      
       // Additional layout props
       {...layoutProps}
       {...otherProps}
     >
       {/* Document content */}
       {enhancedChildren}
-      
+
       {/* Approval flow component */}
       {showApprovalFlow && documentId && (
         <DocumentApprovalFlow
@@ -359,7 +404,7 @@ const DocumentWorkflowWrapper = ({
 
 DocumentWorkflowWrapper.propTypes = {
   children: PropTypes.node.isRequired,
-  documentId: PropTypes.string.isRequired,
+  documentId: PropTypes.string, // MADE OPTIONAL to allow loading states
   documentType: PropTypes.string,
   documentData: PropTypes.object,
   onDocumentSave: PropTypes.func,
@@ -373,7 +418,7 @@ DocumentWorkflowWrapper.propTypes = {
   customApprovalConfig: PropTypes.object,
   onStatusChange: PropTypes.func,
   onStepChange: PropTypes.func,
-  layoutProps: PropTypes.object
+  layoutProps: PropTypes.object,
 };
 
-export default DocumentWorkflowWrapper; 
+export default DocumentWorkflowWrapper;

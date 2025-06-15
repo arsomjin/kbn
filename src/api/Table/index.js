@@ -1,8 +1,20 @@
 import React from 'react';
-import { Form, Popconfirm, Tooltip, Select, Table, Typography, Tag } from 'antd';
+import {
+  Form,
+  Popconfirm,
+  Tooltip,
+  Select,
+  Table,
+  Typography,
+  Tag,
+} from 'antd';
 import numeral from 'numeral';
 import moment from 'moment';
-import { CheckOutlined, DeleteOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import {
+  CheckOutlined,
+  DeleteOutlined,
+  InfoCircleOutlined,
+} from '@ant-design/icons';
 import DealerSelector from 'components/DealerSelector';
 import BranchSelector from 'components/BranchSelector';
 import ExpenseCategorySelector from 'components/ExpenseCategorySelector';
@@ -35,13 +47,20 @@ import {
   VehicleType,
   WVehicleType,
   DeliveryType,
-  PaymentType
+  PaymentType,
 } from 'data/Constant';
 import PaymentTypeSelector from 'components/PaymentTypeSelector';
 import PaymentMethodSelector from 'components/PaymentMethodSelector';
 import CustomerSelector from 'Modules/Customers/CustomerSelector';
 import { removeAllNonAlphaNumericCharacters } from 'utils/RegEx';
-import { showLog, isDateTypeField, validateMobileNumber, Numb, parser, showWarning } from 'functions';
+import {
+  showLog,
+  isDateTypeField,
+  validateMobileNumber,
+  Numb,
+  parser,
+  showWarning,
+} from 'functions';
 import BooleanSelector from 'components/BooleanSelector';
 import { createArrOfLength } from 'functions';
 import ServiceSelector from 'components/ServiceSelector';
@@ -69,470 +88,470 @@ export const EditableRow = ({ index, ...props }) => {
 
 export const ColumnProps = {
   id: {
-    width: 50
+    width: 50,
   },
   productCode: {
-    width: 180
+    width: 180,
   },
   pCode: {
-    width: 180
+    width: 180,
   },
   serviceCode: {
-    width: 180
+    width: 180,
   },
   productName: {
-    width: 180
+    width: 180,
   },
   productType: {
-    width: 100
+    width: 100,
   },
   partType: {
-    width: 100
+    width: 100,
   },
   vehicleType: {
-    width: 100
+    width: 100,
   },
   serviceItemType: {
-    width: 120
+    width: 120,
   },
   storeLocationCode: {
-    width: 120
+    width: 120,
   },
   partLocationCode: {
-    width: 120
+    width: 120,
   },
   isUsed: {
-    width: 100
+    width: 100,
   },
   import: {
-    width: 60
+    width: 60,
   },
   unit: {
-    width: 60
+    width: 60,
   },
   unitPrice: {
-    width: 130
+    width: 130,
   },
   discount: {
-    width: 130
+    width: 130,
   },
   total: {
-    width: 140
+    width: 140,
   },
   amount: {
-    width: 140
+    width: 140,
   },
   amtReceived: {
-    width: 140
+    width: 140,
   },
   amtFull: {
-    width: 130
+    width: 130,
   },
   operation: {
-    width: 45
+    width: 45,
   },
   branchCode: {
-    width: 110
+    width: 110,
   },
   payToBranch: {
-    width: 110
+    width: 110,
   },
   branch: {
-    width: 80
+    width: 80,
   },
   date: {
-    width: 120
+    width: 120,
   },
   inputDate: {
-    width: 120
+    width: 120,
   },
   incomeDate: {
-    width: 120
+    width: 120,
   },
   transferDate: {
-    width: 120
+    width: 120,
   },
   importDate: {
-    width: 120
+    width: 120,
   },
   receivedDate: {
-    width: 120
+    width: 120,
   },
   recordedDate: {
-    width: 120
+    width: 120,
   },
   transferInDate: {
-    width: 120
+    width: 120,
   },
   transferOutDate: {
-    width: 120
+    width: 120,
   },
   exportDate: {
-    width: 120
+    width: 120,
   },
   saleDate: {
-    width: 120
+    width: 120,
   },
   docDate: {
-    width: 120
+    width: 120,
   },
   receiveDate: {
-    width: 120
+    width: 120,
   },
   deliverDate: {
-    width: 120
+    width: 120,
   },
   deliveredDate: {
-    width: 120
+    width: 120,
   },
   decalRecordedDate: {
-    width: 120
+    width: 120,
   },
   decalWithdrawDate: {
-    width: 120
+    width: 120,
   },
   depositDate: {
-    width: 120
+    width: 120,
   },
   deliverTime: {
-    width: 80
+    width: 80,
   },
   arrivalTime: {
-    width: 80
+    width: 80,
   },
   appointmentTime: {
-    width: 80
+    width: 80,
   },
   year: {
-    width: 120
+    width: 120,
   },
   seller: {
-    width: 180
+    width: 180,
   },
   payer: {
-    width: 120
+    width: 120,
   },
   paymentType: {
-    width: 120
+    width: 120,
   },
   paymentMethod: {
-    width: 100
+    width: 100,
   },
   senderEmployee: {
-    width: 150
+    width: 150,
   },
   receiverEmployee: {
-    width: 150
+    width: 150,
   },
   salesPerson: {
-    width: 150
+    width: 150,
   },
   technicianId: {
-    width: 150
+    width: 150,
   },
   technician: {
-    width: 150
+    width: 150,
   },
   person: {
-    width: 150
+    width: 150,
   },
   sender: {
-    width: 120
+    width: 120,
   },
   recordedBy: {
-    width: 120
+    width: 120,
   },
   verifiedBy: {
-    width: 120
+    width: 120,
   },
   deliveredBy: {
-    width: 120
+    width: 120,
   },
   receivedBy: {
-    width: 120
+    width: 120,
   },
   employeeId: {
-    width: 120
+    width: 120,
   },
   employeeCode: {
-    width: 120
+    width: 120,
   },
   depositor: {
-    width: 120
+    width: 120,
   },
   expenseCategoryId: {
-    width: 180
+    width: 180,
   },
   expenseName: {
-    width: 240
+    width: 240,
   },
   item: {
-    width: 240
+    width: 240,
   },
   expenseBranch: {
-    width: 180
+    width: 180,
   },
   department: {
-    width: 180
+    width: 180,
   },
   balance: {
-    width: 120
+    width: 120,
   },
   expenseAccountName: {
-    width: 200
+    width: 200,
   },
   expenseAccountNameId: {
-    width: 200
+    width: 200,
   },
   dealer: {
-    width: 180
+    width: 180,
   },
   billNo: {
-    width: 140
+    width: 140,
   },
   isVatIncluded: {
-    width: 100
+    width: 100,
   },
   receiver: {
-    width: 220
+    width: 220,
   },
   bank: {
-    width: 120
+    width: 120,
   },
   selfBank: {
-    width: 160
+    width: 160,
   },
   selfBankId: {
-    width: 180
+    width: 180,
   },
   accNo: {
-    width: 130
+    width: 130,
   },
   selfAccNo: {
-    width: 130
+    width: 130,
   },
   remark: {
-    width: 180
+    width: 180,
   },
   bankName: {
-    width: 200
+    width: 200,
   },
   selfBankName: {
-    width: 200
+    width: 200,
   },
   refNo: {
-    width: 180
+    width: 180,
   },
   payInNo: {
-    width: 140
+    width: 140,
   },
   taxInvoiceNo: {
-    width: 180
+    width: 180,
   },
   docNo: {
-    width: 140
+    width: 140,
   },
   whTaxDoc: {
-    width: 120
+    width: 120,
   },
   vehicleNo: {
-    width: 200
+    width: 200,
   },
   turnOverVehicleNo: {
-    width: 200
+    width: 200,
   },
   itemType: {
-    width: 180
+    width: 180,
   },
   prefix: {
-    width: 70
+    width: 70,
   },
   firstName: {
-    width: 120
+    width: 120,
   },
   nickName: {
-    width: 80
+    width: 80,
   },
   lastName: {
-    width: 140
+    width: 140,
   },
   userGroup: {
-    width: 120
+    width: 120,
   },
   saleNo: {
-    width: 160
+    width: 160,
   },
   bookNo: {
-    width: 160
+    width: 160,
   },
   assessmentResult: {
-    width: 100
+    width: 100,
   },
   assessmentDate: {
-    width: 120
+    width: 120,
   },
   saleType: {
-    width: 120
+    width: 120,
   },
   engineNo: {
-    width: 180
+    width: 180,
   },
   pressureBladeNo: {
-    width: 180
+    width: 180,
   },
   bucketNo: {
-    width: 180
+    width: 180,
   },
   sugarcanePickerNo: {
-    width: 180
+    width: 180,
   },
   chassisNumber: {
-    width: 140
+    width: 140,
   },
   importType: {
-    width: 100
+    width: 100,
   },
   isDecal: {
-    width: 80
+    width: 80,
   },
   isTakeOut: {
-    width: 80
+    width: 80,
   },
   peripheralNo: {
-    width: 200
+    width: 200,
   },
   priceType: {
-    width: 120
+    width: 120,
   },
   hasWHTax: {
-    width: 120
+    width: 120,
   },
   whTax: {
-    width: 140
+    width: 140,
   },
   VAT: {
-    width: 140
+    width: 140,
   },
   ledgerCompleted: {
-    width: 48
+    width: 48,
   },
   taxInvoiceCompleted: {
-    width: 48
+    width: 48,
   },
   vehicleItemType: {
-    width: 120
+    width: 120,
   },
   qty: {
-    width: 60
+    width: 60,
   },
   returnQty: {
-    width: 100
+    width: 100,
   },
   percentage: {
-    width: 80
+    width: 80,
   },
   amtOilType: {
-    width: 120
+    width: 120,
   },
   amtPartType: {
-    width: 120
+    width: 120,
   },
   netPrice: {
-    width: 120
+    width: 120,
   },
   netTotal: {
-    width: 120
+    width: 120,
   },
   AD_Discount: {
-    width: 120
+    width: 120,
   },
   SKCDiscount: {
-    width: 120
+    width: 120,
   },
   SKCManualDiscount: {
-    width: 120
+    width: 120,
   },
   discountCoupon: {
-    width: 120
+    width: 120,
   },
   discountPointRedeem: {
-    width: 120
+    width: 120,
   },
   sourceOfData: {
-    width: 180
+    width: 180,
   },
   customerName: {
-    width: 200
+    width: 200,
   },
   orderTypeDesc: {
-    width: 180
+    width: 180,
   },
   model: {
-    width: 120
+    width: 120,
   },
   orderNo: {
-    width: 120
+    width: 120,
   },
   vehicleRegNumber: {
-    width: 100
+    width: 100,
   },
   gasCost: {
-    width: 120
+    width: 120,
   },
   distance: {
-    width: 120
+    width: 120,
   },
   origin: {
-    width: 120
+    width: 120,
   },
   fromOrigin: {
-    width: 120
+    width: 120,
   },
   destination: {
-    width: 120
+    width: 120,
   },
   toDestination: {
-    width: 120
+    width: 120,
   },
   transferType: {
-    width: 100
+    width: 100,
   },
   deliverType: {
-    width: 100
+    width: 100,
   },
   giveaways: {
-    width: 160
+    width: 160,
   },
   customer: {
-    width: 180
+    width: 180,
   },
   picker: {
-    width: 180
+    width: 180,
   },
   address: {
-    width: 80
+    width: 80,
   },
   moo: {
-    width: 80
+    width: 80,
   },
   village: {
-    width: 80
+    width: 80,
   },
   tambol: {
-    width: 80
+    width: 80,
   },
   amphoe: {
-    width: 80
+    width: 80,
   },
   province: {
-    width: 80
+    width: 80,
   },
   postcode: {
-    width: 80
+    width: 80,
   },
   phoneNumber: {
-    width: 120
-  }
+    width: 120,
+  },
 };
 
 // Helper function to handle Enter key behavior
@@ -540,7 +559,8 @@ const handleEnterKey = (event, ref, save) => {
   if (event.key === 'Enter') {
     // For Input and similar, check the value from event.target.value.
     // For Select (in tags mode), you may need to access the current selection value differently.
-    const currentValue = event.target && event.target.value ? event.target.value.trim() : '';
+    const currentValue =
+      event.target && event.target.value ? event.target.value.trim() : '';
     showLog({ handleEnterKey_value: currentValue });
     if (!currentValue) {
       // If empty, trigger blur to finish editing.
@@ -555,21 +575,30 @@ const handleEnterKey = (event, ref, save) => {
   }
 };
 
-export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlur, path }) => {
+export const getInputNode = ({
+  dataIndex,
+  number,
+  ref,
+  save,
+  size,
+  record,
+  onBlur,
+  path,
+}) => {
   // Provide default props to avoid repeated null/undefined checks
   const mProps = {
     ref,
     ...(typeof onBlur === 'function' && { onBlur: save }),
     // ...(typeof save === 'function' && { onChange: save }),
-    ...(number && { number: true }) // For numeric input
+    ...(number && { number: true }), // For numeric input
   };
   const selectProps = {
     ref,
-    ...(typeof save === 'function' && { onSelect: save })
+    ...(typeof save === 'function' && { onSelect: save }),
   };
   const dateProps = {
     ref,
-    ...(typeof save === 'function' && { onChange: save })
+    ...(typeof save === 'function' && { onChange: save }),
   };
 
   const isBoolean = ['isDecal', 'isTakeOut', 'WR', 'FOC'].includes(dataIndex);
@@ -596,44 +625,87 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
       case 'employeeCode':
       case 'depositor':
         inputNode = (
-          <EmployeeSelector placeholder="ชื่อ (ชื่อเล่น)" size={size || 'small'} allowNotInList {...selectProps} />
+          <EmployeeSelector
+            placeholder='ชื่อ (ชื่อเล่น)'
+            size={size || 'small'}
+            allowNotInList
+            {...selectProps}
+          />
         );
         break;
 
       case 'executiveId':
         inputNode = (
-          <ExecutiveSelector placeholder="ผู้บริหาร" size={size || 'small'} allowNotInList {...selectProps} />
+          <ExecutiveSelector
+            placeholder='ผู้บริหาร'
+            size={size || 'small'}
+            allowNotInList
+            {...selectProps}
+          />
         );
         break;
 
       case 'expenseBranch':
-        inputNode = <BranchSelector placeholder="ค่าใช้จ่ายประจำสาขา" size={size || 'small'} {...selectProps} />;
+        inputNode = (
+          <BranchSelector
+            placeholder='ค่าใช้จ่ายประจำสาขา'
+            size={size || 'small'}
+            {...selectProps}
+          />
+        );
         break;
 
       case 'department':
-        inputNode = <DepartmentSelector placeholder="แผนก" size={size || 'small'} {...selectProps} />;
+        inputNode = (
+          <DepartmentSelector
+            placeholder='แผนก'
+            size={size || 'small'}
+            {...selectProps}
+          />
+        );
         break;
 
       case 'expenseCategoryId':
-        inputNode = <ExpenseCategorySelector placeholder="หมวดรายจ่าย" size={size || 'small'} {...selectProps} />;
+        inputNode = (
+          <ExpenseCategorySelector
+            placeholder='หมวดรายจ่าย'
+            size={size || 'small'}
+            {...selectProps}
+          />
+        );
         break;
 
       case 'expenseAccountNameId':
       case 'expenseAccountName':
         inputNode = (
-          <ExpenseNameSelector placeholder="ชื่อบัญชี" size={size || 'small'} record={record || {}} {...selectProps} />
+          <ExpenseNameSelector
+            placeholder='ชื่อบัญชี'
+            size={size || 'small'}
+            record={record || {}}
+            {...selectProps}
+          />
         );
         break;
 
       case 'dealer':
       case 'receiver':
-        inputNode = <DealerSelector placeholder="ชื่อผู้จำหน่าย" size={size || 'small'} {...selectProps} />;
+        inputNode = (
+          <DealerSelector
+            placeholder='ชื่อผู้จำหน่าย'
+            size={size || 'small'}
+            {...selectProps}
+          />
+        );
         break;
 
       case 'seller':
         inputNode = (
-          <Select placeholder="ผู้จำหน่าย" size={size || 'small'} {...selectProps}>
-            {Object.keys(Seller).map(sl => (
+          <Select
+            placeholder='ผู้จำหน่าย'
+            size={size || 'small'}
+            {...selectProps}
+          >
+            {Object.keys(Seller).map((sl) => (
               <Option key={sl} value={sl}>
                 {Seller[sl]}
               </Option>
@@ -645,7 +717,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
       case 'productCode':
         inputNode = (
           <VehicleSelector
-            placeholder="รุ่น/ รหัส / ชื่อสินค้า"
+            placeholder='รุ่น/ รหัส / ชื่อสินค้า'
             size={size || 'small'}
             record={record || {}}
             {...selectProps}
@@ -655,7 +727,11 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
 
       case 'isUsed':
         inputNode = (
-          <Select className="text-primary" {...selectProps} size={size || 'small'}>
+          <Select
+            className='text-primary'
+            {...selectProps}
+            size={size || 'small'}
+          >
             <Select.Option value={false}>ใหม่</Select.Option>
             <Select.Option value={true}>มือสอง</Select.Option>
           </Select>
@@ -665,13 +741,13 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
       case 'pCode':
         inputNode = (
           <DocSelector
-            collection="data/products/partList"
+            collection='data/products/partList'
             orderBy={['pCode', 'name', 'model']}
             labels={['pCode', 'name', 'model']}
             size={size || 'small'}
             dropdownStyle={{ minWidth: 420 }}
             dropdownAlign={{ offset: [-80, 4] }}
-            onKeyDown={e => handleEnterKey(e, ref, save)}
+            onKeyDown={(e) => handleEnterKey(e, ref, save)}
             {...selectProps}
           />
         );
@@ -680,8 +756,12 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
       case 'serviceCode': {
         // Distinguish between service or part
         const isPart = record?.serviceItemType === 'อะไหล่';
-        const collection = isPart ? 'data/products/partList' : 'data/services/serviceList';
-        const orderBy = isPart ? ['pCode', 'name', 'model'] : ['serviceCode', 'name'];
+        const collection = isPart
+          ? 'data/products/partList'
+          : 'data/services/serviceList';
+        const orderBy = isPart
+          ? ['pCode', 'name', 'model']
+          : ['serviceCode', 'name'];
 
         inputNode = isPart ? (
           <DocSelector
@@ -690,11 +770,15 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
             size={size || 'small'}
             dropdownStyle={{ minWidth: 300 }}
             dropdownAlign={{ offset: [-80, 4] }}
-            onKeyDown={e => handleEnterKey(e, ref, save)}
+            onKeyDown={(e) => handleEnterKey(e, ref, save)}
             {...selectProps}
           />
         ) : (
-          <ServiceSelector placeholder="พิมพ์ รหัส/ชื่อบริการ" size={size || 'small'} {...selectProps} />
+          <ServiceSelector
+            placeholder='พิมพ์ รหัส/ชื่อบริการ'
+            size={size || 'small'}
+            {...selectProps}
+          />
         );
         break;
       }
@@ -703,11 +787,15 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
       case 'vehicleNo': {
         const nextProps = {
           ...selectProps,
-          ...(typeof onBlur === 'function' && { onBlur: save })
+          ...(typeof onBlur === 'function' && { onBlur: save }),
         };
         let vNoQueries = [];
         if (record?.productCode && record.productCode !== 'undefined') {
-          vNoQueries.push(['productPCode', '==', removeAllNonAlphaNumericCharacters(record.productCode)]);
+          vNoQueries.push([
+            'productPCode',
+            '==',
+            removeAllNonAlphaNumericCharacters(record.productCode),
+          ]);
         }
         if (record?.branchCode) {
           vNoQueries.push(['branchCode', '==', record.branchCode]);
@@ -718,15 +806,15 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
 
         inputNode = (
           <DocSelector
-            collection="sections/stocks/vehicles"
+            collection='sections/stocks/vehicles'
             orderBy={['vehicleNo']}
             labels={['vehicleNo', 'model']}
             wheres={vNoQueries}
             size={size || 'small'}
-            mode="tags"
+            mode='tags'
             hasKeywords
             startSearchAt={2}
-            onKeyDown={e => handleEnterKey(e, ref, save)}
+            onKeyDown={(e) => handleEnterKey(e, ref, save)}
             {...nextProps}
           />
         );
@@ -736,7 +824,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
       case 'peripheralNo': {
         const nextProps2 = {
           ...selectProps,
-          ...(typeof onBlur === 'function' && { onBlur: save })
+          ...(typeof onBlur === 'function' && { onBlur: save }),
         };
         let peripheralQueries = [];
         if (record?.branchCode) {
@@ -748,15 +836,15 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
 
         inputNode = (
           <DocSelector
-            collection="sections/stocks/vehicles"
+            collection='sections/stocks/vehicles'
             orderBy={['peripheralNo']}
             labels={['peripheralNo', 'model']}
             wheres={peripheralQueries}
             size={size || 'small'}
-            mode="tags"
+            mode='tags'
             hasKeywords
             startSearchAt={2}
-            onKeyDown={e => handleEnterKey(e, ref, save)}
+            onKeyDown={(e) => handleEnterKey(e, ref, save)}
             {...nextProps2}
           />
         );
@@ -766,14 +854,14 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
       case 'peripheralNo_bak':
         inputNode = (
           <DocSelector
-            collection="sections/stocks/peripherals"
-            orderBy="peripheralNo"
+            collection='sections/stocks/peripherals'
+            orderBy='peripheralNo'
             wheres={[
               ['reserved', '==', null],
-              ['sold', '==', null]
+              ['sold', '==', null],
             ]}
             size={size || 'small'}
-            mode="tags"
+            mode='tags'
             allowNotInList
             {...selectProps}
           />
@@ -784,15 +872,12 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
       case 'pressureBladeNo':
       case 'bucketNo':
       case 'sugarcanePickerNo':
-      case 'turnOverVehicleNo':
-      case 'turnOverPeripheralNo':
-      case 'turnOverEngineNo':
         inputNode = (
           <Select
-            mode="tags"
+            mode='tags'
             notFoundContent={null}
             size={size || 'small'}
-            onKeyDown={e => handleEnterKey(e, ref, save)}
+            onKeyDown={(e) => handleEnterKey(e, ref, save)}
             {...selectProps}
           />
         );
@@ -801,7 +886,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
       case 'customer':
         inputNode = (
           <CustomerSelector
-            placeholder="พิมพ์ ชื่อ/นามสกุล/เบอร์โทร/รหัสลูกค้า"
+            placeholder='พิมพ์ ชื่อ/นามสกุล/เบอร์โทร/รหัสลูกค้า'
             size={size || 'small'}
             {...selectProps}
           />
@@ -809,7 +894,9 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
         break;
 
       case 'whTaxDoc':
-        inputNode = <WithHoldingTaxDocSelector size={size || 'small'} {...selectProps} />;
+        inputNode = (
+          <WithHoldingTaxDocSelector size={size || 'small'} {...selectProps} />
+        );
         break;
 
       case 'transferDate':
@@ -828,11 +915,19 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
         break;
 
       case 'inputDate':
-        inputNode = <DatePicker placeholder="วันที่คีย์" size={size || 'small'} {...dateProps} />;
+        inputNode = (
+          <DatePicker
+            placeholder='วันที่คีย์'
+            size={size || 'small'}
+            {...dateProps}
+          />
+        );
         break;
 
       case 'year':
-        inputNode = <DatePicker picker="year" size={size || 'small'} {...dateProps} />;
+        inputNode = (
+          <DatePicker picker='year' size={size || 'small'} {...dateProps} />
+        );
         break;
 
       case 'bank':
@@ -845,34 +940,56 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
         if (record?.paymentType === 'cash') {
           bDisable = true;
         }
-        inputNode = <SelfBankSelector size={size || 'small'} disabled={bDisable} {...selectProps} />;
+        inputNode = (
+          <SelfBankSelector
+            size={size || 'small'}
+            disabled={bDisable}
+            {...selectProps}
+          />
+        );
         break;
       }
 
       case 'branchCode':
       case 'payToBranch':
-        inputNode = <BranchSelector branchCode size={size || 'small'} {...selectProps} />;
+        inputNode = (
+          <BranchSelector branchCode size={size || 'small'} {...selectProps} />
+        );
         break;
 
       case 'storeLocationCode': {
         const isUsed = !!record?.isUsed;
-        inputNode = <StoreLocationSelector size={size || 'small'} isUsed={isUsed} {...selectProps} />;
+        inputNode = (
+          <StoreLocationSelector
+            size={size || 'small'}
+            isUsed={isUsed}
+            {...selectProps}
+          />
+        );
         break;
       }
 
       case 'partLocationCode':
-        inputNode = <StoreLocationSelector isPart size={size || 'small'} {...selectProps} />;
+        inputNode = (
+          <StoreLocationSelector
+            isPart
+            size={size || 'small'}
+            {...selectProps}
+          />
+        );
         break;
 
       case 'priceType':
-        inputNode = <PriceTypeSelector size={size || 'small'} {...selectProps} />;
+        inputNode = (
+          <PriceTypeSelector size={size || 'small'} {...selectProps} />
+        );
         break;
 
       case 'productType':
         inputNode = (
           <CommonSelector
             size={size || 'small'}
-            placeholder="ประเภท"
+            placeholder='ประเภท'
             optionData={ProductType}
             dropdownStyle={{ minWidth: 220 }}
             {...selectProps}
@@ -884,7 +1001,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
         inputNode = (
           <CommonSelector
             size={size || 'small'}
-            placeholder="ประเภท"
+            placeholder='ประเภท'
             optionData={['SKC', 'KBN']}
             dropdownStyle={{ minWidth: 120 }}
             {...selectProps}
@@ -896,7 +1013,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
         inputNode = (
           <CommonSelector
             size={size || 'small'}
-            placeholder="ประเภท"
+            placeholder='ประเภท'
             dropdownStyle={{ minWidth: 220 }}
             optionData={isWarehouse ? WVehicleType : VehicleType}
             {...selectProps}
@@ -909,7 +1026,7 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
           <CommonSelector
             optionData={['อะไหล่', 'บริการ']}
             size={size || 'small'}
-            placeholder="ประเภท"
+            placeholder='ประเภท'
             dropdownStyle={{ minWidth: 100 }}
             {...selectProps}
           />
@@ -917,12 +1034,14 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
         break;
 
       case 'returnQty': {
-        const returnOption = record?.qty ? createArrOfLength(record.qty + 1) : [1, 2, 3, 4, 5];
+        const returnOption = record?.qty
+          ? createArrOfLength(record.qty + 1)
+          : [1, 2, 3, 4, 5];
         inputNode = (
           <CommonSelector
             optionData={returnOption}
             size={size || 'small'}
-            placeholder="จำนวน"
+            placeholder='จำนวน'
             dropdownStyle={{ minWidth: 80 }}
             {...selectProps}
           />
@@ -931,11 +1050,15 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
       }
 
       case 'hasWHTax':
-        inputNode = <WithHoldingTaxSelector size={size || 'small'} {...selectProps} />;
+        inputNode = (
+          <WithHoldingTaxSelector size={size || 'small'} {...selectProps} />
+        );
         break;
 
       case 'paymentType':
-        inputNode = <PaymentTypeSelector size={size || 'small'} {...selectProps} />;
+        inputNode = (
+          <PaymentTypeSelector size={size || 'small'} {...selectProps} />
+        );
         break;
 
       case 'paymentMethod': {
@@ -943,7 +1066,13 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
         if (record?.paymentType === 'cash') {
           pDisable = true;
         }
-        inputNode = <PaymentMethodSelector size={size || 'small'} disabled={pDisable} {...selectProps} />;
+        inputNode = (
+          <PaymentMethodSelector
+            size={size || 'small'}
+            disabled={pDisable}
+            {...selectProps}
+          />
+        );
         break;
       }
 
@@ -952,12 +1081,14 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
         break;
 
       case 'vehicleItemType':
-        inputNode = <VehicleItemTypeSelector size={size || 'small'} {...selectProps} />;
+        inputNode = (
+          <VehicleItemTypeSelector size={size || 'small'} {...selectProps} />
+        );
         break;
 
       case 'isVatIncluded':
         inputNode = (
-          <Select placeholder="VAT" size={size || 'small'} {...selectProps}>
+          <Select placeholder='VAT' size={size || 'small'} {...selectProps}>
             <Option value={true}>{'รวม VAT'}</Option>
             <Option value={false}>{'ไม่รวม VAT'}</Option>
           </Select>
@@ -966,7 +1097,14 @@ export const getInputNode = ({ dataIndex, number, ref, save, size, record, onBlu
 
       case 'total':
       case 'amount':
-        inputNode = <Input {...mProps} size={size || 'small'} suffix="บาท" placeholder="จำนวนเงิน" />;
+        inputNode = (
+          <Input
+            {...mProps}
+            size={size || 'small'}
+            suffix='บาท'
+            placeholder='จำนวนเงิน'
+          />
+        );
         break;
 
       default:
@@ -997,28 +1135,28 @@ export const getRenderColumns = (
     expenseCategories,
     employees,
     executives,
-    expenseAccountNames
+    expenseAccountNames,
   } = db;
   return columns.map((col, n) => {
     if (col.children || col.render) {
-      return { ...col, title: <div className="text-center">{col.title}</div> };
+      return { ...col, title: <div className='text-center'>{col.title}</div> };
     }
     let mCol = {
       ...col,
-      title: <div className="text-center">{col.title}</div>
+      title: <div className='text-center'>{col.title}</div>,
     };
     if (col?.titleAlign) {
       switch (col.titleAlign) {
         case 'left':
           mCol = {
             ...mCol,
-            title: col.title
+            title: col.title,
           };
           break;
         case 'right':
           mCol = {
             ...mCol,
-            title: <div className="text-right">{col.title}</div>
+            title: <div className='text-right'>{col.title}</div>,
           };
           break;
 
@@ -1044,72 +1182,84 @@ export const getRenderColumns = (
       'partSKCDiscount',
       'priceBeforeDiscount',
       'netPrice',
-      'gasCost'
+      'gasCost',
     ].includes(col.dataIndex);
-    const isNumber = ['import', 'total', 'qty', 'distance', 'amount'].includes(col.dataIndex);
+    const isNumber = ['import', 'total', 'qty', 'distance', 'amount'].includes(
+      col.dataIndex
+    );
     const isDate = isDateTypeField(col.dataIndex) || col.dataIndex === 'date';
-    const isBoolean = ['isDecal', 'isTakeOut', 'WR', 'FOC'].includes(col.dataIndex);
+    const isBoolean = ['isDecal', 'isTakeOut', 'WR', 'FOC'].includes(
+      col.dataIndex
+    );
 
     if (hasTooltip) {
       mCol = {
         ...mCol,
-        render: text => (
-          <Tooltip placement="topLeft" title={text}>
+        render: (text) => (
+          <Tooltip placement='topLeft' title={text}>
             {text}
           </Tooltip>
-        )
+        ),
       };
     } else if (isCurrency) {
       mCol = {
         ...mCol,
         align: 'right',
-        render: text => (
+        render: (text) => (
           <div className={!text && text !== 0 ? 'transparent' : ''}>
             {text || text === 0 ? numeral(text).format('0,0.00') : '-'}
           </div>
-        )
+        ),
       };
     } else if (isNumber) {
       mCol = {
         ...mCol,
         align: 'right',
-        render: text => (
+        render: (text) => (
           <div className={!text && text !== 0 ? 'transparent' : ''}>
             {text || text === 0 ? numeral(text).format('0,0') : '-'}
           </div>
-        )
+        ),
       };
     } else if (isDate) {
       mCol = {
         ...mCol,
         align: 'center',
-        render: text => (
+        render: (text) => (
           <div className={!text ? 'transparent' : ''}>
-            {text === 'N/A' ? text : !!text ? moment(text, 'YYYY-MM-DD').format('D/MM/YYYY') : ''}
+            {text === 'N/A'
+              ? text
+              : !!text
+                ? moment(text, 'YYYY-MM-DD').format('D/MM/YYYY')
+                : ''}
           </div>
-        )
+        ),
       };
     } else if (isBoolean) {
       mCol = {
         ...mCol,
         align: 'center',
-        render: txt => (
-          <div className={`text-center ${txt ? 'text-success' : 'text-warning'}`}>{txt ? <Check /> : <Close />}</div>
-        )
+        render: (txt) => (
+          <div
+            className={`text-center ${txt ? 'text-success' : 'text-warning'}`}
+          >
+            {txt ? <Check /> : <Close />}
+          </div>
+        ),
       };
     } else {
       switch (col.dataIndex) {
         case 'id':
           mCol = {
             ...mCol,
-            render: text => <div>{(text || n) + 1}</div>
+            render: (text) => <div>{(text || n) + 1}</div>,
           };
           break;
         case 'dealer':
         case 'receiver':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
                 {text && dealers[text]
                   ? `${dealers[text]?.dealerPrefix || ''}${
@@ -1117,91 +1267,103 @@ export const getRenderColumns = (
                     } ${dealers[text]?.dealerLastName || ''}`.trim()
                   : text || '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'branchCode':
         case 'payToBranch':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
-                {text && branches[text] ? branches[text].branchName : text || '-'}
+                {text && branches[text]
+                  ? branches[text].branchName
+                  : text || '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'selfBank':
         case 'selfBankId':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
-                {text && banks[text] ? `${banks[text].bankName} - ${banks[text].accNo} - ${banks[text].name}` : '-'}
+                {text && banks[text]
+                  ? `${banks[text].bankName} - ${banks[text].accNo} - ${banks[text].name}`
+                  : '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'expenseBranch':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
                 {text && branches[text] ? branches[text].branchName : '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'department':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
                 {text && departments[text] ? departments[text].department : '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'userGroup':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
-                {text && userGroups[text] ? userGroups[text].userGroupName : '-'}
+                {text && userGroups[text]
+                  ? userGroups[text].userGroupName
+                  : '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'expenseCategoryId':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
-                {text && expenseCategories[text] ? expenseCategories[text].expenseCategoryName : '-'}
+                {text && expenseCategories[text]
+                  ? expenseCategories[text].expenseCategoryName
+                  : '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'expenseAccountNameId':
           mCol = {
             ...mCol,
-            render: text => {
+            render: (text) => {
               return (
                 <div className={!text ? 'transparent' : ''}>
-                  {text && expenseAccountNames[text] ? expenseAccountNames[text].expenseName : '-'}
+                  {text && expenseAccountNames[text]
+                    ? expenseAccountNames[text].expenseName
+                    : '-'}
                 </div>
               );
-            }
+            },
           };
           break;
         case 'expenseAccountName':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
-                {text && expenseAccountNames[text] ? expenseAccountNames[text].expenseName : '-'}
+                {text && expenseAccountNames[text]
+                  ? expenseAccountNames[text].expenseName
+                  : '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'payer':
@@ -1218,37 +1380,40 @@ export const getRenderColumns = (
         case 'depositor':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
                 {text && employees[text]
                   ? `${employees[text].firstName}${employees[text].nickName ? `(${employees[text].nickName})` : ''}`
                   : text || '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'executiveId':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
                 {text && executives[text]
                   ? `คุณ${executives[text].firstName}${
-                      executives[text].nickName ? `(${executives[text].nickName})` : ''
+                      executives[text].nickName
+                        ? `(${executives[text].nickName})`
+                        : ''
                     } ${executives[text].lastName || ''}`
                   : text || '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'employeeCode':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
-                {getNameFromEmployeeCode({ employeeCode: text, employees }) || '-'}
+                {getNameFromEmployeeCode({ employeeCode: text, employees }) ||
+                  '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'salesPerson':
@@ -1256,13 +1421,15 @@ export const getRenderColumns = (
         case 'technicianId':
           mCol = {
             ...mCol,
-            render: arr => {
+            render: (arr) => {
               let content =
                 arr && Array.isArray(arr)
                   ? arr.map((text, n) =>
                       text && employees[text]
                         ? `${employees[text].firstName}${
-                            employees[text].nickName ? `(${employees[text].nickName})` : ''
+                            employees[text].nickName
+                              ? `(${employees[text].nickName})`
+                              : ''
                           }${n < arr.length - 1 ? ', ' : ''}`
                         : text || '-'
                     )
@@ -1270,151 +1437,177 @@ export const getRenderColumns = (
                     ? `${employees[arr].firstName}${employees[arr].nickName ? `(${employees[arr].nickName})` : ''}`
                     : arr || '-';
               return <div className={!arr ? 'transparent' : ''}>{content}</div>;
-            }
+            },
           };
           break;
         case 'priceType':
           mCol = {
             ...mCol,
-            render: text => <div className={!text ? 'transparent' : ''}>{text ? PriceType[text] : '-'}</div>
+            render: (text) => (
+              <div className={!text ? 'transparent' : ''}>
+                {text ? PriceType[text] : '-'}
+              </div>
+            ),
           };
           break;
         case 'hasWHTax':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && WitholdingTax[text] ? WitholdingTax[text] : text || '-'}
+                {text && WitholdingTax[text]
+                  ? WitholdingTax[text]
+                  : text || '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'whTaxDoc':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && WitholdingTaxDoc[text] ? WitholdingTaxDoc[text] : text || '-'}
+                {text && WitholdingTaxDoc[text]
+                  ? WitholdingTaxDoc[text]
+                  : text || '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'paymentType':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
                 {text && PaymentType[text] ? PaymentType[text] : text || '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'paymentMethod':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
-                {text && PaymentMethod[text] ? PaymentMethod[text] : text || '-'}
+                {text && PaymentMethod[text]
+                  ? PaymentMethod[text]
+                  : text || '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'buyType':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
                 {text && BuyType[text] ? BuyType[text] : text || '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'vehicleItemType':
           mCol = {
             ...mCol,
-            render: text => (
-              <div className={!text && text !== 0 ? 'transparent' : ''}>{text ? VehicleItemType[text] : '-'}</div>
-            )
+            render: (text) => (
+              <div className={!text && text !== 0 ? 'transparent' : ''}>
+                {text ? VehicleItemType[text] : '-'}
+              </div>
+            ),
           };
           break;
         case 'importType':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text && text !== 0 ? 'transparent' : ''}>
                 {text ? OtherVehicleImportType[text] : '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'ledgerCompleted':
           mCol = {
             ...mCol,
-            render: txt => (
-              <div className="d-flex align-items-center justify-content-center">
+            render: (txt) => (
+              <div className='d-flex align-items-center justify-content-center'>
                 {txt ? (
-                  <CheckOutlined className="text-success" twoToneColor="#52c41a" />
+                  <CheckOutlined
+                    className='text-success'
+                    twoToneColor='#52c41a'
+                  />
                 ) : (
-                  <InfoCircleOutlined className="text-warning" spin />
+                  <InfoCircleOutlined className='text-warning' spin />
                 )}
               </div>
-            )
+            ),
           };
           break;
         case 'taxInvoiceCompleted':
           mCol = {
             ...mCol,
-            render: txt => (
-              <div className="d-flex align-items-center justify-content-center">
+            render: (txt) => (
+              <div className='d-flex align-items-center justify-content-center'>
                 {txt ? (
-                  <CheckOutlined className="text-success" twoToneColor="#52c41a" />
+                  <CheckOutlined
+                    className='text-success'
+                    twoToneColor='#52c41a'
+                  />
                 ) : (
-                  <InfoCircleOutlined className="text-warning" spin />
+                  <InfoCircleOutlined className='text-warning' spin />
                 )}
               </div>
-            )
+            ),
           };
           break;
         case 'phoneNumber':
           mCol = {
             ...mCol,
-            render: text => (
+            render: (text) => (
               <div className={!text ? 'transparent' : ''}>
-                {text ? `${parser(text).slice(0, 3)}-${parser(text).slice(3, 6)}-${parser(text).slice(-4)}` : '-'}
+                {text
+                  ? `${parser(text).slice(0, 3)}-${parser(text).slice(3, 6)}-${parser(text).slice(-4)}`
+                  : '-'}
               </div>
-            )
+            ),
           };
           break;
         case 'saleType':
           mCol = {
             ...mCol,
-            render: text => <div>{text ? SaleType[text] : '-'}</div>
+            render: (text) => <div>{text ? SaleType[text] : '-'}</div>,
           };
           break;
         case 'transferType':
           mCol = {
             ...mCol,
-            render: text => <div>{text ? TransferType[text] : '-'}</div>
+            render: (text) => <div>{text ? TransferType[text] : '-'}</div>,
           };
           break;
         case 'deliverType':
           mCol = {
             ...mCol,
-            render: text => <div>{text ? DeliveryType[text] : '-'}</div>
+            render: (text) => <div>{text ? DeliveryType[text] : '-'}</div>,
           };
           break;
         case 'isUsed':
           mCol = {
             ...mCol,
-            render: text => <div>{!!text ? 'มือสอง' : 'ใหม่'}</div>
+            render: (text) => <div>{!!text ? 'มือสอง' : 'ใหม่'}</div>,
           };
           break;
         case 'giveaways':
           mCol = {
             ...mCol,
-            render: arr => (
-              <span>{arr ? arr.map((tag, i) => <Tag key={i}>{`${tag.name} x${tag.total}`}</Tag>) : '-'}</span>
-            )
+            render: (arr) => (
+              <span>
+                {arr
+                  ? arr.map((tag, i) => (
+                      <Tag key={i}>{`${tag.name} x${tag.total}`}</Tag>
+                    ))
+                  : '-'}
+              </span>
+            ),
           };
           break;
         case 'vehicleNo':
@@ -1430,9 +1623,15 @@ export const getRenderColumns = (
         case 'itemType':
           mCol = {
             ...mCol,
-            render: arr => (
-              <span>{arr ? (Array.isArray(arr) ? arr.map((tag, i) => <Tag key={i}>{tag}</Tag>) : arr) : '-'}</span>
-            )
+            render: (arr) => (
+              <span>
+                {arr
+                  ? Array.isArray(arr)
+                    ? arr.map((tag, i) => <Tag key={i}>{tag}</Tag>)
+                    : arr
+                  : '-'}
+              </span>
+            ),
           };
           break;
         case 'toDestination':
@@ -1440,9 +1639,15 @@ export const getRenderColumns = (
             ...mCol,
             render: (text, record) => {
               return (
-                <div>{text ? (record.transferType === 'sold' ? text : branches[text]?.branchName || text) : '-'}</div>
+                <div>
+                  {text
+                    ? record.transferType === 'sold'
+                      ? text
+                      : branches[text]?.branchName || text
+                    : '-'}
+                </div>
               );
-            }
+            },
           };
           break;
         case 'customer':
@@ -1452,14 +1657,21 @@ export const getRenderColumns = (
               if (record?.customer && typeof record.customer === 'string') {
                 return <div>{record.customer}</div>;
               }
-              if (record?.customerName && typeof record.customerName === 'string') {
+              if (
+                record?.customerName &&
+                typeof record.customerName === 'string'
+              ) {
                 return <div>{record.customerName}</div>;
               }
               if (!!record?.prefix && !!record?.firstName) {
-                return <div>{`${record.prefix}${record.firstName} ${record.lastName || ''}`.trim()}</div>;
+                return (
+                  <div>
+                    {`${record.prefix}${record.firstName} ${record.lastName || ''}`.trim()}
+                  </div>
+                );
               }
               return <div>{text || '-'}</div>;
-            }
+            },
           };
           break;
         case 'origin':
@@ -1467,15 +1679,25 @@ export const getRenderColumns = (
           mCol = {
             ...mCol,
             render: (text, record) => {
-              return <div>{text ? (text === 'SKC' ? 'SKC' : branches[text]?.branchName || text) : '-'}</div>;
-            }
+              return (
+                <div>
+                  {text
+                    ? text === 'SKC'
+                      ? 'SKC'
+                      : branches[text]?.branchName || text
+                    : '-'}
+                </div>
+              );
+            },
           };
           break;
 
         default:
           mCol = {
             ...mCol,
-            render: text => <div className={!text ? 'transparent' : ''}>{text || '-'}</div>
+            render: (text) => (
+              <div className={!text ? 'transparent' : ''}>{text || '-'}</div>
+            ),
           };
       }
     }
@@ -1485,44 +1707,46 @@ export const getRenderColumns = (
         number: col.number,
         editable: col.editable,
         dataIndex: col.dataIndex,
-        title: <div className="text-center">{col.title}</div>,
+        title: <div className='text-center'>{col.title}</div>,
         required: col.required,
         ...(typeof handleSave !== 'undefined' && { handleSave }),
         ...(typeof onKeyDown !== 'undefined' && { onKeyDown }),
         ...(typeof onBlur !== 'undefined' && { onBlur }),
-        ...(typeof size !== 'undefined' && { size })
+        ...(typeof size !== 'undefined' && { size }),
       };
       let resultForRowType = {
         ...mCol,
         ...ColumnProps[col.dataIndex],
         ...(col.width && { width: col.width }),
         key: n.toString(),
-        onCell: record => ({
+        onCell: (record) => ({
           record,
           ...cellObj,
-          editing: isEditing(record)
+          editing: isEditing(record),
           // validating,
-        })
+        }),
       };
       let resultForCellType = {
         ...mCol,
         ...ColumnProps[col.dataIndex],
         ...(col.width && { width: col.width }),
         key: n.toString(),
-        onCell: record => ({
+        onCell: (record) => ({
           record,
-          ...cellObj
-        })
+          ...cellObj,
+        }),
       };
 
-      return typeof isEditing === 'undefined' ? resultForCellType : resultForRowType;
+      return typeof isEditing === 'undefined'
+        ? resultForCellType
+        : resultForRowType;
     }
     return {
       ...mCol,
       key: n.toString(),
       ...ColumnProps[col.dataIndex],
       ...(col.width && { width: col.width }),
-      ...(col.align && { align: col.align })
+      ...(col.align && { align: col.align }),
     };
   });
 };
@@ -1542,7 +1766,7 @@ export const GetColumns = ({
   hasEdit,
   disabled,
   readOnly,
-  deletedButtonAtEnd
+  deletedButtonAtEnd,
 }) => {
   // Pull data from your Redux store
   const {
@@ -1554,8 +1778,8 @@ export const GetColumns = ({
     expenseCategories,
     employees,
     executives,
-    expenseAccountNames
-  } = useSelector(state => state.data);
+    expenseAccountNames,
+  } = useSelector((state) => state.data);
 
   // Prepare object for getRenderColumns
   const db = {
@@ -1567,11 +1791,19 @@ export const GetColumns = ({
     expenseCategories,
     employees,
     executives,
-    expenseAccountNames
+    expenseAccountNames,
   };
 
   // Generate base columns
-  let mColumns = getRenderColumns(columns, handleSave, db, isEditing, onKeyDown, onBlur, size);
+  let mColumns = getRenderColumns(
+    columns,
+    handleSave,
+    db,
+    isEditing,
+    onKeyDown,
+    onBlur,
+    size
+  );
 
   // --- 1) Insert Delete column if "onDelete" is available
   //     and table is not disabled/readonly.
@@ -1584,24 +1816,25 @@ export const GetColumns = ({
       width: 80,
       key: 'deleteColumn',
       render: (_, record) => {
-        const alreadyGone = record?.deleted || record?.rejected || record?.completed;
+        const alreadyGone =
+          record?.deleted || record?.rejected || record?.completed;
         if (!alreadyGone) {
           return (
             <Popconfirm
-              title="แน่ใจหรือไม่ ?"
+              title='แน่ใจหรือไม่ ?'
               onConfirm={() => handleDelete(record.key)}
-              okText="ลบ"
-              cancelText="ยกเลิก"
+              okText='ลบ'
+              cancelText='ยกเลิก'
             >
-              <DeleteOutlined className="text-danger mb-2" />
+              <DeleteOutlined className='text-danger mb-2' />
             </Popconfirm>
           );
         }
         // If the record is deleted/rejected/completed
         return (
           <Button
-            type="link"
-            icon={<DeleteOutlined className="text-danger" />}
+            type='link'
+            icon={<DeleteOutlined className='text-danger' />}
             onClick={() =>
               showWarning(
                 `ไม่สามารถลบได้ ${record.deleted ? 'รายการถูกลบแล้ว' : record.completed ? 'ทำรายการสำเร็จแล้ว' : ''}`
@@ -1609,12 +1842,14 @@ export const GetColumns = ({
             }
           />
         );
-      }
+      },
     };
 
     // If you want the delete button next to the "id" column (and not at the end),
-    // find that column’s index and insert. Otherwise push it onto the end.
-    const idIndex = mColumns.findIndex(col => col.dataIndex === 'id' && !deletedButtonAtEnd);
+    // find that column's index and insert. Otherwise push it onto the end.
+    const idIndex = mColumns.findIndex(
+      (col) => col.dataIndex === 'id' && !deletedButtonAtEnd
+    );
     if (idIndex > -1) {
       mColumns.splice(idIndex + 1, 0, deleteCol);
     } else {
@@ -1631,10 +1866,10 @@ export const GetColumns = ({
       key: 'selectColumn',
       render: (_, record) => (
         <Button
-          type="link"
+          type='link'
           icon={<ChevronRight />}
           onClick={() => {
-            // If it’s not deleted and handleSelect is present, call it.
+            // If it's not deleted and handleSelect is present, call it.
             if (!record.deleted && typeof handleSelect === 'function') {
               handleSelect(record);
             }
@@ -1642,7 +1877,7 @@ export const GetColumns = ({
         />
       ),
       align: 'center',
-      width: 50
+      width: 50,
     });
   }
 
@@ -1654,10 +1889,11 @@ export const GetColumns = ({
       key: 'editColumn',
       render: (_, record) => (
         <Button
-          type="link"
+          type='link'
           icon={<EditOutlined />}
           onClick={() => {
-            const cannotEdit = record?.deleted || record?.rejected || record?.completed;
+            const cannotEdit =
+              record?.deleted || record?.rejected || record?.completed;
             if (!cannotEdit && typeof handleEdit === 'function') {
               handleEdit(record);
             }
@@ -1665,11 +1901,11 @@ export const GetColumns = ({
         />
       ),
       align: 'center',
-      width: 50
+      width: 50,
     };
 
     // Place it right next to "id" if that column exists
-    const idIndex = mColumns.findIndex(col => col.dataIndex === 'id');
+    const idIndex = mColumns.findIndex((col) => col.dataIndex === 'id');
     if (idIndex > -1) {
       mColumns.splice(idIndex + 1, 0, editCol);
     } else {
@@ -1680,7 +1916,12 @@ export const GetColumns = ({
   return mColumns;
 };
 
-export const createValidator = ({ dataIndex, number, getFieldValue, ...vProps }) => {
+export const createValidator = ({
+  dataIndex,
+  number,
+  getFieldValue,
+  ...vProps
+}) => {
   // You can append more custom validators as needed
   switch (dataIndex) {
     case 'vehicleNo':
@@ -1689,10 +1930,12 @@ export const createValidator = ({ dataIndex, number, getFieldValue, ...vProps })
           const peripheralNo = getFieldValue('peripheralNo');
           // If neither vehicleNo nor peripheralNo is set, prompt user
           if (!value && !peripheralNo) {
-            return Promise.reject('กรุณาป้อนข้อมูล (vehicleNo หรือ peripheralNo)');
+            return Promise.reject(
+              'กรุณาป้อนข้อมูล (vehicleNo หรือ peripheralNo)'
+            );
           }
           return Promise.resolve();
-        }
+        },
       };
 
     case 'peripheralNo':
@@ -1700,10 +1943,12 @@ export const createValidator = ({ dataIndex, number, getFieldValue, ...vProps })
         validator(rule, value) {
           const vehicleNo = getFieldValue('vehicleNo');
           if (!value && !vehicleNo) {
-            return Promise.reject('กรุณาป้อนข้อมูล (vehicleNo หรือ peripheralNo)');
+            return Promise.reject(
+              'กรุณาป้อนข้อมูล (vehicleNo หรือ peripheralNo)'
+            );
           }
           return Promise.resolve();
-        }
+        },
       };
 
     default:
@@ -1719,7 +1964,7 @@ export const createValidator = ({ dataIndex, number, getFieldValue, ...vProps })
           }
           // Not numeric => pass through
           return Promise.resolve();
-        }
+        },
       };
   }
 };
@@ -1735,22 +1980,24 @@ export const TableSummary = ({
   noDecimal,
   columns,
   label,
-  hasSection
+  hasSection,
 }) => {
   if (dataLength === 0) {
     return null;
   }
   // Filter out any deleted items
-  const dArr = pageData.filter(l => !l.deleted);
+  const dArr = pageData.filter((l) => !l.deleted);
 
   let total = 0;
   let sumObj = {};
 
   // Decide if we sum rows that are isSection or not
-  const relevantRows = hasSection ? dArr.filter(l => l?.isSection) : dArr.filter(l => !l?.isSection);
+  const relevantRows = hasSection
+    ? dArr.filter((l) => l?.isSection)
+    : dArr.filter((l) => !l?.isSection);
 
   if (sumKeys && Array.isArray(sumKeys)) {
-    sumKeys.forEach(k => {
+    sumKeys.forEach((k) => {
       sumObj[k] = relevantRows.reduce((acc, elem) => acc + Numb(elem[k]), 0);
     });
   } else {
@@ -1763,7 +2010,7 @@ export const TableSummary = ({
   }
 
   return (
-    <Table.Summary.Row className="bg-light">
+    <Table.Summary.Row className='bg-light'>
       {Array.from(new Array(startAt), (_, i) => (
         <Table.Summary.Cell key={i} />
       ))}
@@ -1782,8 +2029,16 @@ export const TableSummary = ({
                 return (
                   <Table.Summary.Cell key={colDataIndex}>
                     <div style={{ textAlign: align || 'right' }}>
-                      <Text className={sumClassName && sumClassName[idx] ? sumClassName[idx] : 'text-primary'}>
-                        {numeral(sumObj[colDataIndex]).format(noDecimal ? '0,0' : '0,0.00')}
+                      <Text
+                        className={
+                          sumClassName && sumClassName[idx]
+                            ? sumClassName[idx]
+                            : 'text-primary'
+                        }
+                      >
+                        {numeral(sumObj[colDataIndex]).format(
+                          noDecimal ? '0,0' : '0,0.00'
+                        )}
                       </Text>
                     </div>
                   </Table.Summary.Cell>
@@ -1796,7 +2051,13 @@ export const TableSummary = ({
           Object.keys(sumObj).map((k, i) => (
             <Table.Summary.Cell key={k}>
               <div style={{ textAlign: align || 'right' }}>
-                <Text className={sumClassName && sumClassName[i] ? sumClassName[i] : 'text-primary'}>
+                <Text
+                  className={
+                    sumClassName && sumClassName[i]
+                      ? sumClassName[i]
+                      : 'text-primary'
+                  }
+                >
                   {numeral(sumObj[k]).format(noDecimal ? '0,0' : '0,0.00')}
                 </Text>
               </div>
@@ -1807,7 +2068,9 @@ export const TableSummary = ({
         // If no sumKeys, just show total
         <Table.Summary.Cell>
           <div style={{ textAlign: align || 'right' }}>
-            <Text className="text-primary">{numeral(total).format(noDecimal ? '0,0' : '0,0.00')}</Text>
+            <Text className='text-primary'>
+              {numeral(total).format(noDecimal ? '0,0' : '0,0.00')}
+            </Text>
           </div>
         </Table.Summary.Cell>
       )}
@@ -1815,7 +2078,7 @@ export const TableSummary = ({
   );
 };
 
-export const getRules = rules => {
+export const getRules = (rules) => {
   const requiredRule = [{ required: true, message: 'กรุณาป้อนข้อมูล' }];
   const numberRule = [
     () => ({
@@ -1824,8 +2087,8 @@ export const getRules = rules => {
           return Promise.resolve();
         }
         return Promise.reject('กรุณาป้อนตัวเลข');
-      }
-    })
+      },
+    }),
   ];
   const mobileNumberRule = [
     () => ({
@@ -1837,13 +2100,13 @@ export const getRules = rules => {
           return Promise.resolve();
         }
         return Promise.reject('กรุณาตรวจสอบ เบอร์โทรศัพท์');
-      }
-    })
+      },
+    }),
   ];
 
   let result = [];
 
-  rules.forEach(rule => {
+  rules.forEach((rule) => {
     switch (true) {
       case rule === 'required': {
         result = result.concat(requiredRule);
@@ -1868,7 +2131,7 @@ export const getRules = rules => {
         const { minLength, message } = rule;
         result.push({
           min: minLength,
-          message: message || `กรุณาป้อนอย่างน้อย ${minLength} ตัวอักษร`
+          message: message || `กรุณาป้อนอย่างน้อย ${minLength} ตัวอักษร`,
         });
         break;
       }
@@ -1880,7 +2143,7 @@ export const getRules = rules => {
   return result;
 };
 
-export const getRulesFromColumn = col => {
+export const getRulesFromColumn = (col) => {
   const { required, number } = col;
 
   if (required && number) {
@@ -1892,8 +2155,8 @@ export const getRulesFromColumn = col => {
             return Promise.resolve();
           }
           return Promise.reject('กรุณาป้อนตัวเลข');
-        }
-      }
+        },
+      },
     ];
   } else if (required) {
     return [{ required: true, message: 'กรุณาป้อนข้อมูล' }];
@@ -1905,19 +2168,19 @@ export const getRulesFromColumn = col => {
             return Promise.resolve();
           }
           return Promise.reject('กรุณาป้อนตัวเลข');
-        }
-      }
+        },
+      },
     ];
   }
   return undefined;
 };
 
-export const getIndexFromColumns = columns => {
+export const getIndexFromColumns = (columns) => {
   // Recursively gather dataIndex from nested children arrays
   const result = [];
 
-  const traverse = cols => {
-    cols.forEach(col => {
+  const traverse = (cols) => {
+    cols.forEach((col) => {
       if (col.children && Array.isArray(col.children)) {
         traverse(col.children);
       } else {

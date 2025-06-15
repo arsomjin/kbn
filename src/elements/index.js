@@ -8,6 +8,7 @@ import Loader from './Loader';
 import PopOver from './PopOver';
 import MessageBar from './MessageBar';
 import SearchSelect from './SearchSelect';
+import SearchInput from './SearchInput';
 import Selector from './Selector';
 import Stepper from './Stepper';
 import NotificationIcon from './NotificationIcon';
@@ -44,6 +45,7 @@ export {
   PopOver,
   MessageBar,
   SearchSelect,
+  SearchInput,
   Selector,
   Stepper,
   NotificationIcon,

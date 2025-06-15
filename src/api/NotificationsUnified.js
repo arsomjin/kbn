@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import firebase from 'firebase/app';
 import 'firebase/messaging';
-import { notification } from 'antd';
+import { notification, Button } from 'antd';
 import moment from 'moment';
 import { isMobile } from 'react-device-detect';
 import parse from 'html-react-parser';
@@ -17,8 +17,59 @@ export const requestPermission = async () => {
       notification.warning({
         message: 'การแจ้งเตือน ถูกปิดอยู่',
         description: 'กรุณาเปิดรับการแจ้งเตือน ที่การตั้งค่าเบราเซอร์',
-        duration: 8,
-        top: isMobile ? 38 : 76
+        duration: 0, // Keep the notification open until user interacts
+        top: isMobile ? 38 : 76,
+        btn: (
+          <div style={{ marginTop: '8px', display: 'flex', gap: '8px' }}>
+            <Button
+              type='primary'
+              size='small'
+              onClick={async () => {
+                try {
+                  const permission = await Notification.requestPermission();
+                  if (permission === 'granted') {
+                    notification.success({
+                      message: 'การแจ้งเตือนเปิดแล้ว!',
+                      description: 'คุณจะได้รับการแจ้งเตือนจากระบบ',
+                      duration: 3,
+                      top: isMobile ? 38 : 76,
+                    });
+                    warningShown = false; // Reset so it can show again if needed
+                  } else if (permission === 'denied') {
+                    notification.error({
+                      message: 'การแจ้งเตือนถูกปฏิเสธ',
+                      description: 'กรุณาเปิดการแจ้งเตือนในการตั้งค่าเบราเซอร์',
+                      duration: 5,
+                      top: isMobile ? 38 : 76,
+                    });
+                  }
+                  notification.destroy(); // Close the warning notification
+                } catch (error) {
+                  console.error(
+                    'Error requesting notification permission:',
+                    error
+                  );
+                  notification.error({
+                    message: 'เกิดข้อผิดพลาด',
+                    description: 'ไม่สามารถเปิดการแจ้งเตือนได้ กรุณาลองใหม่',
+                    duration: 3,
+                    top: isMobile ? 38 : 76,
+                  });
+                }
+              }}
+              style={{ fontSize: '12px', height: '28px' }}
+            >
+              เปิดการแจ้งเตือน
+            </Button>
+            <Button
+              size='small'
+              onClick={() => notification.destroy()}
+              style={{ fontSize: '12px', height: '28px' }}
+            >
+              ปิด
+            </Button>
+          </div>
+        ),
       });
       warningShown = true;
     }
@@ -47,24 +98,26 @@ export const initNotification = async (api, mUser) => {
 };
 
 // Display a notification using antd's notification component
-export const openNotification = notif => {
+export const openNotification = (notif) => {
   notification[notif.type || 'info']({
     ...notif,
-    ...((notif.duration || notif.duration === '0') && { duration: Numb(notif.duration) }),
+    ...((notif.duration || notif.duration === '0') && {
+      duration: Numb(notif.duration),
+    }),
     top: isMobile ? 38 : 76,
     description: (
-      <div className="notification__content">
-        <span className="text-light text-muted" style={{ fontSize: 12 }}>
+      <div className='notification__content'>
+        <span className='text-light text-muted' style={{ fontSize: 12 }}>
           {moment(Numb(notif.time)).format('lll')}
         </span>
         {parse(`${notif.description}`)}
         {notif.link && (
-          <a href={notif.link} target="_blank" rel="noopener noreferrer">
+          <a href={notif.link} target='_blank' rel='noopener noreferrer'>
             {notif.link}
           </a>
         )}
       </div>
-    )
+    ),
   });
 };
 
@@ -87,7 +140,7 @@ export const composeNotification = async (api, notif, disableAutoClose) => {
       {
         ...notif,
         ...(disableAutoClose && { duration: '0' }),
-        time: Date.now().toString()
+        time: Date.now().toString(),
       },
       'messages'
     );
@@ -104,7 +157,7 @@ export async function registerPush(vapidKey) {
     const messaging = firebase.messaging();
     const token = await messaging.getToken({
       vapidKey,
-      serviceWorkerRegistration: registration
+      serviceWorkerRegistration: registration,
     });
     return token;
   } catch (error) {
@@ -118,7 +171,7 @@ export const useNotificationListener = (api, mUser) => {
   const [data, setData] = useState({
     error: null,
     loading: true,
-    data: null
+    data: null,
   });
 
   useEffect(() => {
@@ -131,7 +184,7 @@ export const useNotificationListener = (api, mUser) => {
           return;
         }
         const messaging = firebase.messaging();
-        unsubscribe = messaging.onMessage(payload => {
+        unsubscribe = messaging.onMessage((payload) => {
           showLog('Foreground notification received:', payload);
           if (payload && payload.data) {
             openNotification(payload.data);

@@ -554,10 +554,16 @@ const NotificationsPage = () => {
     <LayoutWithRBAC
       title='การแจ้งเตือน'
       customCheck={({ userRBAC }) => {
-        // Allow any authenticated user to access their personal notifications
+        // Allow any authenticated user with valid RBAC structure to access personal notifications
+        const hasCleanSlateRBAC = !!userRBAC?.access?.authority;
+        const hasLegacyRBAC = !!(userRBAC?.isActive || userRBAC?.isDev);
+        const hasValidAuthority = !!(
+          userRBAC?.authority || userRBAC?.access?.authority
+        );
+
+        // Allow access if user has any valid RBAC structure
         return (
-          userRBAC &&
-          (userRBAC.isActive || userRBAC.isDev || userRBAC.authority)
+          userRBAC && (hasCleanSlateRBAC || hasLegacyRBAC || hasValidAuthority)
         );
       }}
       showGeographicSelector={false}

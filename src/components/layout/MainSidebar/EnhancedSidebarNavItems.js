@@ -1,10 +1,10 @@
-import React, { Fragment, useState, useMemo, useEffect } from 'react';
+import React, { Fragment, useState, useMemo, useEffect, useRef } from 'react';
 import { Menu, Badge, Typography, Input, Empty } from 'antd';
 import { useHistory, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { 
-  DashboardOutlined, 
-  CalculatorOutlined, 
+import {
+  DashboardOutlined,
+  CalculatorOutlined,
   ShoppingCartOutlined,
   ToolOutlined,
   BarChartOutlined,
@@ -16,7 +16,7 @@ import {
   DollarOutlined,
   NotificationOutlined,
   SearchOutlined,
-  ClearOutlined
+  ClearOutlined,
 } from '@ant-design/icons';
 
 import { useNavigationGenerator } from 'hooks/useNavigationGenerator';
@@ -42,13 +42,18 @@ const ICON_MAP = {
   home: HomeOutlined,
   code: CodeOutlined,
   dollar: DollarOutlined,
-  notification: NotificationOutlined
+  notification: NotificationOutlined,
 };
 
 const EnhancedSidebarNavItems = () => {
-  const { navigation = [], navigationStats, userRole, isDev } = useNavigationGenerator();
-  const { openKeys } = useSelector(state => state.unPersisted);
-  const { user } = useSelector(state => state.auth);
+  const {
+    navigation = [],
+    navigationStats,
+    userRole,
+    isDev,
+  } = useNavigationGenerator();
+  const { openKeys } = useSelector((state) => state.unPersisted);
+  const { user } = useSelector((state) => state.auth);
   const { hasPermission, authority, departments } = usePermissions();
   const history = useHistory();
   const location = useLocation();
@@ -61,13 +66,15 @@ const EnhancedSidebarNavItems = () => {
   useEffect(() => {
     // Extract isDev to avoid complex dependency array warning
     const isUserDev = user?.isDev;
-    
+
     if (isUserDev && navigation.length > 0 && openKeys.length === 0) {
-      const developerSection = navigation.find(section => section.key === 'developer');
+      const developerSection = navigation.find(
+        (section) => section.key === 'developer'
+      );
       if (developerSection) {
         // Expand both the main developer section and its primary sub-section
         const keysToOpen = ['developer'];
-        
+
         // Also expand the main developer sub-section if it exists
         if (developerSection.items && developerSection.items.length > 0) {
           const mainDeveloperItem = developerSection.items[0]; // 'developer-main'
@@ -75,7 +82,7 @@ const EnhancedSidebarNavItems = () => {
             keysToOpen.push(mainDeveloperItem.key);
           }
         }
-        
+
         dispatch(setOpenKeys(keysToOpen));
       }
     }
@@ -83,42 +90,53 @@ const EnhancedSidebarNavItems = () => {
 
   // Listen for forced navigation refresh events
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [isMounted, setIsMounted] = useState(true);
-  
+  const isMountedRef = useRef(true);
+
   useEffect(() => {
     const handleForceRefresh = (event) => {
-      if (isMounted) {
-        console.log('🔄 Navigation received force refresh event:', event.detail);
-        setRefreshTrigger(prev => prev + 1); // Force re-render
+      if (isMountedRef.current) {
+        console.log(
+          '🔄 Navigation received force refresh event:',
+          event.detail
+        );
+        setRefreshTrigger((prev) => prev + 1); // Force re-render
       }
     };
 
     const handleUserDataRefresh = (event) => {
-      if (isMounted) {
+      if (isMountedRef.current) {
         console.log('🔄 Navigation received user data refresh event');
-        setRefreshTrigger(prev => prev + 1); // Force re-render
+        setRefreshTrigger((prev) => prev + 1); // Force re-render
       }
     };
 
     window.addEventListener('forceNavigationRefresh', handleForceRefresh);
     window.addEventListener('userDataRefreshed', handleUserDataRefresh);
-    
+
     return () => {
-      setIsMounted(false);
+      isMountedRef.current = false;
       window.removeEventListener('forceNavigationRefresh', handleForceRefresh);
       window.removeEventListener('userDataRefreshed', handleUserDataRefresh);
     };
-  }, [isMounted]);
+  }, []); // FIXED: Remove isMounted from dependencies to prevent memory leak
 
   // Navigation ready - logs reduced for production
   useEffect(() => {
     // Silent in production for performance
-  }, [navigation, userRole, isDev, authority, departments, hasPermission, user]);
+  }, [
+    navigation,
+    userRole,
+    isDev,
+    authority,
+    departments,
+    hasPermission,
+    user,
+  ]);
 
   /*
    * Production Mode Behavior:
    * - Navigation statistics are hidden
-   * - Search results count is hidden  
+   * - Search results count is hidden
    * - Developer-only sections are automatically filtered out
    * - Only essential UI elements are shown for optimal UX
    */
@@ -132,33 +150,36 @@ const EnhancedSidebarNavItems = () => {
     const searchLower = searchTerm.toLowerCase();
     const searchResults = [];
 
-    navigation.forEach(section => {
+    navigation.forEach((section) => {
       const matchingItems = [];
-      
+
       // Check if section title matches
       const sectionMatches = section.title.toLowerCase().includes(searchLower);
-      
+
       if (section.items) {
-        section.items.forEach(item => {
+        section.items.forEach((item) => {
           // Check if item matches
-          const itemMatches = 
+          const itemMatches =
             item.title.toLowerCase().includes(searchLower) ||
-            (item.description && item.description.toLowerCase().includes(searchLower));
-          
+            (item.description &&
+              item.description.toLowerCase().includes(searchLower));
+
           if (itemMatches || sectionMatches) {
             // If item has sub-items, check those too
             if (item.items) {
-              const matchingSubItems = item.items.filter(subItem =>
-                subItem.title.toLowerCase().includes(searchLower) ||
-                (subItem.description && subItem.description.toLowerCase().includes(searchLower)) ||
-                itemMatches ||
-                sectionMatches
+              const matchingSubItems = item.items.filter(
+                (subItem) =>
+                  subItem.title.toLowerCase().includes(searchLower) ||
+                  (subItem.description &&
+                    subItem.description.toLowerCase().includes(searchLower)) ||
+                  itemMatches ||
+                  sectionMatches
               );
-              
+
               if (matchingSubItems.length > 0) {
                 matchingItems.push({
                   ...item,
-                  items: matchingSubItems
+                  items: matchingSubItems,
                 });
               }
             } else {
@@ -166,25 +187,27 @@ const EnhancedSidebarNavItems = () => {
             }
           } else if (item.items) {
             // Check sub-items even if parent doesn't match
-            const matchingSubItems = item.items.filter(subItem =>
-              subItem.title.toLowerCase().includes(searchLower) ||
-              (subItem.description && subItem.description.toLowerCase().includes(searchLower))
+            const matchingSubItems = item.items.filter(
+              (subItem) =>
+                subItem.title.toLowerCase().includes(searchLower) ||
+                (subItem.description &&
+                  subItem.description.toLowerCase().includes(searchLower))
             );
-            
+
             if (matchingSubItems.length > 0) {
               matchingItems.push({
                 ...item,
-                items: matchingSubItems
+                items: matchingSubItems,
               });
             }
           }
         });
       }
-      
+
       if (matchingItems.length > 0 || sectionMatches) {
         searchResults.push({
           ...section,
-          items: matchingItems.length > 0 ? matchingItems : section.items
+          items: matchingItems.length > 0 ? matchingItems : section.items,
         });
       }
     });
@@ -196,7 +219,7 @@ const EnhancedSidebarNavItems = () => {
   const handleClick = (item) => {
     if (item.to) {
       history.push(item.to);
-      
+
       // Close sidebar on mobile after navigation
       if (isMobile) {
         dispatch(toggleSidebar(false));
@@ -216,7 +239,7 @@ const EnhancedSidebarNavItems = () => {
   // Get current selected keys based on location
   const getSelectedKeys = () => {
     const currentPath = location.pathname;
-    
+
     // Find matching navigation item
     for (const section of navigation) {
       if (section.items) {
@@ -240,16 +263,18 @@ const EnhancedSidebarNavItems = () => {
   // Highlight search terms in text
   const highlightSearchTerm = (text, searchTerm) => {
     if (!searchTerm.trim() || !text) return text;
-    
+
     const regex = new RegExp(`(${searchTerm})`, 'gi');
     const parts = text.split(regex);
-    
-    return parts.map((part, index) => 
+
+    return parts.map((part, index) =>
       regex.test(part) ? (
-        <span key={index} className="search-highlight">
+        <span key={index} className='search-highlight'>
           {part}
         </span>
-      ) : part
+      ) : (
+        part
+      )
     );
   };
 
@@ -257,49 +282,51 @@ const EnhancedSidebarNavItems = () => {
   const renderMenuItem = (item, parentKey = '') => {
     const IconComponent = ICON_MAP[item.icon];
     const itemKey = item.key || item.title;
-    
+
     return (
-      <Menu.Item 
+      <Menu.Item
         key={itemKey}
         icon={IconComponent && <IconComponent style={{ fontSize: '14px' }} />}
         onClick={() => handleClick(item)}
         className={item.priority === 'high' ? 'high-priority-item' : ''}
       >
-        <div className="menu-item-content">
-          <span className="menu-title">{highlightSearchTerm(item.title, searchTerm)}</span>
-          <div className="menu-badges">
+        <div className='menu-item-content'>
+          <span className='menu-title'>
+            {highlightSearchTerm(item.title, searchTerm)}
+          </span>
+          <div className='menu-badges'>
             {item.frequency === 'daily' && (
-              <Badge 
-                count="ประจำวัน" 
-                size="small" 
-                style={{ 
+              <Badge
+                count='ประจำวัน'
+                size='small'
+                style={{
                   backgroundColor: '#52c41a',
                   fontSize: '9px',
-                  marginLeft: '4px'
+                  marginLeft: '4px',
                 }}
               />
             )}
             {item.priority === 'high' && (
-              <Badge 
-                count="สำคัญ" 
-                size="small" 
-                style={{ 
+              <Badge
+                count='สำคัญ'
+                size='small'
+                style={{
                   backgroundColor: '#ff4d4f',
                   fontSize: '9px',
-                  marginLeft: '4px'
+                  marginLeft: '4px',
                 }}
               />
             )}
           </div>
         </div>
         {item.description && (
-          <Text 
-            type="secondary" 
-            style={{ 
-              fontSize: '10px', 
+          <Text
+            type='secondary'
+            style={{
+              fontSize: '10px',
               display: 'block',
               marginTop: '2px',
-              lineHeight: '12px'
+              lineHeight: '12px',
             }}
           >
             {highlightSearchTerm(item.description, searchTerm)}
@@ -313,7 +340,7 @@ const EnhancedSidebarNavItems = () => {
   const renderMenuGroup = (group, parentKey = '') => {
     if (group.type === 'group') {
       return (
-        <Menu.ItemGroup 
+        <Menu.ItemGroup
           key={group.key || group.title}
           title={
             <Text strong style={{ fontSize: '12px', color: '#8c8c8c' }}>
@@ -321,37 +348,40 @@ const EnhancedSidebarNavItems = () => {
             </Text>
           }
         >
-          {group.items && group.items.map(item => renderMenuGroup(item, parentKey))}
+          {group.items &&
+            group.items.map((item) => renderMenuGroup(item, parentKey))}
         </Menu.ItemGroup>
       );
     }
-    
+
     // Handle submenu items (items with sub-items but not group type)
     if (group.items && group.items.length > 0) {
       return (
         <SubMenu
           key={group.key || group.title}
           title={
-            <div className="submenu-title">
+            <div className='submenu-title'>
               <span style={{ fontSize: '14px', fontWeight: 400 }}>
                 {highlightSearchTerm(group.title, searchTerm)}
               </span>
               {group.badge && (
-                <Badge 
-                  count={group.badge} 
-                  size="small" 
+                <Badge
+                  count={group.badge}
+                  size='small'
                   style={{ marginLeft: '8px' }}
                 />
               )}
             </div>
           }
-          className="enhanced-submenu-item"
+          className='enhanced-submenu-item'
         >
-          {group.items.map(item => renderMenuItem(item, group.key || group.title))}
+          {group.items.map((item) =>
+            renderMenuItem(item, group.key || group.title)
+          )}
         </SubMenu>
       );
     }
-    
+
     // Single item
     return renderMenuItem(group, parentKey);
   };
@@ -360,45 +390,46 @@ const EnhancedSidebarNavItems = () => {
   const renderSubMenu = (section, parentKey = '') => {
     const IconComponent = ICON_MAP[section.icon];
     const sectionKey = section.key || section.title;
-    
+
     return (
       <SubMenu
         key={sectionKey}
         icon={IconComponent && <IconComponent style={{ fontSize: '16px' }} />}
         title={
-          <div className="submenu-title">
+          <div className='submenu-title'>
             <span style={{ fontSize: '14px', fontWeight: 500 }}>
               {highlightSearchTerm(section.title, searchTerm)}
             </span>
             {section.badge && (
-              <Badge 
-                count={section.badge} 
-                size="small" 
+              <Badge
+                count={section.badge}
+                size='small'
                 style={{ marginLeft: '8px' }}
               />
             )}
           </div>
         }
-        className="enhanced-submenu"
+        className='enhanced-submenu'
       >
-        {section.items && section.items.map(item => renderMenuGroup(item, sectionKey))}
+        {section.items &&
+          section.items.map((item) => renderMenuGroup(item, sectionKey))}
       </SubMenu>
     );
   };
 
   return (
-    <div className="enhanced-navigation">
+    <div className='enhanced-navigation'>
       {/* User Context Card */}
       <UserContext />
 
       {/* Menu Search Box */}
-      <div className="menu-search-box">
+      <div className='menu-search-box'>
         <Input
-          placeholder="ค้นหาเมนู... (เช่น รับเงิน, รายงาน, บันทึก)"
+          placeholder='ค้นหาเมนู... (เช่น รับเงิน, รายงาน, บันทึก)'
           prefix={<SearchOutlined style={{ color: '#8c8c8c' }} />}
           suffix={
             searchTerm ? (
-              <ClearOutlined 
+              <ClearOutlined
                 style={{ color: '#8c8c8c', cursor: 'pointer' }}
                 onClick={() => setSearchTerm('')}
               />
@@ -406,70 +437,76 @@ const EnhancedSidebarNavItems = () => {
           }
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          size="small"
+          size='small'
           allowClear
         />
         {searchTerm && (
-          <div className="search-results-count">
-            พบ {filteredNavigation.reduce((total, section) => 
-              total + (section.items ? section.items.length : 0), 0
-            )} รายการ
+          <div className='search-results-count'>
+            พบ{' '}
+            {filteredNavigation.reduce(
+              (total, section) =>
+                total + (section.items ? section.items.length : 0),
+              0
+            )}{' '}
+            รายการ
           </div>
         )}
       </div>
 
       {/* Navigation Statistics (Debug - can be removed in production) */}
-      {typeof process !== 'undefined' && process.env?.NODE_ENV === 'development' && (
-        <div style={{ 
-          padding: '8px 16px', 
-          fontSize: '10px', 
-          color: '#8c8c8c',
-          borderBottom: '1px solid #f0f0f0'
-        }}>
-          เมนู: {navigationStats.totalSections} หมวด, {navigationStats.totalItems} รายการ | บทบาท: {userRole} | รีเฟรช: {refreshTrigger}
-          {searchTerm && ` | กรองแล้ว: ${filteredNavigation.length} หมวด`}
-        </div>
-      )}
+      {typeof process !== 'undefined' &&
+        process.env?.NODE_ENV === 'development' && (
+          <div
+            style={{
+              padding: '8px 16px',
+              fontSize: '10px',
+              color: '#8c8c8c',
+              borderBottom: '1px solid #f0f0f0',
+            }}
+          >
+            เมนู: {navigationStats.totalSections} หมวด,{' '}
+            {navigationStats.totalItems} รายการ | บทบาท: {userRole} | รีเฟรช:{' '}
+            {refreshTrigger}
+            {searchTerm && ` | กรองแล้ว: ${filteredNavigation.length} หมวด`}
+          </div>
+        )}
 
       {/* Main Navigation Menu */}
       {filteredNavigation.length > 0 ? (
         <Menu
-          mode="inline"
+          mode='inline'
           selectedKeys={getSelectedKeys()}
           openKeys={openKeys}
           onClick={handleMenuClick}
           onOpenChange={handleOpenChange}
-          className="enhanced-menu"
+          className='enhanced-menu'
           style={{ border: 'none' }}
         >
-          {filteredNavigation.map(section => (
+          {filteredNavigation.map((section) => (
             <Fragment key={section.key}>
-              {section.items && section.items.length > 0 ? (
-                renderSubMenu(section)
-              ) : (
-                renderMenuItem(section)
-              )}
+              {section.items && section.items.length > 0
+                ? renderSubMenu(section)
+                : renderMenuItem(section)}
             </Fragment>
           ))}
         </Menu>
       ) : (
-        <div className="search-empty-state">
-          <Empty 
+        <div className='search-empty-state'>
+          <Empty
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
               <span>
                 ไม่พบเมนูที่ตรงกับ &quot;{searchTerm}&quot;
                 <br />
-                ลองใช้คำค้นหาอื่น เช่น &quot;รับเงิน&quot; หรือ &quot;รายงาน&quot;
+                ลองใช้คำค้นหาอื่น เช่น &quot;รับเงิน&quot; หรือ
+                &quot;รายงาน&quot;
               </span>
             }
           />
         </div>
       )}
-
-
     </div>
   );
 };
 
-export default EnhancedSidebarNavItems; 
+export default EnhancedSidebarNavItems;

@@ -22,11 +22,11 @@ const MyScreen = () => {
 };
 
 // After: Screen with manual (just wrap it!)
-import ScreenWithManual from "components/ScreenWithManual";
+import ScreenWithManual from 'components/ScreenWithManual';
 
 const MyScreen = () => {
   return (
-    <ScreenWithManual screenType="sales">
+    <ScreenWithManual screenType='sales'>
       <div>
         <h1>My Screen Content</h1>
         {/* Your existing code - NO CHANGES! */}
@@ -40,14 +40,14 @@ const MyScreen = () => {
 
 ```javascript
 // Available screen types:
-screenType = "signup"; // Registration process
-screenType = "login"; // Login process
-screenType = "dashboard"; // Main dashboard
-screenType = "sales"; // Sales module
-screenType = "service"; // Service module
-screenType = "parts"; // Parts/inventory
-screenType = "accounting"; // Accounting module
-screenType = "userManagement"; // User management
+screenType = 'signup'; // Registration process
+screenType = 'login'; // Login process
+screenType = 'dashboard'; // Main dashboard
+screenType = 'sales'; // Sales module
+screenType = 'service'; // Service module
+screenType = 'parts'; // Parts/inventory
+screenType = 'accounting'; // Accounting module
+screenType = 'userManagement'; // User management
 ```
 
 ### **Step 3: Done! 🎉**
@@ -130,10 +130,10 @@ screenType = "userManagement"; // User management
 
 ```javascript
 // 1. Import
-import ScreenWithManual from "components/ScreenWithManual";
+import ScreenWithManual from 'components/ScreenWithManual';
 
 // 2. Wrap
-<ScreenWithManual screenType="sales">
+<ScreenWithManual screenType='sales'>
   {/* 3. Your existing screen code */}
   <YourExistingComponent />
 </ScreenWithManual>;
@@ -175,7 +175,7 @@ import ScreenWithManual from "components/ScreenWithManual";
 ```javascript
 <ScreenWithManual
   screenType="signup"
-  showManualOnFirstVisit={true}  // Shows automatically for new users
+  showManualOnFirstVisit={false}  // Shows automatically for new users
 >
 ```
 

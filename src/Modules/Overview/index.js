@@ -1,7 +1,13 @@
 import { Skeleton } from 'antd';
 import { checkCollection } from 'firebase/api';
 import { showAlert, showWarn } from 'functions';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from 'redux/actions/auth';
 import LandingPage from './components/LandingPage';
@@ -13,27 +19,25 @@ import { PermissionGate } from 'components';
 import { usePermissions } from 'hooks/usePermissions';
 
 // Lazy load the enhanced role-based dashboard with hierarchical switching
-const EnhancedRoleBasedDashboard = React.lazy(() => import('./components/EnhancedRoleBasedDashboard'));
+const EnhancedRoleBasedDashboard = React.lazy(
+  () => import('./components/EnhancedRoleBasedDashboard')
+);
 
 const OverviewModule = () => {
   const { api } = useContext(FirebaseContext);
-  const { user } = useSelector(state => state.auth);
-  const { branches, departments } = useSelector(state => state.data);
+  const { user } = useSelector((state) => state.auth);
+  const { branches, departments } = useSelector((state) => state.data);
   const [userData, setUser] = useState({});
   const [ready, setReady] = useState(false);
   const alertRef = useRef();
 
   // ✅ Add RBAC hooks
-  const { 
-    hasPermission, 
-    hasDepartmentAccess, 
-    isSuperAdmin,
-  } = usePermissions();
+  const { hasPermission, hasDepartmentAccess, isSuperAdmin } = usePermissions();
 
   const dispatch = useDispatch();
 
   const _checkStatus = useCallback(
-    async usr => {
+    async (usr) => {
       try {
         if (!usr?.firstName) {
           return;
@@ -46,12 +50,12 @@ const OverviewModule = () => {
         const snap = await checkCollection('data/company/employees', wheres);
         let userData = [];
         if (snap) {
-          snap.forEach(doc => {
+          snap.forEach((doc) => {
             userData.push({
               ...doc.data(),
               _key: doc.id,
               id: userData.length,
-              key: userData.length
+              key: userData.length,
             });
           });
         }
@@ -65,7 +69,7 @@ const OverviewModule = () => {
                 {
                   ...stateDoc.data(),
                   state: 'offline',
-                  last_offline: Date.now()
+                  last_offline: Date.now(),
                 },
                 'status',
                 user.uid
@@ -95,20 +99,30 @@ const OverviewModule = () => {
   useEffect(() => {
     const uData = {
       coverImg: require('../../images/user-profile/up-user-details-background.jpg'),
-      avatarImg: user?.photoURL || require('../../images/avatars/blank-profile.png'),
+      avatarImg:
+        user?.photoURL || require('../../images/avatars/blank-profile.png'),
       name: user?.displayName || `${user.firstName} ${user.lastName}`,
       bio: 'คูโบต้าเบญจพล',
       email: user.email,
       location: user?.branch ? branches[user.branch]?.branchName || '-' : '-',
       phone: user.phoneNumber || '-',
-      department: user?.department ? departments[user.department]?.department || '-' : '-',
+      department: user?.department
+        ? departments[user.department]?.department || '-'
+        : '-',
       social: {
         facebook: '#',
         twitter: '#',
         github: '#',
-        slack: '#'
+        slack: '#',
       },
-      tags: ['User Experience', 'UI Design', 'React JS', 'HTML & CSS', 'JavaScript', 'Bootstrap 4']
+      tags: [
+        'User Experience',
+        'UI Design',
+        'React JS',
+        'HTML & CSS',
+        'JavaScript',
+        'Bootstrap 4',
+      ],
     };
     _checkStatus(user);
     setUser(uData);
@@ -121,11 +135,12 @@ const OverviewModule = () => {
   }
 
   // ✅ Enhanced permission logic with RBAC
-  const canAccessDashboard = user?.isDev || 
-                            isSuperAdmin || 
-                            hasPermission('reports.view') ||
-                            hasDepartmentAccess('reports') ||
-                            (user?.permCats && user.permCats?.permCat001);
+  const canAccessDashboard =
+    user?.isDev ||
+    isSuperAdmin ||
+    hasPermission('reports.view') ||
+    hasDepartmentAccess('reports') ||
+    (user?.permCats && user.permCats?.permCat001);
 
   // Use enhanced role-based dashboard with hierarchical switching
   if (canAccessDashboard) {

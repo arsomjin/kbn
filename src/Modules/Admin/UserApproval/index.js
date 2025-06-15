@@ -726,7 +726,7 @@ const UserApproval = () => {
   };
 
   return (
-    <ScreenWithManual screenType='user-approval' showManualOnFirstVisit={true}>
+    <ScreenWithManual screenType='user-approval' showManualOnFirstVisit={false}>
       <LayoutWithRBAC permission='users.manage' title='จัดการการอนุมัติผู้ใช้'>
         <Card
           title={

@@ -50,6 +50,20 @@ export const usePermissions = () => {
       return null;
     }
 
+    // DEBUG: Log user structure to understand the issue - DISABLED to prevent spam
+    if (false) {
+      // DISABLED - causing console spam during infinite renders
+      console.log('🔍 usePermissions - User structure analysis:', {
+        uid: user.uid,
+        hasAccess: !!user.access,
+        hasAccessLevel: !!user.accessLevel,
+        accessAuthority: user.access?.authority,
+        legacyAccessLevel: user.accessLevel,
+        userKeys: Object.keys(user),
+        accessKeys: user.access ? Object.keys(user.access) : null,
+      });
+    }
+
     // ENFORCE Clean Slate structure ONLY - no fallbacks allowed
     if (!user.access) {
       console.error('🚨 User missing Clean Slate access structure:', user.uid);
@@ -76,6 +90,9 @@ export const usePermissions = () => {
       permissions: user.access.permissions || {},
       authority: user.access.authority,
       departments: user.access.departments || ['GENERAL'],
+
+      // TEMPORARY: Also include legacy accessLevel for debugging
+      accessLevel: user.accessLevel,
 
       // Geographic access - Clean Slate ONLY (according to DATA_STRUCTURES_REFERENCE.md)
       geographic: {
@@ -116,6 +133,31 @@ export const usePermissions = () => {
    */
   const hasPermission = useCallback(
     (permission, context = {}) => {
+      // Debug logging for accounting permissions - DISABLED to prevent spam
+      if (
+        false && // DISABLED - causing console spam
+        permission.startsWith('accounting.') &&
+        process.env.NODE_ENV === 'development' &&
+        Math.random() < 0.01 // Only log 1% of permission checks to prevent spam
+      ) {
+        console.log(`🔍 Checking permission: ${permission}`, {
+          user: {
+            email: user?.email,
+            authority: user?.access?.authority,
+            savedPermissions:
+              user?.access?.permissions?.departments?.accounting,
+            hasCleanSlate: !!user?.access,
+          },
+          userRBAC: {
+            authority: userRBAC?.authority,
+            isDev: userRBAC?.isDev,
+            isActive: userRBAC?.isActive,
+            permissions: userRBAC?.permissions?.departments?.accounting,
+          },
+          context,
+        });
+      }
+
       // DEV USERS CAN ACCESS EVERYTHING - NO RESTRICTIONS
       if (userRBAC?.isDev) {
         return true;
@@ -199,6 +241,17 @@ export const usePermissions = () => {
           }
           return true;
         }
+      }
+
+      // Debug the final result
+      if (
+        permission.startsWith('accounting.') &&
+        process.env.NODE_ENV === 'development'
+      ) {
+        console.log(`🎯 Permission result for ${permission}:`, {
+          orthogonalResult,
+          finalResult: orthogonalResult,
+        });
       }
 
       return orthogonalResult;
@@ -631,65 +684,100 @@ export const usePermissions = () => {
     [canAccessProvince]
   );
 
-  // RETURN COMPREHENSIVE API
-  return {
-    // Core permission checking
-    hasPermission,
-    hasAnyPermission,
-    hasAllPermissions,
+  // RETURN COMPREHENSIVE API - MEMOIZED TO PREVENT INFINITE RE-RENDERS
+  return useMemo(
+    () => ({
+      // Core permission checking
+      hasPermission,
+      hasAnyPermission,
+      hasAllPermissions,
 
-    // Geographic access
-    hasGeographicAccess,
-    canAccessProvince,
-    canAccessBranch,
+      // Geographic access
+      hasGeographicAccess,
+      canAccessProvince,
+      canAccessBranch,
 
-    // Data filtering
-    filterDataByUserAccess,
+      // Data filtering
+      filterDataByUserAccess,
 
-    // User context
-    userRBAC,
-    user: userRBAC, // Alias for backward compatibility
-    userRole,
-    userPermissions,
-    accessibleProvinces,
-    accessibleBranches,
-    homeLocation,
+      // User context
+      userRBAC,
+      user: userRBAC, // Alias for backward compatibility
+      userRole,
+      userPermissions,
+      accessibleProvinces,
+      accessibleBranches,
+      homeLocation,
 
-    // Migration status
-    isMigrated,
-    needsMigration: !isMigrated,
+      // Migration status
+      isMigrated,
+      needsMigration: !isMigrated,
 
-    // Authority checks
-    isSuperAdmin,
-    isAdmin,
-    isManager,
-    isLead,
-    isStaff,
+      // Authority checks
+      isSuperAdmin,
+      isAdmin,
+      isManager,
+      isLead,
+      isStaff,
 
-    // Common permission patterns
-    canEdit,
-    canView,
-    canDelete,
-    canApprove,
-    hasDepartmentAccess,
-    worksInDepartment,
-    hasAuthorityLevel,
+      // Common permission patterns
+      canEdit,
+      canView,
+      canDelete,
+      canApprove,
+      hasDepartmentAccess,
+      worksInDepartment,
+      hasAuthorityLevel,
 
-    // BACKWARD COMPATIBILITY FUNCTIONS
-    // For easy migration from useGeographicData
-    getDefaultBranch,
-    getCurrentProvince,
-    getGeographicContext,
-    checkBranchAccess,
-    checkProvinceAccess,
+      // BACKWARD COMPATIBILITY FUNCTIONS
+      // For easy migration from useGeographicData
+      getDefaultBranch,
+      getCurrentProvince,
+      getGeographicContext,
+      checkBranchAccess,
+      checkProvinceAccess,
 
-    // Raw data access
-    authority: userRBAC?.authority,
-    departments: userRBAC?.departments || [],
-    geographic: userRBAC?.geographic || {},
-    isActive: userRBAC?.isActive || false,
-    isDev: userRBAC?.isDev || false,
-  };
+      // Raw data access
+      authority: userRBAC?.authority,
+      departments: userRBAC?.departments || [],
+      geographic: userRBAC?.geographic || {},
+      isActive: userRBAC?.isActive || false,
+      isDev: userRBAC?.isDev || false,
+    }),
+    [
+      hasPermission,
+      hasAnyPermission,
+      hasAllPermissions,
+      hasGeographicAccess,
+      canAccessProvince,
+      canAccessBranch,
+      filterDataByUserAccess,
+      userRBAC,
+      userRole,
+      userPermissions,
+      accessibleProvinces,
+      accessibleBranches,
+      homeLocation,
+      isMigrated,
+      isSuperAdmin,
+      isAdmin,
+      isManager,
+      isLead,
+      isStaff,
+      canEdit,
+      canView,
+      canDelete,
+      canApprove,
+      hasDepartmentAccess,
+      worksInDepartment,
+      hasAuthorityLevel,
+      getDefaultBranch,
+      getCurrentProvince,
+      getGeographicContext,
+      checkBranchAccess,
+      checkProvinceAccess,
+    ]
+  );
 };
 
 // Named export for specific use cases

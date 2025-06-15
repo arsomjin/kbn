@@ -497,7 +497,7 @@ const ExecutiveBriefing = () => {
   return (
     <ScreenWithManual 
       screenType="executive-briefing"
-      showManualOnFirstVisit={true}
+      showManualOnFirstVisit={false}
     >
       <LayoutWithRBAC 
         permission="admin.executive" 

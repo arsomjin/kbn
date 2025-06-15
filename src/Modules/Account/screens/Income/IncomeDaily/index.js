@@ -1,4 +1,10 @@
-import React, { useContext, useEffect, useState, useCallback } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  useMemo,
+} from 'react';
 import { Row, Col } from 'antd';
 import { useHistory, useLocation } from 'react-router-dom';
 import { createNewOrderId } from 'Modules/Account/api';
@@ -37,7 +43,7 @@ const INCOME_DAILY_STEPS = [
   { title: 'บันทึกข้อมูล', description: 'บันทึกรายการรับเงินประจำวัน' },
   { title: 'ตรวจสอบ', description: 'ตรวจสอบความถูกต้องของข้อมูล' },
   { title: 'อนุมัติ', description: 'อนุมัติรายการรับเงิน' },
-  { title: 'เสร็จสิ้น', description: 'บันทึกข้อมูลเสร็จสิ้น' }
+  { title: 'เสร็จสิ้น', description: 'บันทึกข้อมูลเสร็จสิ้น' },
 ];
 
 const initProps = {
@@ -46,26 +52,53 @@ const initProps = {
   onBack: null,
   isEdit: false,
   activeStep: 0,
-  grant: true
+  grant: true,
 };
 
 // Content component to properly handle props from LayoutWithRBAC
-const IncomeDailyContent = ({ category, _changeCategory, currentView, mProps, selectedBranch, canEditData, geographic, auditTrail, ...otherProps }) => {
+const IncomeDailyContent = ({
+  category,
+  _changeCategory,
+  currentView,
+  mProps,
+  selectedBranch,
+  canEditData,
+  geographic,
+  auditTrail,
+  ...otherProps
+}) => {
   const { isMobile } = useResponsive();
-  // Create a wrapper function that includes the auditTrail
-  const enhancedCurrentView = React.cloneElement(currentView, {
-    ...currentView.props,
-    auditTrail: auditTrail
-  });
+
+  // Memoize the enhanced view to prevent unnecessary re-renders
+  const enhancedCurrentView = useMemo(() => {
+    if (!currentView) return null;
+    return React.cloneElement(currentView, {
+      ...currentView.props,
+      auditTrail: auditTrail,
+    });
+  }, [currentView, auditTrail]);
 
   return (
-    <div >
-      <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#ffffff', borderRadius: '8px', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
-        <Row gutter={16} align="middle">
+    <div>
+      <div
+        style={{
+          marginBottom: '24px',
+          padding: '16px',
+          backgroundColor: '#ffffff',
+          borderRadius: '8px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        }}
+      >
+        <Row gutter={16} align='middle'>
           <Col md={12} sm={24}>
-            <Form.Item label={<span style={{ marginRight: '8px' }}>ประเภทการรับเงิน</span>} style={{ marginBottom: 0 }}>
+            <Form.Item
+              label={
+                <span style={{ marginRight: '8px' }}>ประเภทการรับเงิน</span>
+              }
+              style={{ marginBottom: 0 }}
+            >
               <Select
-                placeholder="ประเภทการรับเงิน"
+                placeholder='ประเภทการรับเงิน'
                 onChange={_changeCategory}
                 value={category}
                 disabled={mProps.isEdit}
@@ -81,7 +114,7 @@ const IncomeDailyContent = ({ category, _changeCategory, currentView, mProps, se
           </Col>
         </Row>
       </div>
-      
+
       {enhancedCurrentView}
     </div>
   );
@@ -95,7 +128,7 @@ IncomeDailyContent.propTypes = {
   selectedBranch: PropTypes.string,
   canEditData: PropTypes.bool,
   geographic: PropTypes.object,
-  auditTrail: PropTypes.object
+  auditTrail: PropTypes.object,
 };
 
 const IncomeDaily = () => {
@@ -104,25 +137,30 @@ const IncomeDaily = () => {
   const params = location.state?.params;
 
   const { firestore, api } = useContext(FirebaseContext);
-  const { user } = useSelector(state => state.auth);
-  
+  const { user } = useSelector((state) => state.auth);
+
   // 🚀 RBAC Integration
   const { hasPermission, filterDataByUserAccess } = usePermissions();
-  
+
   const [mProps, setProps] = useMergeState(initProps);
   const [ready, setReady] = useState(false);
   const [category, setCategory] = useState(params?.category || 'vehicles');
   const [geographic, setGeographic] = useState({});
 
-  const documentId = mProps.order?.incomeId;
+  const documentId = mProps.order?.incomeId || 'temp-income-id';
 
   useEffect(() => {
     const { onBack } = params || {};
     let pOrder = params?.order;
-    let isEdit = !!pOrder && !!pOrder.date && !!pOrder.created && !!pOrder.incomeId;
-    const activeStep = !(pOrder && pOrder.date) ? 0 : StatusMapToStep[pOrder.status || 'pending'];
+    let isEdit =
+      !!pOrder && !!pOrder.date && !!pOrder.created && !!pOrder.incomeId;
+    const activeStep = !(pOrder && pOrder.date)
+      ? 0
+      : StatusMapToStep[pOrder.status || 'pending'];
     const readOnly = onBack?.path
-      ? ['/reports/income-expense-summary', '/reports/income-parts'].includes(onBack.path)
+      ? ['/reports/income-expense-summary', '/reports/income-parts'].includes(
+          onBack.path
+        )
       : false;
 
     if (!isEdit) {
@@ -134,16 +172,20 @@ const IncomeDaily = () => {
     setReady(true);
   }, [params, category]);
 
-  const _changeCategory = ev => {
+  const _changeCategory = (ev) => {
     setCategory(ev);
   };
 
-  const _onConfirmOrder = async (values, resetToInitial, auditTrailFromProps = null) => {
+  const _onConfirmOrder = async (
+    values,
+    resetToInitial,
+    auditTrailFromProps = null
+  ) => {
     try {
       let mValues = JSON.parse(JSON.stringify(values));
       mValues.incomeCategory = 'daily';
       mValues.incomeSubCategory = category;
-      
+
       // Use enhanced geographic context for automatic provinceId injection
       if (geographic && geographic.enhanceDataForSubmission) {
         mValues = geographic.enhanceDataForSubmission(mValues);
@@ -151,56 +193,65 @@ const IncomeDaily = () => {
         // Fallback to manual assignment if wrapper enhancement not available
         Object.assign(mValues, geographic);
       }
-      
-      if (!mValues.customerId && !['partSKC', 'partKBN', 'partChange'].includes(mValues.incomeType)) {
+
+      if (
+        !mValues.customerId &&
+        !['partSKC', 'partKBN', 'partChange'].includes(mValues.incomeType)
+      ) {
         const customerId = await updateNewOrderCustomer({
           values: mValues,
-          firestore
+          firestore,
         });
         if (customerId) {
           mValues.customerId = customerId;
         }
       }
-      
+
       if (auditTrailFromProps && mProps.isEdit) {
         await auditTrailFromProps.saveWithAuditTrail({
           collection: 'sections/account/incomes',
           data: mValues,
           isEdit: true,
           oldData: mProps.order,
-          notes: `แก้ไขรายการรับเงินประจำวัน - ${IncomeDailyCategories[category]}`
+          notes: `แก้ไขรายการรับเงินประจำวัน - ${IncomeDailyCategories[category]}`,
         });
       } else if (auditTrailFromProps && !mProps.isEdit) {
         mValues.created = dayjs().valueOf();
         mValues.createdBy = user.uid;
         mValues.status = StatusMap.pending;
-        
+
         await auditTrailFromProps.saveWithAuditTrail({
           collection: 'sections/account/incomes',
           data: mValues,
           isEdit: false,
-          notes: `สร้างรายการรับเงินประจำวัน - ${IncomeDailyCategories[category]}`
+          notes: `สร้างรายการรับเงินประจำวัน - ${IncomeDailyCategories[category]}`,
         });
       } else {
         if (mProps.isEdit) {
           let changes = getChanges(mProps.order, values);
           if (mProps.order.items && values.items) {
-            const itemChanges = getArrayChanges(mProps.order.items, values.items);
+            const itemChanges = getArrayChanges(
+              mProps.order.items,
+              values.items
+            );
             if (itemChanges) {
               changes = [...changes, ...itemChanges];
             }
           }
           mValues.editedBy = !!mProps.order.editedBy
-            ? [...mProps.order.editedBy, { uid: user.uid, time: Date.now(), changes }]
+            ? [
+                ...mProps.order.editedBy,
+                { uid: user.uid, time: Date.now(), changes },
+              ]
             : [{ uid: user.uid, time: Date.now(), changes }];
         } else {
           mValues.created = dayjs().valueOf();
           mValues.createdBy = user.uid;
           mValues.status = StatusMap.pending;
         }
-        
+
         if (mValues.items && mValues.items.length > 0) {
-          await arrayForEach(mValues.items, async item => {
+          await arrayForEach(mValues.items, async (item) => {
             const incomeItemRef = firestore
               .collection('sections')
               .doc('account')
@@ -209,8 +260,12 @@ const IncomeDaily = () => {
             item.item && (await incomeItemRef.set(item));
           });
         }
-        
-        const incomeRef = firestore.collection('sections').doc('account').collection('incomes').doc(mValues.incomeId);
+
+        const incomeRef = firestore
+          .collection('sections')
+          .doc('account')
+          .collection('incomes')
+          .doc(mValues.incomeId);
         const docSnap = await incomeRef.get();
         if (docSnap.exists) {
           incomeRef.update(mValues);
@@ -225,18 +280,18 @@ const IncomeDaily = () => {
               time: Date.now(),
               type: 'edited',
               by: user.uid,
-              docId: mValues.incomeId
+              docId: mValues.incomeId,
             }
           : {
               time: Date.now(),
               type: 'created',
               by: user.uid,
-              docId: mValues.incomeId
+              docId: mValues.incomeId,
             },
         'incomes',
         'daily'
       );
-      
+
       load(false);
       showSuccess(
         () => {
@@ -248,7 +303,9 @@ const IncomeDaily = () => {
             setProps({ ...initProps, order: { incomeId } });
           }
         },
-        mValues.incomeNo ? `บันทึกข้อมูลเลขที่ ${mValues.incomeNo} สำเร็จ` : 'บันทึกข้อมูลสำเร็จ',
+        mValues.incomeNo
+          ? `บันทึกข้อมูลเลขที่ ${mValues.incomeNo} สำเร็จ`
+          : 'บันทึกข้อมูลสำเร็จ',
         true
       );
     } catch (e) {
@@ -256,7 +313,7 @@ const IncomeDaily = () => {
       errorHandler({
         code: e?.code || '',
         message: e?.message || 'เกิดข้อผิดพลาด',
-        uid: user.uid || 'unknown'
+        uid: user.uid || 'unknown',
       });
     }
   };
@@ -363,14 +420,15 @@ const IncomeDaily = () => {
   if (!ready) {
     return (
       <DocumentWorkflowWrapper
-        documentType="income_daily"
+        documentType='income_daily'
         documentId={documentId}
+        documentData={mProps.order || {}} // PASS THE ACTUAL DOCUMENT DATA
         layoutProps={{
-          title: "รับเงินประจำวัน",
-          subtitle: "Management",
-          permission: "accounting.view",
-          editPermission: "accounting.edit",
-          loading: true
+          title: 'รับเงินประจำวัน',
+          subtitle: 'Management',
+          permission: 'accounting.view',
+          editPermission: 'accounting.edit',
+          loading: true,
         }}
       >
         <div />
@@ -380,21 +438,22 @@ const IncomeDaily = () => {
 
   return (
     <DocumentWorkflowWrapper
-      documentType="income_daily"
+      documentType='income_daily'
       documentId={documentId}
+      documentData={mProps.order || {}} // PASS THE ACTUAL DOCUMENT DATA
       currentStep={mProps.activeStep}
       onStepChange={(step) => setProps({ activeStep: step })}
       layoutProps={{
-        title: "รับเงินประจำวัน",
-        subtitle: "Accounting Management - Multi-Province Support",
-        permission: "accounting.view",
-        editPermission: "accounting.edit",
+        title: 'รับเงินประจำวัน',
+        subtitle: 'Accounting Management - Multi-Province Support',
+        permission: 'accounting.view',
+        editPermission: 'accounting.edit',
         requireBranchSelection: false,
         onBranchChange: handleGeographicChange,
-        autoInjectProvinceId: true
+        autoInjectProvinceId: true,
       }}
     >
-      <IncomeDailyContent 
+      <IncomeDailyContent
         category={category}
         _changeCategory={_changeCategory}
         currentView={currentView}
