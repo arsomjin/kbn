@@ -37,6 +37,7 @@ import GeographicBranchSelector from '../GeographicBranchSelector';
 import {
   AuditHistory,
   AuditTrailSection,
+  EnhancedAuditTrailSection,
   useAuditTrail as useBaseAuditTrail,
 } from 'components/AuditTrail';
 import { Stepper } from 'elements';
@@ -115,6 +116,7 @@ const LayoutWithRBAC = ({
   // Audit Trail & Document Workflow Props
   documentId = null,
   documentType = null,
+  documentStatus = 'draft',
   showAuditTrail = false,
   showAuditSection = false,
   onAuditApprove = null,
@@ -136,6 +138,7 @@ const LayoutWithRBAC = ({
 
   // Redux state (for backward compatibility)
   const { branches } = useSelector((state) => state.data);
+  const { user } = useSelector((state) => state.auth);
 
   // Clean slate permissions (unified system)
   const {
@@ -898,34 +901,6 @@ const LayoutWithRBAC = ({
             </Card>
           )}
 
-          {/* Audit Trail Section - Only show if document ID exists */}
-          {showAuditSection && documentId && (
-            <Card
-              style={{
-                marginBottom: isMobile ? '16px' : isTablet ? '20px' : '24px',
-                borderRadius: isMobile ? '12px' : '16px',
-                border: '1px solid #f0f0f0',
-                boxShadow:
-                  '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
-                background: '#ffffff',
-              }}
-              bodyStyle={{
-                padding: isMobile
-                  ? '18px 20px'
-                  : isTablet
-                    ? '22px 24px'
-                    : '24px 28px',
-              }}
-            >
-              <AuditTrailSection
-                documentId={documentId}
-                documentType={documentType}
-                permission={permission}
-                onApprove={onAuditApprove}
-              />
-            </Card>
-          )}
-
           {/* Main Content */}
           {!geographicRequirementsMet ? (
             <Card
@@ -989,6 +964,38 @@ const LayoutWithRBAC = ({
             >
               {enhancedChildren}
             </div>
+          )}
+
+          {/* Audit Trail Section - Only show if document ID exists */}
+          {showAuditSection && documentId && (
+            <Card
+              style={{
+                marginBottom: isMobile ? '16px' : isTablet ? '20px' : '24px',
+                borderRadius: isMobile ? '12px' : '16px',
+                border: '1px solid #f0f0f0',
+                boxShadow:
+                  '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
+                background: '#ffffff',
+              }}
+              bodyStyle={{
+                padding: isMobile
+                  ? '18px 20px'
+                  : isTablet
+                    ? '22px 24px'
+                    : '24px 28px',
+              }}
+            >
+              <EnhancedAuditTrailSection
+                enableAutoCapture={true}
+                currentUser={user}
+                currentStep={currentStep}
+                documentStatus={documentStatus}
+                documentId={documentId}
+                documentType={documentType}
+                permission={permission}
+                onApprove={onAuditApprove}
+              />
+            </Card>
           )}
 
           {/* Audit History - Only show if document ID exists */}
@@ -1076,11 +1083,13 @@ LayoutWithRBAC.propTypes = {
   headerExtra: PropTypes.node,
   className: PropTypes.string,
   style: PropTypes.object,
+  debug: PropTypes.bool,
   geographicFilter: PropTypes.object,
 
   // Audit Trail & Document Workflow Props
   documentId: PropTypes.string,
   documentType: PropTypes.string,
+  documentStatus: PropTypes.string,
   showAuditTrail: PropTypes.bool,
   showAuditSection: PropTypes.bool,
   onAuditApprove: PropTypes.func,

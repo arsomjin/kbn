@@ -26,7 +26,7 @@ export { default as AuditTrailStepper } from './AuditTrailStepper';
 // Audit Trail Components
 export { 
   AuditHistory, 
-  AuditTrailSection, 
+  AuditTrailSection, EnhancedAuditTrailSection, 
   useAuditTrail 
 } from './AuditTrail';
 export { default as AuditTrailWrapper } from './AuditTrailWrapper'; 

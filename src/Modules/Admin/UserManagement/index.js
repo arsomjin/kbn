@@ -1994,34 +1994,57 @@ const UserManagement = () => {
                       <Form.Item
                         name='homeBranch'
                         label='สาขาหลัก'
+                        dependencies={['homeProvince']}
                         rules={[
-                          { required: true, message: 'กรุณาเลือกสาขาหลัก' },
+                          {
+                            validator: (_, value) => {
+                              const selectedProvince =
+                                form.getFieldValue('homeProvince');
+
+                              // Only require branch if province is selected
+                              if (selectedProvince && !value) {
+                                return Promise.reject(
+                                  new Error('กรุณาเลือกสาขาหลัก')
+                                );
+                              }
+
+                              return Promise.resolve();
+                            },
+                          },
                         ]}
                       >
                         <Form.Item
                           noStyle
-                          shouldUpdate={(prevValues, currentValues) =>
-                            prevValues.homeProvince !==
-                            currentValues.homeProvince
+                          shouldUpdate={(prev, curr) =>
+                            prev.homeProvince !== curr.homeProvince
                           }
                         >
-                          {({ getFieldValue }) => {
-                            const selectedProvince =
-                              getFieldValue('homeProvince');
-                            return (
-                              <GeographicBranchSelector
-                                placeholder={
-                                  selectedProvince
-                                    ? 'เลือกสาขา'
-                                    : 'กรุณาเลือกจังหวัดก่อน'
-                                }
-                                province={selectedProvince}
-                                respectRBAC={false}
-                                showBranchCode={true}
-                                disabled={!selectedProvince}
-                              />
-                            );
-                          }}
+                          {({ getFieldValue }) => (
+                            <GeographicBranchSelector
+                              placeholder={
+                                getFieldValue('homeProvince')
+                                  ? 'เลือกสาขา'
+                                  : 'กรุณาเลือกจังหวัดก่อน'
+                              }
+                              province={getFieldValue('homeProvince')}
+                              respectRBAC={false}
+                              showBranchCode={true}
+                              disabled={!getFieldValue('homeProvince')}
+                              onChange={(branchValue) => {
+                                console.log('🏢 Branch onChange triggered:', {
+                                  branchValue,
+                                  selectedProvince:
+                                    getFieldValue('homeProvince'),
+                                  formValues: form.getFieldsValue(),
+                                });
+
+                                // Explicitly set the form field value
+                                form.setFieldsValue({
+                                  homeBranch: branchValue,
+                                });
+                              }}
+                            />
+                          )}
                         </Form.Item>
                       </Form.Item>
                     </Col>

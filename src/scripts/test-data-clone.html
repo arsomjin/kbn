@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>KBN Data Cloning Test</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        padding: 20px;
+      }
+      .button {
+        padding: 10px 20px;
+        margin: 10px;
+        background: #1890ff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      .button:hover {
+        background: #40a9ff;
+      }
+      .log {
+        background: #f5f5f5;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 4px;
+        font-family: monospace;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>🎯 KBN Data Cloning Test</h1>
+    <p><strong>Instructions:</strong></p>
+    <ol>
+      <li>Make sure KBN app is running in another tab</li>
+      <li>Make sure you're logged in to KBN</li>
+      <li>Click the "Clone Data" button below</li>
+    </ol>
+
+    <button class="button" onclick="cloneData()">🚀 Clone Data</button>
+    <button class="button" onclick="cleanupClonedData()">
+      🧹 Cleanup Data
+    </button>
+
+    <div id="log" class="log">Ready to clone data...</div>
+
+    <script>
+      const log = document.getElementById('log');
+
+      function addLog(message) {
+        log.innerHTML += message + '\n';
+        console.log(message);
+      }
+
+      async function cloneData() {
+        addLog('🚀 Starting data cloning...');
+
+        // Try to get Firebase from parent window or current window
+        let db;
+        try {
+          if (window.opener && window.opener.firebase) {
+            db = window.opener.firebase.firestore();
+            addLog('✅ Found Firebase in parent window');
+          } else if (window.firebase) {
+            db = window.firebase.firestore();
+            addLog('✅ Found Firebase in current window');
+          } else {
+            throw new Error('Firebase not found');
+          }
+        } catch (error) {
+          addLog('❌ Firebase not found! Make sure KBN app is running.');
+          return;
+        }
+
+        // Simple mappings
+        const branchMap = {
+          '0450': 'NSN001',
+          '0451': 'NSN002',
+          '0452': 'NSN003',
+          '0453': 'NSN001',
+          '0454': 'NSN002',
+          '0455': 'NSN003',
+        };
+
+        const customers = [
+          'นายสมชาย นครสวรรค์',
+          'นางมาลี ตาคลี',
+          'บริษัท เกษตรสีเขียว จำกัด',
+          'นายประยุทธ หนองบัว',
+        ];
+
+        try {
+          // 1. Clone accounting documents
+          addLog('📊 Cloning accounting documents...');
+          const accountingDocs = await db
+            .collection('sections/account/incomes')
+            .where('incomeCategory', '==', 'daily')
+            .limit(20)
+            .get();
+
+          const batch1 = db.batch();
+          let count1 = 0;
+
+          accountingDocs.forEach((doc) => {
+            const data = doc.data();
+            const newBranch = branchMap[data.branchCode] || 'NSN001';
+            const newId = `ACC-NSN-${Date.now()}-${count1}`;
+
+            const newData = {
+              ...data,
+              incomeId: newId,
+              incomeCategory: 'daily',
+              incomeSubCategory: data.incomeSubCategory || 'vehicles',
+              incomeType: data.incomeType || 'cash',
+              provinceId: 'nakhon-sawan',
+              province: 'นครสวรรค์',
+              branchCode: newBranch,
+              branch: newBranch,
+              customerName: customers[count1 % customers.length],
+              date: new Date().toISOString().split('T')[0],
+              created: Date.now(),
+              _cloned: true,
+            };
+
+            const newRef = db.collection('sections/account/incomes').doc(newId);
+            batch1.set(newRef, newData);
+            count1++;
+          });
+
+          await batch1.commit();
+          addLog(`✅ Cloned ${count1} accounting documents`);
+
+          // 2. Clone sale documents
+          addLog('🛒 Cloning sale documents...');
+          const saleDocs = await db
+            .collection('sections/sales/vehicles')
+            .where('status', '==', 'approved')
+            .limit(15)
+            .get();
+
+          const batch2 = db.batch();
+          let count2 = 0;
+
+          saleDocs.forEach((doc) => {
+            const data = doc.data();
+            const newBranch = branchMap[data.branchCode] || 'NSN001';
+            const newId = `SO-NSN-${Date.now()}-${count2}`;
+
+            const newData = {
+              ...data,
+              saleId: newId,
+              saleNo: newId,
+              saleCategory: 'daily',
+              saleSubCategory: data.saleSubCategory || 'vehicles',
+              saleType: data.saleType || 'cash',
+              provinceId: 'nakhon-sawan',
+              province: 'นครสวรรค์',
+              branchCode: newBranch,
+              branch: newBranch,
+              customerName: customers[count2 % customers.length],
+              date: new Date().toISOString().split('T')[0],
+              created: Date.now(),
+              _cloned: true,
+            };
+
+            const newRef = db.collection('sections/sales/vehicles').doc(newId);
+            batch2.set(newRef, newData);
+            count2++;
+          });
+
+          await batch2.commit();
+          addLog(`✅ Cloned ${count2} sale documents`);
+
+          addLog(
+            `\n🎉 DONE! Created ${count1 + count2} documents for Nakhon Sawan`
+          );
+          addLog('🔍 Search for: ACC-NSN, SO-NSN, สมชาย, มาลี');
+        } catch (error) {
+          addLog(`❌ Error: ${error.message}`);
+        }
+      }
+
+      async function cleanupClonedData() {
+        addLog('🧹 Cleaning up cloned data...');
+
+        let db;
+        try {
+          if (window.opener && window.opener.firebase) {
+            db = window.opener.firebase.firestore();
+          } else if (window.firebase) {
+            db = window.firebase.firestore();
+          } else {
+            throw new Error('Firebase not found');
+          }
+        } catch (error) {
+          addLog('❌ Firebase not found!');
+          return;
+        }
+
+        try {
+          const [acc, sales] = await Promise.all([
+            db
+              .collection('sections/account/incomes')
+              .where('_cloned', '==', true)
+              .get(),
+            db
+              .collection('sections/sales/vehicles')
+              .where('_cloned', '==', true)
+              .get(),
+          ]);
+
+          const batch = db.batch();
+          acc.forEach((doc) => batch.delete(doc.ref));
+          sales.forEach((doc) => batch.delete(doc.ref));
+
+          await batch.commit();
+          addLog(`✅ Cleaned up ${acc.size + sales.size} cloned documents`);
+        } catch (error) {
+          addLog(`❌ Cleanup error: ${error.message}`);
+        }
+      }
+    </script>
+  </body>
+</html>

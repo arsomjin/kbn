@@ -4,17 +4,17 @@ import { goOnline, goOffline } from 'redux/actions/unPersisted';
 
 const CONNECTION_TYPES = {
   ONLINE: 'online',
-  OFFLINE: 'offline', 
+  OFFLINE: 'offline',
   RECONNECTING: 'reconnecting',
-  UNSTABLE: 'unstable'
+  UNSTABLE: 'unstable',
 };
 
 const QUALITY_LEVELS = {
   EXCELLENT: 'excellent',
-  GOOD: 'good', 
+  GOOD: 'good',
   FAIR: 'fair',
   POOR: 'poor',
-  OFFLINE: 'offline'
+  OFFLINE: 'offline',
 };
 
 /**
@@ -32,14 +32,18 @@ export const useNetworkStatus = (options = {}) => {
     autoRetry = true,
     speedTestInterval = 30000,
     testEndpoint = '/favicon.ico',
-    enableQualityCheck = true
+    enableQualityCheck = true,
   } = options;
 
   const dispatch = useDispatch();
-  
+
   // State management
-  const [connectionStatus, setConnectionStatus] = useState(CONNECTION_TYPES.ONLINE);
-  const [connectionQuality, setConnectionQuality] = useState(QUALITY_LEVELS.GOOD);
+  const [connectionStatus, setConnectionStatus] = useState(
+    CONNECTION_TYPES.ONLINE
+  );
+  const [connectionQuality, setConnectionQuality] = useState(
+    QUALITY_LEVELS.GOOD
+  );
   const [isRetrying, setIsRetrying] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
   const [lastOnlineTime, setLastOnlineTime] = useState(null);
@@ -63,17 +67,17 @@ export const useNetworkStatus = (options = {}) => {
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }
-      
+
       abortControllerRef.current = new AbortController();
-      
+
       const startTime = performance.now();
       const response = await fetch(`${testEndpoint}?_=${Date.now()}`, {
         method: 'HEAD',
         cache: 'no-store',
-        signal: abortControllerRef.current.signal
+        signal: abortControllerRef.current.signal,
       });
       const endTime = performance.now();
-      
+
       const latency = endTime - startTime;
       setConnectionLatency(latency);
 
@@ -86,7 +90,6 @@ export const useNetworkStatus = (options = {}) => {
       if (latency < 300) return QUALITY_LEVELS.GOOD;
       if (latency < 600) return QUALITY_LEVELS.FAIR;
       return QUALITY_LEVELS.POOR;
-
     } catch (error) {
       if (error.name === 'AbortError') {
         return connectionQuality; // Return current quality if aborted
@@ -99,7 +102,10 @@ export const useNetworkStatus = (options = {}) => {
   // Get network information from browser APIs
   const getNetworkInfo = useCallback(() => {
     if ('connection' in navigator) {
-      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const connection =
+        navigator.connection ||
+        navigator.mozConnection ||
+        navigator.webkitConnection;
       if (connection) {
         setDownlinkSpeed(connection.downlink);
         setEffectiveType(connection.effectiveType);
@@ -107,7 +113,7 @@ export const useNetworkStatus = (options = {}) => {
           downlink: connection.downlink,
           effectiveType: connection.effectiveType,
           rtt: connection.rtt,
-          saveData: connection.saveData
+          saveData: connection.saveData,
         };
       }
     }
@@ -117,7 +123,7 @@ export const useNetworkStatus = (options = {}) => {
   // Comprehensive connection check
   const checkConnection = useCallback(async () => {
     const browserOnline = navigator.onLine;
-    
+
     if (!browserOnline) {
       setConnectionStatus(CONNECTION_TYPES.OFFLINE);
       setConnectionQuality(QUALITY_LEVELS.OFFLINE);
@@ -127,12 +133,12 @@ export const useNetworkStatus = (options = {}) => {
     if (enableQualityCheck) {
       const quality = await detectConnectionQuality();
       setConnectionQuality(quality);
-      
+
       if (quality === QUALITY_LEVELS.OFFLINE) {
         setConnectionStatus(CONNECTION_TYPES.OFFLINE);
         return false;
       }
-      
+
       if (quality === QUALITY_LEVELS.POOR) {
         setConnectionStatus(CONNECTION_TYPES.UNSTABLE);
       } else {
@@ -145,32 +151,32 @@ export const useNetworkStatus = (options = {}) => {
 
     // Get additional network info
     getNetworkInfo();
-    
+
     return true;
   }, [detectConnectionQuality, enableQualityCheck, getNetworkInfo]);
 
   // Manual retry connection
   const retryConnection = useCallback(async () => {
     if (isRetrying) return;
-    
+
     setIsRetrying(true);
     setConnectionStatus(CONNECTION_TYPES.RECONNECTING);
-    
+
     try {
       const isConnected = await checkConnection();
-      
+
       if (isConnected) {
         setRetryCount(0);
         setLastOnlineTime(new Date());
         dispatch(goOnline());
         return { success: true, message: 'Connected successfully' };
       } else {
-        setRetryCount(prev => prev + 1);
+        setRetryCount((prev) => prev + 1);
         dispatch(goOffline());
         return { success: false, message: 'Connection failed' };
       }
     } catch (error) {
-      setRetryCount(prev => prev + 1);
+      setRetryCount((prev) => prev + 1);
       dispatch(goOffline());
       return { success: false, message: error.message };
     } finally {
@@ -180,7 +186,11 @@ export const useNetworkStatus = (options = {}) => {
 
   // Auto retry mechanism
   useEffect(() => {
-    if (autoRetry && connectionStatus === CONNECTION_TYPES.OFFLINE && !isRetrying) {
+    if (
+      autoRetry &&
+      connectionStatus === CONNECTION_TYPES.OFFLINE &&
+      !isRetrying
+    ) {
       retryIntervalRef.current = setInterval(() => {
         retryConnection();
       }, retryInterval);
@@ -218,7 +228,13 @@ export const useNetworkStatus = (options = {}) => {
         clearInterval(speedTestIntervalRef.current);
       }
     };
-  }, [connectionStatus, enableQualityCheck, detectConnectionQuality, getNetworkInfo, speedTestInterval]);
+  }, [
+    connectionStatus,
+    enableQualityCheck,
+    detectConnectionQuality,
+    getNetworkInfo,
+    speedTestInterval,
+  ]);
 
   // Browser online/offline listeners
   useEffect(() => {
@@ -226,7 +242,7 @@ export const useNetworkStatus = (options = {}) => {
       setLastOnlineTime(new Date());
       checkConnection();
     };
-    
+
     const handleOffline = () => {
       setConnectionStatus(CONNECTION_TYPES.OFFLINE);
       setConnectionQuality(QUALITY_LEVELS.OFFLINE);
@@ -243,10 +259,13 @@ export const useNetworkStatus = (options = {}) => {
 
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
-    
+
     // Listen for network changes
     if ('connection' in navigator) {
-      const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+      const connection =
+        navigator.connection ||
+        navigator.mozConnection ||
+        navigator.webkitConnection;
       if (connection) {
         connection.addEventListener('change', handleConnectionChange);
       }
@@ -256,16 +275,19 @@ export const useNetworkStatus = (options = {}) => {
     checkConnection();
 
     return () => {
-      window.removeEventListener('online', handleOnline);  
+      window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
-      
+
       if ('connection' in navigator) {
-        const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        const connection =
+          navigator.connection ||
+          navigator.mozConnection ||
+          navigator.webkitConnection;
         if (connection) {
           connection.removeEventListener('change', handleConnectionChange);
         }
       }
-      
+
       // Cleanup intervals
       if (retryIntervalRef.current) {
         clearInterval(retryIntervalRef.current);
@@ -273,7 +295,7 @@ export const useNetworkStatus = (options = {}) => {
       if (speedTestIntervalRef.current) {
         clearInterval(speedTestIntervalRef.current);
       }
-      
+
       // Abort pending requests
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
@@ -291,18 +313,18 @@ export const useNetworkStatus = (options = {}) => {
     const texts = {
       th: {
         [QUALITY_LEVELS.EXCELLENT]: 'ดีเยี่ยม',
-        [QUALITY_LEVELS.GOOD]: 'ดี', 
+        [QUALITY_LEVELS.GOOD]: 'ดี',
         [QUALITY_LEVELS.FAIR]: 'ปานกลาง',
         [QUALITY_LEVELS.POOR]: 'ช้า',
-        [QUALITY_LEVELS.OFFLINE]: 'ออฟไลน์'
+        [QUALITY_LEVELS.OFFLINE]: 'ออฟไลน์',
       },
       en: {
         [QUALITY_LEVELS.EXCELLENT]: 'Excellent',
         [QUALITY_LEVELS.GOOD]: 'Good',
-        [QUALITY_LEVELS.FAIR]: 'Fair', 
+        [QUALITY_LEVELS.FAIR]: 'Fair',
         [QUALITY_LEVELS.POOR]: 'Poor',
-        [QUALITY_LEVELS.OFFLINE]: 'Offline'
-      }
+        [QUALITY_LEVELS.OFFLINE]: 'Offline',
+      },
     };
     return texts[lang][quality] || quality;
   };
@@ -313,14 +335,14 @@ export const useNetworkStatus = (options = {}) => {
         [CONNECTION_TYPES.ONLINE]: 'ออนไลน์',
         [CONNECTION_TYPES.OFFLINE]: 'ออฟไลน์',
         [CONNECTION_TYPES.RECONNECTING]: 'กำลังเชื่อมต่อใหม่...',
-        [CONNECTION_TYPES.UNSTABLE]: 'การเชื่อมต่อไม่เสถียร'
+        [CONNECTION_TYPES.UNSTABLE]: 'การเชื่อมต่อไม่เสถียร',
       },
       en: {
         [CONNECTION_TYPES.ONLINE]: 'Online',
-        [CONNECTION_TYPES.OFFLINE]: 'Offline', 
+        [CONNECTION_TYPES.OFFLINE]: 'Offline',
         [CONNECTION_TYPES.RECONNECTING]: 'Reconnecting...',
-        [CONNECTION_TYPES.UNSTABLE]: 'Unstable Connection'
-      }
+        [CONNECTION_TYPES.UNSTABLE]: 'Unstable Connection',
+      },
     };
     return texts[lang][status] || status;
   };
@@ -333,29 +355,29 @@ export const useNetworkStatus = (options = {}) => {
     isOffline,
     isReconnecting,
     isUnstable,
-    
+
     // Connection info
     connectionLatency,
     downlinkSpeed,
     effectiveType,
     lastOnlineTime,
-    
+
     // Retry info
     isRetrying,
     retryCount,
-    
+
     // Actions
     retryConnection,
     checkConnection,
-    
+
     // Helpers
     getQualityText,
     getStatusText,
-    
+
     // Constants
     CONNECTION_TYPES,
-    QUALITY_LEVELS
+    QUALITY_LEVELS,
   };
 };
 
-export default useNetworkStatus; 
+export default useNetworkStatus;

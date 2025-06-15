@@ -1,5 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { Collapse, Form, Popconfirm, Select } from 'antd';
+import React, { useEffect, useRef, useState, useContext } from 'react';
+import {
+  Collapse,
+  Form,
+  Popconfirm,
+  Select,
+  Card,
+  Button,
+  Input,
+  Row,
+  Col,
+  Space,
+  Typography,
+  Divider,
+} from 'antd';
 import {
   getBookingData,
   getInitialValues,
@@ -7,13 +20,12 @@ import {
   RenderSearch,
   searchKeys,
 } from './api';
+import { FirebaseContext } from '../../../../../../../firebase';
 import IncomeDailyHeader from '../../income-daily-header';
 import { useSelector } from 'react-redux';
 import { useGeographicData } from 'hooks/useGeographicData';
 import { DuringDayMoney } from 'components/common/DuringDayMoney';
-import { CardFooter, Col, Row } from 'shards-react';
 import { useHistory } from 'react-router-dom';
-import { Button, Input } from 'elements';
 import { _getNetIncomeFromValues } from 'Modules/Sales/Vehicles/api';
 import {
   firstKey,
@@ -35,7 +47,7 @@ import Customer from 'components/Customer';
 import { Numb } from 'functions';
 import Toggles from 'components/Toggles';
 import { cleanNumberFields } from 'functions';
-import { NotificationIcon } from 'elements';
+import { BellOutlined } from '@ant-design/icons';
 import { getEditArr } from 'utils';
 import DocViewer from './DocViewer';
 import { validatePayments } from 'Modules/Utils';
@@ -422,7 +434,7 @@ const IncomeVehicles = ({
         return;
       }
 
-      // showLog('[IncomeVehicles] values', values); // Disabled to prevent console spam
+      showLog('[IncomeVehicles] values', values); // Disabled to prevent console spam
 
       showConfirm(
         () => onConfirm(values, resetToInitial),
@@ -492,7 +504,7 @@ const IncomeVehicles = ({
                     geographic={geographic}
                   />
                 )}
-              <Row form>
+              <Row>
                 <Col md='4' className='d-flex flex-column'>
                   <Form.Item label='สด/ดาวน์/จอง/อื่นๆ' name='incomeType'>
                     <Select
@@ -566,16 +578,9 @@ const IncomeVehicles = ({
               <HiddenItem name='incomeId' />
               <HiddenItem name='customerId' />
               {values.editedBy && (
-                <Row
-                  form
-                  className='mb-3 ml-2'
-                  style={{ alignItems: 'center' }}
-                >
-                  <NotificationIcon
-                    icon='edit'
-                    data={editData}
-                    badgeNumber={values.editedBy.length}
-                    theme='warning'
+                <Row className='mb-3 ml-2' style={{ alignItems: 'center' }}>
+                  <BellOutlined
+                    style={{ fontSize: '16px', color: '#faad14' }}
                   />
                   <span className='ml-2 text-light'>ประวัติการแก้ไขเอกสาร</span>
                 </Row>
@@ -627,7 +632,7 @@ const IncomeVehicles = ({
                   </div>
                   {docType === 'kbnLeasing' ? (
                     <>
-                      <Row form className='bg-light'>
+                      <Row className='bg-light'>
                         <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'Down']}
@@ -671,7 +676,7 @@ const IncomeVehicles = ({
                           </Form.Item>
                         </Col>
                       </Row>
-                      <Row form className='bg-light'>
+                      <Row className='bg-light'>
                         <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'Borrow']}
@@ -701,7 +706,7 @@ const IncomeVehicles = ({
                           </Form.Item>
                         </Col>
                       </Row>
-                      <Row form className='bg-light'>
+                      <Row className='bg-light'>
                         <Col md='4'>
                           <Form.Item label='รายการหักเงิน อื่นๆ'>
                             <ArrayInput
@@ -826,22 +831,16 @@ const IncomeVehicles = ({
                 )}
               </div>
               <DuringDayMoney grant={grant} />
-              <Row form>
+              <Row>
                 <Col md={8}>
                   <Form.Item name='remark' label='หมายเหตุ'>
                     <Input disabled={!grant} />
                   </Form.Item>
                 </Col>
               </Row>
-              <CardFooter className='border-top '>
-                <Row style={{ justifyContent: 'flex-end' }} form>
-                  <Row
-                    style={{
-                      justifyContent: 'flex-end',
-                      marginRight: 10,
-                    }}
-                    form
-                  >
+              <div className='border-top pt-3'>
+                <Row justify='end' gutter={16}>
+                  <Col>
                     {!readOnly ? (
                       <Popconfirm
                         title='ยืนยัน?'
@@ -853,10 +852,9 @@ const IncomeVehicles = ({
                         }}
                       >
                         <Button
-                          // onClick={() => form.resetFields()}
                           className='mr-3'
                           disabled={!grant || nProps.readOnly}
-                          size='medium'
+                          size='middle'
                         >
                           ล้างข้อมูล
                         </Button>
@@ -869,23 +867,24 @@ const IncomeVehicles = ({
                           })
                         }
                         className='mr-3'
-                        size='medium'
+                        size='middle'
                       >
                         &larr; กลับ
                       </Button>
                     )}
+                  </Col>
+                  <Col>
                     <Button
                       type='primary'
                       onClick={() => _onPreConfirm()}
                       disabled={!grant}
-                      size='medium'
-                      // className="d-flex ml-auto mr-auto ml-sm-auto mr-sm-0 mt-3 mt-sm-0"
+                      size='middle'
                     >
                       บันทึกข้อมูล
                     </Button>
-                  </Row>
+                  </Col>
                 </Row>
-              </CardFooter>
+              </div>
             </>
           );
         }}

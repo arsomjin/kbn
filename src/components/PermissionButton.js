@@ -1,6 +1,6 @@
 /**
  * Permission-Aware Button Component
- * 
+ *
  * A button that automatically checks permissions and shows appropriate
  * warning messages when users don't have access to perform actions.
  */
@@ -46,7 +46,7 @@ const PermissionButton = ({
   disabled = false,
   loading = false,
   type = 'default',
-  size = 'middle',
+  size = 'medium',
   icon,
   className = '',
   style = {},
@@ -59,32 +59,32 @@ const PermissionButton = ({
     hasAuthorityLevel,
     worksInDepartment,
     isActive,
-    userRBAC
+    userRBAC,
   } = usePermissions();
 
   // Check if user has required permissions
   const checkPermissions = () => {
     // DEV users bypass all checks
     if (userRBAC?.isDev) return true;
-    
+
     // Check if user is active
     if (!isActive) return false;
-    
+
     // Check authority level
     if (authority && !hasAuthorityLevel(authority)) return false;
-    
+
     // Check department access
     if (department && !worksInDepartment(department)) return false;
-    
+
     // Check specific permission
     if (permission && !hasPermission(permission, geographic)) return false;
-    
+
     // Check any of permissions
     if (anyOf && !hasAnyPermission(anyOf, geographic)) return false;
-    
+
     // Check all of permissions
     if (allOf && !hasAllPermissions(allOf, geographic)) return false;
-    
+
     return true;
   };
 
@@ -95,24 +95,24 @@ const PermissionButton = ({
     if (!hasAccess) {
       e.preventDefault();
       e.stopPropagation();
-      
+
       // Show appropriate warning message
       if (warningMessage) {
         showPermissionWarning('NO_PERMISSION', {
           customMessage: {
             title: 'ไม่มีสิทธิ์เข้าถึง',
-            description: warningMessage
-          }
+            description: warningMessage,
+          },
         });
       } else {
         showPermissionWarning(warningType, {
-          context: getContextMessage()
+          context: getContextMessage(),
         });
       }
-      
+
       return;
     }
-    
+
     // Call original onClick if permission granted
     if (onClick) {
       onClick(e);
@@ -124,15 +124,15 @@ const PermissionButton = ({
     if (authority) {
       return `ต้องการสิทธิ์ระดับ ${authority}`;
     }
-    
+
     if (department) {
       return `ต้องการสิทธิ์เข้าถึงแผนก ${department}`;
     }
-    
+
     if (permission) {
       return `ต้องการสิทธิ์ ${permission}`;
     }
-    
+
     return 'คุณไม่มีสิทธิ์ในการดำเนินการนี้';
   };
 
@@ -141,7 +141,7 @@ const PermissionButton = ({
     if (!isActive) {
       return 'บัญชีของคุณไม่ได้ใช้งาน';
     }
-    
+
     return getContextMessage();
   };
 
@@ -154,7 +154,7 @@ const PermissionButton = ({
   const isDisabled = disabled || loading || !hasAccess;
   const buttonIcon = !hasAccess ? <LockOutlined /> : icon;
   const buttonType = !hasAccess ? 'default' : type;
-  
+
   // Button component
   const button = (
     <Button
@@ -168,10 +168,10 @@ const PermissionButton = ({
       className={`${className} ${!hasAccess ? 'permission-denied' : ''}`.trim()}
       style={{
         ...style,
-        ...((!hasAccess) && {
+        ...(!hasAccess && {
           opacity: 0.6,
-          cursor: 'not-allowed'
-        })
+          cursor: 'not-allowed',
+        }),
       }}
     >
       {children}
@@ -181,11 +181,11 @@ const PermissionButton = ({
   // Wrap with tooltip if access denied and showTooltip is true
   if (!hasAccess && showTooltip) {
     return (
-      <Tooltip 
+      <Tooltip
         title={getTooltipMessage()}
-        placement="top"
+        placement='top'
         overlayStyle={{
-          fontFamily: 'var(--nature-font-family)'
+          fontFamily: 'var(--nature-font-family)',
         }}
       >
         {button}
@@ -215,7 +215,7 @@ PermissionButton.propTypes = {
   size: PropTypes.string,
   icon: PropTypes.node,
   className: PropTypes.string,
-  style: PropTypes.object
+  style: PropTypes.object,
 };
 
 /**
@@ -224,9 +224,9 @@ PermissionButton.propTypes = {
 
 export const ApproveButton = (props) => (
   <PermissionButton
-    type="primary"
+    type='primary'
     icon={<ExclamationCircleOutlined />}
-    warningType="CANNOT_APPROVE"
+    warningType='CANNOT_APPROVE'
     {...props}
     permission={props.permission || 'accounting.approve'}
   >
@@ -236,13 +236,13 @@ export const ApproveButton = (props) => (
 
 ApproveButton.propTypes = {
   permission: PropTypes.string,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 export const EditButton = (props) => (
   <PermissionButton
-    type="default"
-    warningType="CANNOT_EDIT"
+    type='default'
+    warningType='CANNOT_EDIT'
     {...props}
     permission={props.permission || 'accounting.edit'}
   >
@@ -252,13 +252,13 @@ export const EditButton = (props) => (
 
 EditButton.propTypes = {
   permission: PropTypes.string,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 export const DeleteButton = (props) => (
   <PermissionButton
-    type="danger"
-    warningType="CANNOT_DELETE"
+    type='danger'
+    warningType='CANNOT_DELETE'
     {...props}
     permission={props.permission || 'accounting.delete'}
   >
@@ -268,13 +268,13 @@ export const DeleteButton = (props) => (
 
 DeleteButton.propTypes = {
   permission: PropTypes.string,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 export const CreateButton = (props) => (
   <PermissionButton
-    type="primary"
-    warningType="CANNOT_CREATE"
+    type='primary'
+    warningType='CANNOT_CREATE'
     {...props}
     permission={props.permission || 'accounting.create'}
   >
@@ -284,13 +284,13 @@ export const CreateButton = (props) => (
 
 CreateButton.propTypes = {
   permission: PropTypes.string,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 export const ViewButton = (props) => (
   <PermissionButton
-    type="default"
-    warningType="CANNOT_VIEW"
+    type='default'
+    warningType='CANNOT_VIEW'
     {...props}
     permission={props.permission || 'accounting.view'}
   >
@@ -300,7 +300,7 @@ export const ViewButton = (props) => (
 
 ViewButton.propTypes = {
   permission: PropTypes.string,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
-export default PermissionButton; 
+export default PermissionButton;

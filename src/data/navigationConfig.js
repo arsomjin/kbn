@@ -721,7 +721,7 @@ export const NAVIGATION_CONFIG = {
                 description: 'สรุปผลงานรับจอง',
               },
               {
-                key: 'sale-assessment',
+                key: 'sale-assessment-report',
                 title: 'ผลการประเมิน',
                 to: '/reports/sale-assessment',
                 permission: 'sales.view',
@@ -1006,7 +1006,7 @@ export const NAVIGATION_CONFIG = {
             description: 'จัดการข้อมูลสาขา',
           },
           {
-            key: 'users',
+            key: 'users-settings',
             title: 'กลุ่มผู้ใช้งาน',
             to: '/setting-users',
             permission: 'settings.edit',
@@ -1213,10 +1213,27 @@ export const NAVIGATION_CONFIG = {
     isDeveloperOnly: true, // Special flag for developer menu
     items: [
       {
-        key: 'clean-slate-rbac-group',
-        title: 'CLEAN SLATE RBAC',
+        key: 'testing-tools-group',
+        title: 'TESTING TOOLS',
         type: 'group',
         items: [
+          {
+            key: 'data-clone-test',
+            title: '🎯 Data Clone Test',
+            to: '/dev/data-clone-test',
+            description: 'เครื่องมือจำลองข้อมูลสำหรับทดสอบ Multi-Province',
+            priority: 'high',
+            badge: 'ESSENTIAL',
+          },
+          {
+            key: 'data-comparison-tool',
+            title: '🚀 Data Comparison Tool',
+            to: '/dev/data-comparison-tool',
+            description:
+              'เครื่องมือเปรียบเทียบข้อมูลสำหรับทดสอบ 80+ components',
+            priority: 'high',
+            badge: 'NEW',
+          },
           {
             key: 'clean-slate-permissions-demo',
             title: 'Permission System Demo',

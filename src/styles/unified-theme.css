@@ -24,22 +24,22 @@
    ====================== */
 
 :root {
-  /* Primary Colors */
-  --nature-primary: #2d5016;
-  --nature-primary-light: #3d6b1c;
-  --nature-primary-lighter: #4a7c1f;
-  --nature-primary-dark: #1f3a0f;
-  
+  /* Primary Colors (Medium Green) */
+  --nature-primary: #3f8b18;
+  --nature-primary-light: #52c41a;
+  --nature-primary-lighter: #73d13d;
+  --nature-primary-dark: #2d5016;
+
   /* Secondary Colors */
-  --nature-secondary: #8B4513;
-  --nature-secondary-light: #A0522D;
-  
+  --nature-secondary: #8b4513;
+  --nature-secondary-light: #a0522d;
+
   /* Status Colors */
   --nature-success: #16a34a;
   --nature-warning: #f59e0b;
   --nature-error: #dc2626;
   --nature-info: #0ea5e9;
-  
+
   /* Neutral Colors */
   --nature-text-primary: #1f2937;
   --nature-text-secondary: #6b7280;
@@ -49,31 +49,34 @@
   --nature-bg-tertiary: #f3f4f6;
   --nature-border: #e5e7eb;
   --nature-border-light: #f3f4f6;
-  
+
   /* Component Spacing */
   --nature-spacing-xs: 4px;
   --nature-spacing-sm: 8px;
   --nature-spacing-md: 16px;
   --nature-spacing-lg: 24px;
   --nature-spacing-xl: 32px;
-  
+
   /* Typography */
-  --nature-font-family: 'Sarabun', 'Myriad Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --nature-font-family:
+    'Sarabun', 'Myriad Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    'Roboto', sans-serif;
   --nature-font-size-sm: 12px;
   --nature-font-size-base: 14px;
   --nature-font-size-lg: 16px;
   --nature-font-size-xl: 18px;
-  
+
   /* Border Radius */
   --nature-border-radius-sm: 4px;
   --nature-border-radius: 8px;
   --nature-border-radius-lg: 12px;
   --nature-border-radius-xl: 16px;
-  
+
   /* Shadows */
   --nature-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
   --nature-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-  --nature-shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
+  --nature-shadow-lg:
+    0 10px 15px rgba(0, 0, 0, 0.1), 0 4px 6px rgba(0, 0, 0, 0.05);
 }
 
 /* ======================
@@ -183,11 +186,11 @@
   .ant-steps {
     margin: var(--nature-spacing-md) 0;
   }
-  
+
   .ant-steps-item-title {
     font-size: var(--nature-font-size-sm) !important;
   }
-  
+
   .ant-steps-item-description {
     font-size: 11px !important;
     line-height: 1.4;
@@ -224,7 +227,7 @@
 .container,
 .row,
 .col,
-[class*="col-"] {
+[class*='col-'] {
   font-family: var(--nature-font-family) !important;
 }
 
@@ -314,7 +317,11 @@
 }
 
 .nature-page-header {
-  background: linear-gradient(135deg, var(--nature-background-light) 0%, var(--nature-background-white) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--nature-background-light) 0%,
+    var(--nature-background-white) 100%
+  );
   border-bottom: 2px solid var(--nature-primary-lighter);
   padding: var(--nature-spacing-md);
   margin-bottom: var(--nature-spacing-lg);
@@ -373,13 +380,13 @@
     color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
   }
-  
+
   .ant-steps-item-icon {
     border: 2px solid var(--nature-primary) !important;
     background-color: white !important;
   }
-  
+
   .ant-steps-item-finish .ant-steps-item-icon {
     background-color: var(--nature-primary) !important;
   }
-} 
+}

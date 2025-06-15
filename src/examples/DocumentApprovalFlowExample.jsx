@@ -1,38 +1,44 @@
 /**
  * Document Approval Flow Example
- * 
+ *
  * Comprehensive example demonstrating the complete document approval flow
  * integration with LayoutWithRBAC for different document types.
  */
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Card, 
-  Form, 
-  Input, 
-  InputNumber, 
-  Select, 
-  DatePicker, 
-  Button, 
-  Space, 
-  Typography, 
+import {
+  Card,
+  Form,
+  Input,
+  InputNumber,
+  Select,
+  DatePicker,
+  Button,
+  Space,
+  Typography,
   Divider,
   Row,
   Col,
   message,
   Tag,
-  Alert
+  Alert,
 } from 'antd';
-import { 
-  FileTextOutlined, 
-  DollarOutlined, 
-  ToolOutlined, 
+import {
+  FileTextOutlined,
+  DollarOutlined,
+  ToolOutlined,
   InboxOutlined,
-  UserOutlined
+  UserOutlined,
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import PropTypes from 'prop-types';
 
-import { DocumentWorkflowWrapper, ApprovalStatusBadge, ApprovalHistory } from '../components/DocumentApprovalFlow';
+import {
+  DocumentApprovalFlow,
+  ApprovalStatusBadge,
+  ApprovalHistory,
+} from '../components/DocumentApprovalFlow';
+import LayoutWithRBAC from '../components/layout/LayoutWithRBAC';
 import { usePermissions } from '../hooks/usePermissions';
 
 const { Title, Text, Paragraph } = Typography;
@@ -43,7 +49,7 @@ const { TextArea } = Input;
  * Mock data for demonstration
  */
 const MOCK_DOCUMENTS = {
-  'invoice': {
+  invoice: {
     id: 'INV-2024-001',
     type: 'invoice',
     status: 'draft',
@@ -53,9 +59,9 @@ const MOCK_DOCUMENTS = {
     dueDate: dayjs().add(30, 'days').valueOf(),
     description: 'ขายรถแทรกเตอร์ Kubota M7040',
     createdAt: dayjs().subtract(2, 'hours').valueOf(),
-    lastModifiedAt: dayjs().subtract(1, 'hour').valueOf()
+    lastModifiedAt: dayjs().subtract(1, 'hour').valueOf(),
   },
-  'sales_order': {
+  sales_order: {
     id: 'SO-2024-001',
     type: 'sales_order',
     status: 'price_review',
@@ -67,9 +73,9 @@ const MOCK_DOCUMENTS = {
     totalAmount: 1200000,
     specialDiscount: 50000,
     createdAt: dayjs().subtract(1, 'day').valueOf(),
-    lastModifiedAt: dayjs().subtract(2, 'hours').valueOf()
+    lastModifiedAt: dayjs().subtract(2, 'hours').valueOf(),
   },
-  'service_order': {
+  service_order: {
     id: 'SRV-2024-001',
     type: 'service_order',
     status: 'assessed',
@@ -81,9 +87,9 @@ const MOCK_DOCUMENTS = {
     estimatedHours: 8,
     description: 'เครื่องยนต์ติดยาก เสียงดังผิดปกติ',
     createdAt: dayjs().subtract(3, 'hours').valueOf(),
-    lastModifiedAt: dayjs().subtract(1, 'hour').valueOf()
+    lastModifiedAt: dayjs().subtract(1, 'hour').valueOf(),
   },
-  'inventory_import': {
+  inventory_import: {
     id: 'IMP-2024-001',
     type: 'inventory_import',
     status: 'inspection',
@@ -94,8 +100,8 @@ const MOCK_DOCUMENTS = {
     description: 'นำเข้าอะไหล่เครื่องยนต์',
     expectedDate: dayjs().add(7, 'days').valueOf(),
     createdAt: dayjs().subtract(1, 'day').valueOf(),
-    lastModifiedAt: dayjs().subtract(4, 'hours').valueOf()
-  }
+    lastModifiedAt: dayjs().subtract(4, 'hours').valueOf(),
+  },
 };
 
 /**
@@ -108,7 +114,7 @@ const MOCK_AUDIT_TRAIL = [
     time: dayjs().subtract(2, 'hours').valueOf(),
     userInfo: { name: 'สมชาย ใจดี', employeeCode: 'EMP001' },
     notes: 'สร้างเอกสารใหม่',
-    geographic: { branchCode: '0450', provinceId: 'NMA' }
+    geographic: { branchCode: '0450', provinceId: 'NMA' },
   },
   {
     id: 'audit_2',
@@ -116,8 +122,8 @@ const MOCK_AUDIT_TRAIL = [
     time: dayjs().subtract(1, 'hour').valueOf(),
     userInfo: { name: 'สุดา ขยัน', employeeCode: 'EMP002' },
     notes: 'แก้ไขข้อมูลลูกค้า',
-    geographic: { branchCode: '0450', provinceId: 'NMA' }
-  }
+    geographic: { branchCode: '0450', provinceId: 'NMA' },
+  },
 ];
 
 /**
@@ -132,7 +138,7 @@ const InvoiceForm = ({ documentData, onSave, permissions, isLoading }) => {
         customerName: documentData.customerName,
         amount: documentData.amount,
         dueDate: documentData.dueDate ? dayjs(documentData.dueDate) : null,
-        description: documentData.description
+        description: documentData.description,
       });
     }
   }, [documentData, form]);
@@ -142,43 +148,45 @@ const InvoiceForm = ({ documentData, onSave, permissions, isLoading }) => {
       ...documentData,
       ...values,
       dueDate: values.dueDate ? values.dueDate.valueOf() : null,
-      lastModifiedAt: Date.now()
+      lastModifiedAt: Date.now(),
     };
-    
+
     if (onSave) {
       await onSave(updatedData);
     }
   };
 
   return (
-    <Card title="ข้อมูลใบแจ้งหนี้" icon={<FileTextOutlined />}>
+    <Card title='ข้อมูลใบแจ้งหนี้' icon={<FileTextOutlined />}>
       <Form
         form={form}
-        layout="vertical"
+        layout='vertical'
         onFinish={handleSubmit}
         disabled={!permissions?.canEdit}
       >
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="customerName"
-              label="ชื่อลูกค้า"
+              name='customerName'
+              label='ชื่อลูกค้า'
               rules={[{ required: true, message: 'กรุณาระบุชื่อลูกค้า' }]}
             >
-              <Input placeholder="ระบุชื่อลูกค้า" />
+              <Input placeholder='ระบุชื่อลูกค้า' />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              name="amount"
-              label="จำนวนเงิน (บาท)"
+              name='amount'
+              label='จำนวนเงิน (บาท)'
               rules={[{ required: true, message: 'กรุณาระบุจำนวนเงิน' }]}
             >
               <InputNumber
                 style={{ width: '100%' }}
-                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value.replace(/\$\s?|(,*)/g, '')}
-                placeholder="0.00"
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                }
+                parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+                placeholder='0.00'
               />
             </Form.Item>
           </Col>
@@ -187,8 +195,8 @@ const InvoiceForm = ({ documentData, onSave, permissions, isLoading }) => {
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="dueDate"
-              label="วันที่ครบกำหนด"
+              name='dueDate'
+              label='วันที่ครบกำหนด'
               rules={[{ required: true, message: 'กรุณาเลือกวันที่ครบกำหนด' }]}
             >
               <DatePicker style={{ width: '100%' }} />
@@ -196,16 +204,13 @@ const InvoiceForm = ({ documentData, onSave, permissions, isLoading }) => {
           </Col>
         </Row>
 
-        <Form.Item
-          name="description"
-          label="รายละเอียด"
-        >
-          <TextArea rows={3} placeholder="ระบุรายละเอียดเพิ่มเติม" />
+        <Form.Item name='description' label='รายละเอียด'>
+          <TextArea rows={3} placeholder='ระบุรายละเอียดเพิ่มเติม' />
         </Form.Item>
 
         {permissions?.canEdit && (
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={isLoading}>
+            <Button type='primary' htmlType='submit' loading={isLoading}>
               บันทึกข้อมูล
             </Button>
           </Form.Item>
@@ -213,6 +218,16 @@ const InvoiceForm = ({ documentData, onSave, permissions, isLoading }) => {
       </Form>
     </Card>
   );
+};
+
+InvoiceForm.propTypes = {
+  documentData: PropTypes.object.isRequired,
+  onSave: PropTypes.func,
+  permissions: PropTypes.shape({
+    canEdit: PropTypes.bool,
+    canView: PropTypes.bool,
+  }),
+  isLoading: PropTypes.bool,
 };
 
 const SalesOrderForm = ({ documentData, onSave, permissions, isLoading }) => {
@@ -225,53 +240,54 @@ const SalesOrderForm = ({ documentData, onSave, permissions, isLoading }) => {
         vehicleModel: documentData.vehicleModel,
         quantity: documentData.quantity,
         unitPrice: documentData.unitPrice,
-        specialDiscount: documentData.specialDiscount
+        specialDiscount: documentData.specialDiscount,
       });
     }
   }, [documentData, form]);
 
   const handleSubmit = async (values) => {
-    const totalAmount = (values.quantity * values.unitPrice) - (values.specialDiscount || 0);
     const updatedData = {
       ...documentData,
       ...values,
-      totalAmount,
-      lastModifiedAt: Date.now()
+      totalAmount:
+        (values.quantity || 0) * (values.unitPrice || 0) -
+        (values.specialDiscount || 0),
+      lastModifiedAt: Date.now(),
     };
-    
+
     if (onSave) {
       await onSave(updatedData);
     }
   };
 
   return (
-    <Card title="ใบสั่งขาย" icon={<DollarOutlined />}>
+    <Card title='ข้อมูลใบสั่งขาย' icon={<DollarOutlined />}>
       <Form
         form={form}
-        layout="vertical"
+        layout='vertical'
         onFinish={handleSubmit}
         disabled={!permissions?.canEdit}
       >
         <Row gutter={16}>
           <Col span={12}>
             <Form.Item
-              name="customerName"
-              label="ชื่อลูกค้า"
+              name='customerName'
+              label='ชื่อลูกค้า'
               rules={[{ required: true, message: 'กรุณาระบุชื่อลูกค้า' }]}
             >
-              <Input placeholder="ระบุชื่อลูกค้า" />
+              <Input placeholder='ระบุชื่อลูกค้า' />
             </Form.Item>
           </Col>
           <Col span={12}>
             <Form.Item
-              name="vehicleModel"
-              label="รุ่นรถแทรกเตอร์"
-              rules={[{ required: true, message: 'กรุณาเลือกรุ่นรถ' }]}
+              name='vehicleModel'
+              label='รุ่นรถ'
+              rules={[{ required: true, message: 'กรุณาระบุรุ่นรถ' }]}
             >
-              <Select placeholder="เลือกรุ่นรถ">
-                <Option value="Kubota M6040">Kubota M6040</Option>
-                <Option value="Kubota M7040">Kubota M7040</Option>
-                <Option value="Kubota L4508">Kubota L4508</Option>
+              <Select placeholder='เลือกรุ่นรถ'>
+                <Option value='Kubota M6040'>Kubota M6040</Option>
+                <Option value='Kubota M7040'>Kubota M7040</Option>
+                <Option value='Kubota L4508'>Kubota L4508</Option>
               </Select>
             </Form.Item>
           </Col>
@@ -280,35 +296,38 @@ const SalesOrderForm = ({ documentData, onSave, permissions, isLoading }) => {
         <Row gutter={16}>
           <Col span={8}>
             <Form.Item
-              name="quantity"
-              label="จำนวน"
+              name='quantity'
+              label='จำนวน'
               rules={[{ required: true, message: 'กรุณาระบุจำนวน' }]}
             >
-              <InputNumber min={1} style={{ width: '100%' }} />
+              <InputNumber min={1} style={{ width: '100%' }} placeholder='1' />
             </Form.Item>
           </Col>
           <Col span={8}>
             <Form.Item
-              name="unitPrice"
-              label="ราคาต่อหน่วย (บาท)"
+              name='unitPrice'
+              label='ราคาต่อหน่วย (บาท)'
               rules={[{ required: true, message: 'กรุณาระบุราคา' }]}
             >
               <InputNumber
                 style={{ width: '100%' }}
-                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                }
+                parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+                placeholder='0.00'
               />
             </Form.Item>
           </Col>
           <Col span={8}>
-            <Form.Item
-              name="specialDiscount"
-              label="ส่วนลดพิเศษ (บาท)"
-            >
+            <Form.Item name='specialDiscount' label='ส่วนลดพิเศษ (บาท)'>
               <InputNumber
                 style={{ width: '100%' }}
-                formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                parser={value => value.replace(/\$\s?|(,*)/g, '')}
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+                }
+                parser={(value) => value.replace(/\$\s?|(,*)/g, '')}
+                placeholder='0.00'
               />
             </Form.Item>
           </Col>
@@ -316,7 +335,7 @@ const SalesOrderForm = ({ documentData, onSave, permissions, isLoading }) => {
 
         {permissions?.canEdit && (
           <Form.Item>
-            <Button type="primary" htmlType="submit" loading={isLoading}>
+            <Button type='primary' htmlType='submit' loading={isLoading}>
               บันทึกข้อมูล
             </Button>
           </Form.Item>
@@ -324,6 +343,16 @@ const SalesOrderForm = ({ documentData, onSave, permissions, isLoading }) => {
       </Form>
     </Card>
   );
+};
+
+SalesOrderForm.propTypes = {
+  documentData: PropTypes.object.isRequired,
+  onSave: PropTypes.func,
+  permissions: PropTypes.shape({
+    canEdit: PropTypes.bool,
+    canView: PropTypes.bool,
+  }),
+  isLoading: PropTypes.bool,
 };
 
 /**
@@ -343,19 +372,19 @@ const DocumentApprovalFlowExample = () => {
   // Mock document save function
   const handleDocumentSave = async (updatedData) => {
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+
     setDocumentData(updatedData);
     message.success('บันทึกเอกสารเรียบร้อย');
-    
+
     console.log('Document saved:', updatedData);
   };
 
   // Mock document load function
   const handleDocumentLoad = async (documentId) => {
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     return MOCK_DOCUMENTS[selectedDocumentType];
   };
 
@@ -368,22 +397,22 @@ const DocumentApprovalFlowExample = () => {
         return <SalesOrderForm {...props} />;
       case 'service_order':
         return (
-          <Card title="ใบสั่งซ่อม" icon={<ToolOutlined />}>
+          <Card title='ใบสั่งซ่อม' icon={<ToolOutlined />}>
             <Alert
-              message="Service Order Form"
-              description="This would be the service order form component"
-              type="info"
+              message='Service Order Form'
+              description='This would be the service order form component'
+              type='info'
               showIcon
             />
           </Card>
         );
       case 'inventory_import':
         return (
-          <Card title="ใบนำเข้าสินค้า" icon={<InboxOutlined />}>
+          <Card title='ใบนำเข้าสินค้า' icon={<InboxOutlined />}>
             <Alert
-              message="Inventory Import Form"
-              description="This would be the inventory import form component"
-              type="info"
+              message='Inventory Import Form'
+              description='This would be the inventory import form component'
+              type='info'
               showIcon
             />
           </Card>
@@ -401,7 +430,8 @@ const DocumentApprovalFlowExample = () => {
           <FileTextOutlined /> Document Approval Flow Example
         </Title>
         <Paragraph>
-          ตัวอย่างการใช้งานระบบอนุมัติเอกสารแบบครบวงจร พร้อมการผสานรวมกับ LayoutWithRBAC
+          ตัวอย่างการใช้งานระบบอนุมัติเอกสารแบบครบวงจร พร้อมการผสานรวมกับ
+          LayoutWithRBAC
         </Paragraph>
 
         {/* Document Type Selector */}
@@ -412,16 +442,16 @@ const DocumentApprovalFlowExample = () => {
             onChange={handleDocumentTypeChange}
             style={{ width: '200px', marginLeft: '8px' }}
           >
-            <Option value="invoice">
+            <Option value='invoice'>
               <FileTextOutlined /> ใบแจ้งหนี้
             </Option>
-            <Option value="sales_order">
+            <Option value='sales_order'>
               <DollarOutlined /> ใบสั่งขาย
             </Option>
-            <Option value="service_order">
+            <Option value='service_order'>
               <ToolOutlined /> ใบสั่งซ่อม
             </Option>
-            <Option value="inventory_import">
+            <Option value='inventory_import'>
               <InboxOutlined /> ใบนำเข้าสินค้า
             </Option>
           </Select>
@@ -432,9 +462,7 @@ const DocumentApprovalFlowExample = () => {
           <Space>
             <Text strong>สถานะปัจจุบัน:</Text>
             <ApprovalStatusBadge status={documentData.status} />
-            <Text type="secondary">
-              เอกสารเลขที่: {documentData.id}
-            </Text>
+            <Text type='secondary'>เอกสารเลขที่: {documentData.id}</Text>
           </Space>
         </div>
 
@@ -444,35 +472,37 @@ const DocumentApprovalFlowExample = () => {
             <UserOutlined />
             <Text strong>ผู้ใช้งาน:</Text>
             <Text>{userRBAC?.displayName || 'ไม่ระบุ'}</Text>
-            <Tag color="blue">{userRBAC?.accessLevel || 'ไม่ระบุสิทธิ์'}</Tag>
+            <Tag color='blue'>{userRBAC?.accessLevel || 'ไม่ระบุสิทธิ์'}</Tag>
           </Space>
         </div>
       </Card>
 
-      {/* Document Workflow */}
-      <DocumentWorkflowWrapper
-        documentId={documentData.id}
-        documentType={selectedDocumentType}
-        documentData={documentData}
-        onDocumentSave={handleDocumentSave}
-        onDocumentLoad={handleDocumentLoad}
+      {/* Document Workflow - Updated to use LayoutWithRBAC directly */}
+      <LayoutWithRBAC
         title={`จัดการ${documentData.id}`}
         subtitle={`${selectedDocumentType} Management`}
-        showApprovalFlow={true}
-        showStepper={true}
+        permission='general.view'
+        editPermission='general.edit'
+        documentId={documentData.id}
+        documentType={selectedDocumentType}
         showAuditTrail={true}
+        showAuditSection={true}
+        requireBranchSelection={false}
+        autoInjectProvinceId={true}
       >
-        {renderDocumentForm}
-      </DocumentWorkflowWrapper>
+        {renderDocumentForm({
+          documentData,
+          onSave: handleDocumentSave,
+          permissions: { canEdit: true, canView: true },
+          isLoading: false,
+        })}
+      </LayoutWithRBAC>
 
       {/* Additional Examples */}
-      <Card 
-        title="ตัวอย่างการใช้งานเพิ่มเติม" 
-        style={{ marginTop: '24px' }}
-      >
+      <Card title='ตัวอย่างการใช้งานเพิ่มเติม' style={{ marginTop: '24px' }}>
         <Row gutter={16}>
           <Col span={12}>
-            <Card size="small" title="Approval History">
+            <Card size='small' title='Approval History'>
               <ApprovalHistory
                 auditTrail={MOCK_AUDIT_TRAIL}
                 statusHistory={[]}
@@ -482,13 +512,13 @@ const DocumentApprovalFlowExample = () => {
             </Card>
           </Col>
           <Col span={12}>
-            <Card size="small" title="Status Examples">
-              <Space direction="vertical" style={{ width: '100%' }}>
-                <ApprovalStatusBadge status="draft" />
-                <ApprovalStatusBadge status="review" />
-                <ApprovalStatusBadge status="approved" />
-                <ApprovalStatusBadge status="rejected" />
-                <ApprovalStatusBadge status="completed" />
+            <Card size='small' title='Status Examples'>
+              <Space direction='vertical' style={{ width: '100%' }}>
+                <ApprovalStatusBadge status='draft' />
+                <ApprovalStatusBadge status='review' />
+                <ApprovalStatusBadge status='approved' />
+                <ApprovalStatusBadge status='rejected' />
+                <ApprovalStatusBadge status='completed' />
               </Space>
             </Card>
           </Col>
@@ -496,22 +526,34 @@ const DocumentApprovalFlowExample = () => {
       </Card>
 
       {/* Implementation Notes */}
-      <Card 
-        title="หมายเหตุการใช้งาน" 
-        style={{ marginTop: '24px' }}
-      >
+      <Card title='หมายเหตุการใช้งาน' style={{ marginTop: '24px' }}>
         <Alert
-          message="การใช้งานระบบอนุมัติเอกสาร"
+          message='การใช้งานระบบอนุมัติเอกสาร'
           description={
             <div>
-              <p><strong>1. DocumentWorkflowWrapper:</strong> ใช้สำหรับการผสานรวมกับ LayoutWithRBAC อย่างสมบูรณ์</p>
-              <p><strong>2. การตรวจสอบสิทธิ์:</strong> ระบบจะตรวจสอบสิทธิ์อัตโนมัติตามประเภทเอกสาร</p>
-              <p><strong>3. Audit Trail:</strong> บันทึกการเปลี่ยนแปลงทั้งหมดพร้อมข้อมูลผู้ใช้และที่ตั้ง</p>
-              <p><strong>4. Permission Warnings:</strong> แสดงคำเตือนเมื่อผู้ใช้ไม่มีสิทธิ์</p>
-              <p><strong>5. Responsive Design:</strong> รองรับการใช้งานบนอุปกรณ์ทุกขนาด</p>
+              <p>
+                <strong>1. LayoutWithRBAC:</strong>{' '}
+                ใช้สำหรับการผสานรวมระบบจัดการเอกสารแบบครบวงจร
+              </p>
+              <p>
+                <strong>2. การตรวจสอบสิทธิ์:</strong>{' '}
+                ระบบจะตรวจสอบสิทธิ์อัตโนมัติตามประเภทเอกสาร
+              </p>
+              <p>
+                <strong>3. Audit Trail:</strong>{' '}
+                บันทึกการเปลี่ยนแปลงทั้งหมดพร้อมข้อมูลผู้ใช้และที่ตั้ง
+              </p>
+              <p>
+                <strong>4. Permission Warnings:</strong>{' '}
+                แสดงคำเตือนเมื่อผู้ใช้ไม่มีสิทธิ์
+              </p>
+              <p>
+                <strong>5. Responsive Design:</strong>{' '}
+                รองรับการใช้งานบนอุปกรณ์ทุกขนาด
+              </p>
             </div>
           }
-          type="info"
+          type='info'
           showIcon
         />
       </Card>

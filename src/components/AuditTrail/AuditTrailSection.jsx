@@ -1,5 +1,6 @@
 import React from 'react';
-import { Row, Col, Form, DatePicker, Tooltip, Divider, Typography } from 'antd';
+import { Row, Col, Form, Tooltip, Divider, Typography } from 'antd';
+import { DatePicker } from 'elements';
 import { UserOutlined, CalendarOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 import EmployeeSelector from '../EmployeeSelector';
@@ -33,20 +34,23 @@ const AuditTrailSection = ({
   approvedByPath = ['auditTrail', 2, 'userInfo', 'name'],
   editDatePath = ['auditTrail', 0, 'time'],
   reviewDatePath = ['auditTrail', 1, 'time'],
-  approveDatePath = ['auditTrail', 2, 'time']
+  approveDatePath = ['auditTrail', 2, 'time'],
 }) => {
   const { hasPermission } = usePermissions();
 
   // Determine effective permissions
-  const effectiveCanEditEditedBy = canEditEditedBy && hasPermission(editPermission);
-  const effectiveCanEditReviewedBy = canEditReviewedBy && hasPermission(reviewPermission);
-  const effectiveCanEditApprovedBy = canEditApprovedBy && hasPermission(approvePermission);
+  const effectiveCanEditEditedBy =
+    canEditEditedBy && hasPermission(editPermission);
+  const effectiveCanEditReviewedBy =
+    canEditReviewedBy && hasPermission(reviewPermission);
+  const effectiveCanEditApprovedBy =
+    canEditApprovedBy && hasPermission(approvePermission);
 
   // Common label style
   const getLabelStyle = (isRequired = false) => ({
     fontWeight: 500,
     ...labelStyle,
-    ...(isRequired && { fontWeight: 600 })
+    ...(isRequired && { fontWeight: 600 }),
   });
 
   // Render field with permission check
@@ -63,49 +67,43 @@ const AuditTrailSection = ({
       name={fieldPath}
       label={
         <span style={getLabelStyle(isRequired)}>
-          {icon && <span className="mr-1">{icon}</span>}
+          {icon && <span className='mr-1'>{icon}</span>}
           {isRequired && '* '}
           {label}
         </span>
       }
       rules={[
-        { 
-          required: canEdit && isRequired, 
-          message: `กรุณา${component === 'date' ? 'เลือก' : 'ระบุ'}${label}` 
-        }
+        {
+          required: canEdit && isRequired,
+          message: `กรุณา${component === 'date' ? 'เลือก' : 'ระบุ'}${label}`,
+        },
       ]}
     >
       {canEdit ? (
         component === 'date' ? (
-          <DatePicker 
-            disabled={false} 
+          <DatePicker
+            disabled={false}
             style={{ width: '100%' }}
-            format="DD/MM/YYYY HH:mm"
+            format='DD/MM/YYYY HH:mm'
             showTime
             placeholder={`เลือก${label}`}
           />
         ) : (
-          <EmployeeSelector 
-            disabled={false}
-            placeholder={`เลือก${label}`}
-          />
+          <EmployeeSelector disabled={false} placeholder={`เลือก${label}`} />
         )
       ) : (
         <Tooltip title={tooltipMessage}>
           <span style={{ display: 'block' }}>
             {component === 'date' ? (
-              <DatePicker 
-                disabled={true} 
+              <DatePicker
+                disabled={true}
                 style={{ width: '100%' }}
-                format="DD/MM/YYYY HH:mm"
+                format='DD/MM/YYYY HH:mm'
                 showTime
                 placeholder={`เลือก${label}`}
               />
             ) : (
-              <EmployeeSelector 
-                disabled={true}
-                placeholder={`เลือก${label}`}
-              />
+              <EmployeeSelector disabled={true} placeholder={`เลือก${label}`} />
             )}
           </span>
         </Tooltip>
@@ -124,23 +122,23 @@ const AuditTrailSection = ({
   return (
     <>
       {showDivider && <Divider />}
-      
-      <div className="audit-trail-section">
+
+      <div className='audit-trail-section'>
         {/* Section Title */}
-        <div className="mb-4">
-          <Text strong className="text-lg">
+        <div className='mb-4'>
+          <Text strong className='text-lg'>
             ข้อมูลการตรวจสอบและอนุมัติ
           </Text>
-          <Text className="block text-sm text-gray-500 mt-1">
+          <Text className='block text-sm text-gray-500 mt-1'>
             กรอกข้อมูลผู้รับผิดชอบในแต่ละขั้นตอน
           </Text>
         </div>
 
-        <Row gutter={16} className="mb-4 mt-4 p-2">
+        <Row gutter={16} className='mb-4 mt-4 p-2'>
           {/* Editor Section */}
           <Col {...getColProps()}>
             <PermissionGate permission={editPermission}>
-              <div className="space-y-4">
+              <div className='space-y-4'>
                 {renderField(
                   editedByLabel,
                   editedByPath,
@@ -150,7 +148,7 @@ const AuditTrailSection = ({
                   <UserOutlined />,
                   'คุณไม่มีสิทธิ์ในการแก้ไขข้อมูลผู้แก้ไข'
                 )}
-                
+
                 {renderField(
                   editDateLabel,
                   editDatePath,
@@ -167,7 +165,7 @@ const AuditTrailSection = ({
           {/* Reviewer Section */}
           <Col {...getColProps()}>
             <PermissionGate permission={reviewPermission}>
-              <div className="space-y-4">
+              <div className='space-y-4'>
                 {renderField(
                   reviewedByLabel,
                   reviewedByPath,
@@ -177,7 +175,7 @@ const AuditTrailSection = ({
                   <UserOutlined />,
                   'คุณไม่มีสิทธิ์ในการแก้ไขข้อมูลผู้ตรวจสอบ'
                 )}
-                
+
                 {renderField(
                   reviewDateLabel,
                   reviewDatePath,
@@ -194,7 +192,7 @@ const AuditTrailSection = ({
           {/* Approver Section */}
           <Col {...getColProps()}>
             <PermissionGate permission={approvePermission}>
-              <div className="space-y-4">
+              <div className='space-y-4'>
                 {renderField(
                   approvedByLabel,
                   approvedByPath,
@@ -204,7 +202,7 @@ const AuditTrailSection = ({
                   <UserOutlined />,
                   'คุณไม่มีสิทธิ์ในการแก้ไขข้อมูลผู้อนุมัติ'
                 )}
-                
+
                 {renderField(
                   approveDateLabel,
                   approveDatePath,
@@ -220,11 +218,12 @@ const AuditTrailSection = ({
         </Row>
 
         {/* Permission Info */}
-        <div className="mt-4 p-3 bg-blue-50 rounded-md">
-          <Text className="text-sm text-blue-600">
-            <strong>หมายเหตุ:</strong> การแสดงและแก้ไขข้อมูลในส่วนนี้ขึ้นอยู่กับสิทธิ์ของผู้ใช้งาน
+        <div className='mt-4 p-3 bg-blue-50 rounded-md'>
+          <Text className='text-sm text-blue-600'>
+            <strong>หมายเหตุ:</strong>{' '}
+            การแสดงและแก้ไขข้อมูลในส่วนนี้ขึ้นอยู่กับสิทธิ์ของผู้ใช้งาน
           </Text>
-          <ul className="mt-2 text-sm text-blue-600 mb-0">
+          <ul className='mt-2 text-sm text-blue-600 mb-0'>
             <li>• ผู้แก้ไข: ต้องมีสิทธิ์ audit.edit</li>
             <li>• ผู้ตรวจสอบ: ต้องมีสิทธิ์ audit.review</li>
             <li>• ผู้อนุมัติ: ต้องมีสิทธิ์ audit.approve</li>
@@ -243,7 +242,7 @@ AuditTrailSection.propTypes = {
   layout: PropTypes.oneOf(['horizontal', 'vertical']),
   size: PropTypes.oneOf(['small', 'default', 'large']),
   labelStyle: PropTypes.object,
-  
+
   // Labels
   editedByLabel: PropTypes.string,
   reviewedByLabel: PropTypes.string,
@@ -251,19 +250,19 @@ AuditTrailSection.propTypes = {
   editDateLabel: PropTypes.string,
   reviewDateLabel: PropTypes.string,
   approveDateLabel: PropTypes.string,
-  
+
   // Permissions
   editPermission: PropTypes.string,
   reviewPermission: PropTypes.string,
   approvePermission: PropTypes.string,
-  
+
   // Form paths
   editedByPath: PropTypes.array,
   reviewedByPath: PropTypes.array,
   approvedByPath: PropTypes.array,
   editDatePath: PropTypes.array,
   reviewDatePath: PropTypes.array,
-  approveDatePath: PropTypes.array
+  approveDatePath: PropTypes.array,
 };
 
-export default AuditTrailSection; 
+export default AuditTrailSection;

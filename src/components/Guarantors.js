@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
-
-import { Row, Col } from 'shards-react';
-import { Form, Collapse, Popconfirm } from 'antd';
+import { Row, Col, Form, Collapse, Popconfirm } from 'antd';
+import PropTypes from 'prop-types';
 import { Button, Input } from 'elements';
 import PrefixAnt from './PrefixAnt';
 import { formItemClass } from 'data/Constant';
@@ -11,96 +10,135 @@ import { showLog } from 'functions';
 import { PlusOutlined } from '@ant-design/icons';
 const { Panel } = Collapse;
 
-const Guarantors = ({ name, notRequired, addText, grant, readOnly, values, ...props }) => {
+const Guarantors = ({
+  name,
+  notRequired,
+  addText,
+  grant,
+  readOnly,
+  values,
+  ...props
+}) => {
   // showLog({ guarantor });
   return (
     <Form.List name={name} {...props}>
       {(fields, { add, remove }, { errors }) => {
         return (
           <>
-            {fields.map(field => {
+            {fields.map((field) => {
               let value = values[name][field.name];
               // showLog({ value });
               return (
-                <div key={field.key} className="border bg-light px-3 pt-3">
-                  <div className="d-flex flex-row" style={{ justifyContent: 'space-between' }}>
-                    <label className="text-muted">{`ผู้ค้ำประกัน #${field.name + 1}`}</label>
+                <div key={field.key} className='border bg-light px-3 pt-3'>
+                  <div
+                    className='d-flex flex-row'
+                    style={{ justifyContent: 'space-between' }}
+                  >
+                    <label className='text-muted'>{`ผู้ค้ำประกัน #${field.name + 1}`}</label>
                     <Popconfirm
-                      title="ลบรายการ ?"
+                      title='ลบรายการ ?'
                       onConfirm={() => remove(field.name)}
                       onCancel={() => showLog('cancel')}
-                      okText="ยืนยัน"
-                      cancelText="ยกเลิก"
+                      okText='ยืนยัน'
+                      cancelText='ยกเลิก'
                       disabled={fields.length === 0 || !grant || readOnly}
                     >
                       <Button
-                        theme="white"
-                        className="p-2"
+                        theme='white'
+                        className='p-2'
                         disabled={!grant || readOnly}
                         // onClick={() => remove(field.name)}
                       >
-                        <i className="material-icons">clear</i>
+                        <i className='material-icons'>clear</i>
                       </Button>
                     </Popconfirm>
                   </div>
                   <Row form style={{ alignItems: 'center' }}>
-                    <Col md="2">
-                      <Form.Item name={[field.name, 'prefix']} label="คำนำหน้า" className={formItemClass}>
-                        <PrefixAnt disabled={!grant || readOnly} readOnly={readOnly} />
+                    <Col md='2'>
+                      <Form.Item
+                        name={[field.name, 'prefix']}
+                        label='คำนำหน้า'
+                        className={formItemClass}
+                      >
+                        <PrefixAnt
+                          disabled={!grant || readOnly}
+                          readOnly={readOnly}
+                        />
                       </Form.Item>
                     </Col>
-                    <Col md="2">
+                    <Col md='2'>
                       <Form.Item
                         name={[field.name, 'firstName']}
-                        label="ชื่อผู้ค้ำประกัน"
+                        label='ชื่อผู้ค้ำประกัน'
                         className={formItemClass}
                         rules={[
                           {
                             required: !notRequired,
-                            message: 'กรุณาป้อนชื่อผู้ค้ำประกัน'
-                          }
+                            message: 'กรุณาป้อนชื่อผู้ค้ำประกัน',
+                          },
                         ]}
                       >
-                        <Input placeholder="ชื่อผู้ค้ำประกัน" disabled={!grant} readOnly={readOnly} />
+                        <Input
+                          placeholder='ชื่อผู้ค้ำประกัน'
+                          disabled={!grant}
+                          readOnly={readOnly}
+                        />
                       </Form.Item>
                     </Col>
                     {!['หจก.', 'บจ.'].includes([field.name, 'prefix']) && (
-                      <Col md="3">
-                        <Form.Item name={[field.name, 'lastName']} label="นามสกุล" className={formItemClass}>
-                          <Input placeholder="นามสกุล" disabled={!grant} readOnly={readOnly} />
+                      <Col md='3'>
+                        <Form.Item
+                          name={[field.name, 'lastName']}
+                          label='นามสกุล'
+                          className={formItemClass}
+                        >
+                          <Input
+                            placeholder='นามสกุล'
+                            disabled={!grant}
+                            readOnly={readOnly}
+                          />
                         </Form.Item>
                       </Col>
                     )}
 
-                    <Col md="2">
+                    <Col md='2'>
                       <Form.Item
                         name={[field.name, 'phoneNumber']}
-                        label="เบอร์โทรศัพท์"
+                        label='เบอร์โทรศัพท์'
                         className={formItemClass}
                         rules={[
                           {
                             required: !notRequired || value.firstName,
-                            message: 'กรุณาป้อนข้อมูล'
+                            message: 'กรุณาป้อนข้อมูล',
                           },
-                          ...getRules(['mobileNumber'])
+                          ...getRules(['mobileNumber']),
                         ]}
                       >
-                        <Input mask="111-1111111" placeholder="012-3456789" disabled={!grant} readOnly={readOnly} />
+                        <Input
+                          mask='111-1111111'
+                          placeholder='012-3456789'
+                          disabled={!grant}
+                          readOnly={readOnly}
+                        />
                       </Form.Item>
                     </Col>
-                    <Col md="2">
+                    <Col md='2'>
                       <Form.Item
                         name={[field.name, 'relationship']}
-                        label="ความสัมพันธ์"
+                        label='ความสัมพันธ์'
                         className={formItemClass}
                         rules={[
                           {
                             required: !notRequired || value.firstName,
-                            message: 'กรุณาป้อนข้อมูล'
-                          }
+                            message: 'กรุณาป้อนข้อมูล',
+                          },
                         ]}
                       >
-                        <Input placeholder="กรุณาป้อนข้อมูล" disabled={!grant} readOnly={readOnly} />
+                        <Input
+                          placeholder='กรุณาป้อนข้อมูล'
+                          disabled={!grant}
+                          readOnly={readOnly}
+                        />
                       </Form.Item>
                     </Col>
                   </Row>
@@ -119,12 +157,14 @@ const Guarantors = ({ name, notRequired, addText, grant, readOnly, values, ...pr
             })}
             <Form.ErrorList errors={errors} />
             {!readOnly && grant && (
-              <Form.Item className={fields.length > 0 ? 'mb-2 mt-1' : 'mb-2 mt-0'}>
+              <Form.Item
+                className={fields.length > 0 ? 'mb-2 mt-1' : 'mb-2 mt-0'}
+              >
                 <Button
-                  type="dashed"
+                  type='dashed'
                   onClick={() => add()}
                   block
-                  size="middle"
+                  size='medium'
                   icon={<PlusOutlined />}
                   disabled={!grant || readOnly}
                 >
@@ -137,6 +177,15 @@ const Guarantors = ({ name, notRequired, addText, grant, readOnly, values, ...pr
       }}
     </Form.List>
   );
+};
+
+Guarantors.propTypes = {
+  name: PropTypes.string.isRequired,
+  notRequired: PropTypes.bool,
+  addText: PropTypes.string,
+  grant: PropTypes.bool,
+  readOnly: PropTypes.bool,
+  values: PropTypes.object.isRequired,
 };
 
 export default Guarantors;

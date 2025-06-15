@@ -21,11 +21,12 @@ const _ = require('lodash');
 
 export const tagColors = ['blue', 'gold', 'cyan', 'red', 'green'];
 
-export const __DEV__ = typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production';
+export const __DEV__ =
+  typeof process !== 'undefined' && process.env?.NODE_ENV !== 'production';
 
-export const tagRender = props => {
+export const tagRender = (props) => {
   const { label, closable, onClose, ...mProps } = props;
-  const onPreventMouseDown = event => {
+  const onPreventMouseDown = (event) => {
     event.preventDefault();
     event.stopPropagation();
   };
@@ -48,13 +49,13 @@ export const getEditArr_bak = (editData, users) =>
     try {
       let changeArr = sortArr(editData, '-time');
       // showLog('sorted_data', editData);
-      let result = await arrayForEach(changeArr, async item => {
+      let result = await arrayForEach(changeArr, async (item) => {
         const detail = item.changes ? (
-          <div className="d-flex my-2" style={{ flexWrap: 'wrap' }}>
+          <div className='d-flex my-2' style={{ flexWrap: 'wrap' }}>
             {item.changes.map((ch, k) => {
               // showLog({ ch });
               let dCh = { ...ch };
-              Object.keys(ch).forEach(k => {
+              Object.keys(ch).forEach((k) => {
                 // showLog({ k });
                 if (isTimeTypeField(k)) {
                   // showLog('timeField', k);
@@ -64,14 +65,17 @@ export const getEditArr_bak = (editData, users) =>
               return (
                 <Chip
                   key={k}
-                  label={JSON.stringify(dCh).slice(1, JSON.stringify(dCh).length - 1)}
+                  label={JSON.stringify(dCh).slice(
+                    1,
+                    JSON.stringify(dCh).length - 1
+                  )}
                   // color="primary"
-                  variant="outlined"
-                  size="small"
-                  className="mx-1"
+                  variant='outlined'
+                  size='small'
+                  className='mx-1'
                   style={{
                     marginTop: 5,
-                    maxWidth: isMobile ? 320 : w(60)
+                    maxWidth: isMobile ? 320 : w(60),
                   }}
                 />
               );
@@ -85,9 +89,11 @@ export const getEditArr_bak = (editData, users) =>
 
         return {
           time: item.time,
-          title: userDoc ? `${user.firstName}${user.nickName ? `(${user.nickName})` : ''}` : '',
+          title: userDoc
+            ? `${user.firstName}${user.nickName ? `(${user.nickName})` : ''}`
+            : '',
           detail,
-          onClick: () => showToBeContinue()
+          onClick: () => showToBeContinue(),
         };
       });
       r(result);
@@ -97,9 +103,9 @@ export const getEditArr_bak = (editData, users) =>
   });
 
 // Helper function to format time fields in a change object
-const formatChangeTimeFields = change => {
+const formatChangeTimeFields = (change) => {
   let formattedChange = { ...change };
-  Object.keys(change).forEach(key => {
+  Object.keys(change).forEach((key) => {
     if (isTimeTypeField(key)) {
       formattedChange[key] = moment(formattedChange[key]).format('HH:mm');
     }
@@ -109,26 +115,28 @@ const formatChangeTimeFields = change => {
 
 export const getEditArr = (editData, users) => {
   if (!Array.isArray(editData) || typeof users !== 'object') {
-    console.warn('Invalid input: editData should be an array and users should be an object.');
+    console.warn(
+      'Invalid input: editData should be an array and users should be an object.'
+    );
     return [];
   }
 
   const changeArr = sortArr(editData, '-time');
 
-  return changeArr.map(item => {
+  return changeArr.map((item) => {
     let changes = [];
     // Support both new (array) and old (object) data structure
     if (Array.isArray(item.changes)) {
       changes = item.changes;
     } else if (typeof item.changes === 'object') {
-      changes = Object.keys(item.changes).map(key => ({
-        [key]: item.changes[key]
+      changes = Object.keys(item.changes).map((key) => ({
+        [key]: item.changes[key],
       }));
     }
 
     // Format change details into readable components
     const detail = changes.length ? (
-      <div className="d-flex my-2" style={{ flexWrap: 'wrap' }}>
+      <div className='d-flex my-2' style={{ flexWrap: 'wrap' }}>
         {changes.map((change, index) => {
           const formattedChange = formatChangeTimeFields(change);
 
@@ -136,12 +144,12 @@ export const getEditArr = (editData, users) => {
             <Chip
               key={index}
               label={JSON.stringify(formattedChange).slice(1, -1)}
-              variant="outlined"
-              size="small"
-              className="mx-1"
+              variant='outlined'
+              size='small'
+              className='mx-1'
               style={{
                 marginTop: 5,
-                maxWidth: isMobile ? 320 : w(60)
+                maxWidth: isMobile ? 320 : w(60),
               }}
             />
           );
@@ -155,19 +163,26 @@ export const getEditArr = (editData, users) => {
       time: item.time,
       title: `${users[item.uid]?.firstName || ''}${users[item.uid]?.nickName ? `(${users[item.uid]?.nickName})` : ''}`,
       detail,
-      onClick: () => showToBeContinue()
+      onClick: () => showToBeContinue(),
     };
   });
 };
 
-export const createOptionsFromFirestore = ({ searchText, searchCollection, orderBy, wheres, firestore, labels }) =>
+export const createOptionsFromFirestore = ({
+  searchText,
+  searchCollection,
+  orderBy,
+  wheres,
+  firestore,
+  labels,
+}) =>
   new Promise(async (r, j) => {
     try {
       // console.log({ searchText, searchCollection, orderBy, wheres, labels });
-      
+
       // Check if there's a deleted field filter in wheres
       const { hasDeletedFilter, cleanWheres } = processDeletedFilter(wheres);
-      
+
       let dataArr = [];
       let fields = Array.isArray(orderBy) ? orderBy : [orderBy];
       if (labels) {
@@ -177,24 +192,43 @@ export const createOptionsFromFirestore = ({ searchText, searchCollection, order
 
       if (hasDeletedFilter) {
         // Use the helper function for non-deleted documents
-        const documents = await queryNonDeletedDocuments(searchCollection, cleanWheres);
-        
+        const documents = await queryNonDeletedDocuments(
+          searchCollection,
+          cleanWheres
+        );
+
         if (Array.isArray(orderBy)) {
           // search multiple fields.
-          await arrayForEach(orderBy, async field => {
-            const arr = documents.filter(doc => {
-              const fieldValue = doc[field];
-              return fieldValue && fieldValue.toString().toLowerCase().includes(searchText.toLowerCase());
-            }).map(doc => ({ ...doc, _key: doc._id }));
+          await arrayForEach(orderBy, async (field) => {
+            const arr = documents
+              .filter((doc) => {
+                const fieldValue = doc[field];
+                return (
+                  fieldValue &&
+                  fieldValue
+                    .toString()
+                    .toLowerCase()
+                    .includes(searchText.toLowerCase())
+                );
+              })
+              .map((doc) => ({ ...doc, _key: doc._id }));
             dataArr = dataArr.concat(arr);
           });
           dataArr = distinctArr(dataArr, [orderBy[0]]);
         } else {
           // search 1 field.
-          dataArr = documents.filter(doc => {
-            const fieldValue = doc[orderBy];
-            return fieldValue && fieldValue.toString().toLowerCase().includes(searchText.toLowerCase());
-          }).map(doc => ({ ...doc, _key: doc._id }));
+          dataArr = documents
+            .filter((doc) => {
+              const fieldValue = doc[orderBy];
+              return (
+                fieldValue &&
+                fieldValue
+                  .toString()
+                  .toLowerCase()
+                  .includes(searchText.toLowerCase())
+              );
+            })
+            .map((doc) => ({ ...doc, _key: doc._id }));
         }
       } else {
         // Use original firestore query method
@@ -208,7 +242,7 @@ export const createOptionsFromFirestore = ({ searchText, searchCollection, order
           return txt;
         });
         if (wheres) {
-          wheres.map(wh => {
+          wheres.map((wh) => {
             // console.log({ wh });
             searchRef = searchRef.where(wh[0], wh[1], wh[2]);
             return wh;
@@ -217,35 +251,51 @@ export const createOptionsFromFirestore = ({ searchText, searchCollection, order
 
         if (Array.isArray(orderBy)) {
           // search multiple fields.
-          await arrayForEach(orderBy, async field => {
-            const arr = await fetchSearchsEachField(searchText, field, searchRef, fields);
+          await arrayForEach(orderBy, async (field) => {
+            const arr = await fetchSearchsEachField(
+              searchText,
+              field,
+              searchRef,
+              fields
+            );
             dataArr = dataArr.concat(arr);
           });
           dataArr = distinctArr(dataArr, [orderBy[0]]);
         } else {
           // search 1 field.
-          dataArr = await fetchSearchsEachField(searchText, orderBy, searchRef, fields);
+          dataArr = await fetchSearchsEachField(
+            searchText,
+            orderBy,
+            searchRef,
+            fields
+          );
         }
       }
 
-      const option = dataArr.map(item => {
+      const option = dataArr.map((item) => {
         if (labels || Array.isArray(orderBy)) {
           let label = '';
           (labels || orderBy).map((l, i) => {
             label = `${label}${
-              item[l] && i > 0 ? (l === 'lastName' ? ' ' : l === 'firstName' ? '' : ' - ') : ''
+              item[l] && i > 0
+                ? l === 'lastName'
+                  ? ' '
+                  : l === 'firstName'
+                    ? ''
+                    : ' - '
+                : ''
             }${item[l] || ''}${['saleNo', 'bookNo', 'serviceNo'].includes(l) ? ' ' : ''}`;
             // showLog({ label, item: item[l] });
             return l;
           });
           return {
             label,
-            value: item[Array.isArray(orderBy) ? orderBy[0] : orderBy]
+            value: item[Array.isArray(orderBy) ? orderBy[0] : orderBy],
           };
         }
         return {
           label: item[orderBy],
-          value: item[orderBy]
+          value: item[orderBy],
         };
       });
       r(option);
@@ -258,24 +308,30 @@ export const createSelectOptions = (arr, orderBy, labels) =>
   new Promise(async (r, j) => {
     try {
       // console.log({ searchText, searchCollection, orderBy, wheres });
-      const option = arr.map(item => {
+      const option = arr.map((item) => {
         if (labels || Array.isArray(orderBy)) {
           let label = '';
           (labels || orderBy).map((l, i) => {
             label = `${label}${
-              item[l] && i > 0 ? (l === 'lastName' ? ' ' : l === 'firstName' ? '' : ' - ') : ''
+              item[l] && i > 0
+                ? l === 'lastName'
+                  ? ' '
+                  : l === 'firstName'
+                    ? ''
+                    : ' - '
+                : ''
             }${item[l] || ''}${['saleNo', 'bookNo'].includes(l) ? ' ' : ''}`;
             // showLog({ label, item: item[l] });
             return l;
           });
           return {
             label,
-            value: item[Array.isArray(orderBy) ? orderBy[0] : orderBy]
+            value: item[Array.isArray(orderBy) ? orderBy[0] : orderBy],
           };
         }
         return {
           label: item[orderBy],
-          value: item[orderBy]
+          value: item[orderBy],
         };
       });
       r(option);
@@ -292,7 +348,7 @@ export const fetchFirestoreKeywords = ({
   firestore,
   startSearchAt,
   labels,
-  limit = 30
+  limit = 30,
 }) =>
   new Promise(async (r, j) => {
     try {
@@ -302,10 +358,10 @@ export const fetchFirestoreKeywords = ({
         // showLog('LESS_THAN', startSearchAt);
         return;
       }
-      
+
       // Check if there's a deleted field filter in wheres
       const { hasDeletedFilter, cleanWheres } = processDeletedFilter(wheres);
-      
+
       let dataArr = [];
       let fields = Array.isArray(orderBy) ? orderBy : [orderBy];
       if (labels) {
@@ -315,16 +371,20 @@ export const fetchFirestoreKeywords = ({
 
       if (hasDeletedFilter) {
         // Use the helper function for non-deleted documents
-        const documents = await queryNonDeletedDocuments(searchCollection, cleanWheres);
-        
+        const documents = await queryNonDeletedDocuments(
+          searchCollection,
+          cleanWheres
+        );
+
         // Filter documents that match the keywords search
-        dataArr = documents.filter(doc => {
-          const keywords = doc.keywords || [];
-          return keywords.some(keyword => 
-            keyword.toLowerCase().includes(searchText.toLowerCase())
-          );
-        }).slice(0, limit);
-        
+        dataArr = documents
+          .filter((doc) => {
+            const keywords = doc.keywords || [];
+            return keywords.some((keyword) =>
+              keyword.toLowerCase().includes(searchText.toLowerCase())
+            );
+          })
+          .slice(0, limit);
       } else {
         // Use original firestore query method
         let searchRef = firestore;
@@ -337,7 +397,7 @@ export const fetchFirestoreKeywords = ({
           return txt;
         });
         if (wheres) {
-          wheres.map(wh => {
+          wheres.map((wh) => {
             // console.log({ wh });
             searchRef = searchRef.where(wh[0], wh[1], wh[2]);
             return wh;
@@ -345,9 +405,14 @@ export const fetchFirestoreKeywords = ({
         }
 
         // search from keywords field.
-        dataArr = await fetchSearchsKeywords(searchText, searchRef, fields, limit);
+        dataArr = await fetchSearchsKeywords(
+          searchText,
+          searchRef,
+          fields,
+          limit
+        );
       }
-      
+
       dataArr = distinctArr(dataArr, [orderBy[0]]);
       //  showLog({ dataArr });
       r(dataArr);
@@ -364,7 +429,7 @@ export const createOptionsFromFirestoreKeywords = ({
   firestore,
   startSearchAt,
   labels,
-  isUsed
+  isUsed,
 }) =>
   new Promise(async (r, j) => {
     try {
@@ -375,11 +440,11 @@ export const createOptionsFromFirestoreKeywords = ({
         wheres,
         firestore,
         startSearchAt,
-        labels
+        labels,
       });
       if (dataArr.length === 0 && !!dataArr[0]?.productCode) {
-        let ArrIsUsed = dataArr.filter(l => l.productCode.startsWith('2-'));
-        let ArrIsNew = dataArr.filter(l => !l.productCode.startsWith('2-'));
+        let ArrIsUsed = dataArr.filter((l) => l.productCode.startsWith('2-'));
+        let ArrIsNew = dataArr.filter((l) => !l.productCode.startsWith('2-'));
         let limit = 50;
         while (ArrIsUsed.length > 0 && ArrIsNew.length === 0 && !isUsed) {
           // Fetch until we have new product code.
@@ -392,10 +457,10 @@ export const createOptionsFromFirestoreKeywords = ({
             firestore,
             startSearchAt,
             labels,
-            limit
+            limit,
           });
-          ArrIsUsed = dataArr.filter(l => l.productCode.startsWith('2-'));
-          ArrIsNew = dataArr.filter(l => !l.productCode.startsWith('2-'));
+          ArrIsUsed = dataArr.filter((l) => l.productCode.startsWith('2-'));
+          ArrIsNew = dataArr.filter((l) => !l.productCode.startsWith('2-'));
         }
         dataArr = [...ArrIsNew, ...ArrIsUsed];
       }
@@ -406,7 +471,7 @@ export const createOptionsFromFirestoreKeywords = ({
     }
   });
 
-export const partialText = str => {
+export const partialText = (str) => {
   const parts = str.split(' ');
   if (parts.length > 1) {
     parts.shift();
@@ -438,9 +503,9 @@ export const fetchSearchsEachField = (searchText, orderBy, searchRef, fields) =>
       // Search in array
       // const arraySnap = await searchRef.where(orderBy, 'array-contains', term).get()
       if (!lowerSnap.empty) {
-        lowerSnap.forEach(doc => {
+        lowerSnap.forEach((doc) => {
           let item = { _id: doc.id };
-          fields.map(l => {
+          fields.map((l) => {
             item = { ...item, [l]: doc.data()[l] };
             // showLog({ item });
             return l;
@@ -475,31 +540,124 @@ export const fetchSearchsKeywords = (searchText, searchRef, fields, limit) =>
       let arr = [];
       let sTxt = '';
       if (Array.isArray(searchText)) {
-        sTxt = searchText.length > 0 ? searchText[searchText.length - 1].toLowerCase() : '';
+        sTxt =
+          searchText.length > 0
+            ? searchText[searchText.length - 1].toLowerCase()
+            : '';
       } else {
         sTxt = searchText.toLowerCase();
       }
-      const snapshot = await searchRef
-        .where('keywords', 'array-contains', sTxt.toLowerCase())
-        // .orderBy('name.last')
-        // .startAfter(lastNameOfLastPerson)
-        .limit(limit)
-        .get();
-        if (!snapshot.empty) {
-          snapshot.forEach(doc => {
+
+      // 🔧 ENHANCED: Try multiple search strategies for better results
+
+      // Strategy 1: Exact keyword match
+      try {
+        const exactSnapshot = await searchRef
+          .where('keywords', 'array-contains', sTxt.toLowerCase())
+          .limit(limit)
+          .get();
+
+        if (!exactSnapshot.empty) {
+          exactSnapshot.forEach((doc) => {
             let item = { _id: doc.id };
-            fields.map(l => {
+            fields.map((l) => {
               item = { ...item, [l]: doc.data()[l] };
-              // showLog({ item });
               return l;
             });
             arr.push(item);
           });
         }
-        // showLog({ arr });
-        console.log("[fetchSearchsKeywords]",{ searchRef, sTxt: sTxt.toLowerCase(), arr });
-      r(arr);
+      } catch (exactError) {
+        console.warn('[fetchSearchsKeywords] Exact match failed:', exactError);
+      }
+
+      // Strategy 2: If no exact matches and search term is long enough, try partial keyword matches
+      if (arr.length === 0 && sTxt.length >= 3) {
+        try {
+          // Get all documents and filter client-side for partial matches
+          const allSnapshot = await searchRef
+            .limit(limit * 2) // Get more documents for client-side filtering
+            .get();
+
+          if (!allSnapshot.empty) {
+            allSnapshot.forEach((doc) => {
+              const data = doc.data();
+              const keywords = data.keywords || [];
+
+              // Check if any keyword contains the search term
+              const hasPartialMatch = keywords.some((keyword) =>
+                keyword.toLowerCase().includes(sTxt.toLowerCase())
+              );
+
+              if (hasPartialMatch) {
+                let item = { _id: doc.id };
+                fields.map((l) => {
+                  item = { ...item, [l]: data[l] };
+                  return l;
+                });
+                arr.push(item);
+              }
+            });
+          }
+        } catch (partialError) {
+          console.warn(
+            '[fetchSearchsKeywords] Partial match failed:',
+            partialError
+          );
+        }
+      }
+
+      // Strategy 3: If still no results, try searching in actual field values
+      if (arr.length === 0) {
+        try {
+          const fieldSnapshot = await searchRef.limit(limit).get();
+
+          if (!fieldSnapshot.empty) {
+            fieldSnapshot.forEach((doc) => {
+              const data = doc.data();
+
+              // Check if search term appears in any of the searchable fields
+              const searchableText = fields
+                .map((field) => data[field])
+                .filter(Boolean)
+                .join(' ')
+                .toLowerCase();
+
+              if (searchableText.includes(sTxt.toLowerCase())) {
+                let item = { _id: doc.id };
+                fields.map((l) => {
+                  item = { ...item, [l]: data[l] };
+                  return l;
+                });
+                arr.push(item);
+              }
+            });
+          }
+        } catch (fieldError) {
+          console.warn(
+            '[fetchSearchsKeywords] Field search failed:',
+            fieldError
+          );
+        }
+      }
+
+      // Remove duplicates based on _id
+      const uniqueArr = arr.filter(
+        (item, index, self) =>
+          index === self.findIndex((t) => t._id === item._id)
+      );
+
+      console.log('[fetchSearchsKeywords]', {
+        searchRef,
+        sTxt: sTxt.toLowerCase(),
+        totalResults: uniqueArr.length,
+        strategies: ['exact', 'partial', 'field'],
+        arr: uniqueArr,
+      });
+
+      r(uniqueArr.slice(0, limit)); // Ensure we don't exceed the limit
     } catch (e) {
+      console.error('[fetchSearchsKeywords] Error:', e);
       j(e);
     }
   });
@@ -509,7 +667,7 @@ export const addSearchFields = (values, fields) => {
     return values;
   }
   let mValues = { ...values };
-  fields.map(field => {
+  fields.map((field) => {
     if (values[field]) {
       mValues[`${field}_lower`] = values[field].toLowerCase();
       mValues[`${field}_partial`] = partialText(values[field]);
@@ -519,17 +677,17 @@ export const addSearchFields = (values, fields) => {
   return mValues;
 };
 
-export const createKeywords = name => {
+export const createKeywords = (name) => {
   const arrName = [];
   let curName = '';
-  name.split('').forEach(letter => {
+  name.split('').forEach((letter) => {
     curName += letter;
     arrName.push(curName);
   });
   return arrName;
 };
 
-export const removeTabsNewLines = txt => {
+export const removeTabsNewLines = (txt) => {
   if (!txt || !['number', 'string'].includes(typeof txt)) {
     return txt;
   }
@@ -537,7 +695,7 @@ export const removeTabsNewLines = txt => {
   return str.replace(/\s\s+/g, ' ');
 };
 
-export const removeDoubleSpaces = txt => {
+export const removeDoubleSpaces = (txt) => {
   if (!txt || !['number', 'string'].includes(typeof txt)) {
     return txt;
   }
@@ -552,7 +710,7 @@ export const insertStringsAtIndex = (str, insertStr, idx) => {
   return `${str.toString().substring(0, idx)}${insertStr}${str.toString().substring(idx)}`;
 };
 
-export const formatBankAccNo = str => {
+export const formatBankAccNo = (str) => {
   if (!str) {
     return str;
   }
@@ -580,13 +738,19 @@ export const isVehicleNoDuplicate = (vArr, branch, productCode) =>
   new Promise(async (r, j) => {
     try {
       let result = false;
-      await arrayForEach(vArr, async vNo => {
+      await arrayForEach(vArr, async (vNo) => {
         let wheres = [['vehicleNo_lower', '==', vNo.toLowerCase()]];
         if (!!branch) {
           wheres = wheres.concat([['branchCode', '==', branch]]);
         }
         if (!!productCode) {
-          wheres = wheres.concat([['productPCode', '==', removeAllNonAlphaNumericCharacters(productCode)]]);
+          wheres = wheres.concat([
+            [
+              'productPCode',
+              '==',
+              removeAllNonAlphaNumericCharacters(productCode),
+            ],
+          ]);
         }
         let doc = await checkCollection('sections/stocks/vehicles', wheres);
         if (doc) {
@@ -603,13 +767,15 @@ export const isPeripheralNoDuplicate = (pArr, branch, peripheralNoFull) =>
   new Promise(async (r, j) => {
     try {
       let result = false;
-      await arrayForEach(pArr, async pNo => {
+      await arrayForEach(pArr, async (pNo) => {
         let wheres = [['peripheralNo_lower', '==', pNo.toLowerCase()]];
         if (!!branch) {
           wheres = wheres.concat([['branchCode', '==', branch]]);
         }
         if (!!peripheralNoFull) {
-          wheres = wheres.concat([['peripheralNoFull', '==', peripheralNoFull]]);
+          wheres = wheres.concat([
+            ['peripheralNoFull', '==', peripheralNoFull],
+          ]);
         }
         let doc = await checkCollection('sections/stocks/peripherals', wheres);
         if (doc) {
@@ -627,14 +793,18 @@ export const checkDuplicateInventoryItem = (arr, branchName) =>
     try {
       let duplicatedVehicles = [];
       let duplicatedPeripherals = [];
-      await arrayForEach(arr, async it => {
+      await arrayForEach(arr, async (it) => {
         if (
           it?.vehicleNo &&
           Array.isArray(it.vehicleNo) &&
           it.vehicleNo.length > 0 &&
           !!it[branchName || 'branchCode']
         ) {
-          let isDuplicate = await isVehicleNoDuplicate(it.vehicleNo, it[branchName || 'branchCode'], it.productCode);
+          let isDuplicate = await isVehicleNoDuplicate(
+            it.vehicleNo,
+            it[branchName || 'branchCode'],
+            it.productCode
+          );
           if (isDuplicate) {
             duplicatedVehicles = duplicatedVehicles.concat(it.vehicleNo);
           }
@@ -645,9 +815,14 @@ export const checkDuplicateInventoryItem = (arr, branchName) =>
           it.peripheralNo.length > 0 &&
           !!it[branchName || 'branchCode']
         ) {
-          let isPDuplicate = await isPeripheralNoDuplicate(it.peripheralNo, it[branchName || 'branchCode']);
+          let isPDuplicate = await isPeripheralNoDuplicate(
+            it.peripheralNo,
+            it[branchName || 'branchCode']
+          );
           if (isPDuplicate) {
-            duplicatedPeripherals = duplicatedPeripherals.concat(it.peripheralNo);
+            duplicatedPeripherals = duplicatedPeripherals.concat(
+              it.peripheralNo
+            );
           }
         }
       });
@@ -661,16 +836,18 @@ export const checkDuplicateInventoryItem = (arr, branchName) =>
     }
   });
 
-export const convertToArray = elem => {
+export const convertToArray = (elem) => {
   let result = !!elem ? (Array.isArray(elem) ? elem : elem.split(',')) : [];
   return result === [''] ? [] : result;
 };
 
-export const checkIsVehicleFromName = name => {
-  return VehicleNameKeywords.some(kw => name.indexOf(kw) > -1 && name.indexOf(kw) < 4);
+export const checkIsVehicleFromName = (name) => {
+  return VehicleNameKeywords.some(
+    (kw) => name.indexOf(kw) > -1 && name.indexOf(kw) < 4
+  );
 };
 
-export const isAlphaNumeric = inputtxt => {
+export const isAlphaNumeric = (inputtxt) => {
   if (!inputtxt || !['number', 'string'].includes(typeof inputtxt)) {
     return false;
   }
@@ -678,7 +855,7 @@ export const isAlphaNumeric = inputtxt => {
   return inputtxt.toString().match(letterNumber);
 };
 
-export const cleanIdentityNumber = str => {
+export const cleanIdentityNumber = (str) => {
   // Remove non-alphanumeric from before and after.
   if (!str || !['number', 'string'].includes(typeof str)) {
     return str;
@@ -696,38 +873,38 @@ export const cleanIdentityNumber = str => {
   return result;
 };
 
-export const cleanIdentityArray = arr => {
+export const cleanIdentityArray = (arr) => {
   // Remove non-alphanumeric from element in array.
   if (!arr || !Array.isArray(arr)) {
     return [];
   }
-  const cleaned = arr.map(l => cleanIdentityNumber(l));
+  const cleaned = arr.map((l) => cleanIdentityNumber(l));
   return cleaned;
 };
 
 export const getNavBarSearchData = () => {
   let navItems = getSidebarNavItems();
   let items = [];
-  navItems.map(it => {
+  navItems.map((it) => {
     if (it.to) {
       items.push({ title: it.title, to: it.to });
     } else if (!!it.items) {
-      it.items.map(it2 => {
+      it.items.map((it2) => {
         if (it2.to) {
           items.push({ title: `${it2.title}`, to: it2.to });
         } else if (!!it2.items) {
-          it2.items.map(it3 => {
+          it2.items.map((it3) => {
             if (it3.to) {
               items.push({
                 title: `${it2.title} - ${it3.title}`,
-                to: it3.to
+                to: it3.to,
               });
             } else if (!!it3.items) {
-              it3.items.map(it4 => {
+              it3.items.map((it4) => {
                 if (it4.to) {
                   items.push({
                     title: `${it2.title} - ${it3.title} - ${it4.title}`,
-                    to: it4.to
+                    to: it4.to,
                   });
                   return it4;
                 }
@@ -745,7 +922,7 @@ export const getNavBarSearchData = () => {
   return items.map((it, id) => ({ ...it, id, key: id }));
 };
 
-export const getEmployeeStatus = async record =>
+export const getEmployeeStatus = async (record) =>
   new Promise(async (r, j) => {
     try {
       let status = undefined;
@@ -755,7 +932,7 @@ export const getEmployeeStatus = async record =>
       }
       const userData = await getCollection('data/company/employees', wheres);
       if (userData) {
-        let arr = Object.keys(userData || {}).map(k => userData[k]);
+        let arr = Object.keys(userData || {}).map((k) => userData[k]);
         status = arr[0]?.status || 'ปกติ';
       }
       r(status);
@@ -764,7 +941,12 @@ export const getEmployeeStatus = async record =>
     }
   });
 
-export async function queryFirestoreArrayContainAny(field, ids, path, wheresArr = []) {
+export async function queryFirestoreArrayContainAny(
+  field,
+  ids,
+  path,
+  wheresArr = []
+) {
   // don't run if there aren't any ids or a path for the collection
   if (!ids || !ids.length || !path) return [];
 
@@ -779,17 +961,17 @@ export async function queryFirestoreArrayContainAny(field, ids, path, wheresArr 
 
     const snap = await checkCollection(path, wheres);
     if (snap) {
-      snap.forEach(doc => {
+      snap.forEach((doc) => {
         batches.push({
           ...doc.data(),
-          _id: doc.id
+          _id: doc.id,
         });
       });
     }
   }
 
   // after all of the data is fetched, return it
-  return Promise.all(batches).then(content => content.flat());
+  return Promise.all(batches).then((content) => content.flat());
 }
 
 /**
@@ -799,34 +981,37 @@ export async function queryFirestoreArrayContainAny(field, ids, path, wheresArr 
  * @param {Array} additionalWheres - Additional where clauses (excluding deleted)
  * @returns {Promise} - Combined results from both queries
  */
-export const queryNonDeletedDocuments = async (collection, additionalWheres = []) => {
+export const queryNonDeletedDocuments = async (
+  collection,
+  additionalWheres = []
+) => {
   // Query for documents with deleted == null
   const sSnapNull = await checkCollection(collection, [
     ...additionalWheres,
-    ['deleted', '==', null]
+    ['deleted', '==', null],
   ]);
-  
-  // Query for documents with deleted == false  
+
+  // Query for documents with deleted == false
   const sSnapFalse = await checkCollection(collection, [
     ...additionalWheres,
-    ['deleted', '==', false]
+    ['deleted', '==', false],
   ]);
-  
+
   let data = [];
-  
+
   // Combine results from both queries
   if (sSnapNull) {
-    sSnapNull.forEach(doc => {
+    sSnapNull.forEach((doc) => {
       data.push({ ...doc.data(), _id: doc.id });
     });
   }
-  
+
   if (sSnapFalse) {
-    sSnapFalse.forEach(doc => {
+    sSnapFalse.forEach((doc) => {
       data.push({ ...doc.data(), _id: doc.id });
     });
   }
-  
+
   return data;
 };
 
@@ -834,26 +1019,29 @@ export const queryNonDeletedDocuments = async (collection, additionalWheres = []
  * Helper to detect if wheres contains deleted field filter for non-deleted documents and separate it
  */
 const processDeletedFilter = (wheres) => {
-  if (!wheres || !Array.isArray(wheres)) return { hasDeletedFilter: false, cleanWheres: [] };
-  
+  if (!wheres || !Array.isArray(wheres))
+    return { hasDeletedFilter: false, cleanWheres: [] };
+
   // Look for deleted field filters that are looking for non-deleted documents
-  const deletedFilter = wheres.find(wh => {
+  const deletedFilter = wheres.find((wh) => {
     if (!Array.isArray(wh) || wh[0] !== 'deleted') return false;
-    
+
     const [field, operator, value] = wh;
-    
+
     // These are filters looking for non-deleted documents
     return (
       (operator === '==' && (value === null || value === false)) ||
       (operator === '!=' && value === true)
     );
   });
-  
-  const cleanWheres = wheres.filter(wh => !Array.isArray(wh) || wh[0] !== 'deleted');
-  
+
+  const cleanWheres = wheres.filter(
+    (wh) => !Array.isArray(wh) || wh[0] !== 'deleted'
+  );
+
   return {
     hasDeletedFilter: deletedFilter !== undefined,
     cleanWheres,
-    deletedFilter
+    deletedFilter,
   };
 };

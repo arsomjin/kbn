@@ -62,10 +62,7 @@ const GeographicBranchSelector = ({
   const { provinces } = useSelector((state) => state.provinces);
 
   // RBAC permissions
-  const {
-    accessibleBranches,
-    isSuperAdmin
-  } = usePermissions();
+  const { accessibleBranches, isSuperAdmin } = usePermissions();
 
   // Filter branches based on RBAC and province
   const availableBranches = useMemo(() => {
@@ -77,22 +74,22 @@ const GeographicBranchSelector = ({
       isSuperAdmin,
       province,
       branchesFromState: branches,
-      accessibleBranches: respectRBAC ? accessibleBranches : 'Not using RBAC'
+      accessibleBranches: respectRBAC ? accessibleBranches : 'Not using RBAC',
     });
 
     if (respectRBAC && !isSuperAdmin) {
       // Use RBAC-filtered branches
-      branchList = accessibleBranches.map(branch => ({
+      branchList = accessibleBranches.map((branch) => ({
         ...branch,
-        branchCode: branch.branchCode || branch.key
+        branchCode: branch.branchCode || branch.key,
       }));
     } else {
       // Use all branches - ensure we have data
       if (branches && typeof branches === 'object') {
-        branchList = Object.keys(branches).map(key => ({
+        branchList = Object.keys(branches).map((key) => ({
           key,
           branchCode: key,
-          ...branches[key]
+          ...branches[key],
         }));
       } else {
         console.warn('⚠️ No branches data available in state.data.branches');
@@ -102,23 +99,58 @@ const GeographicBranchSelector = ({
 
     // Filter by province if specified
     if (province && province !== 'all') {
-      branchList = branchList.filter(branch => {
-        // Check multiple possible province field names
+      branchList = branchList.filter((branch) => {
+        // Normalize province value for comparison
+        const normalizeProvince = (prov) => {
+          if (!prov) return '';
+          if (
+            prov === 'นครราชสีมา' ||
+            prov === 'nakhon-ratchasima' ||
+            prov === 'NMA'
+          ) {
+            return 'nakhon-ratchasima';
+          }
+          if (
+            prov === 'นครสวรรค์' ||
+            prov === 'nakhon-sawan' ||
+            prov === 'NSN'
+          ) {
+            return 'nakhon-sawan';
+          }
+          return prov.toLowerCase();
+        };
+
+        const normalizedProvince = normalizeProvince(province);
+        const branchProvinceId = normalizeProvince(
+          branch.provinceId || branch.province
+        );
+        const branchProvinceName = normalizeProvince(branch.provinceName);
+
+        // Check multiple possible province field names with normalization
         return (
-          branch.provinceId === province || 
-          branch.province === province ||
+          branchProvinceId === normalizedProvince ||
+          branchProvinceName === normalizedProvince ||
           branch.provinceCode === province ||
-          branch.provinceName === province ||
           // Also check if branch code starts with province-specific prefixes
-          (province === 'นครสวรรค์' && (branch.branchCode?.startsWith('NSN') || branch.key?.startsWith('NSN'))) ||
-          (province === 'นครราชสีมา' && (branch.branchCode?.startsWith('NMA') || branch.branchCode?.startsWith('045') || branch.branchCode?.startsWith('500') || branch.key?.startsWith('NMA') || branch.key?.startsWith('045') || branch.key?.startsWith('500')))
+          (normalizedProvince === 'nakhon-sawan' &&
+            (branch.branchCode?.startsWith('NSN') ||
+              branch.key?.startsWith('NSN'))) ||
+          (normalizedProvince === 'nakhon-ratchasima' &&
+            (branch.branchCode?.startsWith('NMA') ||
+              branch.branchCode?.startsWith('045') ||
+              branch.branchCode?.startsWith('500') ||
+              branch.key?.startsWith('NMA') ||
+              branch.key?.startsWith('045') ||
+              branch.key?.startsWith('500')))
         );
       });
     }
 
     // Filter by active status
     if (!includeInactive) {
-      branchList = branchList.filter(branch => branch.status !== 'inactive' && branch.isActive !== false);
+      branchList = branchList.filter(
+        (branch) => branch.status !== 'inactive' && branch.isActive !== false
+      );
     }
 
     // Sort by name
@@ -132,22 +164,29 @@ const GeographicBranchSelector = ({
       province,
       totalBranches: Object.keys(branches || {}).length,
       filteredCount: sortedBranches.length,
-      branches: sortedBranches.map(b => ({
+      branches: sortedBranches.map((b) => ({
         code: b.branchCode || b.key,
         name: b.branchName || b.name,
-        province: b.provinceId || b.province
-      }))
+        province: b.provinceId || b.province,
+      })),
     });
 
     return sortedBranches;
-  }, [branches, respectRBAC, isSuperAdmin, accessibleBranches, province, includeInactive]);
+  }, [
+    branches,
+    respectRBAC,
+    isSuperAdmin,
+    accessibleBranches,
+    province,
+    includeInactive,
+  ]);
 
   // Group branches by province for display
   const groupedBranches = useMemo(() => {
     if (!groupByProvince) return null;
 
     const grouped = {};
-    availableBranches.forEach(branch => {
+    availableBranches.forEach((branch) => {
       const provinceKey = branch.provinceId || branch.province || 'unknown';
       if (!grouped[provinceKey]) {
         grouped[provinceKey] = [];
@@ -175,9 +214,9 @@ const GeographicBranchSelector = ({
   useEffect(() => {
     if (value && province && availableBranches.length > 0) {
       const isCurrentSelectionValid = availableBranches.some(
-        branch => branch.branchCode === value || branch.key === value
+        (branch) => branch.branchCode === value || branch.key === value
       );
-      
+
       if (!isCurrentSelectionValid) {
         if (onChange) {
           onChange(undefined, null);
@@ -199,7 +238,7 @@ const GeographicBranchSelector = ({
     if (onBranchChange) {
       if (selectedValue && selectedValue !== 'all') {
         const selectedBranch = availableBranches.find(
-          b => b.branchCode === selectedValue || b.key === selectedValue
+          (b) => b.branchCode === selectedValue || b.key === selectedValue
         );
         onBranchChange(selectedBranch);
       } else {
@@ -227,7 +266,7 @@ const GeographicBranchSelector = ({
         size={size}
         disabled
         placeholder={placeholder}
-        suffixIcon={<Spin size="small" />}
+        suffixIcon={<Spin size='small' />}
         {...rest}
       />
     );
@@ -241,8 +280,8 @@ const GeographicBranchSelector = ({
         style={style}
         size={size}
         disabled
-        placeholder="เกิดข้อผิดพลาด"
-        status="error"
+        placeholder='เกิดข้อผิดพลาด'
+        status='error'
         {...rest}
       />
     );
@@ -256,7 +295,7 @@ const GeographicBranchSelector = ({
         style={style}
         size={size}
         disabled
-        placeholder="เลือกจังหวัดก่อน"
+        placeholder='เลือกจังหวัดก่อน'
         {...rest}
       />
     );
@@ -270,7 +309,7 @@ const GeographicBranchSelector = ({
         style={style}
         size={size}
         disabled
-        placeholder="ไม่มีสิทธิ์เข้าถึงสาขา"
+        placeholder='ไม่มีสิทธิ์เข้าถึงสาขา'
         {...rest}
       />
     );
@@ -279,9 +318,17 @@ const GeographicBranchSelector = ({
   // Format option display
   const formatBranchOption = (branch) => {
     const branchCode = branch.branchCode || branch.key;
-    const branchName = getBranchName(branchCode) || branch.branchName || branch.name || branchCode;
-    
-    if (showBranchCode && branchCode !== branchName && !branchName.includes(branchCode)) {
+    const branchName =
+      getBranchName(branchCode) ||
+      branch.branchName ||
+      branch.name ||
+      branchCode;
+
+    if (
+      showBranchCode &&
+      branchCode !== branchName &&
+      !branchName.includes(branchCode)
+    ) {
       return `${branchCode} - ${branchName}`;
     }
     return branchName;
@@ -289,15 +336,15 @@ const GeographicBranchSelector = ({
 
   // Render grouped options
   const renderGroupedOptions = () => {
-    return Object.keys(groupedBranches).map(provinceKey => {
+    return Object.keys(groupedBranches).map((provinceKey) => {
       const provinceName = provinces[provinceKey]?.provinceName || provinceKey;
       const provinceBranches = groupedBranches[provinceKey];
 
       return (
         <Select.OptGroup key={provinceKey} label={provinceName}>
-          {provinceBranches.map(branch => (
-            <Option 
-              key={branch.branchCode || branch.key} 
+          {provinceBranches.map((branch) => (
+            <Option
+              key={branch.branchCode || branch.key}
               value={branch.branchCode || branch.key}
               title={`${formatBranchOption(branch)} (${provinceName})`}
             >
@@ -311,9 +358,9 @@ const GeographicBranchSelector = ({
 
   // Render regular options
   const renderOptions = () => {
-    return availableBranches.map(branch => (
-      <Option 
-        key={branch.branchCode || branch.key} 
+    return availableBranches.map((branch) => (
+      <Option
+        key={branch.branchCode || branch.key}
         value={branch.branchCode || branch.key}
         title={formatBranchOption(branch)}
       >
@@ -339,26 +386,30 @@ const GeographicBranchSelector = ({
       className={className}
       style={style}
       showSearch
-      optionFilterProp="children"
+      optionFilterProp='children'
       filterOption={(input, option) => {
         if (option.children) {
           if (Array.isArray(option.children)) {
-            return option.children.some(child => 
-              typeof child === 'string' && child.toLowerCase().indexOf(input.toLowerCase()) >= 0
+            return option.children.some(
+              (child) =>
+                typeof child === 'string' &&
+                child.toLowerCase().indexOf(input.toLowerCase()) >= 0
             );
           }
-          return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+          return (
+            option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+          );
         }
         return false;
       }}
       {...rest}
     >
       {showAll && (
-        <Option key="all" value="all">
+        <Option key='all' value='all'>
           {allText}
         </Option>
       )}
-      
+
       {groupByProvince ? renderGroupedOptions() : renderOptions()}
     </Select>
   );
@@ -383,13 +434,16 @@ GeographicBranchSelector.propTypes = {
   showBranchCode: PropTypes.bool,
   groupByProvince: PropTypes.bool,
   loading: PropTypes.bool,
-  error: PropTypes.string
+  error: PropTypes.string,
 };
 
 /**
  * Hook for geographic branch selector state management
  */
-export const useGeographicBranchSelector = (initialProvince = null, initialBranch = null) => {
+export const useGeographicBranchSelector = (
+  initialProvince = null,
+  initialBranch = null
+) => {
   const [selectedProvince, setSelectedProvince] = useState(initialProvince);
   const [selectedBranch, setSelectedBranch] = useState(initialBranch);
   const [provinceData, setProvinceData] = useState(null);
@@ -398,7 +452,7 @@ export const useGeographicBranchSelector = (initialProvince = null, initialBranc
   const handleProvinceChange = (provinceValue, provinceOption) => {
     setSelectedProvince(provinceValue);
     setProvinceData(provinceOption || null);
-    
+
     // Clear branch selection when province changes
     setSelectedBranch(null);
     setBranchData(null);
@@ -422,22 +476,23 @@ export const useGeographicBranchSelector = (initialProvince = null, initialBranc
     selectedBranch,
     provinceData,
     branchData,
-    
+
     // Handlers
     handleProvinceChange,
     handleBranchChange,
     reset,
-    
+
     // Convenience methods
-    isProvinceSelected: selectedProvince !== null && selectedProvince !== undefined,
+    isProvinceSelected:
+      selectedProvince !== null && selectedProvince !== undefined,
     isBranchSelected: selectedBranch !== null && selectedBranch !== undefined,
     isAllProvinces: selectedProvince === 'all',
     isAllBranches: selectedBranch === 'all',
-    
+
     // Setters
     setProvince: setSelectedProvince,
-    setBranch: setSelectedBranch
+    setBranch: setSelectedBranch,
   };
 };
 
-export default GeographicBranchSelector; 
+export default GeographicBranchSelector;

@@ -29,10 +29,10 @@ Edit    Send    Check   Accept   Done
 ```javascript
 // Each step requires specific permissions
 const APPROVAL_FLOW = {
-  draft: "department.edit", // Can create/edit
-  review: "department.review", // Can review
-  approve: "department.approve", // Can approve
-  complete: "department.view", // Can view completed
+  draft: 'department.edit', // Can create/edit
+  review: 'department.review', // Can review
+  approve: 'department.approve', // Can approve
+  complete: 'department.view', // Can view completed
 };
 ```
 
@@ -41,30 +41,29 @@ const APPROVAL_FLOW = {
 ### Core Components
 
 1. **DocumentApprovalFlow** - Main approval interface
-2. **DocumentWorkflowWrapper** - Integration with LayoutWithRBAC
+2. **LayoutWithRBAC** - Unified layout with RBAC integration (replaces DocumentWorkflowWrapper)
 3. **ApprovalStatusBadge** - Status display component
 4. **ApprovalHistory** - Timeline of approval actions
 
 ### Integration Flow
 
 ```
-User Action → DocumentApprovalFlow → DocumentWorkflowWrapper → LayoutWithRBAC
-     ↓              ↓                      ↓                    ↓
-Permission     Status Change         Document Save        Audit Trail
- Check         + Step Progress       + State Update       + History
+User Action → DocumentApprovalFlow → LayoutWithRBAC
+                     ↓
+            Status Management & Audit Trail
 ```
 
 ## 🔧 Implementation Guide
 
-### Basic Usage with DocumentWorkflowWrapper
+### Basic Usage with LayoutWithRBAC
 
 ```javascript
-import { DocumentWorkflowWrapper } from "components/DocumentApprovalFlow";
+import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
 
 const InvoiceManagement = () => {
   const [invoiceData, setInvoiceData] = useState({
-    id: "INV-001",
-    status: "draft",
+    id: 'INV-001',
+    status: 'draft',
     currentStep: 0,
     // ... other invoice data
   });
@@ -81,14 +80,14 @@ const InvoiceManagement = () => {
   };
 
   return (
-    <DocumentWorkflowWrapper
+    <LayoutWithRBAC
+      title='Invoice Management'
+      permission='accounting.view'
+      editPermission='accounting.edit'
       documentId={invoiceData.id}
-      documentType="invoice"
-      documentData={invoiceData}
-      onDocumentSave={handleDocumentSave}
-      onDocumentLoad={handleDocumentLoad}
-      title="จัดการใบแจ้งหนี้"
-      subtitle="Invoice Management"
+      documentType='invoice'
+      showAuditTrail={true}
+      showAuditSection={true}
     >
       <InvoiceForm
       // Form will receive enhanced props automatically:
@@ -96,7 +95,7 @@ const InvoiceManagement = () => {
       // - onSave, onStatusChange, onApprove, onReject
       // - permissions, auditTrail, approvalConfig
       />
-    </DocumentWorkflowWrapper>
+    </LayoutWithRBAC>
   );
 };
 ```
@@ -105,34 +104,40 @@ const InvoiceManagement = () => {
 
 ```javascript
 const customApprovalConfig = {
-  department: "sales",
+  department: 'sales',
   steps: [
-    { title: "สร้างใบเสนอราคา", status: "draft", permission: "sales.edit" },
-    { title: "ตรวจสอบราคา", status: "price_check", permission: "sales.review" },
+    { title: 'สร้างใบเสนอราคา', status: 'draft', permission: 'sales.edit' },
+    { title: 'ตรวจสอบราคา', status: 'price_check', permission: 'sales.review' },
     {
-      title: "อนุมัติราคาพิเศษ",
-      status: "special_approval",
-      permission: "sales.approve",
+      title: 'อนุมัติราคาพิเศษ',
+      status: 'special_approval',
+      permission: 'sales.approve',
     },
-    { title: "ส่งใบเสนอราคา", status: "sent", permission: "sales.send" },
-    { title: "เสร็จสิ้น", status: "completed", permission: "sales.view" },
+    { title: 'ส่งใบเสนอราคา', status: 'sent', permission: 'sales.send' },
+    { title: 'เสร็จสิ้น', status: 'completed', permission: 'sales.view' },
   ],
   statusLabels: {
-    draft: "ฉบับร่าง",
-    price_check: "ตรวจสอบราคา",
-    special_approval: "รออนุมัติราคาพิเศษ",
-    sent: "ส่งแล้ว",
-    completed: "เสร็จสิ้น",
+    draft: 'ฉบับร่าง',
+    price_check: 'ตรวจสอบราคา',
+    special_approval: 'รออนุมัติราคาพิเศษ',
+    sent: 'ส่งแล้ว',
+    completed: 'เสร็จสิ้น',
   },
 };
 
-<DocumentWorkflowWrapper
-  documentType="quotation"
+<LayoutWithRBAC
+  title='Quotation'
+  permission='sales.view'
+  editPermission='sales.edit'
+  documentId='QUO-001'
+  documentType='quotation'
   customApprovalConfig={customApprovalConfig}
-  // ... other props
+  showAuditTrail={true}
+  requireBranchSelection={false}
+  autoInjectProvinceId={true}
 >
   <QuotationForm />
-</DocumentWorkflowWrapper>;
+</LayoutWithRBAC>;
 ```
 
 ## 📊 Document Type Configurations
@@ -218,15 +223,15 @@ The system automatically maps document types to department permissions:
 ```javascript
 // Users can only perform actions they have permission for
 const permissions = {
-  canView: hasPermission("department.view"),
-  canEdit: hasPermission("department.edit"),
-  canReview: hasPermission("department.review"),
-  canApprove: hasPermission("department.approve"),
+  canView: hasPermission('department.view'),
+  canEdit: hasPermission('department.edit'),
+  canReview: hasPermission('department.review'),
+  canApprove: hasPermission('department.approve'),
 };
 
 // Actions are automatically enabled/disabled based on permissions
 <ApproveButton
-  permission="accounting.approve"
+  permission='accounting.approve'
   onClick={handleApprove}
   // Automatically shows permission warning if user lacks access
 />;
@@ -237,16 +242,16 @@ const permissions = {
 ### ApprovalStatusBadge
 
 ```javascript
-import { ApprovalStatusBadge } from "components/DocumentApprovalFlow";
+import { ApprovalStatusBadge } from 'components/DocumentApprovalFlow';
 
-<ApprovalStatusBadge status="approved" size="default" showTooltip={true} />;
+<ApprovalStatusBadge status='approved' size='default' showTooltip={true} />;
 // Displays: 🟢 อนุมัติแล้ว (with tooltip: "เอกสารได้รับการอนุมัติแล้ว")
 ```
 
 ### ApprovalHistory
 
 ```javascript
-import { ApprovalHistory } from "components/DocumentApprovalFlow";
+import { ApprovalHistory } from 'components/DocumentApprovalFlow';
 
 <ApprovalHistory
   auditTrail={auditTrailData}
@@ -266,12 +271,12 @@ import { ApprovalHistory } from "components/DocumentApprovalFlow";
 ```javascript
 // Document data structure
 const documentData = {
-  id: "DOC-001",
-  status: "draft", // Current status
+  id: 'DOC-001',
+  status: 'draft', // Current status
   currentStep: 0, // Current step index
-  createdBy: "user123",
+  createdBy: 'user123',
   createdAt: 1640995200000,
-  lastModifiedBy: "user456",
+  lastModifiedBy: 'user456',
   lastModifiedAt: 1640995800000,
   // ... document-specific data
 };
@@ -295,11 +300,11 @@ handleApprove() →
 ```javascript
 // Automatic step progression with approval
 const approvalData = {
-  status: "approved", // New status
+  status: 'approved', // New status
   step: currentStep + 1, // Next step
   approvedBy: user.uid,
   approvedAt: Date.now(),
-  approvalComment: "อนุมัติเรียบร้อย",
+  approvalComment: 'อนุมัติเรียบร้อย',
 };
 ```
 
@@ -308,52 +313,55 @@ const approvalData = {
 ### Unit Testing
 
 ```javascript
-import { render, fireEvent, waitFor } from "@testing-library/react";
-import { DocumentApprovalFlow } from "components/DocumentApprovalFlow";
+import { render, fireEvent, waitFor } from '@testing-library/react';
+import { DocumentApprovalFlow } from 'components/DocumentApprovalFlow';
 
-test("should show approve button for users with approve permission", () => {
+test('should show approve button for users with approve permission', () => {
   const mockProps = {
-    documentId: "TEST-001",
-    documentType: "invoice",
-    currentStatus: "review",
+    documentId: 'TEST-001',
+    documentType: 'invoice',
+    currentStatus: 'review',
     onApprove: jest.fn(),
   };
 
   render(<DocumentApprovalFlow {...mockProps} />);
 
-  expect(screen.getByText("อนุมัติ")).toBeInTheDocument();
+  expect(screen.getByText('อนุมัติ')).toBeInTheDocument();
 });
 ```
 
 ### Integration Testing
 
 ```javascript
-test("complete approval workflow", async () => {
+test('complete approval workflow', async () => {
   const { getByText, getByRole } = render(
-    <DocumentWorkflowWrapper
-      documentId="TEST-001"
-      documentType="invoice"
-      documentData={{ status: "draft", currentStep: 0 }}
-      onDocumentSave={mockSave}
+    <LayoutWithRBAC
+      title='Invoice'
+      permission='accounting.view'
+      editPermission='accounting.edit'
+      documentId='TEST-001'
+      documentType='invoice'
+      showAuditTrail={true}
+      showAuditSection={true}
     >
       <TestForm />
-    </DocumentWorkflowWrapper>
+    </LayoutWithRBAC>
   );
 
   // Submit for review
-  fireEvent.click(getByText("ส่งตรวจสอบ"));
+  fireEvent.click(getByText('ส่งตรวจสอบ'));
   await waitFor(() =>
     expect(mockSave).toHaveBeenCalledWith(
-      expect.objectContaining({ status: "review" })
+      expect.objectContaining({ status: 'review' })
     )
   );
 
   // Approve document
-  fireEvent.click(getByText("อนุมัติ"));
-  fireEvent.click(getByRole("button", { name: "อนุมัติ" }));
+  fireEvent.click(getByText('อนุมัติ'));
+  fireEvent.click(getByRole('button', { name: 'อนุมัติ' }));
   await waitFor(() =>
     expect(mockSave).toHaveBeenCalledWith(
-      expect.objectContaining({ status: "approved" })
+      expect.objectContaining({ status: 'approved' })
     )
   );
 });
@@ -365,25 +373,25 @@ test("complete approval workflow", async () => {
 
 ```javascript
 const InvoiceForm = () => {
-  const [status, setStatus] = useState("draft");
+  const [status, setStatus] = useState('draft');
   const { hasPermission } = usePermissions();
 
   const handleApprove = async () => {
-    if (!hasPermission("accounting.approve")) {
-      alert("No permission");
+    if (!hasPermission('accounting.approve')) {
+      alert('No permission');
       return;
     }
 
     try {
-      await updateInvoice({ status: "approved" });
-      setStatus("approved");
+      await updateInvoice({ status: 'approved' });
+      setStatus('approved');
     } catch (error) {
-      alert("Error: " + error.message);
+      alert('Error: ' + error.message);
     }
   };
 
   return (
-    <LayoutWithRBAC permission="accounting.view">
+    <LayoutWithRBAC permission='accounting.view'>
       <Form>
         {/* Form fields */}
         <Button onClick={handleApprove}>Approve</Button>
@@ -393,7 +401,7 @@ const InvoiceForm = () => {
 };
 ```
 
-### After (Using DocumentWorkflowWrapper)
+### After (Using LayoutWithRBAC directly)
 
 ```javascript
 const InvoiceForm = ({
@@ -402,31 +410,35 @@ const InvoiceForm = ({
   permissions,
   currentStatus,
 }) => {
-  // All approval logic handled by wrapper
+  // All approval logic handled by LayoutWithRBAC
   // Form receives enhanced props automatically
 
   return (
     <Form>
       {/* Form fields */}
-      {/* Approval buttons handled by DocumentApprovalFlow */}
+      {/* Approval buttons handled by LayoutWithRBAC */}
     </Form>
   );
 };
 
 const InvoiceManagement = () => (
-  <DocumentWorkflowWrapper
-    documentType="invoice"
-    documentId="INV-001"
-    onDocumentSave={saveInvoice}
+  <LayoutWithRBAC
+    title='Invoice Management'
+    permission='accounting.view'
+    editPermission='accounting.edit'
+    documentId='INV-001'
+    documentType='invoice'
+    showAuditTrail={true}
+    showAuditSection={true}
   >
     <InvoiceForm />
-  </DocumentWorkflowWrapper>
+  </LayoutWithRBAC>
 );
 ```
 
 ## 🎯 Best Practices
 
-### 1. **Use DocumentWorkflowWrapper for Complete Integration**
+### 1. **Always use LayoutWithRBAC for Complete Integration**
 
 - Provides automatic LayoutWithRBAC integration
 - Handles all approval workflow logic
@@ -444,16 +456,16 @@ const handleDocumentSave = async (data) => {
   try {
     await saveToFirebase(data);
   } catch (error) {
-    console.error("Save failed:", error);
-    message.error("ไม่สามารถบันทึกเอกสารได้");
-    throw error; // Re-throw to let wrapper handle
+    console.error('Save failed:', error);
+    message.error('ไม่สามารถบันทึกเอกสารได้');
+    throw error; // Re-throw to let LayoutWithRBAC handle
   }
 };
 ```
 
 ### 4. **Use Permission Warnings**
 
-- System automatically shows appropriate warnings
+- LayoutWithRBAC automatically shows appropriate warnings
 - Integrates with existing permission warning system
 - Provides context-specific messages
 
@@ -479,9 +491,9 @@ const handleDocumentSave = async (data) => {
 // Custom approval actions
 const customActions = {
   escalate: {
-    permission: "manager.escalate",
+    permission: 'manager.escalate',
     handler: handleEscalation,
-    label: "ส่งต่อผู้จัดการ",
+    label: 'ส่งต่อผู้จัดการ',
   },
 };
 

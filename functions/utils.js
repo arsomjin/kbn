@@ -1,218 +1,218 @@
-const {format, parse, addDays} = require("date-fns");
-const _ = require("lodash");
+const { format, parse, addDays } = require('date-fns');
+const _ = require('lodash');
 
 const VehicleHeaders = [
-  "แทรกเตอร์",
-  "เหล็กถ่วงล้อหลัง",
-  "รถเกี่ยวนวดข้าว",
-  "เครื่องโรยกล้ามือเข็น",
-  "รถขุด",
-  "รถดำนาเดินตาม 4 แถว",
-  "รถดำนาเดินตาม 6 แถว",
-  "รถดำนาเดินตาม",
-  "รถดำนานั่งขับ 6 แถว ",
-  "รถดำนานั่งขับ 8 แถว ",
-  "รถตักล้อยาง",
-  "รถหยอดข้าวพร้อมชุดฉีดพ่นยา",
-  "รถหยอดข้าวพร้อมชุดฉีดพ่น",
-  "รถหยอดข้าว",
-  "รถปลูกผัก",
-  "ชุดหัวบิดฝักข้าวโพด",
-  "เหล็กถ่วงหน้า",
-  "เหล็กถ่วงตัวแม่",
-  "Breaker",
-  "จอบหมุน",
-  "ชุดเก็บเกี่ยวถั่วเหลือง",
-  "ชุดเก็บเกี่ยวข้าวโพด",
-  "ตะแกรงสำหรับชุดเก็บเกี่ยวถั่ว",
-  "เครื่องโรยกล้ากึ่งอัตโนมัติ",
-  "ผานบุกเบิก",
-  "ผานพรวน",
-  "ชุดใบมีดดันดินหน้าพิเศษ",
-  "ชุดใบมีดดันดินหน้า",
-  "ชุดงา",
-  "ใบมีดสำหรับบุ้งกี๋",
-  "ปากบุ้งกี๋มาตรฐาน",
-  "ปากบุ้งกี๋เกษตรการ์ด",
-  "ชุดบุ้งกี๋",
-  "ชุดโครงกันอ้อย",
-  "เครื่องปลูกอ้อยแบบท่อน",
-  "เครื่องปลูกอ้อย",
-  "เครื่องฝังปุ๋ย",
-  "เครื่องหว่านปุ๋ย",
-  "เครื่องปลูกมันสำปะหลังถังปุ๋ย",
-  "เครื่องปลูกมันสำปะหลัง",
-  "เครื่องตัดหญ้า",
-  "เครื่องเจาะหลุม",
-  "เครื่องไถระเบิดดินดานแบบสั่นสะเทือน",
-  "เครื่องไถระเบิดดินดาน",
-  "เครื่องหยอดเมล็ดเอนกประสงค์",
-  "เครื่องหยอดข้าวพร้อมชุดฉีดพ่น",
-  "เครื่องหยอดข้าว",
-  "เครื่องขุดมันสำปะหลัง (ไม่มีกระบะ)",
-  "เครื่องตัดต้นมันสำปะหลัง",
-  "เครื่องขุดมันสำปะหลัง",
-  "ชุดคีบอ้อย",
-  "เครื่องตัดอ้อย",
-  "เครื่องสางใบอ้อยพร้อมการ์ด",
-  "เครื่องสางใบอ้อย",
-  "ผานสับใบ",
-  "เครื่องอัดฟาง",
-  "ถาดเพาะกล้า",
-  "เครื่องโรยกล้ามือเข็น",
-  "ล้อเหล็ก",
-  "จอบหมุนแนวตั้ง",
-  "เครื่องพ่นเอนกประสงค์",
-  "โดรนการเกษตร",
-  "โดรน",
-  "ขลุบหมุน",
-  "เครื่องยนต์",
-  "Front Guard",
-  "Breaker",
-  "Ford",
-  "Iseki",
-  "John Deere",
-  "New Holland",
-  "Yanmar",
-  "Quick Coupler",
-  "Compactor",
-  "K-D1 package A",
-  "K-D1 package B",
-  "Auger AT3500",
-  "T20",
-  "KIT SET",
-  "Aux Control Valve",
+  'แทรกเตอร์',
+  'เหล็กถ่วงล้อหลัง',
+  'รถเกี่ยวนวดข้าว',
+  'เครื่องโรยกล้ามือเข็น',
+  'รถขุด',
+  'รถดำนาเดินตาม 4 แถว',
+  'รถดำนาเดินตาม 6 แถว',
+  'รถดำนาเดินตาม',
+  'รถดำนานั่งขับ 6 แถว ',
+  'รถดำนานั่งขับ 8 แถว ',
+  'รถตักล้อยาง',
+  'รถหยอดข้าวพร้อมชุดฉีดพ่นยา',
+  'รถหยอดข้าวพร้อมชุดฉีดพ่น',
+  'รถหยอดข้าว',
+  'รถปลูกผัก',
+  'ชุดหัวบิดฝักข้าวโพด',
+  'เหล็กถ่วงหน้า',
+  'เหล็กถ่วงตัวแม่',
+  'Breaker',
+  'จอบหมุน',
+  'ชุดเก็บเกี่ยวถั่วเหลือง',
+  'ชุดเก็บเกี่ยวข้าวโพด',
+  'ตะแกรงสำหรับชุดเก็บเกี่ยวถั่ว',
+  'เครื่องโรยกล้ากึ่งอัตโนมัติ',
+  'ผานบุกเบิก',
+  'ผานพรวน',
+  'ชุดใบมีดดันดินหน้าพิเศษ',
+  'ชุดใบมีดดันดินหน้า',
+  'ชุดงา',
+  'ใบมีดสำหรับบุ้งกี๋',
+  'ปากบุ้งกี๋มาตรฐาน',
+  'ปากบุ้งกี๋เกษตรการ์ด',
+  'ชุดบุ้งกี๋',
+  'ชุดโครงกันอ้อย',
+  'เครื่องปลูกอ้อยแบบท่อน',
+  'เครื่องปลูกอ้อย',
+  'เครื่องฝังปุ๋ย',
+  'เครื่องหว่านปุ๋ย',
+  'เครื่องปลูกมันสำปะหลังถังปุ๋ย',
+  'เครื่องปลูกมันสำปะหลัง',
+  'เครื่องตัดหญ้า',
+  'เครื่องเจาะหลุม',
+  'เครื่องไถระเบิดดินดานแบบสั่นสะเทือน',
+  'เครื่องไถระเบิดดินดาน',
+  'เครื่องหยอดเมล็ดเอนกประสงค์',
+  'เครื่องหยอดข้าวพร้อมชุดฉีดพ่น',
+  'เครื่องหยอดข้าว',
+  'เครื่องขุดมันสำปะหลัง (ไม่มีกระบะ)',
+  'เครื่องตัดต้นมันสำปะหลัง',
+  'เครื่องขุดมันสำปะหลัง',
+  'ชุดคีบอ้อย',
+  'เครื่องตัดอ้อย',
+  'เครื่องสางใบอ้อยพร้อมการ์ด',
+  'เครื่องสางใบอ้อย',
+  'ผานสับใบ',
+  'เครื่องอัดฟาง',
+  'ถาดเพาะกล้า',
+  'เครื่องโรยกล้ามือเข็น',
+  'ล้อเหล็ก',
+  'จอบหมุนแนวตั้ง',
+  'เครื่องพ่นเอนกประสงค์',
+  'โดรนการเกษตร',
+  'โดรน',
+  'ขลุบหมุน',
+  'เครื่องยนต์',
+  'Front Guard',
+  'Breaker',
+  'Ford',
+  'Iseki',
+  'John Deere',
+  'New Holland',
+  'Yanmar',
+  'Quick Coupler',
+  'Compactor',
+  'K-D1 package A',
+  'K-D1 package B',
+  'Auger AT3500',
+  'T20',
+  'KIT SET',
+  'Aux Control Valve',
 ];
 const VehicleFilters = [
-  "โดรนการเกษตร",
-  "โดรน",
-  "หลังคา",
-  "มือเข็น",
-  "เหล็กถ่วง",
-  "มันสำปะหลัง",
-  "เดินตาม 4 แถว",
-  "เดินตาม 6 แถว",
-  "ตัวแม่",
-  "2.1 เมตร",
-  "2.4 เมตร",
-  "ดำนา",
-  "จอบหมุน",
-  "ถั่วเหลือง",
-  "ข้าวโพด",
-  "อัตโนมัติ",
-  "ดันดินหน้า",
-  "เกี่ยวนวดข้าว",
-  "นั่งขับ",
-  "ตัดหญ้า",
-  "ระเบิดดินดาน",
-  "แบบท่อน",
-  "พ่นยา",
-  "หัวบิดฝัก",
-  "ขลุบหมุน",
-  "ดินแห้ง",
-  "รถ",
-  "แทรกเตอร์",
-  "ใบมีด",
-  "บุ้งกี๋",
-  "ตักยาง",
-  "ติด",
-  "ขุด",
-  "ชุด",
-  "เครื่อง",
-  "เกี่ยว",
-  "เก็บ",
-  "นวด",
-  "ข้าว",
-  "โรย",
-  "กล้า",
-  "พร้อม",
-  "หน้า",
-  "ล้อ",
-  "หลัง",
-  "คีบ",
-  "โครง",
-  "กัน",
-  "ตัด",
-  "เกษตร",
-  "การ์ด",
-  "ถั่ว",
-  "อ้อย",
-  "ตะแกรง",
-  "สำหรับ",
-  "กึ่ง",
-  "ผาน",
-  "บุกเบิก",
-  "พิเศษ",
-  "งา",
-  "พรวน",
-  "ปาก",
-  "มาตรฐาน",
-  "ปลูก",
-  "ฝัง",
-  "ปุ๋ย",
-  "หว่าน",
-  "เอนกประสงค์",
-  "ถัง",
-  "เจาะ",
-  "หลุม",
-  "ไถ",
-  "หยอด",
-  "เมล็ด",
-  "สับ",
-  "สาง",
-  "ใบ",
-  "อัด",
-  "ฟาง",
-  "ผัก",
-  "ยนต์",
-  "ดันดิน",
-  "หญ้า",
-  "โพด",
-  "เดินตาม",
-  "4 แถว",
-  "6 แถว",
-  "8 แถว",
-  "ฉีด",
-  "พ่น",
-  "เหล็ก",
-  "ต้น",
+  'โดรนการเกษตร',
+  'โดรน',
+  'หลังคา',
+  'มือเข็น',
+  'เหล็กถ่วง',
+  'มันสำปะหลัง',
+  'เดินตาม 4 แถว',
+  'เดินตาม 6 แถว',
+  'ตัวแม่',
+  '2.1 เมตร',
+  '2.4 เมตร',
+  'ดำนา',
+  'จอบหมุน',
+  'ถั่วเหลือง',
+  'ข้าวโพด',
+  'อัตโนมัติ',
+  'ดันดินหน้า',
+  'เกี่ยวนวดข้าว',
+  'นั่งขับ',
+  'ตัดหญ้า',
+  'ระเบิดดินดาน',
+  'แบบท่อน',
+  'พ่นยา',
+  'หัวบิดฝัก',
+  'ขลุบหมุน',
+  'ดินแห้ง',
+  'รถ',
+  'แทรกเตอร์',
+  'ใบมีด',
+  'บุ้งกี๋',
+  'ตักยาง',
+  'ติด',
+  'ขุด',
+  'ชุด',
+  'เครื่อง',
+  'เกี่ยว',
+  'เก็บ',
+  'นวด',
+  'ข้าว',
+  'โรย',
+  'กล้า',
+  'พร้อม',
+  'หน้า',
+  'ล้อ',
+  'หลัง',
+  'คีบ',
+  'โครง',
+  'กัน',
+  'ตัด',
+  'เกษตร',
+  'การ์ด',
+  'ถั่ว',
+  'อ้อย',
+  'ตะแกรง',
+  'สำหรับ',
+  'กึ่ง',
+  'ผาน',
+  'บุกเบิก',
+  'พิเศษ',
+  'งา',
+  'พรวน',
+  'ปาก',
+  'มาตรฐาน',
+  'ปลูก',
+  'ฝัง',
+  'ปุ๋ย',
+  'หว่าน',
+  'เอนกประสงค์',
+  'ถัง',
+  'เจาะ',
+  'หลุม',
+  'ไถ',
+  'หยอด',
+  'เมล็ด',
+  'สับ',
+  'สาง',
+  'ใบ',
+  'อัด',
+  'ฟาง',
+  'ผัก',
+  'ยนต์',
+  'ดันดิน',
+  'หญ้า',
+  'โพด',
+  'เดินตาม',
+  '4 แถว',
+  '6 แถว',
+  '8 แถว',
+  'ฉีด',
+  'พ่น',
+  'เหล็ก',
+  'ต้น',
 ];
 
-const VehicleNameKeywords = ["แทรกเตอร์", "รถเกี่ยว", "รถขุด", "รถตัก", "โดรน"];
+const VehicleNameKeywords = ['แทรกเตอร์', 'รถเกี่ยว', 'รถขุด', 'รถตัก', 'โดรน'];
 
 const hasToParse = (fieldName) =>
   [
-    "phoneNumber",
-    "mobileNumber",
-    "mobilePhoneNumber",
-    "accNo",
-    "bankAccNo",
-    "discountCoupon",
-    "discountPointRedeem",
-    "SKCDiscount",
-    "SKCManualDiscount",
-    "AD_Discount",
-    "netTotal",
-    "amtOilType",
-    "amtPartType",
+    'phoneNumber',
+    'mobileNumber',
+    'mobilePhoneNumber',
+    'accNo',
+    'bankAccNo',
+    'discountCoupon',
+    'discountPointRedeem',
+    'SKCDiscount',
+    'SKCManualDiscount',
+    'AD_Discount',
+    'netTotal',
+    'amtOilType',
+    'amtPartType',
   ].includes(fieldName);
 
 exports.parser = (value) => _parser(value);
 
 const _parser = (value) => {
-  if (!value || typeof value !== "string") return value;
-  return value.replace(/[\r\n\s\-,฿,]+/g, "");
+  if (!value || typeof value !== 'string') return value;
+  return value.replace(/[\r\n\s\-,฿,]+/g, '');
 };
 
 exports.cleanValuesBeforeSave = (values, skipDate) => {
   // Check undefined and replace to null,
   // Format date.
-  if (typeof values !== "object" || !values) {
+  if (typeof values !== 'object' || !values) {
     return values;
   }
   let mValues = { ...values };
   Object.keys(values).forEach((k) => {
-    if (typeof values[k] === "undefined") {
+    if (typeof values[k] === 'undefined') {
       mValues[k] = null;
     }
     if (!mValues[k]) {
@@ -222,20 +222,20 @@ exports.cleanValuesBeforeSave = (values, skipDate) => {
     if (
       !skipDate &&
       k.length >= 4 &&
-      (k.substr(-4) === "Date" || k === "date") &&
+      (k.substr(-4) === 'Date' || k === 'date') &&
       !!values[k]
     ) {
-      mValues[k] = format(new Date(values[k]), "yyyy-MM-dd");
+      mValues[k] = format(new Date(values[k]), 'yyyy-MM-dd');
     }
     if (Array.isArray(values[k])) {
       mValues[k] = cleanArrayOfObject(values[k], skipDate);
-    } else if (typeof mValues[k] === "object") {
+    } else if (typeof mValues[k] === 'object') {
       mValues[k] = cleanObject(mValues[k]);
     }
-    if (hasToParse(k) && ["number", "string"].includes(typeof mValues[k])) {
+    if (hasToParse(k) && ['number', 'string'].includes(typeof mValues[k])) {
       mValues[k] = _parser(values[k]);
     }
-    if (typeof mValues[k] === "string" && mValues[k].startsWith(",")) {
+    if (typeof mValues[k] === 'string' && mValues[k].startsWith(',')) {
       mValues[k] = mValues[k].substr(1);
     }
   });
@@ -248,7 +248,7 @@ const cleanArrayOfObject = (arr, skipDate) => {
   for (let i = 0; i < fArr.length; i++) {
     if (fArr[i]) {
       result[i] =
-        typeof fArr[i] === "object" ? cleanObject(fArr[i], skipDate) : fArr[i];
+        typeof fArr[i] === 'object' ? cleanObject(fArr[i], skipDate) : fArr[i];
     }
   }
   return result;
@@ -257,7 +257,7 @@ const cleanArrayOfObject = (arr, skipDate) => {
 const cleanObject = (obj, skipDate) => {
   let mObj = { ...obj };
   Object.keys(obj).forEach((k) => {
-    if (typeof obj[k] === "undefined") {
+    if (typeof obj[k] === 'undefined') {
       mObj[k] = null;
     }
     if (!mObj[k]) {
@@ -266,17 +266,17 @@ const cleanObject = (obj, skipDate) => {
     if (
       !skipDate &&
       k.length >= 4 &&
-      (k.substr(-4) === "Date" || k === "date")
+      (k.substr(-4) === 'Date' || k === 'date')
     ) {
-      mObj[k] = format(new Date(obj[k]), "yyyy-MM-dd");
+      mObj[k] = format(new Date(obj[k]), 'yyyy-MM-dd');
     }
-    if (hasToParse(k) && ["number", "string"].includes(typeof mObj[k])) {
+    if (hasToParse(k) && ['number', 'string'].includes(typeof mObj[k])) {
       mObj[k] = _parser(obj[k]);
     }
     if (Array.isArray(obj[k])) {
       mObj[k] = obj[k];
     }
-    if (typeof mObj[k] === "string" && mObj[k].startsWith(",")) {
+    if (typeof mObj[k] === 'string' && mObj[k].startsWith(',')) {
       mObj[k] = obj[k].substr(1);
     }
   });
@@ -284,13 +284,18 @@ const cleanObject = (obj, skipDate) => {
 };
 
 const isObject = (object) => {
-  return object != null && typeof object === "object";
+  return object != null && typeof object === 'object';
 };
 
 exports.deepEqual = (object1, object2) => _deepEqual(object1, object2);
 
 const _deepEqual = (object1, object2) => {
-  if (typeof object1 !== "object" || object1 === null || typeof object2 !== "object" || object2 === null) {
+  if (
+    typeof object1 !== 'object' ||
+    object1 === null ||
+    typeof object2 !== 'object' ||
+    object2 === null
+  ) {
     return object1 === object2;
   }
   const keys1 = Object.keys(object1);
@@ -300,20 +305,21 @@ const _deepEqual = (object1, object2) => {
     return false;
   }
 
-  return keys1.every(key => {
-    const val1 = object1[key], val2 = object2[key];
+  return keys1.every((key) => {
+    const val1 = object1[key],
+      val2 = object2[key];
     const areObjects = isObject(val1) && isObject(val2);
     return areObjects ? _deepEqual(val1, val2) : val1 === val2;
   });
 };
 
 const getDetailFromAnomalyAssessment = (assessment) => {
-  if (!assessment || typeof assessment !== "object") {
+  if (!assessment || typeof assessment !== 'object') {
     return null;
   }
   let result = null;
   Object.keys(assessment).map((k) => {
-    if (!["result", "date", "reason", "editedBy"].includes(k)) {
+    if (!['result', 'date', 'reason', 'editedBy'].includes(k)) {
       result = assessment[k];
     }
   });
@@ -373,13 +379,13 @@ exports.formatAssessmentData = (snap) => {
     sourceOfData,
     assessmentDate: assessment?.date || null,
     assessmentMonth: assessment?.date
-      ? format(parse(assessment.date, "yyyy-MM-dd", new Date()), "yyyy-MM")
+      ? format(parse(assessment.date, 'yyyy-MM-dd', new Date()), 'yyyy-MM')
       : null,
     assessmentYear: assessment?.date
-      ? format(parse(assessment.date, "yyyy-MM-dd", new Date()), "yyyy")
+      ? format(parse(assessment.date, 'yyyy-MM-dd', new Date()), 'yyyy')
       : null,
     assessmentResult:
-      typeof assessment?.result !== "undefined" ? assessment.result : null,
+      typeof assessment?.result !== 'undefined' ? assessment.result : null,
     assessmentDetails,
   };
   return doc;
@@ -413,7 +419,7 @@ exports.addSearchFields = (values, fields) => {
 exports.createKeywords = (name) => _createKeywords(name);
 
 const _createKeywords = (name) => {
-  return name.split("").reduce((acc, letter) => {
+  return name.split('').reduce((acc, letter) => {
     return acc.concat(acc.length ? acc[acc.length - 1] + letter : letter);
   }, []);
 };
@@ -426,36 +432,36 @@ const _cleanKeywordsArr = (arr) => {
     if (!l) {
       return l;
     }
-    if (!["-", "+"].includes(l)) {
-      cArr.push(l.replace("(", "").replace(")", ""));
+    if (!['-', '+'].includes(l)) {
+      cArr.push(l.replace('(', '').replace(')', ''));
     }
     let words = [
-      "บุ้งกี๋",
-      "เหล็กถ่วง",
-      "เก็บเกี่ยว",
-      "ข้าวโพด",
-      "ถั่วเหลือง",
-      "มันสำปะหลัง",
-      "อ้อย",
-      "ใบมีด",
-      "เครื่องปลูก",
-      "เครื่องพ่น",
-      "เครื่องฝัง",
-      "ตัดหญ้า",
-      "เจาะหลุม",
-      "ระเบิดดิน",
-      "หยอด",
-      "หยอดเมล็ด",
-      "หยอดข้าว",
-      "เกี่ยวข้าว",
-      "นวดข้าว",
-      "ตู้แอร์",
-      "ดินแห้ง",
-      "ฟาง",
-      "กล้า",
-      "ดำนา",
-      "ล้อเหล็ก",
-      "ปลูกอ้อย",
+      'บุ้งกี๋',
+      'เหล็กถ่วง',
+      'เก็บเกี่ยว',
+      'ข้าวโพด',
+      'ถั่วเหลือง',
+      'มันสำปะหลัง',
+      'อ้อย',
+      'ใบมีด',
+      'เครื่องปลูก',
+      'เครื่องพ่น',
+      'เครื่องฝัง',
+      'ตัดหญ้า',
+      'เจาะหลุม',
+      'ระเบิดดิน',
+      'หยอด',
+      'หยอดเมล็ด',
+      'หยอดข้าว',
+      'เกี่ยวข้าว',
+      'นวดข้าว',
+      'ตู้แอร์',
+      'ดินแห้ง',
+      'ฟาง',
+      'กล้า',
+      'ดำนา',
+      'ล้อเหล็ก',
+      'ปลูกอ้อย',
     ];
     words.map((w) => {
       if (l.search(w) > -1) {
@@ -477,20 +483,20 @@ const _cleanKeywordsArr = (arr) => {
 
 exports.createProductKeywords = (val) => {
   const { name, productCode } = val;
-  let arrName = name.toLowerCase().split(" ");
-  let arrProductCode = productCode.toLowerCase().split(" ");
+  let arrName = name.toLowerCase().split(' ');
+  let arrProductCode = productCode.toLowerCase().split(' ');
   let allArray = arrName.concat(arrProductCode);
   allArray.forEach((sName, i) => {
-    if (sName.search(" - ") > -1) {
-      let arr2 = sName.split(" - ");
+    if (sName.search(' - ') > -1) {
+      let arr2 = sName.split(' - ');
       allArray = allArray.concat(arr2);
     }
-    if (sName.search(" + ") > -1) {
-      let arr3 = sName.split(" + ");
+    if (sName.search(' + ') > -1) {
+      let arr3 = sName.split(' + ');
       allArray = allArray.concat(arr3);
     }
-    if (sName.search("/") > -1) {
-      let arr4 = sName.split("/");
+    if (sName.search('/') > -1) {
+      let arr4 = sName.split('/');
       allArray = allArray.concat(arr4);
     }
   });
@@ -501,10 +507,10 @@ exports.partialText = (txt) => _partialText(txt);
 
 const _partialText = (txt) => {
   let str = txt.toString();
-  const parts = str.split(" ");
+  const parts = str.split(' ');
   if (parts.length > 1) {
     parts.shift();
-    return parts.join(" ").toLowerCase();
+    return parts.join(' ').toLowerCase();
   } else {
     return str.toLowerCase();
   }
@@ -513,12 +519,12 @@ const _partialText = (txt) => {
 exports.extractLastNumbers = (str, length) => _extractLastNumbers(str, length);
 
 const _extractLastNumbers = (str, length) => {
-  const onlyNumbers = str.replace(/\D/g, "");
+  const onlyNumbers = str.replace(/\D/g, '');
   return onlyNumbers.substring(onlyNumbers.length - length);
 };
 
 exports.extractVehicleNo = (str) => {
-  if (typeof str !== "string") {
+  if (typeof str !== 'string') {
     return str;
   }
   let result = _extractLastNumbers(str, 5);
@@ -527,11 +533,11 @@ exports.extractVehicleNo = (str) => {
 };
 
 exports.extractPeripheralNo = (str) => {
-  if (typeof str !== "string") {
+  if (typeof str !== 'string') {
     return str;
   }
   let result = str;
-  let kIndex = str.lastIndexOf("-");
+  let kIndex = str.lastIndexOf('-');
   if (kIndex > -1) {
     result = str.substring(kIndex + 1);
   } else {
@@ -541,11 +547,11 @@ exports.extractPeripheralNo = (str) => {
 };
 
 exports.extractPeripheralModel = (str) => {
-  if (typeof str !== "string") {
+  if (typeof str !== 'string') {
     return str;
   }
   let result = str;
-  let kIndex = str.lastIndexOf("-");
+  let kIndex = str.lastIndexOf('-');
   if (kIndex > -1) {
     result = str.substring(0, kIndex);
   } else {
@@ -555,7 +561,7 @@ exports.extractPeripheralModel = (str) => {
 };
 
 exports.createVehicleNoKeyWords = (str) => {
-  if (typeof str !== "string") {
+  if (typeof str !== 'string') {
     return str;
   }
   let kArr = [];
@@ -569,11 +575,11 @@ exports.createVehicleNoKeyWords = (str) => {
 };
 
 exports.createPeripheralNoKeyWords = (str) => {
-  if (typeof str !== "string") {
+  if (typeof str !== 'string') {
     return str;
   }
   let words = str;
-  let kIndex = str.lastIndexOf("-");
+  let kIndex = str.lastIndexOf('-');
   if (kIndex > -1) {
     words = str.substring(kIndex + 1);
   } else {
@@ -589,11 +595,11 @@ exports.createPeripheralNoKeyWords = (str) => {
 };
 
 exports.removeAllNonAlphaNumericCharacters = (str) => {
-  if (!str || !["string", "number"].includes(typeof str)) {
+  if (!str || !['string', 'number'].includes(typeof str)) {
     return str;
   }
 
-  const replaced = str.toString().replace(/[^a-z0-9]/gi, "");
+  const replaced = str.toString().replace(/[^a-z0-9]/gi, '');
   return replaced.toLowerCase();
 };
 
@@ -602,18 +608,18 @@ exports.getExtraSaleSnap = (items) => {
     return {};
   }
   let allItems = (items || []).map((it) => {
-    let vehicleArr = this.convertToArray(it.vehicleNo);
-    let peripheralArr = this.convertToArray(it.peripheralNo);
-    let engineArr = this.convertToArray(it.engineNo);
+    let vehicleArr = exports.convertToArray(it.vehicleNo);
+    let peripheralArr = exports.convertToArray(it.peripheralNo);
+    let engineArr = exports.convertToArray(it.engineNo);
     let isVehicle = it?.productName
-      ? this.checkIsVehicleFromName(it.productName)
+      ? exports.checkIsVehicleFromName(it.productName)
       : vehicleArr.length > 0;
     let modelName =
       isVehicle || !!it.productName
-        ? this.getModelFromName(it.productName)
+        ? exports.getModelFromName(it.productName)
         : peripheralArr[0]
-          ? this.extractPeripheralModel(peripheralArr[0])
-          : "";
+          ? exports.extractPeripheralModel(peripheralArr[0])
+          : '';
     return {
       model: modelName,
       productCode: it.productCode || null,
@@ -651,16 +657,16 @@ exports.getExtraSaleSnap = (items) => {
   return {
     vehicles: allItems.filter((l) => l.isVehicle),
     peripherals: allItems.filter((l) => !l.isVehicle),
-    model: model === [""] ? [] : model,
-    vehicleNo: vehicleNo === [""] ? [] : vehicleNo,
-    peripheralNo: peripheralNo === [""] ? [] : peripheralNo,
-    engineNo: engineNo === [""] ? [] : engineNo,
+    model: model === [''] ? [] : model,
+    vehicleNo: vehicleNo === [''] ? [] : vehicleNo,
+    peripheralNo: peripheralNo === [''] ? [] : peripheralNo,
+    engineNo: engineNo === [''] ? [] : engineNo,
   };
 };
 
 exports.getVehicleHeader = (pName) => {
   // Extract vehicle header from product name.
-  if (typeof pName !== "string") {
+  if (typeof pName !== 'string') {
     return null;
   }
   let arr = [];
@@ -674,36 +680,47 @@ exports.getVehicleHeader = (pName) => {
 };
 
 const removeDoubleSpaces = (txt) => {
-  if (!txt || !["number", "string"].includes(typeof txt)) {
+  if (!txt || !['number', 'string'].includes(typeof txt)) {
     return txt;
   }
   let str = txt.toString();
-  return str.replace(/  +/g, " ");
+  return str.replace(/  +/g, ' ');
 };
 
 exports.getModelFromName = (pName) => {
   // Extract vehicle header from product name.
-  if (typeof pName !== "string") {
+  if (typeof pName !== 'string') {
     return null;
   }
   let fName = pName;
   VehicleFilters.map((l) => {
     if (pName.search(l) > -1) {
-      fName = fName.replace(new RegExp(l, "g"), "").trim();
+      fName = fName.replace(new RegExp(l, 'g'), '').trim();
     }
     return l;
   });
   fName = removeDoubleSpaces(fName);
-  if (fName.startsWith("+") || fName.startsWith("-")) {
+  if (fName.startsWith('+') || fName.startsWith('-')) {
     fName = fName.substring(1).trim();
   }
   return removeDoubleSpaces(fName);
 };
 
-exports.getCollection = async (firestore, checkCollection, wheres = [], orderBy = null, limit = null) => {
+exports.getCollection = async (
+  firestore,
+  checkCollection,
+  wheres = [],
+  orderBy = null,
+  limit = null
+) => {
   try {
-    let checkRef = checkCollection.split("/").reduce((ref, txt, index) =>
-      index % 2 === 0 ? ref.collection(txt) : ref.doc(txt), firestore);
+    let checkRef = checkCollection
+      .split('/')
+      .reduce(
+        (ref, txt, index) =>
+          index % 2 === 0 ? ref.collection(txt) : ref.doc(txt),
+        firestore
+      );
 
     wheres.forEach(([field, op, value]) => {
       checkRef = checkRef.where(field, op, value);
@@ -720,24 +737,26 @@ exports.getCollection = async (firestore, checkCollection, wheres = [], orderBy 
     const cSnap = await checkRef.get();
     return !cSnap.empty ? cSnap : false;
   } catch (e) {
-    console.error("Error fetching collection:", e);
+    console.error('Error fetching collection:', e);
     throw e;
   }
 };
 
 exports.getDoc = async (firestore, checkCollection, checkDoc) => {
   try {
-    let checkRef = checkDoc.split("/").reduce(
-      (ref, txt, index) =>
-        index % 2 === 0 ? ref.doc(txt) : ref.collection(txt),
-      firestore.collection(checkCollection)
-    );
+    let checkRef = checkDoc
+      .split('/')
+      .reduce(
+        (ref, txt, index) =>
+          index % 2 === 0 ? ref.doc(txt) : ref.collection(txt),
+        firestore.collection(checkCollection)
+      );
 
     const doc = await checkRef.get();
-    console.log("doc", doc.exists ? doc.data() : "Document does not exist");
+    console.log('doc', doc.exists ? doc.data() : 'Document does not exist');
     return doc.exists ? doc : false;
   } catch (e) {
-    console.error("Error fetching document:", e);
+    console.error('Error fetching document:', e);
     throw e;
   }
 };
@@ -760,20 +779,20 @@ exports.updateOtherCollection = async (updateRef, updateObj, where = null) => {
     await updateRef.doc(vItem.id).update(updateObj);
     return true;
   } catch (e) {
-    console.error("Error updating collection:", e);
+    console.error('Error updating collection:', e);
     throw e;
   }
 };
 
-exports.createNewId = (suffix = "KBN-ACC-INC") => {
+exports.createNewId = (suffix = 'KBN-ACC-INC') => {
   const lastNo = parseInt(Math.floor(Math.random() * 10000));
-  const padLastNo = ("0".repeat(3) + lastNo).slice(-5);
-  const orderId = `${suffix}${format(new Date(), "yyyyMMdd")}${padLastNo}`;
+  const padLastNo = ('0'.repeat(3) + lastNo).slice(-5);
+  const orderId = `${suffix}${format(new Date(), 'yyyyMMdd')}${padLastNo}`;
   return orderId;
 };
 
 exports.convertToArray = (elem) => {
-  let result = elem ? (Array.isArray(elem) ? elem : elem.split(",")) : [];
+  let result = elem ? (Array.isArray(elem) ? elem : elem.split(',')) : [];
   return result;
 };
 
@@ -784,7 +803,7 @@ exports.checkIsVehicleFromName = (name) => {
 };
 
 const isAlphaNumeric = (inputtxt) => {
-  if (!inputtxt || !["number", "string"].includes(typeof inputtxt)) {
+  if (!inputtxt || !['number', 'string'].includes(typeof inputtxt)) {
     return false;
   }
   let letterNumber = /^[0-9a-zA-Z]+$/;
@@ -793,7 +812,7 @@ const isAlphaNumeric = (inputtxt) => {
 
 exports.cleanIdentityNumber = (str) => {
   // Remove non-alphanumeric from before and after.
-  if (!str || !["number", "string"].includes(typeof str)) {
+  if (!str || !['number', 'string'].includes(typeof str)) {
     return str;
   }
   let result = str.trim();
@@ -805,9 +824,9 @@ exports.cleanIdentityNumber = (str) => {
     middle = result.substring(1, result.length - 1);
     after = result.substring(result.length - 1, result.length);
     console.log({ result, before, middle, after });
-    result = `${before.replace(/[^a-z0-9]/gi, "")}${middle}${after.replace(
+    result = `${before.replace(/[^a-z0-9]/gi, '')}${middle}${after.replace(
       /[^a-z0-9]/gi,
-      ""
+      ''
     )}`;
   }
   return result;
@@ -826,7 +845,7 @@ const findLastLetterIndex = (str) => {
   if (!str) {
     return -1;
   }
-  let onlyChars = str.replace(/[^a-z]/gi, "");
+  let onlyChars = str.replace(/[^a-z]/gi, '');
   let lastLetter = onlyChars.substring(onlyChars.length - 1);
   return str.lastIndexOf(lastLetter);
 };
@@ -857,11 +876,116 @@ exports.getDates = (startDate, stopDate, format) => {
   let dateArray = [];
   let currentDate = startDate;
   while (currentDate <= stopDate) {
-    dateArray.push(format(parse(currentDate, "yyyy-MM-dd", new Date()), format));
-    currentDate = format(addDays(parse(currentDate, "yyyy-MM-dd", new Date()), 1), "yyyy-MM-dd");
+    dateArray.push(
+      format(parse(currentDate, 'yyyy-MM-dd', new Date()), format)
+    );
+    currentDate = format(
+      addDays(parse(currentDate, 'yyyy-MM-dd', new Date()), 1),
+      'yyyy-MM-dd'
+    );
   }
   return dateArray;
 };
 
-exports.hasVehicleNo = (item) => item?.vehicleNo && ((typeof item.vehicleNo === "string" && item.vehicleNo !== "") || (Array.isArray(item.vehicleNo) && item.vehicleNo.length > 0));
-exports.hasPeripheralNo = (item) => item?.peripheralNo && ((typeof item.peripheralNo === "string" && item.peripheralNo !== "") || (Array.isArray(item.peripheralNo) && item.peripheralNo.length > 0));
+exports.hasVehicleNo = (item) =>
+  item?.vehicleNo &&
+  ((typeof item.vehicleNo === 'string' && item.vehicleNo !== '') ||
+    (Array.isArray(item.vehicleNo) && item.vehicleNo.length > 0));
+exports.hasPeripheralNo = (item) =>
+  item?.peripheralNo &&
+  ((typeof item.peripheralNo === 'string' && item.peripheralNo !== '') ||
+    (Array.isArray(item.peripheralNo) && item.peripheralNo.length > 0));
+
+exports.createAccountingDocumentKeywords = (data) => {
+  const keywords = new Set();
+
+  // Helper function to add keywords from a value
+  const addKeywordsFromValue = (value) => {
+    if (!value) return;
+
+    const str = value.toString().toLowerCase();
+
+    // Add original value
+    keywords.add(str);
+
+    // Add partial keywords (each character combination)
+    const partialKeywords = _createKeywords(str);
+    partialKeywords.forEach((kw) => keywords.add(kw));
+
+    // Add word-level keywords
+    const words = str.split(/[\s\-_.,/]+/).filter((word) => word.length > 0);
+    words.forEach((word) => {
+      keywords.add(word);
+      const wordKeywords = _createKeywords(word);
+      wordKeywords.forEach((kw) => keywords.add(kw));
+    });
+  };
+
+  // Core searchable fields
+  const searchableFields = [
+    'incomeId',
+    'expenseId',
+    'customerName',
+    'firstName',
+    'lastName',
+    'vehicleModel',
+    'description',
+    'note',
+    'remark',
+    'referenceSaleOrder',
+    'billNo',
+    'receiveNo',
+    'billNoSKC',
+    'invoiceNo',
+    'category',
+    'subcategory',
+  ];
+
+  // Generate keywords from all searchable fields
+  searchableFields.forEach((field) => {
+    if (data[field]) {
+      addKeywordsFromValue(data[field]);
+    }
+  });
+
+  // Special handling for customer name combinations
+  if (data.firstName && data.lastName) {
+    const fullName = `${data.firstName} ${data.lastName}`;
+    addKeywordsFromValue(fullName);
+  }
+
+  // Special handling for amounts (convert to string for partial matching)
+  if (data.amount || data.total || data.netTotal) {
+    const amount = (data.amount || data.total || data.netTotal).toString();
+    addKeywordsFromValue(amount);
+  }
+
+  // Remove empty keywords and convert back to array
+  return Array.from(keywords).filter((kw) => kw && kw.length > 0);
+};
+
+exports.generateAccountingSearchFields = (data) => {
+  // Generate keywords
+  const keywords = exports.createAccountingDocumentKeywords(data);
+
+  // Create lowercase versions of key fields for case-insensitive search
+  const searchFields = {
+    keywords,
+    customerName_lower: data.customerName
+      ? data.customerName.toLowerCase()
+      : null,
+    firstName_lower: data.firstName ? data.firstName.toLowerCase() : null,
+    lastName_lower: data.lastName ? data.lastName.toLowerCase() : null,
+    description_lower: data.description ? data.description.toLowerCase() : null,
+    category_lower: data.category ? data.category.toLowerCase() : null,
+  };
+
+  // Remove null values
+  Object.keys(searchFields).forEach((key) => {
+    if (searchFields[key] === null || searchFields[key] === undefined) {
+      delete searchFields[key];
+    }
+  });
+
+  return searchFields;
+};

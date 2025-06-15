@@ -151,7 +151,7 @@ const UserPersonalNotifications = () => {
               notification.destroy();
             }}
           >
-            เข้าสู่ระบบ
+            ตกลง
           </Button>
         ) : null,
       style: {

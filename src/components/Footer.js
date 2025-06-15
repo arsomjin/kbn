@@ -17,17 +17,22 @@ const Footer = ({
   extraButtons,
   disabled,
   buttonWidth,
-  className
+  className,
 }) => {
   const Buttons = (
     <>
       {!okOnly &&
         (cancelPopConfirmText ? (
-          <Popconfirm title={cancelPopConfirmText || 'ยืนยัน?'} okText="ตกลง" cancelText="ยกเลิก" onConfirm={onCancel}>
+          <Popconfirm
+            title={cancelPopConfirmText || 'ยืนยัน?'}
+            okText='ตกลง'
+            cancelText='ยกเลิก'
+            onConfirm={onCancel}
+          >
             <Button
-              className="m-1"
+              className='m-1'
               {...(!isMobile && { style: { width: buttonWidth || 132 } })}
-              size="middle"
+              size='medium'
               disabled={disabled}
             >
               {cancelText || 'ยกเลิก'}
@@ -35,9 +40,9 @@ const Footer = ({
           </Popconfirm>
         ) : (
           <Button
-            className="m-1"
+            className='m-1'
             {...(!isMobile && { style: { width: buttonWidth || 132 } })}
-            size="middle"
+            size='medium'
             onClick={onCancel}
             disabled={disabled}
           >
@@ -45,19 +50,24 @@ const Footer = ({
           </Button>
         ))}
       {okPopConfirmText ? (
-        <Popconfirm title={okPopConfirmText || 'ยืนยัน?'} okText="ตกลง" cancelText="ยกเลิก" onConfirm={onConfirm}>
+        <Popconfirm
+          title={okPopConfirmText || 'ยืนยัน?'}
+          okText='ตกลง'
+          cancelText='ยกเลิก'
+          onConfirm={onConfirm}
+        >
           <Button
-            className="m-1"
+            className='m-1'
             {...(!isMobile && { style: { width: buttonWidth || 132 } })}
-            type="primary"
-            size="middle"
+            type='primary'
+            size='medium'
             {...(okIcon && { icon: okIcon })}
             disabled={disabled}
             style={{
               display: 'inline-flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: 8
+              gap: 8,
             }}
           >
             {okText || 'บันทึกข้อมูล'}
@@ -65,18 +75,18 @@ const Footer = ({
         </Popconfirm>
       ) : (
         <Button
-          className="m-1"
+          className='m-1'
           {...(!isMobile && { style: { width: 140 } })}
-          type="primary"
+          type='primary'
           onClick={onConfirm}
-          size="middle"
+          size='medium'
           {...(okIcon && { icon: okIcon })}
           disabled={disabled}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: 8
+            gap: 8,
           }}
         >
           {okText || 'บันทึกข้อมูล'}
@@ -95,10 +105,13 @@ const Footer = ({
       </CardFooter>
     ) : (
       <CardFooter className={`d-flex p-2 border-top`}>
-        <div className="d-flex flex-row" style={{ flex: 1, justifyContent: 'space-between' }}>
+        <div
+          className='d-flex flex-row'
+          style={{ flex: 1, justifyContent: 'space-between' }}
+        >
           <Col span={12}>{extraButtons}</Col>
           <Col span={12}>
-            <div className="d-flex flex-row justify-content-end">{Buttons}</div>
+            <div className='d-flex flex-row justify-content-end'>{Buttons}</div>
           </Col>
         </div>
       </CardFooter>

@@ -5,12 +5,26 @@
  */
 
 import React, { useState, memo, forwardRef } from 'react';
-import { Badge, Dropdown, Menu, Button, Typography, Space, Empty } from 'antd';
+import {
+  Badge,
+  Dropdown,
+  Menu,
+  Typography,
+  Empty,
+  Avatar,
+  Divider,
+} from 'antd';
 import {
   BellOutlined,
   EditOutlined,
   InfoCircleOutlined,
 } from '@ant-design/icons';
+import { useSelector } from 'react-redux';
+import { showLog } from 'functions';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
 
 const { Text } = Typography;
 

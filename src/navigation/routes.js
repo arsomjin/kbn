@@ -16,9 +16,10 @@ import Errors from '../views/Errors';
 import NotFound from 'views/NotFound';
 import ComponentsOverview from '../views/ComponentsOverview';
 import Tables from '../views/Tables';
-import BlogPosts from '../views/BlogPosts';
-import HeaderNav from '../views/HeaderNavigation';
-import IconSidebarView from '../views/IconSidebar';
+// Removed unused legacy view imports:
+// import BlogPosts from '../views/BlogPosts'; (deleted)
+// import HeaderNav from '../views/HeaderNavigation'; (deleted)
+// import IconSidebarView from '../views/IconSidebar'; (deleted)
 import AccountOverview from 'Modules/Account/screens/Overview';
 import Income from 'Modules/Account/screens/Income';
 import IncomeOverview from 'Modules/Account/screens/Income/IncomeOverview';
@@ -94,6 +95,8 @@ import Chevrolet from 'Modules/Account/screens/Expense/Components/Chevrolet';
 import ExpenseTransferCycle from 'Modules/Account/screens/ExpenseTransferCycle';
 import TestPrint from 'dev/screens/TestPrint';
 import RBACIntegrationTester from 'dev/screens/RBACIntegrationTester';
+import DataCloneTest from 'dev/screens/DataCloneTest';
+import DataComparisonTool from 'dev/screens/DataComparisonTool';
 
 import RBACTester from 'dev/screens/RBACTester';
 import SimpleRBAC from 'dev/simple-rbac';
@@ -957,21 +960,22 @@ export default [
     layout: DefaultLayout,
     component: Tables,
   },
-  {
-    path: '/blog-posts',
-    layout: DefaultLayout,
-    component: BlogPosts,
-  },
-  {
-    path: '/header-navigation',
-    layout: HeaderNavigation,
-    component: HeaderNav,
-  },
-  {
-    path: '/icon-sidebar-nav',
-    layout: IconSidebar,
-    component: IconSidebarView,
-  },
+  // Removed routes for deleted legacy view components:
+  // {
+  //   path: '/blog-posts',
+  //   layout: DefaultLayout,
+  //   component: BlogPosts, (deleted)
+  // },
+  // {
+  //   path: '/header-navigation',
+  //   layout: HeaderNavigation,
+  //   component: HeaderNav, (deleted)
+  // },
+  // {
+  //   path: '/icon-sidebar-nav',
+  //   layout: IconSidebar,
+  //   component: IconSidebarView, (deleted)
+  // },
   {
     path: '/utils/upload-data-from-excel-file',
     layout: DefaultLayout,
@@ -1039,6 +1043,18 @@ export default [
     path: '/dev/rbac-integration-tester',
     layout: DefaultLayout,
     component: RBACIntegrationTester,
+  },
+
+  {
+    path: '/dev/data-clone-test',
+    layout: DefaultLayout,
+    component: DataCloneTest,
+  },
+
+  {
+    path: '/dev/data-comparison-tool',
+    layout: DefaultLayout,
+    component: DataComparisonTool,
   },
 
   {

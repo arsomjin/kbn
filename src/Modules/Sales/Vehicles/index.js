@@ -1,4 +1,10 @@
-import React, { useContext, useRef, Fragment, useState, useEffect } from 'react';
+import React, {
+  useContext,
+  useRef,
+  Fragment,
+  useState,
+  useEffect,
+} from 'react';
 import { Form, Popconfirm, Radio, Select, Collapse, Skeleton } from 'antd';
 import PageTitle from 'components/common/PageTitle';
 import { CommonSteps } from 'data/Constant';
@@ -19,7 +25,7 @@ import {
   _getNetIncomeFromValues,
   _getPaymentFromAdditionalPurchase,
   hasNoVehicleOrEngineNumber,
-  hasNoPeripheralNumber
+  hasNoPeripheralNumber,
 } from './api';
 import { FirebaseContext } from '../../../firebase';
 import { createNewSaleOrderId, onConfirmSaleOrder } from '../api';
@@ -44,7 +50,7 @@ import {
   cleanNumberFields,
   load,
   showSuccess,
-  firstKey
+  firstKey,
 } from 'functions';
 import { updateNewOrderCustomer, updateNewOrderReferrer } from 'Modules/Utils';
 import CustomerDetailsModal from 'Modules/Customers/CustomerDetailsModal';
@@ -74,8 +80,8 @@ import { arrayForEach } from 'functions';
 import { checkPayments } from 'Modules/Utils';
 // RBAC Testing: Adding LayoutWithRBAC wrapper for comparison
 import PropTypes from 'prop-types';
-// 🚀 Document Approval Flow Integration
-import DocumentWorkflowWrapper from 'components/DocumentApprovalFlow/DocumentWorkflowWrapper';
+// 🚀 Unified Layout Integration (replacing DocumentWorkflowWrapper)
+import LayoutWithRBAC from 'components/layout/LayoutWithRBAC';
 const { Option } = Select;
 
 const initProps = {
@@ -84,14 +90,14 @@ const initProps = {
   onBack: null,
   isEdit: false,
   activeStep: 0,
-  grant: true
+  grant: true,
 };
 
 // Content component for sale machines
 const SaleMachinesContent = ({ geographic, auditTrail }) => {
-  const { theme } = useSelector(state => state.global);
-  const { user } = useSelector(state => state.auth);
-  const { users, employees, banks } = useSelector(state => state.data);
+  const { theme } = useSelector((state) => state.global);
+  const { user } = useSelector((state) => state.auth);
+  const { users, employees, banks } = useSelector((state) => state.data);
   const { firestore, api } = useContext(FirebaseContext);
   const [form] = Form.useForm();
 
@@ -107,15 +113,15 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
 
   const [showCustomer, setShowCustomer] = useMergeState({
     visible: false,
-    customer: {}
+    customer: {},
   });
   const [showReferrer, setShowReferrer] = useMergeState({
     visible: false,
-    referrer: {}
+    referrer: {},
   });
   const [showMore, setMoreInfo] = useMergeState({
     visible: false,
-    values: {}
+    values: {},
   });
   const [ready, setReady] = useState(false);
 
@@ -132,9 +138,14 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
   useEffect(() => {
     const { onBack } = params || {};
     let pOrder = params?.order;
-    let isEdit = !!pOrder && !!pOrder.date && !!pOrder.created && !!pOrder.saleId;
-    const activeStep = !(pOrder && pOrder.date) ? 0 : StatusMapToStep[pOrder.status || 'pending'];
-    const readOnly = onBack?.path ? onBack.path === '/reports/sale-machines' : false;
+    let isEdit =
+      !!pOrder && !!pOrder.date && !!pOrder.created && !!pOrder.saleId;
+    const activeStep = !(pOrder && pOrder.date)
+      ? 0
+      : StatusMapToStep[pOrder.status || 'pending'];
+    const readOnly = onBack?.path
+      ? onBack.path === '/reports/sale-machines'
+      : false;
     // const columns = getColumns(isEdit);
 
     if (!isEdit) {
@@ -145,7 +156,7 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
         isEdit,
         activeStep,
         readOnly,
-        onBack
+        onBack,
       });
     } else {
       setProps({
@@ -153,7 +164,7 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
         isEdit,
         activeStep,
         readOnly,
-        onBack
+        onBack,
       });
     }
     setReady(true);
@@ -163,10 +174,12 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
   const _onBookingSelect = async (reserveNo, values) => {
     try {
       // Check if this booking has record sale or credit.
-      let saleSnap = await checkCollection('sections/sales/vehicles', [['bookNo', '==', reserveNo]]);
+      let saleSnap = await checkCollection('sections/sales/vehicles', [
+        ['bookNo', '==', reserveNo],
+      ]);
       if (saleSnap) {
         let sales = [];
-        saleSnap.forEach(sale => {
+        saleSnap.forEach((sale) => {
           sales.push(sale.data());
         });
         if (sales.length > 0) {
@@ -180,17 +193,21 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
       }
 
       // Check if the booking has temporaly product code.
-      let bookSnap = await checkCollection('sections/sales/bookings', [['bookNo', '==', reserveNo]]);
+      let bookSnap = await checkCollection('sections/sales/bookings', [
+        ['bookNo', '==', reserveNo],
+      ]);
       if (bookSnap) {
         let books = [];
-        bookSnap.forEach(book => {
+        bookSnap.forEach((book) => {
           books.push(book.data());
         });
         if (books.length > 0 && !!books[0]?.items) {
           // showLog('book items', books[0].items);
           let hasTempProduct = false;
-          await arrayForEach(books[0].items, item => {
-            hasTempProduct = !!item?.productCode && item.productCode.trim().toLowerCase().startsWith('temp');
+          await arrayForEach(books[0].items, (item) => {
+            hasTempProduct =
+              !!item?.productCode &&
+              item.productCode.trim().toLowerCase().startsWith('temp');
           });
           if (hasTempProduct) {
             // Has temporaly product.
@@ -210,24 +227,24 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
     }
   };
 
-  const _onValuesChange = val => {
+  const _onValuesChange = (val) => {
     if (firstKey(val) === 'isEquipment') {
       let mItems = form.getFieldValue('items');
       form.setFieldsValue({
-        items: mItems.map(l => ({ ...l, isEquipment: val['isEquipment'] }))
+        items: mItems.map((l) => ({ ...l, isEquipment: val['isEquipment'] })),
       });
     }
     if (firstKey(val) === 'branchCode') {
       let mItems = form.getFieldValue('items');
       form.setFieldsValue({
-        items: mItems.map(l => ({ ...l, branchCode: val['branchCode'] }))
+        items: mItems.map((l) => ({ ...l, branchCode: val['branchCode'] })),
       });
     }
     if (firstKey(val) === 'isUsed') {
       let mItems = form.getFieldValue('items');
       //  showLog({ val, mItems });
       form.setFieldsValue({
-        items: mItems.map(l => ({ ...l, isUsed: val['isUsed'] }))
+        items: mItems.map((l) => ({ ...l, isUsed: val['isUsed'] })),
       });
     }
     if (firstKey(val) === 'referrer' && val['referrer']?.bankAccount) {
@@ -237,10 +254,10 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
         ...mReferringDetails,
         bankAcc,
         bankName,
-        bank
+        bank,
       };
       form.setFieldsValue({
-        referringDetails
+        referringDetails,
       });
     }
     if (firstKey(val) === 'amtReferrer') {
@@ -253,10 +270,10 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
           ...mReferringDetails,
           amount,
           whTax,
-          total
+          total,
         };
         form.setFieldsValue({
-          referringDetails
+          referringDetails,
         });
       }
     }
@@ -271,26 +288,29 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
             ...initAddress,
             ...(!!l?.address && { ...l.address }),
             ...(!!val['guarantors'][i]?.address && {
-              ...val['guarantors'][i].address
-            })
-          }
-        }))
+              ...val['guarantors'][i].address,
+            }),
+          },
+        })),
       });
     }
   };
 
-  const _onShowCustomerDetail = async values => {
+  const _onShowCustomerDetail = async (values) => {
     try {
-      const { firstName, lastName, prefix, phoneNumber, customerId, address } = values;
+      const { firstName, lastName, prefix, phoneNumber, customerId, address } =
+        values;
       let selectedCustomer = {
         firstName,
         lastName,
         prefix,
         phoneNumber,
         customerId,
-        address
+        address,
       };
-      const doc = values.customerId ? await checkDoc('data', `sales/customers/${values.customerId}`) : null;
+      const doc = values.customerId
+        ? await checkDoc('data', `sales/customers/${values.customerId}`)
+        : null;
       if (doc) {
         selectedCustomer = doc.data();
       }
@@ -300,8 +320,9 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
     }
   };
 
-  const onCustomerUpdate = cus => {
-    const { firstName, lastName, prefix, phoneNumber, customerId, address } = cus;
+  const onCustomerUpdate = (cus) => {
+    const { firstName, lastName, prefix, phoneNumber, customerId, address } =
+      cus;
     if (firstName && customerId) {
       form.setFieldsValue({
         firstName,
@@ -312,24 +333,27 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
         phoneNumber,
         customerId,
         address,
-        customer: `${prefix || ''}${firstName || ''} ${lastName || ''}`.trim()
+        customer: `${prefix || ''}${firstName || ''} ${lastName || ''}`.trim(),
       });
     }
     setShowCustomer({ visible: false, customer: {} });
   };
 
-  const _onShowReferrerDetail = async values => {
+  const _onShowReferrerDetail = async (values) => {
     try {
-      const { firstName, lastName, prefix, phoneNumber, referrerId, address } = values?.referrer || {};
+      const { firstName, lastName, prefix, phoneNumber, referrerId, address } =
+        values?.referrer || {};
       let referrer = {
         firstName,
         lastName,
         prefix,
         phoneNumber,
         referrerId,
-        address
+        address,
       };
-      const doc = values.referrerId ? await checkDoc('data', `sales/referrers/${referrerId}`) : null;
+      const doc = values.referrerId
+        ? await checkDoc('data', `sales/referrers/${referrerId}`)
+        : null;
       if (doc) {
         referrer = doc.data();
       }
@@ -339,9 +363,17 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
     }
   };
 
-  const onReferrerUpdate = refer => {
+  const onReferrerUpdate = (refer) => {
     //  showLog({ refer });
-    const { firstName, lastName, prefix, phoneNumber, referrerId, bankAccount, address } = refer;
+    const {
+      firstName,
+      lastName,
+      prefix,
+      phoneNumber,
+      referrerId,
+      bankAccount,
+      address,
+    } = refer;
     if (firstName && referrerId) {
       const { bankAcc, bankName, bank } = bankAccount;
       const mReferringDetails = form.getFieldValue('referringDetails');
@@ -349,7 +381,7 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
         ...mReferringDetails,
         bankAcc,
         bankName,
-        bank
+        bank,
       };
       form.setFieldsValue({
         referrer: {
@@ -358,10 +390,10 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
           prefix,
           phoneNumber,
           referrerId,
-          address
+          address,
         },
         referringDetails,
-        isNewReferrer: false
+        isNewReferrer: false,
       });
     }
     setShowReferrer({ visible: false, referrer: {} });
@@ -381,37 +413,60 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
       if (!['other'].includes(mValues.saleType)) {
         // Check items.
         if (!mValues.items) {
-          showMessageBar('ไม่มีรายการสินค้า', 'กรุณาเลือกรายการรถหรืออุปกรณ์', 'warning');
+          showMessageBar(
+            'ไม่มีรายการสินค้า',
+            'กรุณาเลือกรายการรถหรืออุปกรณ์',
+            'warning'
+          );
           return;
         }
 
-        let mItems = mValues.items.filter(l => !!l.productCode && Numb(l.qty) > 0);
+        let mItems = mValues.items.filter(
+          (l) => !!l.productCode && Numb(l.qty) > 0
+        );
         if (mItems.length === 0) {
-          showMessageBar('ไม่มีรายการสินค้า', 'กรุณาเลือกรายการรถหรืออุปกรณ์', 'warning');
+          showMessageBar(
+            'ไม่มีรายการสินค้า',
+            'กรุณาเลือกรายการรถหรืออุปกรณ์',
+            'warning'
+          );
           return;
         }
 
-        let hasNoVehicleOrEngineNumberItems = hasNoVehicleOrEngineNumber(mItems);
+        let hasNoVehicleOrEngineNumberItems =
+          hasNoVehicleOrEngineNumber(mItems);
         if (hasNoVehicleOrEngineNumberItems) {
-          showMessageBar('ไม่มีเลขรถ/เลขเครื่อง', `กรุณาป้อนข้อมูล เลขรถ/เลขเครื่อง`, 'warning');
+          showMessageBar(
+            'ไม่มีเลขรถ/เลขเครื่อง',
+            `กรุณาป้อนข้อมูล เลขรถ/เลขเครื่อง`,
+            'warning'
+          );
           return;
         }
 
         let hasNoPeripheralNumberItems = hasNoPeripheralNumber(mItems);
         if (hasNoPeripheralNumberItems) {
-          showMessageBar('ไม่มีหมายเลขอุปกรณ์', `กรุณาป้อนข้อมูล หมายเลขอุปกรณ์`, 'warning');
+          showMessageBar(
+            'ไม่มีหมายเลขอุปกรณ์',
+            `กรุณาป้อนข้อมูล หมายเลขอุปกรณ์`,
+            'warning'
+          );
           return;
         }
 
         const dupSnap = await checkCollection('sections/sales/vehicles', [
-          ['keywords', 'array-contains', mValues.saleNo.toLowerCase()]
+          ['keywords', 'array-contains', mValues.saleNo.toLowerCase()],
         ]);
         if (dupSnap) {
-          showAlert('มีรายการซ้ำ', `เอกสารเลขที่ ${mValues.saleNo} มีบันทึกไว้แล้วในฐานข้อมูล`, 'warning');
+          showAlert(
+            'มีรายการซ้ำ',
+            `เอกสารเลขที่ ${mValues.saleNo} มีบันทึกไว้แล้วในฐานข้อมูล`,
+            'warning'
+          );
           return;
         }
 
-        mItems = mValues.items.map(item => ({
+        mItems = mValues.items.map((item) => ({
           ...item,
           saleId: mValues.saleId,
           saleNo: mValues.saleNo,
@@ -419,12 +474,14 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
           branchCode: mValues.branchCode,
           saleDate: mValues.date,
           registered: null,
-          ivAdjusted: false
+          ivAdjusted: false,
         }));
         mItems = cleanNumberFieldsInArray(mItems, ['qty', 'total']);
         mValues.items = mItems;
         if (mValues?.turnOverItems && mValues.turnOverItems.length > 0) {
-          let turnOverItems = mValues.turnOverItems.filter(l => !!l.productCode && Numb(l.qty) > 0);
+          let turnOverItems = mValues.turnOverItems.filter(
+            (l) => !!l.productCode && Numb(l.qty) > 0
+          );
           mValues.turnOverItems = turnOverItems;
         }
         mValues.amtFull = parser(gTotal);
@@ -446,20 +503,26 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
         'oweKBNLeasing',
         'amtOther',
         'deductOther',
-        'total'
+        'total',
       ]);
       if (mValues?.promotions) {
         if (mValues?.promotions.length > 0) {
-          mValues.promotions = mValues.promotions.filter(l => !!l);
-          mValues.amtPro = mValues.promotions.reduce((sum, elem) => sum + Numb(elem?.total), 0);
+          mValues.promotions = mValues.promotions.filter((l) => !!l);
+          mValues.amtPro = mValues.promotions.reduce(
+            (sum, elem) => sum + Numb(elem?.total),
+            0
+          );
         } else {
           mValues.amtPro = 0;
         }
       }
       if (mValues?.deductOthers) {
         if (mValues?.deductOthers.length > 0) {
-          mValues.deductOthers = mValues.deductOthers.filter(l => !!l);
-          mValues.deductOther = mValues.deductOthers.reduce((sum, elem) => sum + Numb(elem?.total), 0);
+          mValues.deductOthers = mValues.deductOthers.filter((l) => !!l);
+          mValues.deductOther = mValues.deductOthers.reduce(
+            (sum, elem) => sum + Numb(elem?.total),
+            0
+          );
         } else {
           mValues.deductOther = 0;
         }
@@ -471,8 +534,11 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
       }
       if (mValues?.amtOthers) {
         if (mValues?.amtOthers.length > 0) {
-          mValues.amtOthers = mValues.amtOthers.filter(l => !!l);
-          mValues.amtOther = mValues.amtOthers.reduce((sum, elem) => sum + Numb(elem?.total), 0);
+          mValues.amtOthers = mValues.amtOthers.filter((l) => !!l);
+          mValues.amtOther = mValues.amtOthers.reduce(
+            (sum, elem) => sum + Numb(elem?.total),
+            0
+          );
         } else {
           mValues.amtOther = 0;
         }
@@ -489,9 +555,14 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
       // Check payments.
       if (mValues?.payments && mValues.payments.length > 0) {
         let paymentChecked = checkPayments(mValues.payments, false);
-        const { hasNoSelfBank, hasNoAmount, hasNoPerson, hasNoPaymentMethod } = paymentChecked;
+        const { hasNoSelfBank, hasNoAmount, hasNoPerson, hasNoPaymentMethod } =
+          paymentChecked;
         if (hasNoSelfBank) {
-          showMessageBar('ไม่มีข้อมูลธนาคาร ในการชำระเงินประเภท-เงินโอน', 'ไม่มีข้อมูลธนาคาร', 'warning');
+          showMessageBar(
+            'ไม่มีข้อมูลธนาคาร ในการชำระเงินประเภท-เงินโอน',
+            'ไม่มีข้อมูลธนาคาร',
+            'warning'
+          );
           return;
         }
         if (hasNoPerson) {
@@ -503,18 +574,28 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
           return;
         }
         if (hasNoPaymentMethod) {
-          showMessageBar('ไม่มีข้อมูลวิธีโอนเงิน ในการชำระเงินประเภท-เงินโอน', 'ไม่มีข้อมูลวิธีโอนเงิน', 'warning');
+          showMessageBar(
+            'ไม่มีข้อมูลวิธีโอนเงิน ในการชำระเงินประเภท-เงินโอน',
+            'ไม่มีข้อมูลวิธีโอนเงิน',
+            'warning'
+          );
           return;
         }
         if (hasNoAmount) {
-          showMessageBar('ไม่มีข้อมูลจำนวนเงิน ในการชำระเงิน', 'ไม่มีข้อมูลจำนวนเงิน', 'warning');
+          showMessageBar(
+            'ไม่มีข้อมูลจำนวนเงิน ในการชำระเงิน',
+            'ไม่มีข้อมูลจำนวนเงิน',
+            'warning'
+          );
           return;
         }
       }
 
       showConfirm(
         () => _onConfirm(mValues),
-        mValues?.saleNo ? `บันทึกข้อมูลใบสั่งขายเลขที่ ${mValues.saleNo}` : 'บันทึกข้อมูลใบสั่งขาย'
+        mValues?.saleNo
+          ? `บันทึกข้อมูลใบสั่งขายเลขที่ ${mValues.saleNo}`
+          : 'บันทึกข้อมูลใบสั่งขาย'
       );
     } catch (e) {
       showWarn(e);
@@ -522,7 +603,7 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
     }
   };
 
-  const _onConfirm = async values => {
+  const _onConfirm = async (values) => {
     try {
       let mValues = cleanValuesBeforeSave(values);
       load(true);
@@ -533,7 +614,7 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
           firestore,
           api,
           dispatch,
-          user
+          user,
         });
         if (customerId) {
           mValues.customerId = customerId;
@@ -547,7 +628,7 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
           firestore,
           api,
           dispatch,
-          user
+          user,
         });
         if (referrerId) {
           mValues.referrer.referrerId = referrerId;
@@ -563,7 +644,9 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
       let saleNo_lower = mValues.saleNo.toLowerCase();
       let salePNo = removeAllNonAlphaNumericCharacters(saleNo_lower);
       let key1 = createKeywords(saleNo_lower);
-      let key2 = createKeywords(removeAllNonAlphaNumericCharacters(saleNo_lower));
+      let key2 = createKeywords(
+        removeAllNonAlphaNumericCharacters(saleNo_lower)
+      );
       let key3 = createKeywords(mValues.firstName);
       let key4 = !!mValues.lastName ? createKeywords(mValues.lastName) : [];
       let keywords = uniq([...key1, ...key2, ...key3, ...key4]);
@@ -575,10 +658,14 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
         saleNo_partial: partialText(mValues.saleNo),
         firstName_lower: mValues.firstName.toLowerCase(),
         firstName_partial: partialText(mValues.firstName),
-        customer: `${mValues.prefix}${mValues.firstName} ${mValues.lastName || ''}`.trim(),
-        hasTurnOver: !!mValues?.amtTurnOverVehicle ? Numb(mValues.amtTurnOverVehicle) > 0 : false,
+        customer:
+          `${mValues.prefix}${mValues.firstName} ${mValues.lastName || ''}`.trim(),
+        hasTurnOver: !!mValues?.amtTurnOverVehicle
+          ? Numb(mValues.amtTurnOverVehicle) > 0
+          : false,
         hasReferrer: !!mValues.referrer?.firstName,
-        hasGuarantor: !!mValues.guarantors.length > 0 && !!mValues.guarantors[0]?.firstName
+        hasGuarantor:
+          !!mValues.guarantors.length > 0 && !!mValues.guarantors[0]?.firstName,
       };
 
       const mConfirm = await onConfirmSaleOrder({
@@ -588,7 +675,7 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
         isEdit: mProps.isEdit,
         user,
         firestore,
-        api
+        api,
       });
 
       load(false);
@@ -605,7 +692,9 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
               form.setFieldsValue(getInitialValues({ saleId }, user));
             }
           },
-          mValues?.saleNo ? `บันทึกข้อมูลใบสั่งขายเลขที่ ${mValues.saleNo} สำเร็จ` : 'บันทึกข้อมูลใบสั่งขาย สำเร็จ',
+          mValues?.saleNo
+            ? `บันทึกข้อมูลใบสั่งขายเลขที่ ${mValues.saleNo} สำเร็จ`
+            : 'บันทึกข้อมูลใบสั่งขาย สำเร็จ',
           true
         );
     } catch (e) {
@@ -614,7 +703,7 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
       errorHandler({
         code: e?.code || '',
         message: e?.message || '',
-        snap: { ...cleanValuesBeforeSave(values), module: 'SaleVehicles' }
+        snap: { ...cleanValuesBeforeSave(values), module: 'SaleVehicles' },
       });
     }
   };
@@ -627,16 +716,21 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
     let mValues = form.getFieldsValue();
     setMoreInfo({
       visible: true,
-      values: mValues
+      values: mValues,
     });
   };
   return (
-    <Container fluid className="main-content-container py-3">
-      <Row noGutters className="page-header px-3 bg-white">
-        <PageTitle sm="4" title="งานขาย" subtitle="รถและอุปกรณ์" className="text-sm-left" />
+    <Container fluid className='main-content-container py-3'>
+      <Row noGutters className='page-header px-3 bg-white'>
+        <PageTitle
+          sm='4'
+          title='งานขาย'
+          subtitle='รถและอุปกรณ์'
+          className='text-sm-left'
+        />
         <Col>
           <Stepper
-            className="bg-white"
+            className='bg-white'
             steps={CommonSteps}
             activeStep={mProps.activeStep}
             alternativeLabel={false} // In-line labels
@@ -650,14 +744,18 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
           form={form}
           initialValues={getInitialValues(mProps.order, user)}
           onValuesChange={_onValuesChange}
-          size="small"
-          layout="vertical"
+          size='small'
+          layout='vertical'
         >
-          {values => {
-            let itemsError = !values.items[0]?.productCode ? 'กรุณาป้อนรายการ' : null;
+          {(values) => {
+            let itemsError = !values.items[0]?.productCode
+              ? 'กรุณาป้อนรายการ'
+              : null;
             const gTotal =
               values.items && values.items.length > 0
-                ? values.items.filter(l => !l.deleted).reduce((sum, it) => sum + Numb(it.total), 0)
+                ? values.items
+                    .filter((l) => !l.deleted)
+                    .reduce((sum, it) => sum + Numb(it.total), 0)
                 : null;
 
             //  showLog({ values, amtPro, amtDeduct, amtKBNLeasing, amtOther });
@@ -674,48 +772,59 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
             return (
               <div className={`${isMobile ? '' : 'px-3 '}bg-light`}>
                 {/* <HiddenItem name="saleId" /> */}
-                <HiddenItem name="saleId" />
-                <HiddenItem name="customerId" />
-                <HiddenItem name="ivAdjusted" />
-                <HiddenItem name="amtDeposit" />
-                <HiddenItem name="bookingPerson" />
-                <HiddenItem name="bookDate" />
-                <HiddenItem name="depositPayments" />
-                <HiddenItem name="reservationDepositor" />
-                {['cash', 'other', 'reservation'].includes(values.saleType) && <HiddenItem name="guarantors" />}
-                <div className="bg-light">
+                <HiddenItem name='saleId' />
+                <HiddenItem name='customerId' />
+                <HiddenItem name='ivAdjusted' />
+                <HiddenItem name='amtDeposit' />
+                <HiddenItem name='bookingPerson' />
+                <HiddenItem name='bookDate' />
+                <HiddenItem name='depositPayments' />
+                <HiddenItem name='reservationDepositor' />
+                {['cash', 'other', 'reservation'].includes(values.saleType) && (
+                  <HiddenItem name='guarantors' />
+                )}
+                <div className='bg-light'>
                   <SalesHeader
                     disableAllBranches
-                    dateLabel="วันที่รับเงิน"
+                    dateLabel='วันที่รับเงิน'
                     orderSearch={values.saleType !== 'reservation'}
-                    onSearchSelect={reserveNo => _onBookingSelect(reserveNo, values)}
+                    onSearchSelect={(reserveNo) =>
+                      _onBookingSelect(reserveNo, values)
+                    }
                   />
                 </div>
-                <Row form className="mb-3 border-bottom">
-                  <Col md="3">
+                <Row form className='mb-3 border-bottom'>
+                  <Col md='3'>
                     <Form.Item
-                      name="saleNo"
-                      label="เลขที่ใบสั่งขาย"
-                      rules={[{ required: true, message: 'กรุณาป้อนเลขที่ใบสั่งขาย' }]}
+                      name='saleNo'
+                      label='เลขที่ใบสั่งขาย'
+                      rules={[
+                        { required: true, message: 'กรุณาป้อนเลขที่ใบสั่งขาย' },
+                      ]}
                     >
-                      <Input ref={saleNoRef} placeholder="เลขที่ใบสั่งขาย" />
+                      <Input ref={saleNoRef} placeholder='เลขที่ใบสั่งขาย' />
                     </Form.Item>
                   </Col>
-                  <Col md="3" className="d-flex flex-column">
-                    <Form.Item label="ประเภทการขาย" name="saleType">
+                  <Col md='3' className='d-flex flex-column'>
+                    <Form.Item label='ประเภทการขาย' name='saleType'>
                       <Select
-                        name="saleType"
-                        onChange={e => {
+                        name='saleType'
+                        onChange={(e) => {
                           //  showLog({ saleType: e });
                           form.setFieldsValue({
                             saleType: e,
-                            amtReceived: e === 'cash' ? (!!gTotal ? gTotal.replace(/,/g, '') : null) : null
+                            amtReceived:
+                              e === 'cash'
+                                ? !!gTotal
+                                  ? gTotal.replace(/,/g, '')
+                                  : null
+                                : null,
                           });
                         }}
                         disabled={!grant}
-                        className="text-primary"
+                        className='text-primary'
                       >
-                        {Object.keys(SaleType).map(k => (
+                        {Object.keys(SaleType).map((k) => (
                           <Option value={k} key={k}>
                             {SaleType[k]}
                           </Option>
@@ -723,56 +832,77 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                       </Select>
                     </Form.Item>
                   </Col>
-                  <Col md="3">
-                    <Form.Item name="salesPerson" label="พนักงานขาย" rules={getRules(['required'])}>
-                      <EmployeeSelector disabled={!grant} placeholder="พนักงานขาย" mode="tags" />
+                  <Col md='3'>
+                    <Form.Item
+                      name='salesPerson'
+                      label='พนักงานขาย'
+                      rules={getRules(['required'])}
+                    >
+                      <EmployeeSelector
+                        disabled={!grant}
+                        placeholder='พนักงานขาย'
+                        mode='tags'
+                      />
                     </Form.Item>
                   </Col>
-                  <Col md="3">
-                    <Form.Item name="sourceOfData" label="แหล่งที่มา">
+                  <Col md='3'>
+                    <Form.Item name='sourceOfData' label='แหล่งที่มา'>
                       <SourceOfDataSelector disabled={!grant} />
                     </Form.Item>
                   </Col>
                 </Row>
                 {values.editedBy && (
-                  <Row form className="mb-3 ml-2" style={{ alignItems: 'center' }}>
+                  <Row
+                    form
+                    className='mb-3 ml-2'
+                    style={{ alignItems: 'center' }}
+                  >
                     <NotificationIcon
-                      icon="edit"
+                      icon='edit'
                       data={editData}
                       badgeNumber={values.editedBy.length}
-                      theme="warning"
+                      theme='warning'
                     />
-                    <span className="ml-2 text-light">ประวัติการแก้ไขเอกสาร</span>
+                    <span className='ml-2 text-light'>
+                      ประวัติการแก้ไขเอกสาร
+                    </span>
                   </Row>
                 )}
                 {values.saleType === 'sklLeasing' && (
-                  <AnimateKeyframes play={values.saleType === 'sklLeasing'} keyframes={['opacity: 0', 'opacity: 1']}>
+                  <AnimateKeyframes
+                    play={values.saleType === 'sklLeasing'}
+                    keyframes={['opacity: 0', 'opacity: 1']}
+                  >
                     <Form.Item
-                      name="contractDate"
-                      label={<label className="text-primary">วันที่นัดทำสัญญาเช่าซื้อ SKL</label>}
+                      name='contractDate'
+                      label={
+                        <label className='text-primary'>
+                          วันที่นัดทำสัญญาเช่าซื้อ SKL
+                        </label>
+                      }
                       rules={[
                         {
                           required: values.saleType === 'sklLeasing',
-                          message: 'กรุณาป้อนข้อมูล'
-                        }
+                          message: 'กรุณาป้อนข้อมูล',
+                        },
                       ]}
                     >
                       <DatePicker grant={grant} />
                     </Form.Item>
                   </AnimateKeyframes>
                 )}
-                <div className="px-3 bg-white border pt-3">
+                <div className='px-3 bg-white border pt-3'>
                   <Row form>
-                    <Col md="2">
+                    <Col md='2'>
                       <h6>ข้อมูลลูกค้า</h6>
                     </Col>
-                    <Col md="4">
-                      <Form.Item name="isNewCustomer">
+                    <Col md='4'>
+                      <Form.Item name='isNewCustomer'>
                         <Toggles
                           disabled={!grant || mProps.readOnly}
                           buttons={[
                             { label: 'ลูกค้าใหม่', value: true },
-                            { label: 'ลูกค้าเก่า', value: false }
+                            { label: 'ลูกค้าเก่า', value: false },
                           ]}
                         />
                       </Form.Item>
@@ -783,20 +913,22 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                     onClick={() => _onShowCustomerDetail(values)}
                     values={values}
                     form={form}
-                    size="small"
+                    size='small'
                   />
                   <Address address={values.address} />
                 </div>
-                {!['cash', 'other', 'reservation'].includes(values.saleType) && (
-                  <div className="px-3 bg-white border my-3 py-3">
-                    <h6 className="text-primary">ผู้ค้ำประกัน</h6>
+                {!['cash', 'other', 'reservation'].includes(
+                  values.saleType
+                ) && (
+                  <div className='px-3 bg-white border my-3 py-3'>
+                    <h6 className='text-primary'>ผู้ค้ำประกัน</h6>
                     <Guarantors
                       grant={grant}
                       readOnly={mProps.readOnly}
-                      name="guarantors"
-                      size="small"
+                      name='guarantors'
+                      size='small'
                       notRequired
-                      addText="เพิ่มผู้ค้ำประกัน"
+                      addText='เพิ่มผู้ค้ำประกัน'
                       values={values}
                     />
                     {!!values.guarantors.length > 0 && (
@@ -805,18 +937,21 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                         rules={[
                           {
                             required: !!values.guarantors.length > 0,
-                            message: 'กรุณาป้อนข้อมูล'
-                          }
+                            message: 'กรุณาป้อนข้อมูล',
+                          },
                         ]}
-                        label="เอกสารประกอบผู้เช่าซื้อ/ผู้ค้ำประกัน"
-                        className="border p-3 bg-light"
+                        label='เอกสารประกอบผู้เช่าซื้อ/ผู้ค้ำประกัน'
+                        className='border p-3 bg-light'
                       >
-                        <GuarantorDocs grant={grant} readOnly={mProps.readOnly} />
+                        <GuarantorDocs
+                          grant={grant}
+                          readOnly={mProps.readOnly}
+                        />
                       </Form.Item>
                     )}
                   </div>
                 )}
-                <div className="pt-3 mt-3">
+                <div className='pt-3 mt-3'>
                   {/* <Row form>
                     <Col md="2">
                       <h6>ประเภทสินค้า</h6>
@@ -833,16 +968,19 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                     </Col>
                   </Row> */}
                   {itemsError && (
-                    <div className="mt-2">
-                      <strong className="text-warning">{itemsError}</strong>
+                    <div className='mt-2'>
+                      <strong className='text-warning'>{itemsError}</strong>
                     </div>
                   )}
 
-                  <div className="mb-2" style={{ backgroundColor: theme.colors.grey5 }}>
+                  <div
+                    className='mb-2'
+                    style={{ backgroundColor: theme.colors.grey5 }}
+                  >
                     <SaleItems
                       items={values.items}
                       saleId={values.saleId}
-                      onChange={dat => form.setFieldsValue({ items: dat })}
+                      onChange={(dat) => form.setFieldsValue({ items: dat })}
                       grant={grant}
                       isUsed={values?.isUsed}
                       permanentDelete={true}
@@ -850,12 +988,12 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                     />
                   </div>
                 </div>
-                <div className="px-3 bg-white border my-3 pt-3">
+                <div className='px-3 bg-white border my-3 pt-3'>
                   <Row form>
                     {!['other'].includes(values.saleType) ? (
-                      <Col md="4">
+                      <Col md='4'>
                         <Form.Item
-                          name="amtReceived"
+                          name='amtReceived'
                           label={
                             values.saleType === 'reservation'
                               ? 'จำนวนเงินมัดจำ'
@@ -870,47 +1008,58 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                             //   ),
                             //   message: 'กรุณาป้อนจำนวนเงิน',
                             // },
-                            ...getRules(['number'])
+                            ...getRules(['number']),
                           ]}
                         >
-                          <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                          <Input
+                            currency
+                            placeholder='จำนวนเงิน'
+                            addonAfter='บาท'
+                            disabled={!grant}
+                          />
                         </Form.Item>
                       </Col>
                     ) : (
-                      <Col md="4">
-                        <Form.Item label="รายรับ อื่นๆ">
-                          <ArrayInput name="amtOthers" columns={arrayInputColumns} />
+                      <Col md='4'>
+                        <Form.Item label='รายรับ อื่นๆ'>
+                          <ArrayInput
+                            name='amtOthers'
+                            columns={arrayInputColumns}
+                          />
                         </Form.Item>
                       </Col>
                     )}
                     {!['other'].includes(values.saleType) && (
-                      <Col md="4">
+                      <Col md='4'>
                         <Form.Item
                           // name="amtFull"
-                          label="ราคาเต็ม"
+                          label='ราคาเต็ม'
                           rules={[
                             {
                               required: !['other'].includes(values.saleType),
-                              message: 'กรุณาป้อนจำนวนเงิน'
+                              message: 'กรุณาป้อนจำนวนเงิน',
                             },
-                            ...getRules(['number'])
+                            ...getRules(['number']),
                           ]}
                         >
                           <Input
-                            placeholder="จำนวนเงิน"
-                            addonAfter="บาท"
+                            placeholder='จำนวนเงิน'
+                            addonAfter='บาท'
                             value={gTotal}
                             disabled
-                            className="text-primary"
+                            className='text-primary'
                             currency
                           />
                         </Form.Item>
                       </Col>
                     )}
                     {!['reservation', 'other'].includes(values.saleType) && (
-                      <Col md="4">
-                        <Form.Item name="deliverDate" label="วันที่ส่งมอบรถ">
-                          <DatePicker placeholder="วันที่ส่งมอบรถ" disabled={!grant} />
+                      <Col md='4'>
+                        <Form.Item name='deliverDate' label='วันที่ส่งมอบรถ'>
+                          <DatePicker
+                            placeholder='วันที่ส่งมอบรถ'
+                            disabled={!grant}
+                          />
                         </Form.Item>
                       </Col>
                     )}
@@ -918,14 +1067,15 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                 </div>
                 {!['reservation'].includes(values.saleType) && (
                   <TurnOverVehicle
-                    onItemChange={dat => {
+                    onItemChange={(dat) => {
                       let amtTurnOverVehicle = (dat || []).reduce(
-                        (sum, elem) => sum + (!!elem?.total ? Numb(elem.total) : 0),
+                        (sum, elem) =>
+                          sum + (!!elem?.total ? Numb(elem.total) : 0),
                         0
                       );
                       return form.setFieldsValue({
                         turnOverItems: dat,
-                        amtTurnOverVehicle
+                        amtTurnOverVehicle,
                       });
                     }}
                     values={values}
@@ -935,23 +1085,37 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                     permanentDelete={true}
                   />
                 )}
-                <div className="px-3 bg-white border pt-3 mb-3">
+                <div className='px-3 bg-white border pt-3 mb-3'>
                   {!['reservation', 'other'].includes(values.saleType) && (
-                    <Row form className="bg-white">
+                    <Row form className='bg-white'>
                       {values.saleType !== 'cash' && (
-                        <Col md="4">
-                          <Form.Item name="advInstallment" label="ชำระค่างวดล่วงหน้า" rules={getRules(['number'])}>
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                        <Col md='4'>
+                          <Form.Item
+                            name='advInstallment'
+                            label='ชำระค่างวดล่วงหน้า'
+                            rules={getRules(['number'])}
+                          >
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
                       )}
-                      <Col md="4">
+                      <Col md='4'>
                         <Form.Item
-                          name="amtPlateAndInsurance"
-                          label="ชำระ ค่าทะเบียน + พรบ."
+                          name='amtPlateAndInsurance'
+                          label='ชำระ ค่าทะเบียน + พรบ.'
                           rules={getRules(['number'])}
                         >
-                          <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                          <Input
+                            currency
+                            placeholder='จำนวนเงิน'
+                            addonAfter='บาท'
+                            disabled={!grant}
+                          />
                         </Form.Item>
                       </Col>
                     </Row>
@@ -959,48 +1123,99 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                   {!['reservation'].includes(values.saleType) && (
                     <>
                       <Row form>
-                        <Col md="4">
-                          <Form.Item name="amtSKC" label="ส่วนลด SKC" rules={getRules(['number'])}>
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                        <Col md='4'>
+                          <Form.Item
+                            name='amtSKC'
+                            label='ส่วนลด SKC'
+                            rules={getRules(['number'])}
+                          >
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
-                        <Col md="4">
-                          <Form.Item name="amtOldCustomer" label="ส่วนลด ลูกค้าเก่า" rules={getRules(['number'])}>
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                        <Col md='4'>
+                          <Form.Item
+                            name='amtOldCustomer'
+                            label='ส่วนลด ลูกค้าเก่า'
+                            rules={getRules(['number'])}
+                          >
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
-                        <Col md="4">
-                          <Form.Item name="amtMAX" label="ส่วนลด MAX" rules={getRules(['number'])}>
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                        <Col md='4'>
+                          <Form.Item
+                            name='amtMAX'
+                            label='ส่วนลด MAX'
+                            rules={getRules(['number'])}
+                          >
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
                       <Row form>
-                        <Col md="4">
-                          <Form.Item name="amtKBN" label="ส่วนลด KBN" rules={getRules(['number'])}>
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                        <Col md='4'>
+                          <Form.Item
+                            name='amtKBN'
+                            label='ส่วนลด KBN'
+                            rules={getRules(['number'])}
+                          >
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
-                        <Col md="4">
-                          <Form.Item label="โปรโมชั่น">
-                            <ArrayInput name="promotions" columns={arrayInputColumns} />
+                        <Col md='4'>
+                          <Form.Item label='โปรโมชั่น'>
+                            <ArrayInput
+                              name='promotions'
+                              columns={arrayInputColumns}
+                            />
                           </Form.Item>
                         </Col>
-                        <Col md="4">
-                          <Form.Item name="proMonth" label="โปรโมชั่นประจำเดือน">
-                            <DatePicker picker="month" />
+                        <Col md='4'>
+                          <Form.Item
+                            name='proMonth'
+                            label='โปรโมชั่นประจำเดือน'
+                          >
+                            <DatePicker picker='month' />
                           </Form.Item>
                         </Col>
                       </Row>
                       {values.saleType !== 'reservation' && (
                         <Row form>
-                          <Col md="4">
-                            <Form.Item name="amtReservation" label="เงินจอง/เงินมัดจำ" rules={getRules(['number'])}>
-                              <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                          <Col md='4'>
+                            <Form.Item
+                              name='amtReservation'
+                              label='เงินจอง/เงินมัดจำ'
+                              rules={getRules(['number'])}
+                            >
+                              <Input
+                                currency
+                                placeholder='จำนวนเงิน'
+                                addonAfter='บาท'
+                                disabled={!grant}
+                              />
                             </Form.Item>
                           </Col>
-                          <Col md="4">
-                            <Form.Item label="ข้อมูลเพิ่มเติม">
+                          <Col md='4'>
+                            <Form.Item label='ข้อมูลเพิ่มเติม'>
                               <Button
                                 icon={<InfoCircleOutlined />}
                                 onClick={showMoreInfo}
@@ -1008,7 +1223,7 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                                   display: 'inline-flex',
                                   alignItems: 'center',
                                   justifyContent: 'center',
-                                  gap: 8
+                                  gap: 8,
                                 }}
                               >
                                 รายละเอียด เงินจอง/เงินมัดจำ
@@ -1018,32 +1233,58 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                         </Row>
                       )}
                       <Row>
-                        <Col md="4">
-                          <Form.Item name="amtTurnOver" label="หัก ตีเทิร์น" rules={getRules(['number'])}>
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
-                          </Form.Item>
-                        </Col>
-                        <Col md="4">
+                        <Col md='4'>
                           <Form.Item
-                            name="amtTurnOverDifRefund"
-                            label="ส่วนต่างเงินคืนลูกค้า ตีเทิร์น"
+                            name='amtTurnOver'
+                            label='หัก ตีเทิร์น'
                             rules={getRules(['number'])}
                           >
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
+                          </Form.Item>
+                        </Col>
+                        <Col md='4'>
+                          <Form.Item
+                            name='amtTurnOverDifRefund'
+                            label='ส่วนต่างเงินคืนลูกค้า ตีเทิร์น'
+                            rules={getRules(['number'])}
+                          >
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
                       <Row form>
                         {!['kbnLeasing'].includes(values.saleType) && (
-                          <Col md="4">
-                            <Form.Item name="oweKBNLeasing" label="หัก ค้างโครงการร้าน" rules={getRules(['number'])}>
-                              <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                          <Col md='4'>
+                            <Form.Item
+                              name='oweKBNLeasing'
+                              label='หัก ค้างโครงการร้าน'
+                              rules={getRules(['number'])}
+                            >
+                              <Input
+                                currency
+                                placeholder='จำนวนเงิน'
+                                addonAfter='บาท'
+                                disabled={!grant}
+                              />
                             </Form.Item>
                           </Col>
                         )}
-                        <Col md="4">
-                          <Form.Item label="รายการหักเงิน อื่นๆ">
-                            <ArrayInput name="deductOthers" columns={arrayInputColumns} />
+                        <Col md='4'>
+                          <Form.Item label='รายการหักเงิน อื่นๆ'>
+                            <ArrayInput
+                              name='deductOthers'
+                              columns={arrayInputColumns}
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
@@ -1051,111 +1292,153 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                   )}
                   {['kbnLeasing'].includes(values.saleType) && (
                     <Fragment>
-                      <Row form className="bg-white">
-                        <Col md="4">
+                      <Row form className='bg-white'>
+                        <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'Down']}
-                            label="ค้างดาวน์ร้าน"
+                            label='ค้างดาวน์ร้าน'
                             rules={getRules(['number'])}
                           >
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
-                        <Col md="4">
+                        <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'Installment']}
-                            label="ค้างค่างวดร้าน"
+                            label='ค้างค่างวดร้าน'
                             rules={getRules(['number'])}
                           >
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
-                        <Col md="4">
+                        <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'Equipment']}
-                            label="ค้างอุปกรณ์ร้าน"
+                            label='ค้างอุปกรณ์ร้าน'
                             rules={getRules(['number'])}
                           >
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
-                      <Row form className="bg-white">
-                        <Col md="4">
+                      <Row form className='bg-white'>
+                        <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'Borrow']}
-                            label="ยืมเงินร้าน"
+                            label='ยืมเงินร้าน'
                             rules={getRules(['number'])}
                           >
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
-                        <Col md="4">
+                        <Col md='4'>
                           <Form.Item
                             name={['oweKBNLeasings', 'overdueFines']}
-                            label="เบี้ยปรับล่าช้า"
+                            label='เบี้ยปรับล่าช้า'
                             rules={getRules(['number'])}
                           >
-                            <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                            <Input
+                              currency
+                              placeholder='จำนวนเงิน'
+                              addonAfter='บาท'
+                              disabled={!grant}
+                            />
                           </Form.Item>
                         </Col>
                       </Row>
                     </Fragment>
                   )}
                   {values.saleType === 'other' && (
-                    <Row form className="bg-white">
-                      <Col md="4">
-                        <Form.Item name="amtOther" label="รายรับอื่นๆ" rules={getRules(['number'])}>
-                          <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                    <Row form className='bg-white'>
+                      <Col md='4'>
+                        <Form.Item
+                          name='amtOther'
+                          label='รายรับอื่นๆ'
+                          rules={getRules(['number'])}
+                        >
+                          <Input
+                            currency
+                            placeholder='จำนวนเงิน'
+                            addonAfter='บาท'
+                            disabled={!grant}
+                          />
                         </Form.Item>
                       </Col>
                     </Row>
                   )}
                   {values.saleType === 'baac' && (
                     <Row form>
-                      <Col md="4">
+                      <Col md='4'>
                         <Form.Item
-                          name="amtBaacFee"
-                          label="หักค่าธรรมเนียม สกต/ธกส."
+                          name='amtBaacFee'
+                          label='หักค่าธรรมเนียม สกต/ธกส.'
                           rules={[
                             {
                               required: values.saleType === 'baac',
-                              message: 'กรุณาป้อนข้อมูล'
+                              message: 'กรุณาป้อนข้อมูล',
                             },
-                            ...getRules(['number'])
+                            ...getRules(['number']),
                           ]}
                         >
-                          <Input currency placeholder="จำนวนเงิน" addonAfter="บาท" disabled={!grant} />
+                          <Input
+                            currency
+                            placeholder='จำนวนเงิน'
+                            addonAfter='บาท'
+                            disabled={!grant}
+                          />
                         </Form.Item>
                       </Col>
 
-                      <Col md="4">
+                      <Col md='4'>
                         {/* <AInput.Group compact className="d-flex flex-row"> */}
                         <Form.Item
-                          name="baacNo"
-                          label="เลขที่ ใบ สกต./ธกส."
+                          name='baacNo'
+                          label='เลขที่ ใบ สกต./ธกส.'
                           rules={[
                             {
                               required: values.saleType === 'baac',
-                              message: 'กรุณาป้อนข้อมูล'
-                            }
+                              message: 'กรุณาป้อนข้อมูล',
+                            },
                           ]}
                         >
-                          <Input placeholder="111/1" disabled={!grant} />
+                          <Input placeholder='111/1' disabled={!grant} />
                         </Form.Item>
                       </Col>
-                      <Col md="4">
+                      <Col md='4'>
                         <Form.Item
-                          name="baacDate"
-                          label="วันที่ ใบ สกต./ธกส."
+                          name='baacDate'
+                          label='วันที่ ใบ สกต./ธกส.'
                           rules={[
                             {
                               required: values.saleType === 'baac',
-                              message: 'กรุณาป้อนข้อมูล'
-                            }
+                              message: 'กรุณาป้อนข้อมูล',
+                            },
                           ]}
                         >
-                          <DatePicker placeholder="วันที่ ใบ สกต./ธกส." disabled={!grant} />
+                          <DatePicker
+                            placeholder='วันที่ ใบ สกต./ธกส.'
+                            disabled={!grant}
+                          />
                         </Form.Item>
                         {/* </AInput.Group> */}
                       </Col>
@@ -1184,9 +1467,13 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
 
                   {!['other'].includes(values.saleType) && (
                     <Row form>
-                      <Col md="8">
-                        <Form.Item label="ของแถม">
-                          <ArrayInput name="giveaways" columns={giveAwayInputColumns} form={form} />
+                      <Col md='8'>
+                        <Form.Item label='ของแถม'>
+                          <ArrayInput
+                            name='giveaways'
+                            columns={giveAwayInputColumns}
+                            form={form}
+                          />
                         </Form.Item>
                       </Col>
                     </Row>
@@ -1194,16 +1481,17 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                 </div>
                 {!['other'].includes(values.saleType) && (
                   <BuyMore
-                    onItemChange={dat => {
+                    onItemChange={(dat) => {
                       let amtAdditionalPurchase = (dat || []).reduce(
-                        (sum, elem) => sum + (!!elem?.total ? Numb(elem.total) : 0),
+                        (sum, elem) =>
+                          sum + (!!elem?.total ? Numb(elem.total) : 0),
                         0
                       );
                       let payments = _getPaymentFromAdditionalPurchase(dat);
                       return form.setFieldsValue({
                         additionalPurchase: dat,
                         amtAdditionalPurchase,
-                        payments
+                        payments,
                       });
                     }}
                     values={values}
@@ -1224,16 +1512,20 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                   //   </Col>
                   // </Row>
                 )}
-                <div className="px-3 bg-white border py-2 mb-3">
-                  <h6 className="text-primary">ค่าแนะนำ</h6>
-                  <div className="border my-2 p-3 bg-light">
-                    <label className="text-muted">ข้อมูลผู้แนะนำ</label>
+                <div className='px-3 bg-white border py-2 mb-3'>
+                  <h6 className='text-primary'>ค่าแนะนำ</h6>
+                  <div className='border my-2 p-3 bg-light'>
+                    <label className='text-muted'>ข้อมูลผู้แนะนำ</label>
                     <Row form>
-                      <Col md="4">
-                        <Form.Item name="isNewReferrer">
-                          <Radio.Group buttonStyle="solid">
-                            <Radio.Button value={true}>คนแนะนำใหม่</Radio.Button>
-                            <Radio.Button value={false}>คนแนะนำเก่า</Radio.Button>
+                      <Col md='4'>
+                        <Form.Item name='isNewReferrer'>
+                          <Radio.Group buttonStyle='solid'>
+                            <Radio.Button value={true}>
+                              คนแนะนำใหม่
+                            </Radio.Button>
+                            <Radio.Button value={false}>
+                              คนแนะนำเก่า
+                            </Radio.Button>
                           </Radio.Group>
                         </Form.Item>
                       </Col>
@@ -1243,80 +1535,96 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
                       onClick={() => _onShowReferrerDetail(values)}
                       values={values}
                       form={form}
-                      size="small"
+                      size='small'
                       notRequired
                     />
                     {values.referrer?.firstName && (
-                      <Address address={values.referrer?.address} parent={['referrer', 'address']} notRequired />
+                      <Address
+                        address={values.referrer?.address}
+                        parent={['referrer', 'address']}
+                        notRequired
+                      />
                     )}
                   </div>
                   <Collapse activeKey={hasReferrer ? ['1'] : undefined}>
-                    <Collapse.Panel header="รายละเอียดค่าแนะนำ" key="1">
+                    <Collapse.Panel header='รายละเอียดค่าแนะนำ' key='1'>
                       <Referring hasReferrer={hasReferrer} grant={grant} />
-                      <ReferringFooter grant={grant} hasReferrer={hasReferrer} />
+                      <ReferringFooter
+                        grant={grant}
+                        hasReferrer={hasReferrer}
+                      />
                     </Collapse.Panel>
                   </Collapse>
                 </div>
 
                 {['reservation'].includes(values.saleType) && (
-                  <div className="bg-white border pt-3 mb-3">
-                    <Col md="4">
+                  <div className='bg-white border pt-3 mb-3'>
+                    <Col md='4'>
                       <Form.Item
-                        name="bookingPerson"
-                        label="ผู้รับจอง"
+                        name='bookingPerson'
+                        label='ผู้รับจอง'
                         rules={[
                           {
                             required: ['reservation'].includes(values.saleType),
-                            message: 'กรุณาป้อนข้อมูล'
-                          }
+                            message: 'กรุณาป้อนข้อมูล',
+                          },
                         ]}
                       >
-                        <EmployeeSelector disabled={!grant || mProps.readOnly} />
+                        <EmployeeSelector
+                          disabled={!grant || mProps.readOnly}
+                        />
                       </Form.Item>
                     </Col>
                   </div>
                 )}
 
-                <TotalSummary values={values} grant={grant} netIncome={netIncome} />
-                <Form.Item label="การชำระเงิน" name="payments">
-                  <Payments disabled={!grant || mProps.readOnly} permanentDelete={true} />
+                <TotalSummary
+                  values={values}
+                  grant={grant}
+                  netIncome={netIncome}
+                />
+                <Form.Item label='การชำระเงิน' name='payments'>
+                  <Payments
+                    disabled={!grant || mProps.readOnly}
+                    permanentDelete={true}
+                  />
                 </Form.Item>
                 <Row form>
                   <Col md={8}>
-                    <Form.Item name="remark" label="หมายเหตุ">
+                    <Form.Item name='remark' label='หมายเหตุ'>
                       <Input disabled={!grant} />
                     </Form.Item>
                   </Col>
                 </Row>
-                <CardFooter className="border-top ">
+                <CardFooter className='border-top '>
                   <Row style={{ justifyContent: 'flex-end' }} form>
                     <Row
                       style={{
                         justifyContent: 'flex-end',
-                        marginRight: 10
+                        marginRight: 10,
                       }}
                       form
                     >
                       <Popconfirm
-                        title="ยืนยัน?"
-                        okText="ล้าง"
-                        cancelText="ยกเลิก"
+                        title='ยืนยัน?'
+                        okText='ล้าง'
+                        cancelText='ยกเลิก'
                         onConfirm={() => form.resetFields()}
                       >
                         <Button
                           // onClick={() => form.resetFields()}
-                          className="mr-3"
+                          className='mr-3'
                           disabled={!grant}
-                          size="middle"
+                          size='middle'
                         >
                           ล้างข้อมูล
                         </Button>
                       </Popconfirm>
                       <Button
-                        type="primary"
+                        type='primary'
                         onClick={() => _onPreConfirm(values, netIncome, gTotal)}
                         disabled={!grant}
-                        size="middle"
+                        size='middle'
                       >
                         บันทึกข้อมูล
                       </Button>
@@ -1355,28 +1663,27 @@ const SaleMachinesContent = ({ geographic, auditTrail }) => {
   );
 };
 
-// PropTypes for the content component  
+// PropTypes for the content component
 SaleMachinesContent.propTypes = {
   geographic: PropTypes.object,
-  auditTrail: PropTypes.object
+  auditTrail: PropTypes.object,
 };
 
-// Main component wrapped with DocumentWorkflowWrapper for document approval flow
+// Main component with RBAC integration (replacing DocumentWorkflowWrapper)
 const SaleMachinesComponent = () => {
   return (
-    <DocumentWorkflowWrapper
-      documentType="sales_vehicle"
-      documentId={null} // Will be set when document is created
-      layoutProps={{
-        title: "งานขาย",
-        subtitle: "รถและอุปกรณ์",
-        permission: "sales.view",
-        editPermission: "sales.edit",
-        loading: false
-      }}
+    <LayoutWithRBAC
+      title='งานขาย'
+      subtitle='รถและอุปกรณ์'
+      permission='sales.view'
+      editPermission='sales.edit'
+      loading={false}
+      requireBranchSelection={false}
+      autoInjectProvinceId={true}
+      showAuditSection={false}
     >
       <SaleMachinesContent />
-    </DocumentWorkflowWrapper>
+    </LayoutWithRBAC>
   );
 };
 

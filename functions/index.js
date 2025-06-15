@@ -305,16 +305,23 @@ function onlyCreatedAtChanged(before, after) {
   }
 
   // Skip if only provinceId was added (Phase 3 migration)
-  if (changedKeys.length === 1 && changedKeys[0] === "provinceId" && !before?.provinceId && after?.provinceId) {
+  if (
+    changedKeys.length === 1 &&
+    changedKeys[0] === "provinceId" &&
+    !before?.provinceId &&
+    after?.provinceId
+  ) {
     return true;
   }
 
   // Skip if both createdAt and provinceId changed (migration + createdAt update)
-  if (changedKeys.length === 2 && 
-      changedKeys.includes("createdAt") && 
-      changedKeys.includes("provinceId") && 
-      !before?.provinceId && 
-      after?.provinceId) {
+  if (
+    changedKeys.length === 2 &&
+    changedKeys.includes("createdAt") &&
+    changedKeys.includes("provinceId") &&
+    !before?.provinceId &&
+    after?.provinceId
+  ) {
     return true;
   }
 
@@ -2429,8 +2436,8 @@ exports.updateOtherVehicleImport = functions
                   ? "รถมือสอง"
                   : "รถใหม่"
                 : !!item?.productCode && item.productCode.startsWith("2-")
-                ? "อุปกรณ์มือสอง"
-                : "อุปกรณ์ใหม่",
+                  ? "อุปกรณ์มือสอง"
+                  : "อุปกรณ์ใหม่",
               isVehicle,
               isFIFO: !item?.vehicleNo && !item?.peripheralNo,
               isUsed,
@@ -2755,7 +2762,10 @@ exports.updateAccountIncome = functions
         .collection("sections")
         .doc("account")
         .collection("incomes");
-      const { payments } = snap.data();
+
+      const incomeData = snap.data();
+      const { payments } = incomeData;
+
       let hasBankTransfer =
         !!payments &&
         Array.isArray(payments) &&
@@ -2770,17 +2780,30 @@ exports.updateAccountIncome = functions
           (l) => l.paymentType === "pLoan" && Number(l.amount) > 0
         ).length > 0;
 
-      await incomeRef
-        .doc(context.params.incomeId)
-        .update({ hasBankTransfer, hasPLoan });
+      // Generate search fields and keywords
+      const { generateAccountingSearchFields } = require("./utils");
+
+      const searchFields = generateAccountingSearchFields(incomeData);
+
+      const updateData = {
+        hasBankTransfer,
+        hasPLoan,
+        ...searchFields,
+      };
+
+      await incomeRef.doc(context.params.incomeId).update(updateData);
 
       if (hasPLoan) {
         await incomeRef
           .doc(context.params.incomeId)
           .update({ pLoanPayments: [] });
       }
+
+      log(
+        `Income keywords generated for ${context.params.incomeId}: ${searchFields.keywords?.length || 0} keywords`
+      );
     } catch (e) {
-      error(e);
+      error("Error updating account income:", e);
     }
   });
 
@@ -2793,48 +2816,52 @@ exports.updateAccountExpense = functions
         .collection("sections")
         .doc("account")
         .collection("expenses");
-      let snapshot = snap.data();
-      // Insert tag 'isPart' to identify part/vehicle invoice ('purchaseTransfer' expense type only).
-      if (
-        snapshot.expenseType !== "purchaseTransfer" ||
-        typeof snapshot?.isPart !== "undefined"
-      ) {
-        log("NO_NEED_TO_UPDATE_ACCOUNT_EXPENSE: ", context.params.expenseId);
-        return;
-      }
-      if (!(snapshot?.billNoSKC || snapshot?.receiveNo)) {
-        log("UNABLE_TO_UPDATE_ACCOUNT_EXPENSE: ", context.params.expenseId);
-        return;
-      }
-      let isPart = true;
-      if (snapshot?.billNoSKC) {
-        isPart = snapshot.billNoSKC.startsWith("80");
-      } else {
-        isPart = snapshot.receiveNo.startsWith("90");
-      }
-      const newValues = { ...snapshot, isPart };
-      await expenseRef.doc(context.params.expenseId).set(newValues);
-    } catch (e) {
-      error("ERROR_UPDATE_ACCOUNT_EXPENSE ", e);
-      error("SNAPSHOT: ", JSON.stringify(snap.data(), null, 2));
-    }
-  });
 
-exports.onHRLeaveCreate = functions
-  .region("asia-northeast1")
-  .firestore.document("/sections/hr/leave/{docId}")
+      const expenseData = snap.data();
+
+      // Generate search fields and keywords for all expenses
+      const { generateAccountingSearchFields } = require('./utils');
+      co"purchaseTransfer" generateAccountingSearchFields(expenseD"undefined"  // Insert tag 'isPart"NO_NEED_TO_UPDATE_ACCOUNT_EXPENSE: "purchaseTransfer' expense type only).
+      let updateData = { ...searchFields };
+
+      if (
+        expenseData.expenseTyp"UNABLE_TO_UPDATE_ACCOUNT_EXPENSE: "typeof expenseData?.isPart === 'undefined'
+      ) {
+        if (expenseData?.billNoSKC || expenseData?.receiveNo) {
+          let isPart = true;
+          if"80"penseData?.billNoSKC) {
+            isPart = expenseData.billNoSK"90"artsWith('80');
+          } else {
+            isPart = expenseData.receiveNo.startsWith('90');
+          }
+          updateData.isPart = isPart;
+        } els"ERROR_UPDATE_ACCOUNT_EXPENSE "DATE_ACCOUNT_EXPEN"SNAPSHOT: "xt.params.expenseId);
+        }
+      }
+
+      // Only update if we have data to update
+      if (Ob"asia-northeast1"ata).length > 0) {
+     "/sections/hr/leave/{docId}"ext.params.expenseId).update(updateData);
+        log(
+          `Expense keywords generated for ${context.params.expenseId}: ${searchFields.keywords?.length || 0} keywords`
+        );
+      }
+    } catch ("YYYY-MM-DD"rror('ERROR_UPDATE_ACCOUNT_EXPENSE ', e);
+      error('SNAPSHOT: ', JSON.stringify(snap.data(), null, 2)"sections" });
+
+exports.o"hr"eaveCreate = functions"leave"ion('asia-northeast1')
+  .firestore.document('/sections/hr/leave/{docId}')
   .onCreate(async (snap, context) => {
     try {
       let snapshot = snap.data();
-      const { fromDate, toDate } = snapshot;
-      // Get array of dates.
-      const dates = getDates(fromDate, toDate, "YYYY-MM-DD");
+      con"asia-northeast1"Date } = snapshot;
+     "/sections/hr/leave/{docId}"  const dates = getDates(fromDate, toDate, 'YYYY-MM-DD');
       const newValues = { ...snapshot, dates };
 
       let updateRef = firestore
-        .collection("sections")
-        .doc("hr")
-        .collection("leave")
+        .collection('sections')
+        .doc('hr')
+        .collection('leave')
         .doc(context.params.docId);
       await updateRef.set(newValues);
     } catch (e) {
@@ -2843,27 +2870,25 @@ exports.onHRLeaveCreate = functions
   });
 
 exports.updateHRLeave = functions
-  .region("asia-northeast1")
-  .firestore.document("/sections/hr/leave/{docId}")
+  .region('asia-northeast1')
+  .firestore.document('/sections/hr/leave/{docId}')
   .onUpdate(async (change, context) => {
     try {
       const after = change.after.data();
-      const before = change.before.data();
-      const docId = context.params.docId;
-      const beforeFromDate = before.fromDate;
-      const beforeToDate = before.toDate;
+      c"YYYY-MM-DD"= change.before.data();
+      const docId = context.params.d"sections"  const beforeFro"hr"e = before.fromDate;
+   "leave"t beforeToDate = before.toDate;
       const afterFromDate = after.fromDate;
       const afterToDate = after.toDate;
 
-      if (beforeFromDate !== afterFromDate || beforeToDate !== afterToDate) {
-        const { fromDate, toDate } = after;
+      if (beforeFromDate !== afterFromDate || beforeToDate !== afterToD"./autoProvinceIdMigration"Date, toDate } = after;
         // Get array of dates.
-        const dates = getDates(fromDate, toDate, "YYYY-MM-DD");
+        const dates = getDates(fromDate, toDate, 'YYYY-MM-DD');
 
         let updateRef = firestore
-          .collection("sections")
-          .doc("hr")
-          .collection("leave")
+          .collection('sections')
+          .doc('hr')
+          .collection('leave')
           .doc(docId);
         await updateRef.update({ dates });
       }
@@ -2885,7 +2910,8 @@ exports.autoMigrateSalesParts = autoMigration.autoMigrateSalesParts;
 exports.autoMigrateStocksVehicles = autoMigration.autoMigrateStocksVehicles;
 exports.autoMigrateStocksParts = autoMigration.autoMigrateStocksParts;
 exports.autoMigrateServiceOrders = autoMigration.autoMigrateServiceOrders;
-exports.autoMigrateServiceAppointments = autoMigration.autoMigrateServiceAppointments;
+exports.autoMigrateServiceAppointments =
+  autoMigration.autoMigrateServiceAppointments;
 exports.autoMigrateHREmployees = autoMigration.autoMigrateHREmployees;
 exports.autoMigrateHRLeaves = autoMigration.autoMigrateHRLeaves;
 exports.autoMigrateHRAttendance = autoMigration.autoMigrateHRAttendance;

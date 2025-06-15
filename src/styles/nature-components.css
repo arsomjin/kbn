@@ -7,51 +7,53 @@
    CSS CUSTOM PROPERTIES (CSS Variables)
    ====================== */
 :root {
-  /* Nature Color Palette */
-  --nature-primary: #2d5016;
-  --nature-primary-light: #3d6b1c;
-  --nature-primary-lighter: #4a7c1f;
-  
+  /* Nature Color Palette (Medium Green) */
+  --nature-primary: #3f8b18;
+  --nature-primary-light: #52c41a;
+  --nature-primary-lighter: #73d13d;
+
   --nature-secondary: #52c41a;
   --nature-secondary-light: #73d13d;
   --nature-secondary-lighter: #95de64;
-  
+
   --nature-earth: #8b4513;
   --nature-earth-light: #a0522d;
   --nature-earth-lighter: #cd853f;
-  
+
   --nature-gray: #6b7280;
   --nature-gray-light: #9ca3af;
   --nature-gray-lighter: #d1d5db;
-  
+
   /* State Colors */
   --nature-success: #16a34a;
   --nature-warning: #f59e0b;
   --nature-error: #dc2626;
   --nature-info: #0ea5e9;
-  
+
   /* Background Colors */
   --nature-bg-primary: #fefefe;
   --nature-bg-secondary: #f8fafc;
   --nature-bg-tertiary: #f1f5f9;
-  
+
   /* Text Colors */
   --nature-text-primary: #1f2937;
   --nature-text-secondary: #4b5563;
   --nature-text-tertiary: #6b7280;
   --nature-text-disabled: #9ca3af;
-  
+
   /* Design System */
   --nature-radius: 8px;
   --nature-radius-lg: 12px;
   --nature-radius-sm: 6px;
-  --nature-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
-  --nature-shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --nature-shadow:
+    0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --nature-shadow-lg:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --nature-transition: 0.25s ease-in-out;
 }
 
 /* Dark mode CSS variables */
-[data-theme="dark"] {
+[data-theme='dark'] {
   --nature-bg-primary: #1f2937;
   --nature-bg-secondary: #374151;
   --nature-bg-tertiary: #4b5563;
@@ -67,7 +69,13 @@
 /* Body and root styling */
 body {
   background-color: var(--nature-bg-secondary) !important;
-  font-family: 'Inter', 'Segoe UI', 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-family:
+    'Inter',
+    'Segoe UI',
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif !important;
   line-height: 1.5;
   color: var(--nature-text-primary);
   transition: background-color var(--nature-transition);
@@ -78,49 +86,99 @@ body {
    ====================== */
 
 /* Background utilities */
-.nature-bg-primary { background-color: var(--nature-bg-primary) !important; }
-.nature-bg-secondary { background-color: var(--nature-bg-secondary) !important; }
-.nature-bg-tertiary { background-color: var(--nature-bg-tertiary) !important; }
+.nature-bg-primary {
+  background-color: var(--nature-bg-primary) !important;
+}
+.nature-bg-secondary {
+  background-color: var(--nature-bg-secondary) !important;
+}
+.nature-bg-tertiary {
+  background-color: var(--nature-bg-tertiary) !important;
+}
 
 /* Text color utilities */
-.nature-text-primary { color: var(--nature-text-primary) !important; }
-.nature-text-secondary { color: var(--nature-text-secondary) !important; }
-.nature-text-tertiary { color: var(--nature-text-tertiary) !important; }
+.nature-text-primary {
+  color: var(--nature-text-primary) !important;
+}
+.nature-text-secondary {
+  color: var(--nature-text-secondary) !important;
+}
+.nature-text-tertiary {
+  color: var(--nature-text-tertiary) !important;
+}
 
 /* Color utilities */
-.nature-primary { color: var(--nature-primary) !important; }
-.nature-secondary { color: var(--nature-secondary) !important; }
-.nature-success { color: var(--nature-success) !important; }
-.nature-warning { color: var(--nature-warning) !important; }
-.nature-error { color: var(--nature-error) !important; }
+.nature-primary {
+  color: var(--nature-primary) !important;
+}
+.nature-secondary {
+  color: var(--nature-secondary) !important;
+}
+.nature-success {
+  color: var(--nature-success) !important;
+}
+.nature-warning {
+  color: var(--nature-warning) !important;
+}
+.nature-error {
+  color: var(--nature-error) !important;
+}
 
 /* Background color utilities */
-.nature-bg-primary-color { background-color: var(--nature-primary) !important; }
-.nature-bg-secondary-color { background-color: var(--nature-secondary) !important; }
-.nature-bg-success { background-color: var(--nature-success) !important; }
-.nature-bg-warning { background-color: var(--nature-warning) !important; }
-.nature-bg-error { background-color: var(--nature-error) !important; }
+.nature-bg-primary-color {
+  background-color: var(--nature-primary) !important;
+}
+.nature-bg-secondary-color {
+  background-color: var(--nature-secondary) !important;
+}
+.nature-bg-success {
+  background-color: var(--nature-success) !important;
+}
+.nature-bg-warning {
+  background-color: var(--nature-warning) !important;
+}
+.nature-bg-error {
+  background-color: var(--nature-error) !important;
+}
 
 /* Gradient utilities */
 .nature-gradient-primary {
-  background: linear-gradient(135deg, var(--nature-primary) 0%, var(--nature-primary-light) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--nature-primary) 0%,
+    var(--nature-primary-light) 100%
+  ) !important;
   color: white !important;
 }
 
 .nature-gradient-secondary {
-  background: linear-gradient(135deg, var(--nature-secondary) 0%, var(--nature-secondary-light) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--nature-secondary) 0%,
+    var(--nature-secondary-light) 100%
+  ) !important;
   color: white !important;
 }
 
 .nature-gradient-earth {
-  background: linear-gradient(135deg, var(--nature-earth) 0%, var(--nature-earth-light) 100%) !important;
+  background: linear-gradient(
+    135deg,
+    var(--nature-earth) 0%,
+    var(--nature-earth-light) 100%
+  ) !important;
   color: white !important;
 }
 
 /* Shadow utilities */
-.nature-shadow { box-shadow: var(--nature-shadow) !important; }
-.nature-shadow-lg { box-shadow: var(--nature-shadow-lg) !important; }
-.nature-shadow-none { box-shadow: none !important; }
+.nature-shadow {
+  box-shadow: var(--nature-shadow) !important;
+}
+.nature-shadow-lg {
+  box-shadow: var(--nature-shadow-lg) !important;
+}
+.nature-shadow-none {
+  box-shadow: none !important;
+}
 
 /* ======================
    ENHANCED CARD STYLES
@@ -207,9 +265,18 @@ body {
 }
 
 /* Button sizes */
-.nature-btn-sm { padding: 6px 12px; font-size: 12px; }
-.nature-btn-md { padding: 8px 16px; font-size: 14px; }
-.nature-btn-lg { padding: 12px 24px; font-size: 16px; }
+.nature-btn-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+.nature-btn-md {
+  padding: 8px 16px;
+  font-size: 14px;
+}
+.nature-btn-lg {
+  padding: 12px 24px;
+  font-size: 16px;
+}
 
 /* ======================
    ENHANCED FORM STYLES
@@ -262,7 +329,11 @@ body {
 }
 
 .nature-table thead {
-  background: linear-gradient(135deg, var(--nature-primary) 0%, var(--nature-primary-light) 100%);
+  background: linear-gradient(
+    135deg,
+    var(--nature-primary) 0%,
+    var(--nature-primary-light) 100%
+  );
   color: white;
 }
 
@@ -365,20 +436,20 @@ body {
     border-radius: var(--nature-radius);
     margin: 8px;
   }
-  
+
   .nature-card-body {
     padding: 16px;
   }
-  
+
   .nature-btn {
     width: 100%;
     justify-content: center;
   }
-  
+
   .nature-table {
     font-size: 12px;
   }
-  
+
   .nature-table th,
   .nature-table td {
     padding: 8px 12px;
@@ -390,7 +461,7 @@ body {
   .nature-card {
     margin: 12px;
   }
-  
+
   .nature-table {
     font-size: 13px;
   }
@@ -401,7 +472,7 @@ body {
   .nature-card:hover {
     transform: translateY(-4px);
   }
-  
+
   .nature-btn:hover {
     transform: translateY(-2px);
   }
@@ -433,11 +504,11 @@ body {
   .nature-card {
     border: 2px solid var(--nature-primary);
   }
-  
+
   .nature-btn {
     border: 2px solid currentColor;
   }
-  
+
   .nature-form-input {
     border: 2px solid var(--nature-text-primary);
   }
@@ -486,15 +557,15 @@ body {
     box-shadow: none;
     border: 1px solid #000;
   }
-  
+
   .nature-btn {
     border: 1px solid #000;
   }
-  
+
   .nature-gradient-primary,
   .nature-gradient-secondary,
   .nature-gradient-earth {
     background: #fff !important;
     color: #000 !important;
   }
-} 
+}

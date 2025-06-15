@@ -7,7 +7,7 @@ import { SearchOutlined } from '@ant-design/icons';
 
 export const searchKeys = {
   saleNo: null,
-  bookNo: null
+  bookNo: null,
 };
 
 const InitValue = {
@@ -28,7 +28,7 @@ const InitValue = {
     Installment: null,
     Equipment: null,
     Borrow: null,
-    overdueFines: null
+    overdueFines: null,
   },
   amtOthers: [],
   deductOthers: [],
@@ -37,17 +37,17 @@ const InitValue = {
   recordedBy: null,
   amtDuringDay: null,
   receiverDuringDay: 'KBN10002',
-  remark: null
+  remark: null,
 };
 
-export const getInitialValues = income => {
+export const getInitialValues = (income) => {
   if (income?.created) {
     return { ...income };
   }
   return {
     ...InitValue,
     // items: getInitialItems(income, mBranch),
-    incomeId: income?.incomeId
+    incomeId: income?.incomeId,
   };
 };
 
@@ -56,15 +56,19 @@ export const getSalesData = (sValues, isSaleNo) =>
     try {
       let mData = [];
       if (sValues?.saleNo && sValues.saleNo !== 'all') {
-        mData = await getSearchData('sections/sales/vehicles', { saleNo: sValues.saleNo }, ['saleNo', 'date']);
+        mData = await getSearchData(
+          'sections/sales/vehicles',
+          { saleNo: sValues.saleNo },
+          ['saleNo', 'date']
+        );
       }
       mData = mData
-        .filter(l => !['reservation', 'other'].includes(l.saleType))
+        .filter((l) => !['reservation', 'other'].includes(l.saleType))
         .map((item, id) => {
           let vehicleNo = [];
           let peripheralNo = [];
           item?.items &&
-            item.items.map(it => {
+            item.items.map((it) => {
               vehicleNo = !it.vehicleNo
                 ? vehicleNo
                 : Array.isArray(it.vehicleNo)
@@ -82,7 +86,7 @@ export const getSalesData = (sValues, isSaleNo) =>
             productCode: item.items[0].productCode,
             vehicleNo,
             peripheralNo,
-            id
+            id,
           };
         });
       r(mData);
@@ -91,18 +95,22 @@ export const getSalesData = (sValues, isSaleNo) =>
     }
   });
 
-export const getBookingData = sValues =>
+export const getBookingData = (sValues) =>
   new Promise(async (r, j) => {
     try {
       let mData = [];
       if (sValues?.bookNo && sValues.bookNo !== 'all') {
-        mData = await getSearchData('sections/sales/bookings', { bookNo: sValues.bookNo }, ['bookNo', 'date']);
+        mData = await getSearchData(
+          'sections/sales/bookings',
+          { bookNo: sValues.bookNo },
+          ['bookNo', 'date']
+        );
       }
       mData = mData.map((item, id) => {
         let vehicleNo = [];
         let peripheralNo = [];
         item?.items &&
-          item.items.map(it => {
+          item.items.map((it) => {
             vehicleNo = !it.vehicleNo
               ? vehicleNo
               : Array.isArray(it.vehicleNo)
@@ -122,7 +130,9 @@ export const getBookingData = sValues =>
           peripheralNo,
           id,
           refNo: item.bookNo,
-          salesPerson: Array.isArray(item.salesPerson) ? item.salesPerson : [item.salesPerson],
+          salesPerson: Array.isArray(item.salesPerson)
+            ? item.salesPerson
+            : [item.salesPerson],
           bookDate: item.date,
           amtReservation: item.total,
           amtDeposit: item.amtReceived,
@@ -130,7 +140,9 @@ export const getBookingData = sValues =>
           amtReceived: item.downPayment,
           depositPayments: item.payments,
           reservationDepositor: item.depositor,
-          bookingPerson: Array.isArray(item.bookingPerson) ? item.bookingPerson : [item.bookingPerson]
+          bookingPerson: Array.isArray(item.bookingPerson)
+            ? item.bookingPerson
+            : [item.bookingPerson],
         };
       });
       r(mData);
@@ -142,51 +154,55 @@ export const getBookingData = sValues =>
 export const RenderSearch = ({ type, geographic = null }) => {
   // showLog({ type });
   return (
-    <div className="border bg-light px-3 pt-3 mb-3">
+    <div className='border bg-light px-3 pt-3 mb-3'>
       <Row>
         {type !== 'reservation' && (
-          <Col md="6">
+          <Col md='6'>
             <Form.Item
-              name="saleNo"
+              name='saleNo'
               label={
-                <span className="text-muted">
-                  <SearchOutlined className="text-primary" /> ค้นหาจาก เลขที่ใบขายสินค้า/ชื่อลูกค้า
+                <span className='text-muted'>
+                  <SearchOutlined className='text-primary' /> ค้นหาจาก
+                  เลขที่ใบขายสินค้า/ชื่อลูกค้า
                   {'   '}
-                  <label className="text-warning">(ฝ่ายขายต้องบันทึกใบขายก่อน)</label>
+                  <label className='text-warning'>
+                    (ฝ่ายขายต้องบันทึกใบขายก่อน)
+                  </label>
                 </span>
               }
             >
               <DocSelector
-                collection="sections/sales/vehicles"
+                collection='sections/sales/vehicles'
                 orderBy={['saleNo', 'firstName']}
                 labels={['saleNo', 'firstName', 'lastName']}
-                size="small"
+                size='small'
                 hasKeywords
-                className="text-muted"
+                className='text-muted'
                 geographic={geographic}
                 respectRBAC={true}
               />
             </Form.Item>
           </Col>
         )}
-        <Col md="6">
+        <Col md='6'>
           <Form.Item
-            name="bookNo"
+            name='bookNo'
             label={
-              <span className="text-muted">
-                <SearchOutlined className="text-primary" /> ค้นหาจาก เลขที่ใบจอง/ชื่อลูกค้า{'   '}
+              <span className='text-muted'>
+                <SearchOutlined className='text-primary' /> ค้นหาจาก
+                เลขที่ใบจอง/ชื่อลูกค้า{'   '}
                 (ช่องนี้ใช้สำหรับ
-                <label className="text-danger">รับเงินจอง</label>เท่านั้น)
+                <label className='text-danger'>รับเงินจอง</label>เท่านั้น)
               </span>
             }
           >
             <DocSelector
-              collection="sections/sales/bookings"
+              collection='sections/sales/bookings'
               orderBy={['bookNo', 'firstName']}
               labels={['bookNo', 'firstName', 'lastName']}
-              size="small"
+              size='small'
               hasKeywords
-              className="text-muted"
+              className='text-muted'
               geographic={geographic}
               respectRBAC={true}
             />

@@ -1,42 +1,82 @@
 import React, { forwardRef, useState, memo } from 'react';
 import { isMobile } from 'react-device-detect';
 import classNames from 'classnames';
-import { InputGroup, DatePicker, InputGroupAddon, InputGroupText } from 'shards-react';
-import { registerLocale } from 'react-datepicker';
-import th from 'date-fns/locale/th';
+import { Input } from 'antd';
+import { CalendarOutlined } from '@ant-design/icons';
+import { DatePicker } from 'elements';
+import dayjs from 'dayjs';
+import 'dayjs/locale/th';
+
+// Custom Thai locale object compatible with dayjs
+const customThaiLocale = {
+  lang: {
+    placeholder: 'เลือกวันที่',
+    rangePlaceholder: ['วันที่เริ่มต้น', 'วันที่สิ้นสุด'],
+    today: 'วันนี้',
+    now: 'ตอนนี้',
+    backToToday: 'กลับไปวันนี้',
+    ok: 'ตกลง',
+    clear: 'ล้าง',
+    month: 'เดือน',
+    year: 'ปี',
+    timeSelect: 'เลือกเวลา',
+    dateSelect: 'เลือกวันที่',
+    monthSelect: 'เลือกเดือน',
+    yearSelect: 'เลือกปี',
+    decadeSelect: 'เลือกทศวรรษ',
+    yearFormat: 'YYYY',
+    dateFormat: 'D/M/YYYY',
+    dayFormat: 'D',
+    dateTimeFormat: 'D/M/YYYY HH:mm:ss',
+    monthBeforeYear: true,
+    previousMonth: 'เดือนก่อนหน้า (PageUp)',
+    nextMonth: 'เดือนถัดไป (PageDown)',
+    previousYear: 'ปีก่อนหน้า (Control + left)',
+    nextYear: 'ปีถัดไป (Control + right)',
+    previousDecade: 'ทศวรรษก่อนหน้า',
+    nextDecade: 'ทศวรรษถัดไป',
+    previousCentury: 'ศตวรรษก่อนหน้า',
+    nextCentury: 'ศตวรรษถัดไป',
+  },
+  timePickerLocale: {
+    placeholder: 'เลือกเวลา',
+  },
+};
 
 const MDatePicker = forwardRef((props, ref) => {
-  registerLocale('th', th);
-  const [date, setDate] = useState(new Date());
-  const { className, onDateChange, ...mProps } = props;
+  const [date, setDate] = useState(
+    props.selected ? dayjs(props.selected) : null
+  );
+  const { className, onDateChange, selected, ...mProps } = props;
 
-  const handleDateChange = value => {
-    setDate(new Date(value));
-    onDateChange(value);
+  const handleDateChange = (value) => {
+    setDate(value);
+    if (onDateChange) {
+      onDateChange(value ? value.toDate() : null);
+    }
   };
 
   const classes = classNames(className, 'd-flex', 'my-auto', 'date-range');
 
   return (
-    <InputGroup className={classes}>
+    <div className={classes}>
       <DatePicker
-        selected={date}
-        onChange={val => handleDateChange(val)}
-        placeholderText="วันที่"
-        dropdownMode="select"
-        className="text-center"
-        locale="th"
-        dateFormat="dd/MM/yyyy"
-        onFocus={e => isMobile && (e.target.readOnly = true)}
+        ref={ref}
+        value={selected ? dayjs(selected) : date}
+        onChange={handleDateChange}
+        placeholder='วันที่'
+        className='text-center'
+        locale={customThaiLocale}
+        format='DD/MM/YYYY'
+        suffixIcon={<CalendarOutlined />}
+        onFocus={(e) => isMobile && (e.target.readOnly = true)}
+        style={{ width: '100%' }}
         {...mProps}
       />
-      <InputGroupAddon type="append">
-        <InputGroupText>
-          <i className="material-icons">&#xE916;</i>
-        </InputGroupText>
-      </InputGroupAddon>
-    </InputGroup>
+    </div>
   );
 });
+
+MDatePicker.displayName = 'MDatePicker';
 
 export default memo(MDatePicker);

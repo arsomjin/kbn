@@ -4,6 +4,9 @@ import { Provider } from 'react-redux';
 import { persistStore } from 'redux-persist';
 import { PersistGate } from 'redux-persist/integration/react';
 import { I18nextProvider } from 'react-i18next';
+import { ConfigProvider } from 'antd';
+import dayjs from 'dayjs';
+import 'dayjs/locale/th';
 import NatureThemeProvider from './components/theme/NatureThemeProvider';
 import Navigation from './navigation';
 import Load from './elements/Load';
@@ -35,6 +38,46 @@ import i18n from './translations/i18n-enterprise';
 // 🚀 Super Admin Creation Script (Testing)
 import './create-super-admin';
 import './App.css';
+
+// 🔧 Configure dayjs as default for Ant Design
+dayjs.locale('th');
+
+// 🔧 CRITICAL FIX: Custom Thai locale for dayjs compatibility
+const thaiLocale = {
+  lang: {
+    locale: 'th_TH',
+    placeholder: 'เลือกวันที่',
+    rangePlaceholder: ['วันที่เริ่มต้น', 'วันที่สิ้นสุด'],
+    today: 'วันนี้',
+    now: 'ตอนนี้',
+    backToToday: 'กลับไปวันนี้',
+    ok: 'ตกลง',
+    clear: 'ล้าง',
+    month: 'เดือน',
+    year: 'ปี',
+    timeSelect: 'เลือกเวลา',
+    dateSelect: 'เลือกวันที่',
+    monthSelect: 'เลือกเดือน',
+    yearSelect: 'เลือกปี',
+    decadeSelect: 'เลือกทศวรรษ',
+    yearFormat: 'YYYY',
+    dateFormat: 'D/M/YYYY',
+    dayFormat: 'D',
+    dateTimeFormat: 'D/M/YYYY HH:mm:ss',
+    monthBeforeYear: true,
+    previousMonth: 'เดือนก่อนหน้า (PageUp)',
+    nextMonth: 'เดือนถัดไป (PageDown)',
+    previousYear: 'ปีก่อนหน้า (Control + left)',
+    nextYear: 'ปีถัดไป (Control + right)',
+    previousDecade: 'ทศวรรษก่อนหน้า',
+    nextDecade: 'ทศวรรษถัดไป',
+    previousCentury: 'ศตวรรษก่อนหน้า',
+    nextCentury: 'ศตวรรษถัดไป',
+  },
+  timePickerLocale: {
+    placeholder: 'เลือกเวลา',
+  },
+};
 
 export const store = configureStore();
 
@@ -99,16 +142,26 @@ const App = () => {
         persistor={persistor}
         onBeforeLift={onBeforeLift}
       >
-        <I18nextProvider i18n={i18n}>
-          <ErrorBoundary>
-            <NatureThemeProvider>
-              <EnterKeyNavigationProvider>
-                <Navigation />
-                <EventEmitter />
-              </EnterKeyNavigationProvider>
-            </NatureThemeProvider>
-          </ErrorBoundary>
-        </I18nextProvider>
+        <ConfigProvider
+          locale={thaiLocale}
+          theme={{
+            token: {
+              colorPrimary: '#52c41a',
+              borderRadius: 6,
+            },
+          }}
+        >
+          <I18nextProvider i18n={i18n}>
+            <ErrorBoundary>
+              <NatureThemeProvider>
+                <EnterKeyNavigationProvider>
+                  <Navigation />
+                  <EventEmitter />
+                </EnterKeyNavigationProvider>
+              </NatureThemeProvider>
+            </ErrorBoundary>
+          </I18nextProvider>
+        </ConfigProvider>
       </PersistGate>
     </Provider>
   );

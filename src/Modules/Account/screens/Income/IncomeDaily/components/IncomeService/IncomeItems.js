@@ -1,48 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import moment from 'moment';
+import dayjs from 'dayjs';
 import EditableRowTable from 'components/EditableRowTable';
 import { showWarn } from 'functions';
 import { tableScroll } from 'data/Constant';
+import { Form, Input, Select, Button } from 'antd';
+import { getRules } from 'api/Table';
+import { Numb } from 'functions';
+
+const { Option } = Select;
 
 const initItem = {
   item: '',
   description: '',
   status: 'Complete',
-  _key: ''
+  _key: '',
 };
 
 const IncomeItems = ({ incomeId, items, onChange, disabled }) => {
   const [data, setData] = useState([]);
+  const [form] = Form.useForm();
 
   useEffect(() => {
-    let initData = items.map((l, i) => ({ ...l, id: i, key: i }));
-    setData(initData);
+    if (items && items.length > 0) {
+      setData(items.map((item, index) => ({ ...item, key: index, id: index })));
+    } else {
+      setData([]);
+    }
   }, [items]);
 
-  const onAddNewItem = async dArr => {
+  const onAddNewItem = async () => {
     try {
-      const lastNo = parseInt(Math.floor(Math.random() * 10000));
-      const padLastNo = ('0'.repeat(3) + lastNo).slice(-5);
-      const incomeItemId = `INV-SV-ITEM${moment().format('YYYYMMDD')}${padLastNo}`;
+      const lastNo = items.length || 0;
+      const padLastNo = String(lastNo + 1).padStart(3, '0');
+      const incomeItemId = `INV-SV-ITEM${dayjs().format('YYYYMMDD')}${padLastNo}`;
 
       let newItem = {
-        ...initItem,
         incomeItemId,
         incomeId,
-        key: dArr.length,
-        id: dArr.length
+        key: items.length,
+        id: items.length,
       };
-      const nData = [...dArr, newItem];
-      onUpdateItem(nData);
+      const nData = [...items, newItem];
+      onChange(nData);
     } catch (e) {
       showWarn(e);
     }
   };
 
-  const onDeleteItem = async dKey => {
+  const onDeleteItem = async (dKey) => {
     try {
       let nData = [...data];
-      nData = nData.filter(l => l.key !== dKey);
+      nData = nData.filter((l) => l.key !== dKey);
       nData = nData.map((l, n) => ({ ...l, key: n, id: n }));
       onUpdateItem(nData);
     } catch (e) {
@@ -50,7 +58,7 @@ const IncomeItems = ({ incomeId, items, onChange, disabled }) => {
     }
   };
 
-  const onUpdateItem = async dArr => {
+  const onUpdateItem = async (dArr) => {
     try {
       //  showLog({ dArr });
       // setData(dArr);
@@ -65,14 +73,14 @@ const IncomeItems = ({ incomeId, items, onChange, disabled }) => {
       title: 'ลำดับที่',
       dataIndex: 'id',
       ellipsis: true,
-      align: 'center'
+      align: 'center',
     },
     {
       title: 'รายการ',
       dataIndex: 'item',
       editable: !disabled,
-      required: true
-    }
+      required: true,
+    },
   ];
 
   return (
@@ -86,7 +94,7 @@ const IncomeItems = ({ incomeId, items, onChange, disabled }) => {
       disabled={disabled}
       miniAddButton
       pagination={false}
-      size="small"
+      size='small'
     />
   );
 };
